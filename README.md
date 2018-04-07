@@ -19,8 +19,9 @@ advice, they or their parents have to:</br>
 (one for each teacher), and write down the name, subject, class and telephone number of the student in a timetable, 
 manually drawn by their teacher before.</br>
 2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
-</br></br>
-There is no surprise if some issues are arising with such an appointment making process:</br>
+
+</br>
+There is no surprise if some issues arise with such an appointment making process:</br>
  * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
 present at the school to set the time of the visit;</br>
  * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
@@ -39,7 +40,8 @@ appropriate papers or trying to pass their tests with wrong ones;</br>
  * there is no other way to get to know about test results except personally meeting a teacher thus multiplying 
 unnecessary visits to the school;</br>
  * and so on.
- </br>
+</br>
+
 ## Purpose and scope
 This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is going to:
  * give the teachers modern tools to do their job in most effective way;
@@ -82,7 +84,9 @@ RESTful microservices:
  * Teacher's assistant: test preparation lists, learning materials and plans organizer
  * Student's time planner based on records from Visits scheduler -- E.Diary
 </br>
+
 #### front-end
+
 client side UI
 
 ### Environmental requirements
