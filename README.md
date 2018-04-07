@@ -1,8 +1,8 @@
 # visit planner
 
 This is an OSS project to facilitate process of plannig visits to school for the students, their parents and teachers.
-At this moment before you meet the teacher at the school you have to:
-1. Visit the school and use one of notebooks, placed on the secretary's table (one for each teacher), to write down the name of the student in the table, previously drawn by the teacher providing consultations. 
+At this moment before you come to a teacher at the school you have to:
+1. Visit the school and use one of paper notebooks, placed on the secretary's table (one for each teacher), to write down the name of the student in the table, previously drawn by the teacher providing consultations. 
 2. Or you can call the school and ask the secretary to do for you the work described above.
 There are a lot of issues arising with such an appointment making process:
 * it's not automated, offline and requres anybody (you or the school secretary) to be phisically present at the school;
