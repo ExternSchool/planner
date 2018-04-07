@@ -1,24 +1,55 @@
 # visit planner
 
-<a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Kiev Extern School</a> is a general education state school, which offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education (all three levels of accreditation), located in Kiev, Ukraine.</br>
-The school has highly qualified and progressive-minded staff but being state funded is not able to cover all expences required to modernize learning process, moving it online and automating routine procedures. At this moment before the children come to meet their teacher at the school to discuss something or to get advice they or thier parents have to:</br>
-1. Visit the school, take one of numerous paper notebooks, placed in the box on the secretary's table (one for each teacher), and write down the name of the student in a timetable, manually drawn by their teacher.</br>
-2. As an option to a personal visit you can call the school and ask the secretary to do that job for you.</br>
-There are a some issues arising with such an appointment making process:
- * it's not automated and offline, so it requres students/their parents/school secretary to be phisically present at the school to set the time of the visit;
- * teachers' schedules are not fixed and time to time they need to be manually arranged, so often you can find in the teacher's notebook no tables for the dates you are interested in, or there is no vacant place in the tables present; this way you can do nothing at all, just waiting while the teacher finishes planning their meetings for the next period of time; the planning horizon is very short and sometimes unpredictable;
- * occasionally parents/their student children have to waste their time making extra visits just because they were unable to coordinate their visits with more than one teachers, who are present at the school, but busy with other appointments scheduled for the time when the student comes;
- * the same story happens when the students write their tests: their places have to be reserved beforehand, so the teachers could prepare test materials; sometimes teachers mistakenly print out wrong papers and young students receive extra troubles waiting for appropriate papers or trying to pass their tests with wrong ones;
- * there is no other way to get to know about test results except personally meet a teacher thus multiplying unnecessary visits to the school;
+<a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
+located in Kiev, Ukraine. 
+The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
+highest quality standards complying with licensing requirements and conditions for all three levels of accreditation 
+according to the Ukrainian law.</br>
+Hundreds of talented Ukrainian children receive here an ability to get secondary education while being young professional 
+artists, musicians, sportsmen. Physically disabled, ill, as well as children who spend a lot of time with their parents 
+abroad, study here too. A lot of kids complete their secondary school in shortened terms, becoming the youngest students 
+of their universities. </br>
+The school has highly qualified and progressive-minded staff, last years has been equipped with modern computers, 
+but being state funded is not able to cover all expenses required to modernize learning process, moving it online and 
+automate routine procedures. </br>
+The abilities of the school are greatly limited by the lack of modern digital management tools. 
+For example, at this moment before the children come to meet their teachers at the school to discuss something or to get 
+advice, they or their parents have to:</br>
+1. Personally visit the school, take one of numerous paper notebooks, placed in the box on the secretary's table 
+(one for each teacher), and write down the name, subject, class and telephone number of the student in a timetable, 
+manually drawn by their teacher before.</br>
+2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
+</br>
+There is no surprise if some issues are arising with such an appointment making process:
+ * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
+ present at the school to set the time of the visit;
+ * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
+ in the teacher's notebook there is no timetable for the dates when the students are able to visit the school or the 
+ timetable is filled out for the time they are ready to; 
+ * waiting while a teacher finishes manual planning their meetings for the next period of time, personally coordinating 
+ it with dozens of their students and their parents, makes planning horizon very short and sometimes unpredictable, 
+ hardly motivating self-studying children;
+ * occasionally parents/their student children have to waste a lot of their time making extra visits just because they 
+ were unable to coordinate their visits with more than one teacher of being present at the school, but busy with other 
+ appointments scheduled for the time when the student comes;
+ * the same story happens when the students write their tests: the places have to be reserved beforehand to let the 
+ teachers be able to prepare everything needed for the test; sometimes teachers mistakenly print out wrong test papers 
+  (you should try to understand those manually filled forms!) and young students receive extra troubles waiting for 
+  appropriate papers or trying to pass their tests with wrong ones;
+ * there is no other way to get to know about test results except personally meeting a teacher thus multiplying 
+ unnecessary visits to the school;
  * and so on.
  
 ## Purpose and scope
 This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is going to:
- * facilitate the process of scheduling school visits for the young students, their parents, teachers and school administration;
- * let the hosts organize and modify their timetables in the most effective way, providing support and notification to all dependent persons;
- * let the students and their parents widen time planning horizon, reducing time and efforts to settle meetings with their teachers and school administration;
+ * give the teachers modern tools to do their job in most effective way;
+ * facilitate the process of scheduling school visits for the young students, their parents, teachers and school 
+ administration;
+ * let the hosts manage their timetables organizing and modifying them in the most effective way, providing support and 
+ notification to every dependent person;
+ * let the students and their parents better organize their learning, widening time planning horizon, reducing time and 
+ efforts to settle meetings with their teachers and school administration;
  * 
- 
  * provide effective tools to coordinate parents community;
  
 </br>
