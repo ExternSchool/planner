@@ -5,6 +5,7 @@ This is an OSS project to facilitate process of plannig visits to the school for
 At this moment before you come to get a consultation from a teacher at the school you have to:
 1. Visit the school and use one of paper notebooks, placed on the secretary's table (one for each teacher), to write down the name of the student in the table, previously drawn by your teacher. 
 2. Or you can call the school and ask the secretary to do for you the work described above.
+</br>
 There are a lot of issues arising with such an appointment making process:
 * it's not automated, offline and requres anybody (you or the school secretary) to be phisically present at the school;
 * teachers' schedules are not fixed and time to time they need to be manually arranged, so often in the teacher's notebook you can find no tables for the dates you are interested in, or there are no vacant places in the tables present; this way you can't plan anything at all, waiting while the teacher finishes planning their meetings for the next period of time;
