@@ -21,7 +21,9 @@ manually drawn by their teacher before.</br>
 2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
 
 </br>
-There is no surprise if some issues arise with such an appointment making process:</br>
+There is no surprise if some issues arise with such an appointment making process:
+</br>
+
  * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
 present at the school to set the time of the visit;</br>
  * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
