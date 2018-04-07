@@ -19,25 +19,25 @@ advice, they or their parents have to:</br>
 (one for each teacher), and write down the name, subject, class and telephone number of the student in a timetable, 
 manually drawn by their teacher before.</br>
 2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
-</br>
+</br></br>
 There is no surprise if some issues are arising with such an appointment making process:</br>
  * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
- present at the school to set the time of the visit;</br>
+present at the school to set the time of the visit;</br>
  * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
- in the teacher's notebook there is no timetable for the dates when the students are able to visit the school or the 
- timetable is filled out for the time they are ready to; </br>
+in the teacher's notebook there is no timetable for the dates when the students are able to visit the school or the 
+timetable is filled out for the time they are ready to; </br>
  * waiting while a teacher finishes manual planning their meetings for the next period of time, personally coordinating 
- it with dozens of their students and their parents, makes planning horizon very short and sometimes unpredictable, 
- hardly motivating self-studying children;</br>
+it with dozens of their students and their parents, makes planning horizon very short and sometimes unpredictable, 
+hardly motivating self-studying children;</br>
  * occasionally parents/their student children have to waste a lot of their time making extra visits just because they 
- were unable to coordinate their visits with more than one teacher of being present at the school, but busy with other 
- appointments scheduled for the time when the student comes;</br>
+were unable to coordinate their visits with more than one teacher of being present at the school, but busy with other 
+appointments scheduled for the time when the student comes;</br>
  * the same story happens when the students write their tests: the places have to be reserved beforehand to let the 
- teachers be able to prepare everything needed for the test; sometimes teachers mistakenly print out wrong test papers 
-  (you should try to understand those manually filled forms!) and young students receive extra troubles waiting for 
-  appropriate papers or trying to pass their tests with wrong ones;</br>
+teachers be able to prepare everything needed for the test; sometimes teachers mistakenly print out wrong test papers 
+ (you should try to understand those manually filled forms!) and young students receive extra troubles waiting for 
+appropriate papers or trying to pass their tests with wrong ones;</br>
  * there is no other way to get to know about test results except personally meeting a teacher thus multiplying 
- unnecessary visits to the school;</br>
+unnecessary visits to the school;</br>
  * and so on.
  </br>
 ## Purpose and scope
