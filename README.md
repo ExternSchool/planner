@@ -1,60 +1,165 @@
 # visit planner
 
-<a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Kiev Extern School</a> is a general education state school, which offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education (all three levels of accreditation), located in Kiev, Ukraine.</br>
-The school has highly qualified and progressive-minded staff but being state funded is not able to cover all expences required to modernize learning process, moving it online and automating routine procedures. At this moment before the children come to meet their teacher at the school to discuss something or to get advice they or thier parents have to:</br>
-1. Visit the school, take one of numerous paper notebooks, placed in the box on the secretary's table (one for each teacher), and write down the name of the student in a timetable, manually drawn by their teacher.</br>
-2. As an option to a personal visit you can call the school and ask the secretary to do that job for you.</br>
-There are a some issues arising with such an appointment making process:
- * it's not automated and offline, so it requres students/their parents/school secretary to be phisically present at the school to set the time of the visit;
- * teachers' schedules are not fixed and time to time they need to be manually arranged, so often you can find in the teacher's notebook no tables for the dates you are interested in, or there is no vacant place in the tables present; this way you can do nothing at all, just waiting while the teacher finishes planning their meetings for the next period of time; the planning horizon is very short and sometimes unpredictable;
- * occasionally parents/their student children have to waste their time making extra visits just because they were unable to coordinate their visits with more than one teachers, who are present at the school, but busy with other appointments scheduled for the time when the student comes;
- * the same story happens when the students write their tests: their places have to be reserved beforehand, so the teachers could prepare test materials; sometimes teachers mistakenly print out wrong papers and young students receive extra troubles waiting for appropriate papers or trying to pass their tests with wrong ones;
- * there is no other way to get to know about test results except personally meet a teacher thus multiplying unnecessary visits to the school;
+<a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
+located in Kiev, Ukraine.</br>
+The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
+highest quality standards complying with licensing requirements and conditions for all three levels of accreditation 
+according to the Ukrainian law.</br>
+Hundreds of talented Ukrainian children receive here an ability to get secondary education while being young professional 
+artists, musicians, sportsmen. Physically disabled, ill, as well as children who spend a lot of time with their parents 
+abroad, study here too. A lot of kids complete their secondary school in shortened terms, becoming the youngest students 
+of their universities.</br>
+The school has highly qualified and progressive-minded staff, last years has been equipped with modern computers, 
+but being state funded is not able to cover all expenses required to develop specialized software to modernize learning 
+process.</br>
+The abilities of the school are greatly limited by the lack of contemporary digital management tools. For example, 
+at this moment before the children come to meet their teachers at the school to discuss something or to get advice, they 
+or their parents have to:</br>
+1. Personally visit the school, take one of numerous paper notebooks, placed in the box on the secretary's table 
+(one for each teacher), and write down the name, subject, class and telephone number of the student in a timetable, 
+manually drawn by their teacher before.</br>
+2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
+
+There is no surprise if some issues arise with such an appointment making process:
+ * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
+present at the school to set the time of the visit;</br>
+ * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
+in the teacher's notebook there is no timetable for the dates when the students are able to visit the school or the 
+timetable is filled out for the time they are ready to; </br>
+ * waiting while a teacher finishes manually planning their meetings for the next period of time, sometimes personally 
+coordinating it with dozens of their students and their parents, makes planning horizon very short and unpredictable, 
+hardly motivating self-studying children;</br>
+ * occasionally parents/their student children have to waste a lot of their time making extra visits just because they 
+were unable to coordinate their visits with more than one teacher of being present at the school, but busy with other 
+appointments scheduled for that time;</br>
+ * the same story happens when the students write their tests: the places have to be reserved beforehand to let the 
+teachers be able to prepare everything needed for the test; sometimes teachers mistakenly print out wrong test papers 
+ (you should try to understand those manually filled forms!) and young students receive extra troubles waiting for 
+appropriate papers or trying to pass their tests with wrong ones;</br>
+ * there is no other way to get to know about test results except personally meeting a teacher thus multiplying 
+unnecessary visits to the school;</br>
  * and so on.
- 
+</br>
+
 ## Purpose and scope
 This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is going to:
- * facilitate the process of scheduling school visits for the young students, their parents, teachers and school administration;
- * let the hosts organize and modify their timetables in the most effective way, providing support and notification to all dependent persons;
- * let the students and their parents widen time planning horizon, reducing time and efforts to settle meetings with their teachers and school administration;
- * 
- 
- * provide effective tools to coordinate parents community;
- 
+ * give the teachers modern tools to do their job in most effective way;
+ * facilitate the process of scheduling school visits for the young students, their parents, teachers and school 
+ administration;
+ * let the teachers elaborate their timetables, organizing, quickly and easy modifying them if such need arises, 
+ automatically providing support and notifying every dependent person;
+ * let the students and their parents optimize their learning process, widening time planning horizon, reducing their 
+ efforts to settle and take meetings with their teachers and school administration;
+ * give the teachers tools to organize students' tests automatically forming suitable papers to print them out;
+ * optionally provide effective tools to coordinate parents community, later adding appropriate features on the basis 
+ of the databases formed;
 </br>
 
 ## Stakeholders
-#### Hosts:
-1. Administration and support personnel: the principal, vice-principals, psychologist.
-2. Teachers.
-#### Visitors:
-3. Students.
-4. Students parents.
-
+### Hosts:
+#### Administration and assistant persons: 
+ * the principal - receives actual, former and future students and their parents, as well as other visitors, receives 
+ primary documents and enrolls students to the school;
+ * vice-principals - meet actual students and their parents, coordinate individual study plans, receive filled 
+ application forms, medical certificates, other documents, supply students' gradebooks, individual study plans etc;
+ * the psychologist - meets actual and future students, their parents;
+ * administrator-in-charge - prepares and prints out students test forms according to the list of the students taking
+ their tests, meets the students, organizes and conducts test session;
+ * the head of the school parents' committee, heads of class parents' committees meet students' parents;
+ 
+#### Teachers:
+ * prepare study materials and test forms;
+ * meet students to consult them on the study subjects according to their appointments;
+ * as a result of students' interviews give them permissions to pass their tests;
+ * check out the results of the tests passed;
+ * evaluate and grade students performance;
+ 
+### Visitors:
+#### Students
+ * study at home their school courses self-paced in correspondence with their study plans;
+ * visit their school teachers for consultations according to their settled individual plans;
+ * pass their tests and interviews to complete their studying;
+ 
+#### Parents of the Students
+ * apply to the school for the student's enrollment, deal with their documents;
+ * coordinate with administration study plans for their students;
+ * organize and manage their children studying process;
+ 
 ## Requirements
 ### Functional Requirements. User stories
 This project has to provide the following features:</br>
- 1. schedule reception time for the principal, vice-principals, psychologist;
- 2. set for a lond period of time (semester or two) each teacher's usual schedule, specifying the time when they are present at school and ready to meet their students; later could be added appropriate rooms occupation arrangement;</br>
- * hosts may have a possibility to adjust predefined schedule if such a necessity arises (illness, vacations so on); 
- * optional: provide automated notification to the visitors (email, sms etc.);
- 
+ * schedule reception time for the principal, vice-principals, psychologist;
+ * set for a long period of time (semester or two) every teacher's usual routines, specifying the time when they are 
+ present at school and ready to meet their students; 
+ * hosts may have possibilities to adjust predefined schedule if such a necessity arises (illness, vacations so on); 
+ * if hosts make changes to their timetables, visitors should be automatically notified by email, sms etc.;
+ * hosts should be able to survey their visitors list, time slots available and occupied to plan their workload better;
+ * every record should supply the following information about the visit: date, time, name of the student, family name, 
+ class, discipline/course, email, telephone number;
+ * any person, who uses this service, should be able to access timetables of the principal and psychologist and make 
+ their appointments without any preliminary registration;
+ * every student/their parents
+ * visitors may have an ability to examine the schedule of their hosts, selecting suitable time for their visits;
+ * visitors may have a possibility to cancel their appointment, thus the cleared time slot has to be available for other 
+ reservations;
+ * if all the slots are occupied it should be provided an ability to enqueue a visitor for a notification sent when any 
+ appointment will be cancelled;
+ * some sort of gamification could be used to motivate students and their parents to follow an established schedule, 
+ make and cancel their appointments beforehand; for example, they could receive some points every time when they come 
+ to school exactly when it was appointed; those score points could affect time slot availability notification queue, 
+ informing first the students who have most score points; or some reservation quotas could be established for the most 
+ punctual students, competitions could be organized and so on; 
 </br>
 
 ### Usability requirements
+ * easy to use
+ * safe
+ * fun
+ * provide Continuous Usability Testing
 
-### Technical requirements (e.g. security, network, platform, integration, client)
+### Technical requirements 
+
 #### back-end
-RESTful microservices:
- * Visits scheduler
- * Tests and learning plans: learning progress, achievements and tests results -- E.Registrar
+ESTful microservices:
+ * Visit planner
+ * Elecrtonic Registrar: learning progress, achievements, tests results...
  * Teacher's assistant: test preparation lists, learning materials and plans organizer
- * Student's time planner based on records from Visits scheduler -- E.Diary
+ * Elecrtonic Diary. Student's time planner based on records from Visit planner
 </br>
-#### front-end
-client side UI
+
+Probably MongoDB database with Spring Data REST?:
+ * class: ... subjects: ... teachers, hours_consulting, tests...
+ * staff: name, mail, phone #, disciplines/positions held, room # ...
+ * students: name, mail, phone #, class ...
+ * meetings ... dates, entities ...
+ * TBD a lot, we need an architect
+
+##### security
+ * Spring Security
+ * tokens?
+
+##### network
+REST over http/https
+
+##### platform
+ * back-end - Java 8, Spring Boot 2
+ * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
+
+##### integration
+using REST over HTTP
+
+##### client
+ * HTTP client
+ * HTML5 based UI 
+ * Thymeleaf templates?
 
 ### Environmental requirements
+ * russian/ukrainian localization
+ * Ukrainian holidays
+
 ### Support requirements
-### Interaction requirements (e.g. how the product should work with other systems)
+ * service should not require frequent maintainance
+ 
+### Interaction requirements 
+how the product should work with other systems
 
