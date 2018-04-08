@@ -2,28 +2,25 @@
 
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
 located in Kiev, Ukraine.</br>
-<br> 
 The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
 highest quality standards complying with licensing requirements and conditions for all three levels of accreditation 
 according to the Ukrainian law.</br>
-<br>Hundreds of talented Ukrainian children receive here an ability to get secondary education while being young professional 
+Hundreds of talented Ukrainian children receive here an ability to get secondary education while being young professional 
 artists, musicians, sportsmen. Physically disabled, ill, as well as children who spend a lot of time with their parents 
 abroad, study here too. A lot of kids complete their secondary school in shortened terms, becoming the youngest students 
 of their universities.</br>
-<br>The school has highly qualified and progressive-minded staff, last years has been equipped with modern computers, 
+The school has highly qualified and progressive-minded staff, last years has been equipped with modern computers, 
 but being state funded is not able to cover all expenses required to develop specialized software to modernize learning 
 process.</br>
-<br>The abilities of the school are greatly limited by the lack of contemporary digital management tools. 
-For example, at this moment before the children come to meet their teachers at the school to discuss something or to get 
-advice, they or their parents have to:</br>
+The abilities of the school are greatly limited by the lack of contemporary digital management tools. For example, 
+at this moment before the children come to meet their teachers at the school to discuss something or to get advice, they 
+or their parents have to:</br>
 1. Personally visit the school, take one of numerous paper notebooks, placed in the box on the secretary's table 
 (one for each teacher), and write down the name, subject, class and telephone number of the student in a timetable, 
 manually drawn by their teacher before.</br>
 2. As an option to a personal visit it is possible to call the school and... ask the secretary to do that job for you.
-</br>
-<br><br>There is no surprise if some issues arise with such an appointment making process:
-</br>
 
+There is no surprise if some issues arise with such an appointment making process:
  * it is absolutely manually handled and offline, so it requires students/their parents/school secretary to be physically 
 present at the school to set the time of the visit;</br>
  * teachers' schedules are not long-time fixed and time to time need to be manually arranged, so often you can find that 
@@ -112,22 +109,25 @@ This project has to provide the following features:</br>
  to school exactly when it was appointed; those score points could affect time slot availability notification queue, 
  informing first the students who have most score points; or some reservation quotas could be established for the most 
  punctual students, competitions could be organized and so on; 
- 
 </br>
 
 ### Usability requirements
+ * easy to use
+ * safe
+ * fun
+ * provide Continuous Usability Testing
 
 ### Technical requirements 
 
 #### back-end
-RESTful microservices:
- * Visits scheduler
+ESTful microservices:
+ * Visit planner
  * Elecrtonic Registrar: learning progress, achievements, tests results...
  * Teacher's assistant: test preparation lists, learning materials and plans organizer
- * E.Diary. Student's time planner based on records from Visits scheduler
+ * Elecrtonic Diary. Student's time planner based on records from Visit planner
 </br>
 
-Probably noSQL database collections: </br>
+Probably MongoDB database with Spring Data REST?:
  * class: ... subjects: ... teachers, hours_consulting, tests...
  * staff: name, mail, phone #, disciplines/positions held, room # ...
  * students: name, mail, phone #, class ...
@@ -135,20 +135,31 @@ Probably noSQL database collections: </br>
  * TBD a lot, we need an architect
 
 ##### security
+ * Spring Security
+ * tokens?
 
 ##### network
 REST over http/https
 
 ##### platform
+ * back-end - Java 8, Spring Boot 2
+ * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
 
 ##### integration
+using REST over HTTP
 
 ##### client
-HTTP client
-UI 
+ * HTTP client
+ * HTML5 based UI 
+ * Thymeleaf templates?
 
 ### Environmental requirements
+ * russian/ukrainian localization
+ * Ukrainian holidays
+
 ### Support requirements
+ * service should not require frequent maintainance
+ 
 ### Interaction requirements 
 how the product should work with other systems
 
