@@ -98,7 +98,7 @@ This project has to provide the following features:</br>
  class, discipline/course, email, telephone number;
  * any person, who uses this service, should be able to access timetables of the principal and psychologist and make 
  their appointments without any preliminary registration;
- * every student/their parents
+ * hosts and visitors have to be registered, their registration has to be confirmed before they receive full rights;
  * visitors may have an ability to examine the schedule of their hosts, selecting suitable time for their visits;
  * visitors may have a possibility to cancel their appointment, thus the cleared time slot has to be available for other 
  reservations;
@@ -120,23 +120,25 @@ This project has to provide the following features:</br>
 ### Technical requirements 
 
 #### back-end
-ESTful microservices:
- * Visit planner
- * Elecrtonic Registrar: learning progress, achievements, tests results...
- * Teacher's assistant: test preparation lists, learning materials and plans organizer
- * Elecrtonic Diary. Student's time planner based on records from Visit planner
+RESTful microservices:
+ * Visit Planner
+TBD later:
+ * Electronic Registrar: learning progress, achievements, store tests results, grades...
+ * Teacher's Assistant: test preparation lists, learning materials and plans organizer
+ * Electronic Diary. Student's time planner based on the records from Visit Planner DB
 </br>
 
-Probably MongoDB database with Spring Data REST?:
- * class: ... subjects: ... teachers, hours_consulting, tests...
- * staff: name, mail, phone #, disciplines/positions held, room # ...
- * students: name, mail, phone #, class ...
- * meetings ... dates, entities ...
- * TBD a lot, we need an architect
+Database Entities (not finished):
+ * host: *hostId, first name, middle name, family name, mail, phone number, position/subjects taught, room number, timeslots
+ * visitor: *visitorId, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
+ * unverified visitor: *visitorId, first name, middle name, family name, mail, phone number
+ * timeslot: *timeslotId, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
+ * appointment: *appointmentId, hostId, timeslotId, visitorId
+ * ...
 
 ##### security
  * Spring Security
- * tokens?
+ * SSO/tokens?
 
 ##### network
 REST over http/https
@@ -145,8 +147,18 @@ REST over http/https
  * back-end - Java 8, Spring Boot 2
  * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
 
-##### integration
-using REST over HTTP
+##### Visit Planner API
+ * POST     /hosts                                              - Admin only
+ * GET      /hosts
+ * GET      /hosts/{hostId}
+ * DELETE   /hosts/{hostId}                                     - Admin only
+ * GET      /hosts/{hostId}/timeslots
+ * POST     /hosts/{hostId}/timeslots                           - Admin/Host only
+ * DELETE   /hosts/{hostId}/timeslots/{timeslotId}              - Admin/Host only
+ * GET      /hosts/{hostId}/timeslots/{timeslotId}/appointments
+ * GET      /visitors/{visitorId}/appointments
+ * POST     /visitors/{visitorId}/appointments
+ * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
 
 ##### client
  * HTTP client
