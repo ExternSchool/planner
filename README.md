@@ -176,12 +176,12 @@ REST over http/https
  GET    | /hosts/{hostId}                                     |    x    |    x    |    x    |    x
  DELETE | /hosts/{hostId}                                     |    x    |         |         | 
  GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
- POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
- DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
+ POST   | /hosts/{hostId}/timeslots                           |         |    x    |         | 
+ DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |         |    x    |         | 
  GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
  GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
- POST   | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |     
- DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |      
+ POST   | /visitors/{visitorId}/appointments                  |         |         |    x    |     
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
  **to be discussed*
 
 ##### client
