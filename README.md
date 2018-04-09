@@ -119,19 +119,26 @@ This project has to provide the following features:</br>
 
 ### Technical requirements 
 
-#### back-end
-RESTful microservices:
+#### User Groups
+ * Admins
+ * Hosts - school administration, teachers, other staff, heads of parents committees 
+ * Visitors - registered and verified students
+ * Guests - registered but unverified users, everyone else, mostly parents
+
+#### RESTful microservices
+This project:
  * Visit Planner
-TBD later:
+ 
+Future projects:
  * Electronic Registrar: learning progress, achievements, store tests results, grades...
  * Teacher's Assistant: test preparation lists, learning materials and plans organizer
  * Electronic Diary. Student's time planner based on the records from Visit Planner DB
 </br>
 
-Database Entities (not finished):
+#### Database Entities:
  * host: *hostId, first name, middle name, family name, mail, phone number, position/subjects taught, room number, timeslots
  * visitor: *visitorId, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
- * unverified visitor: *visitorId, first name, middle name, family name, mail, phone number
+ * guest: *visitorId, first name, middle name, family name, mail, phone number
  * timeslot: *timeslotId, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
  * appointment: *appointmentId, hostId, timeslotId, visitorId
  * ...
@@ -148,17 +155,32 @@ REST over http/https
  * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
 
 ##### Visit Planner API
- * POST     /hosts                                              - Admin only
+ * POST     /hosts                                              
  * GET      /hosts
  * GET      /hosts/{hostId}
- * DELETE   /hosts/{hostId}                                     - Admin only
+ * DELETE   /hosts/{hostId}                                    
  * GET      /hosts/{hostId}/timeslots
- * POST     /hosts/{hostId}/timeslots                           - Admin/Host only
- * DELETE   /hosts/{hostId}/timeslots/{timeslotId}              - Admin/Host only
+ * POST     /hosts/{hostId}/timeslots                           
+ * DELETE   /hosts/{hostId}/timeslots/{timeslotId}              
  * GET      /hosts/{hostId}/timeslots/{timeslotId}/appointments
  * GET      /visitors/{visitorId}/appointments
  * POST     /visitors/{visitorId}/appointments
  * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
+ 
+ ##### API Rights 
+ Method |                            URI                      |  Admin  |  Host   | Visitor | Guest
+ ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
+ POST   | /hosts                                              |    x    |         |         | 
+ GET    | /hosts                                              |    x    |    x    |    x    |    x
+ GET    | /hosts/{hostId}                                     |    x    |    x    |    x    |    x
+ DELETE | /hosts/{hostId}                                     |    x    |         |         | 
+ GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
+ POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
+ DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
+ GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
+ GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
+ POST   | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |    
 
 ##### client
  * HTTP client
