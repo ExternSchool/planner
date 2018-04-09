@@ -96,9 +96,8 @@ This project has to provide the following features:</br>
  * hosts should be able to survey their visitors list, time slots available and occupied to plan their workload better;
  * every record should supply the following information about the visit: date, time, name of the student, family name, 
  class, discipline/course, email, telephone number;
- * any person, who uses this service, should be able to access timetables of the principal and psychologist and make 
- their appointments without any preliminary registration;
- * every student/their parents
+ * anyone, who uses this service, should be able to access timetables of hosts without any registration;
+ * hosts and visitors have to be registered, their registration has to be confirmed before they receive full rights;
  * visitors may have an ability to examine the schedule of their hosts, selecting suitable time for their visits;
  * visitors may have a possibility to cancel their appointment, thus the cleared time slot has to be available for other 
  reservations;
@@ -119,24 +118,35 @@ This project has to provide the following features:</br>
 
 ### Technical requirements 
 
-#### back-end
-ESTful microservices:
- * Visit planner
- * Elecrtonic Registrar: learning progress, achievements, tests results...
- * Teacher's assistant: test preparation lists, learning materials and plans organizer
- * Elecrtonic Diary. Student's time planner based on records from Visit planner
+#### User Groups
+ * Admins
+ * Hosts - school administration, teachers, other staff, heads of parents committees 
+ * Visitors - registered and verified students
+ * Guests - registered but unverified users, everyone else, mostly parents
+
+#### RESTful microservices
+This project:
+ * Visit Planner
+ 
+Future projects:
+ * Electronic Registrar: learning progress, achievements, store tests results, grades...
+ * Teacher's Assistant: test preparation lists, learning materials and plans organizer
+ * Electronic Diary. Student's time planner based on the records from Visit Planner DB
 </br>
 
-Probably MongoDB database with Spring Data REST?:
- * class: ... subjects: ... teachers, hours_consulting, tests...
- * staff: name, mail, phone #, disciplines/positions held, room # ...
- * students: name, mail, phone #, class ...
- * meetings ... dates, entities ...
- * TBD a lot, we need an architect
+#### Database Entities:
+ * host: *hostId*, first name, middle name, family name, mail, phone number, position/subjects taught, room number, 
+ timeslots
+ * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
+ * timeslot: *timeslotId*, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
+ * appointment: *appointmentId*, hostId, timeslotId, visitorId
+ * ...
+ * guest: *guestId* - should we keep these unregistered users in a DB???, first name, middle name, family name, mail, 
+ phone number, **IP** - are multiple appointment requests from the same IP available for security reasons?
 
 ##### security
  * Spring Security
- * tokens?
+ * SSO/tokens?
 
 ##### network
 REST over http/https
@@ -145,8 +155,34 @@ REST over http/https
  * back-end - Java 8, Spring Boot 2
  * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
 
-##### integration
-using REST over HTTP
+##### Visit Planner API
+ * POST     /hosts                                              
+ * GET      /hosts
+ * GET      /hosts/{hostId}
+ * DELETE   /hosts/{hostId}                                    
+ * GET      /hosts/{hostId}/timeslots
+ * POST     /hosts/{hostId}/timeslots                           
+ * DELETE   /hosts/{hostId}/timeslots/{timeslotId}              
+ * GET      /hosts/{hostId}/timeslots/{timeslotId}/appointments
+ * GET      /visitors/{visitorId}/appointments
+ * POST     /visitors/{visitorId}/appointments
+ * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
+ 
+ ##### API Rights 
+ Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
+ ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
+ POST   | /hosts                                              |    x    |         |         | 
+ GET    | /hosts                                              |    x    |    x    |    x    |    x
+ GET    | /hosts/{hostId}                                     |    x    |    x    |    x    |    x
+ DELETE | /hosts/{hostId}                                     |    x    |         |         | 
+ GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
+ POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
+ DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
+ GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
+ GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
+ POST   | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |     
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |      
+ **to be discussed*
 
 ##### client
  * HTTP client
