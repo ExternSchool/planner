@@ -96,8 +96,7 @@ This project has to provide the following features:</br>
  * hosts should be able to survey their visitors list, time slots available and occupied to plan their workload better;
  * every record should supply the following information about the visit: date, time, name of the student, family name, 
  class, discipline/course, email, telephone number;
- * any person, who uses this service, should be able to access timetables of the principal and psychologist and make 
- their appointments without any preliminary registration;
+ * anyone, who uses this service, should be able to access timetables of hosts without any registration;
  * hosts and visitors have to be registered, their registration has to be confirmed before they receive full rights;
  * visitors may have an ability to examine the schedule of their hosts, selecting suitable time for their visits;
  * visitors may have a possibility to cancel their appointment, thus the cleared time slot has to be available for other 
@@ -136,12 +135,14 @@ Future projects:
 </br>
 
 #### Database Entities:
- * host: *hostId, first name, middle name, family name, mail, phone number, position/subjects taught, room number, timeslots
- * visitor: *visitorId, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
- * guest: *visitorId, first name, middle name, family name, mail, phone number
- * timeslot: *timeslotId, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
- * appointment: *appointmentId, hostId, timeslotId, visitorId
+ * host: *hostId*, first name, middle name, family name, mail, phone number, position/subjects taught, room number, 
+ timeslots
+ * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
+ * timeslot: *timeslotId*, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
+ * appointment: *appointmentId*, hostId, timeslotId, visitorId
  * ...
+ * guest: *guestId* - should we keep these unregistered users in a DB???, first name, middle name, family name, mail, 
+ phone number, **IP** - are multiple appointment requests from the same IP available for security reasons?
 
 ##### security
  * Spring Security
@@ -168,7 +169,7 @@ REST over http/https
  * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
  
  ##### API Rights 
- Method |                            URI                      |  Admin  |  Host   | Visitor | Guest
+ Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
  ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
  POST   | /hosts                                              |    x    |         |         | 
  GET    | /hosts                                              |    x    |    x    |    x    |    x
@@ -179,8 +180,9 @@ REST over http/https
  DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
  GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
  GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
- POST   | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
- DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |    
+ POST   | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |     
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |      
+ **to be discussed*
 
 ##### client
  * HTTP client
