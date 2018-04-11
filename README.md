@@ -1,5 +1,7 @@
-# visit planner
+# Visit Planner
+## THIS IS A DRAFT VERSION
 
+## Story
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
 located in Kiev, Ukraine.</br>
 The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
@@ -61,7 +63,7 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  * the principal - receives actual, former and future students and their parents, as well as other visitors, receives 
  primary documents and enrolls students to the school;
  * vice-principals - meet actual students and their parents, coordinate individual study plans, receive filled 
- application forms, medical certificates, other documents, supply students' gradebooks, individual study plans etc;
+ application forms, medical certificates, other documents, supply student's record-books, individual study plans etc;
  * the psychologist - meets actual and future students, their parents;
  * administrator-in-charge - prepares and prints out students test forms according to the list of the students taking
  their tests, meets the students, organizes and conducts test session;
@@ -85,7 +87,58 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  * coordinate with administration study plans for their students;
  * organize and manage their children studying process;
  
-## Requirements
+## Common Requirements
+### Usability requirements
+ * easy to use
+ * safe
+ * fun
+ * provide Continuous Usability Testing
+
+### Technical requirements 
+#### Projects Composition
+This project:
+ * Visit Planner
+ 
+Future projects:
+ * Electronic Registrar: learning progress, achievements, store tests results, grades...
+ * Teacher's Assistant: test preparation lists, learning materials and plans organizer
+ * Electronic Diary. Student's time planner based on the records from Visit Planner DB
+</br>
+
+#### User Groups
+ * Admins
+ * Hosts - school administration, teachers, other staff, heads of parents committees 
+ * Visitors - registered and verified students
+ * Guests - registered but unverified users, everyone else, mostly parents
+
+##### security
+ * Spring Security
+ * SSO/tokens?
+
+##### network
+REST over http/https
+
+##### platform
+ * back-end - Java 8, Spring Boot 2
+ * front-end - Java 8, Spring Boot 2, Thymeleaf templates OR ...another great framework?
+
+##### client
+ * HTTP Web client
+ * HTML5, Thymeleaf templates, Bootstrap, CSS OR ... ?
+
+### Environmental requirements
+ * russian/ukrainian localization
+ * Ukrainian holidays
+
+### Support requirements
+ * service should not require frequent maintainance
+ 
+### Interaction requirements 
+TBD how the products should work together and with other systems
+
+
+
+## Visit Planner Requirements
 ### Functional Requirements. User stories
 This project has to provide the following features:</br>
  * schedule reception time for the principal, vice-principals, psychologist;
@@ -103,59 +156,25 @@ This project has to provide the following features:</br>
  reservations;
  * if all the slots are occupied it should be provided an ability to enqueue a visitor for a notification sent when any 
  appointment will be cancelled;
- * some sort of gamification could be used to motivate students and their parents to follow an established schedule, 
+ * *optionally* 
+ some sort of gamification could be used to motivate students and their parents to follow an established schedule, 
  make and cancel their appointments beforehand; for example, they could receive some points every time when they come 
  to school exactly when it was appointed; those score points could affect time slot availability notification queue, 
  informing first the students who have most score points; or some reservation quotas could be established for the most 
  punctual students, competitions could be organized and so on; 
 </br>
 
-### Usability requirements
- * easy to use
- * safe
- * fun
- * provide Continuous Usability Testing
-
-### Technical requirements 
-
-#### User Groups
- * Admins
- * Hosts - school administration, teachers, other staff, heads of parents committees 
- * Visitors - registered and verified students
- * Guests - registered but unverified users, everyone else, mostly parents
-
-#### RESTful microservices
-This project:
- * Visit Planner
- 
-Future projects:
- * Electronic Registrar: learning progress, achievements, store tests results, grades...
- * Teacher's Assistant: test preparation lists, learning materials and plans organizer
- * Electronic Diary. Student's time planner based on the records from Visit Planner DB
-</br>
-
-#### Database Entities:
+### Domain Model (skeleton):
  * host: *hostId*, first name, middle name, family name, mail, phone number, position/subjects taught, room number, 
  timeslots
  * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
  * timeslot: *timeslotId*, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
- * appointment: *appointmentId*, hostId, timeslotId, visitorId
+ * appointment: *appointmentId*, hostId, timeslotId, visitorId, flag: fixed appointment OR reserve queue record
  * ...
  * guest: *guestId* - should we keep these unregistered users in a DB???, first name, middle name, family name, mail, 
  phone number, **IP** - are multiple appointment requests from the same IP available for security reasons?
 
-##### security
- * Spring Security
- * SSO/tokens?
-
-##### network
-REST over http/https
-
-##### platform
- * back-end - Java 8, Spring Boot 2
- * front-end - Java 8, Spring Boot 2, Thymeleaf templates?
-
-##### Visit Planner API
+### Visit Planner API
  * POST     /hosts                                              
  * GET      /hosts
  * GET      /hosts/{hostId}
@@ -168,7 +187,7 @@ REST over http/https
  * POST     /visitors/{visitorId}/appointments
  * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
  
- ##### API Rights 
+ #### API Rights 
  Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
  ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
  POST   | /hosts                                              |    x    |         |         | 
@@ -176,26 +195,30 @@ REST over http/https
  GET    | /hosts/{hostId}                                     |    x    |    x    |    x    |    x
  DELETE | /hosts/{hostId}                                     |    x    |         |         | 
  GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
- POST   | /hosts/{hostId}/timeslots                           |         |    x    |         | 
- DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |         |    x    |         | 
+ POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
+ DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
  GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
  GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
  POST   | /visitors/{visitorId}/appointments                  |         |         |    x    |     
- DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |      
  **to be discussed*
 
-##### client
- * HTTP client
- * HTML5 based UI 
- * Thymeleaf templates?
+### User flows
+The app should demonstrate contract (API) based following user flows:
 
-### Environmental requirements
- * russian/ukrainian localization
- * Ukrainian holidays
-
-### Support requirements
- * service should not require frequent maintainance
+#### Identity Management
+ * Register as a new user
+ * Confirm registration code
+ * Sign in (as a user who has already confirmed a registration code) -- visitor, host
+ * Sign in (as a user who has not yet confirmed a registration code) -- as a guest
+ * Re-send request for a registration code OR get a code with the student's record-book from a vice-principal -- TBD
+ * Forgot password
+ * Change password
+ * Sign-out
  
-### Interaction requirements 
-how the product should work with other systems
-
+#### Visit Planner Features
+  * View list of hosts
+  * Add a new host (Admin-only feature)
+  * Delete a host (Admin-only feature)
+  * View list of timeslots at a host
+  * and so on according to the API
