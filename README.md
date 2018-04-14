@@ -61,20 +61,23 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
 ### Hosts:
 #### Administration and assistant persons: 
  * the principal - receives actual, former and future students and their parents, as well as other visitors, receives 
- primary documents and enrolls students to the school;
+ primary documents and enrolls students to the school
  * vice-principals - meet actual students and their parents, coordinate individual study plans, receive filled 
  application forms, medical certificates, other documents, supply student's record-books, individual study plans etc;
- * the psychologist - meets actual and future students, their parents;
+ * the psychologist - meets actual and future students, their parents
  * administrator-in-charge - prepares and prints out students test forms according to the list of the students taking
- their tests, meets the students, organizes and conducts test session;
- * the head of the school parents' committee, heads of class parents' committees meet students' parents;
+ their tests, meets the students, organizes and conducts test session
+ * the head of the school parents' committee, heads of class parents' committees meet students' parents
  
 #### Teachers:
- * prepare study materials and test forms;
- * meet students to consult them on the study subjects according to their appointments;
- * as a result of students' interviews give them permissions to pass their tests;
- * check out the results of the tests passed;
- * evaluate and grade students performance;
+ * prepare study materials and test forms
+ * meet students to consult them on the study subjects according to their appointments
+ * as a result of students' interviews give them permissions to pass their tests
+ * check out the results of the tests passed
+ * evaluate and grade students performance
+ 
+ Every host has 2 roles: they have their positions (principal/vice-principal/psychologist/teacher) AND they teach school
+ subjects
  
 ### Visitors:
 #### Students
@@ -82,17 +85,18 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  * visit their school teachers for consultations according to their settled individual plans;
  * pass their tests and interviews to complete their studying;
  
-#### Parents of the Students
+#### Parents of the Students, other attendants
  * apply to the school for the student's enrollment, deal with their documents;
  * coordinate with administration study plans for their students;
  * organize and manage their children studying process;
  
 ## Common Requirements
 ### Usability requirements
- * easy to use
- * safe
- * fun
- * provide Continuous Usability Testing
+ * UI should be user friendly, easy to understand and operate
+ * should be safe: previous registration for anyone who receives personal data (names, phone numbers etc.) should be 
+ confirmed with a registry code given by school staff, unregistered guests should receive common public data only
+ * should be fun, motivating young students 
+ * continuous usability testing is a preference
 
 ### Technical requirements 
 #### Projects Composition
@@ -105,11 +109,15 @@ Future projects:
  * Electronic Diary. Student's time planner based on the records from Visit Planner DB
 </br>
 
-#### User Groups
- * Admins
- * Hosts - school administration, teachers, other staff, heads of parents committees 
- * Visitors - registered and verified students
- * Guests - registered but unverified users, everyone else, mostly parents
+#### User Groups and Roles
+ * Application and database administrators
+##### Hosts
+ * School personnel (administration, teachers, other staff) and parents' community representatives, organizing 
+ learning process
+ * Teachers, teaching their school subjects  
+##### Visitors:
+ * Students - registered and verified students
+ * Guests - everyone who visits service without any authorization or registration, unverified users
 
 ### Environmental requirements
  * russian/ukrainian localization
@@ -117,7 +125,7 @@ Future projects:
 
 ### Support requirements
  * should not require operational maintenance
- * no support devops team available - preferably serverless and/or cloud based 
+ * no support/devops team available - preferably serverless and/or cloud based service
  * minimal cost, preferably use free tier service providers
  
 ### Interaction requirements 
@@ -128,20 +136,22 @@ Future projects:
 ### Functional Requirements. User stories
 This project has to provide the following features:</br>
  * schedule reception time for the principal, vice-principals, psychologist;
- * set for a long period of time (semester or two) every teacher's usual routines, specifying the time when they are 
+ * set every teacher's usual routines for a long period of time (semester or two), specifying the time when they are 
  present at school and ready to meet their students; 
- * hosts may have possibilities to adjust predefined schedule if such a necessity arises (illness, vacations so on); 
- * if hosts make changes to their timetables, visitors should be automatically notified by email, sms etc.;
+ * hosts may have possibilities to adjust predefined schedule if such a necessity arises (illness, holidays so on); 
+ * if hosts make changes to their timetables, visitors should be automatically notified by email/sms etc.;
  * hosts should be able to survey their visitors list, time slots available and occupied to plan their workload better;
- * every record should supply the following information about the visit: date, time, name of the student, family name, 
- class, discipline/course, email, telephone number;
- * anyone, who uses this service, should be able to access timetables of hosts without any registration;
- * hosts and visitors have to be registered, their registration has to be confirmed before they receive full rights;
- * visitors may have an ability to examine the schedule of their hosts, selecting suitable time for their visits;
- * visitors may have a possibility to cancel their appointment, thus the cleared time slot has to be available for other 
- reservations;
+ * every record should supply the following information about the visitor: date, time, student's given and family names, 
+ year of study/class, discipline/course, email, telephone number;
+ * anyone, who uses this service without registration, should be able to access timetables of the hosts (without
+ visitor and their appointment details provided);
+ * hosts and visitors have to be registered;
+ * visitors may have an ability to examine schedules of their hosts, selecting suitable and available time slots 
+ for their visit appointments;
+ * visitors may have a possibility to cancel their appointments, thus the cleared time slots have to be available for 
+ other visitors reservations;
  * if all the slots are occupied it should be provided an ability to enqueue a visitor for a notification sent when any 
- appointment will be cancelled;
+ appointment been cancelled;
  * *optionally* 
  some sort of gamification could be used to motivate students and their parents to follow an established schedule, 
  make and cancel their appointments beforehand; for example, they could receive some points every time when they come 
@@ -150,16 +160,33 @@ This project has to provide the following features:</br>
  punctual students, competitions could be organized and so on; 
 </br>
 
-### Domain Model (skeleton):
- * host: *hostId*, first name, middle name, family name, mail, phone number, position/subjects taught, room number, 
- timeslots
+### Domain model and database implementation (skeleton):
+SQL persistent Entities:
+ * host: *hostId*, first name, middle name, family name, mail, phone number, position, taught subjects list, room number, 
+ time slots by days of week
  * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
  * timeslot: *timeslotId*, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
  * appointment: *appointmentId*, hostId, timeslotId, visitorId, flag: fixed appointment OR reserve queue record
+ * year of study/grade/class: *classId*, subjects list
+ * school subject: *subjectId*, name, year of study, semesters taught, per semester: { consultation hours, is there a 
+ test to be passed } 
  * ...
- * guest: *guestId* - should we keep these unregistered users in a DB???, first name, middle name, family name, mail, 
- phone number, **IP** - are multiple appointment requests from the same IP available for security reasons?
+ * guest: *guestId* - registered users with stored their: name, mail, phone number, 
+ *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
 
+alternative noSQL schema domain organization:
+ * subject: *subject_id*, year of study/grade/class, per semester: (consultation hours, is there a test)
+ * student: *student_id*, name, mail, phone number, class, list of:(*subject_id*, *teacher_id*) 
+ * teacher: *teacher_id*, name, position, taught subjects list (*subject_id*), mail, phone number, optionally
+  list of students: (*student_id*)
+ * teachers time line (one for each one): *teacher_line_id*, *teacher_id*, list of time slots:
+ (date, start time, end time, *student_id*, subject) -- available for students reservations
+ * personnel: *personnel_id*, name, position
+ * personnel time line (one for each one): *personnel_line_id*, *personnel_id*, list of time slots:
+ (date, start time, end time, *guest_id*) -- available for guests appointments
+ * guest: *guest_id*, name, mail, phone number,
+ *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
+ 
 ### Visit Planner External API
  * POST     /hosts                                              
  * GET      /hosts
@@ -189,6 +216,37 @@ This project has to provide the following features:</br>
  DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
  **to be discussed*
 
+### ... Alternative Visit Planner External API
+**Personnel:**
+ * POST     /personnel                                              
+ * GET      /personnel
+ * GET      /personnel/{personnelId}
+ * DELETE   /personnel/{personnelId}                                    
+ * GET      /personnel/{personnelId}/timeslots
+ * POST     /personnel/{personnelId}/timeslots                           
+ * DELETE   /personnel/{personnelId}/timeslots/{timeslotId}              
+ * GET      /personnel/{personnelId}/timeslots/{timeslotId}/appointment
+ 
+**Teachers:**
+ * POST     /teachers                                              
+ * GET      /teachers
+ * GET      /teachers/{teacherId}
+ * DELETE   /teachers/{teacherId}                                    
+ * GET      /teachers/{teacherId}/timeslots
+ * POST     /teachers/{teacherId}/timeslots                           
+ * DELETE   /teachers/{teacherId}/timeslots/{timeslotId}              
+ * GET      /teachers/{teacherId}/timeslots/{timeslotId}/appointments
+ 
+**Students:**
+ * GET      /students/{studentId}/appointments
+ * POST     /students/{studentId}/appointments
+ * DELETE   /students/{studentId}/appointments/{appointmentId}
+ 
+**Guests:**
+ * GET      /guests/{guestId}/appointments
+ * POST     /guests/{guestId}/appointments
+ * DELETE   /guests/{guestId}/appointments/{appointmentId}
+
 ### User flows
 The app should demonstrate contract (API) based following user flows:
 
@@ -210,8 +268,9 @@ The app should demonstrate contract (API) based following user flows:
   * and so on according to the API
 
 ##### cloud infrastructure
- * AWS EC2, S3 (Frankfurt) -- 1 year free tier, best reaction to unstable loads
- * MongoDB Atlas at AWS (Frankfurt) -- 3 shards 512M database A0 free tier
+ * AWS EC2, S3 -- 1 year free tier, best reaction to unstable loads
+ * AWS RDS -- 1 year free tier OR...
+ * MongoDB Atlas A0 at AWS -- 3 shards 512M database instantly free
  
 ##### microservices diagram 
 ![Microservices diagram](https://user-images.githubusercontent.com/10642971/38766137-7368b23a-3fd6-11e8-9679-69b12c7939f8.png)
