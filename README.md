@@ -111,31 +111,17 @@ Future projects:
  * Visitors - registered and verified students
  * Guests - registered but unverified users, everyone else, mostly parents
 
-##### security
- * Spring Security
- * SSO/tokens?
-
-##### network
-REST over http/https
-
-##### platform
- * back-end - Java 8, Spring Boot 2
- * front-end - Java 8, Spring Boot 2, Thymeleaf templates OR ...another great framework?
-
-##### client
- * HTTP Web client
- * HTML5, Thymeleaf templates, Bootstrap, CSS OR ... ?
-
 ### Environmental requirements
  * russian/ukrainian localization
  * Ukrainian holidays
 
 ### Support requirements
- * service should not require frequent maintainance
+ * should not require operational maintenance
+ * no support devops team available - preferably serverless and/or cloud based 
+ * minimal cost, preferably use free tier service providers
  
 ### Interaction requirements 
-TBD how the products should work together and with other systems
-
+ * interacts via external RESTful API 
 
 
 ## Visit Planner Requirements
@@ -174,7 +160,7 @@ This project has to provide the following features:</br>
  * guest: *guestId* - should we keep these unregistered users in a DB???, first name, middle name, family name, mail, 
  phone number, **IP** - are multiple appointment requests from the same IP available for security reasons?
 
-### Visit Planner API
+### Visit Planner External API
  * POST     /hosts                                              
  * GET      /hosts
  * GET      /hosts/{hostId}
@@ -187,7 +173,7 @@ This project has to provide the following features:</br>
  * POST     /visitors/{visitorId}/appointments
  * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
  
- #### API Rights 
+ #### External API Rights 
  Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
  ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
  POST   | /hosts                                              |    x    |         |         | 
@@ -197,16 +183,16 @@ This project has to provide the following features:</br>
  GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
  POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
  DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
- GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    
+ GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    x
  GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
  POST   | /visitors/{visitorId}/appointments                  |         |         |    x    |     
- DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |    x    |    x    |    x    |      
+ DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
  **to be discussed*
 
 ### User flows
 The app should demonstrate contract (API) based following user flows:
 
-#### Identity Management
+#### Edge Service Identity Management
  * Register as a new user
  * Confirm registration code
  * Sign in (as a user who has already confirmed a registration code) -- visitor, host
@@ -222,3 +208,23 @@ The app should demonstrate contract (API) based following user flows:
   * Delete a host (Admin-only feature)
   * View list of timeslots at a host
   * and so on according to the API
+
+##### cloud infrastructure
+ * AWS EC2, S3 (Frankfurt) -- 1 year free tier, best reaction to unstable loads
+ * MongoDB Atlas at AWS (Frankfurt) -- 3 shards 512M database A0 free tier
+ 
+##### microservices diagram 
+![Microservices diagram](https://user-images.githubusercontent.com/10642971/38766137-7368b23a-3fd6-11e8-9679-69b12c7939f8.png)
+
+##### server/client platform
+ * Java 8, Spring Boot 2, Netflix OSS, okta, Swagger/Open API
+ * Thymeleaf3 templates, Bootstrap4, CSS3 ...OR any other great framework ...OR AWS Lambda JS based client?
+
+##### security
+ * Spring Security 5.0
+ * OAuth with {okta} (free tier up to 7000 active users)
+ 
+##### clients
+ * standard HTML5 web browser
+ * *optional* custom RESTful applications 
+
