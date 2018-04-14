@@ -176,16 +176,16 @@ SQL persistent Entities:
 
 alternative noSQL schema domain organization:
  * subject: *subject_id*, year of study/grade/class, per semester: (consultation hours, is there a test)
- * student: *student_id*, name, mail, phone number, class, list of:(*subject_id*, *teacher_id*) 
- * teacher: *teacher_id*, name, position, taught subjects list (*subject_id*), mail, phone number, optionally
-  list of students: (*student_id*)
- * teachers time line (one for each one): *teacher_line_id*, *teacher_id*, list of time slots:
- (date, start time, end time, *student_id*, subject) -- available for students reservations
+ * student: *student_id*, name, mail, phone number, class, list of:(**subject_id**, **teacher_id**) 
+ * teacher: *teacher_id*, name, position, taught subjects list (**subject_id**), mail, phone number, optionally
+  list of students: (**student_id**)
+ * teachers time line (one for each one): **teacher_line_id**, **teacher_id**, list of time slots:
+ (date, start time, end time, **student_id**, subject) -- available for students reservations
  * personnel: *personnel_id*, name, position
- * personnel time line (one for each one): *personnel_line_id*, *personnel_id*, list of time slots:
- (date, start time, end time, *guest_id*) -- available for guests appointments
+ * personnel time line (one for each one): **personnel_line_id**, **personnel_id**, list of time slots:
+ (date, start time, end time, **guest_id**) -- available for guests appointments
  * guest: *guest_id*, name, mail, phone number,
- *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
+ *optionally* *IP* to control multiple appointment requests from the same IP for security reasons
  
 ### Visit Planner External API
  * POST     /hosts                                              
