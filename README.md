@@ -261,7 +261,6 @@ This project has to provide the following features:</br>
  POST   | /officers/{officerId}/timeslots                          |    x    |        x       |         |                          
  DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |        x       |         |               
  GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |        x       |    x    |    
-        |                                                          |         |                |         | 
  POST   | /teachers                                                |    x    |                |         |                                               
  GET    | /teachers                                                |    x    |        x       |    x    |    x
  GET    | /teachers/{teacherId}                                    |    x    |        x       |    x    |    x
@@ -270,15 +269,12 @@ This project has to provide the following features:</br>
  POST   | /teachers/{teacherId}/timeslots                          |    x    |        x       |         |                           
  DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |        x       |         |                
  GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |        x       |    x    |    
-        |                                                          |         |                |         | 
  GET    | /students/{studentId}/appointments                       |    x    |        x       |    x    |   
  POST   | /students/{studentId}/appointments                       | **???** |                |    x    |     
  DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |                |    x    |     
-        |                                                          |         |                |         | 
  GET    | /guests/{guestId}/appointments                           |    x    |        x       |    x    |   
  POST   | /guests/{guestId}/appointments                           | **???** |                |    x    |     
  DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |                |    x    |     
-  
  **to be discussed*
 
 
