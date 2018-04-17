@@ -161,7 +161,7 @@ This project has to provide the following features:</br>
 </br>
 
 ### Domain model and database implementation (skeleton):
-SQL persistent Entities:
+#### SQL persistent Entities:
  * host: *hostId*, first name, middle name, family name, mail, phone number, position, taught subjects list, room number, 
  time slots by days of week
  * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
@@ -174,7 +174,7 @@ SQL persistent Entities:
  * guest: *guestId* - registered users with stored their: name, mail, phone number, 
  *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
 
-alternative noSQL schema domain organization:
+#### alternative noSQL schema domain organization:
  * subject: subject_id, year of study/grade/class, per semester: (consultation hours, is there a test)
  * student: student_id, name, mail, phone number, class, list of:(**subject_id**, **teacher_id**) 
  * teacher: teacher_id, name, position, taught subjects list (**subject_id**), mail, phone number, optionally
@@ -186,6 +186,9 @@ alternative noSQL schema domain organization:
  (date, start time, end time, **guest_id**) -- available for guests appointments
  * guest: guest_id, name, mail, phone number,
  *optionally* *IP* to control multiple appointment requests from the same IP for security reasons
+
+##### The problem: *every **bold Id** has to be handled manually*
+ 
  
 ### Visit Planner External API
  * POST     /hosts                                              
@@ -217,15 +220,15 @@ alternative noSQL schema domain organization:
  **to be discussed*
 
 ### ... Alternative Visit Planner External API
-**Personnel:**
- * POST     /personnel                                              
- * GET      /personnel
- * GET      /personnel/{personnelId}
- * DELETE   /personnel/{personnelId}                                    
- * GET      /personnel/{personnelId}/timeslots
- * POST     /personnel/{personnelId}/timeslots                           
- * DELETE   /personnel/{personnelId}/timeslots/{timeslotId}              
- * GET      /personnel/{personnelId}/timeslots/{timeslotId}/appointment
+**Officers:**
+ * POST     /officers                                              
+ * GET      /officers
+ * GET      /officers/{officerId}
+ * DELETE   /officers/{officerId}                                    
+ * GET      /officers/{officerId}/timeslots
+ * POST     /officers/{officerId}/timeslots                           
+ * DELETE   /officers/{officerId}/timeslots/{timeslotId}              
+ * GET      /officers/{officerId}/timeslots/{timeslotId}/appointment
  
 **Teachers:**
  * POST     /teachers                                              
@@ -246,6 +249,38 @@ alternative noSQL schema domain organization:
  * GET      /guests/{guestId}/appointments
  * POST     /guests/{guestId}/appointments
  * DELETE   /guests/{guestId}/appointments/{appointmentId}
+
+ #### External API Rights 
+ Method |                            URI                           |  Admin  | Officer/Teacher| Student | Guest*
+ ------ | -------------------------------------------------------- | ------- | -------------- | ------- | -------
+ POST   | /officers                                                |    x    |                |         | 
+ GET    | /officers                                                |    x    |        x       |    x    |    x
+ GET    | /officers/{officerId}                                    |    x    |        x       |    x    |    x
+ DELETE | /officers/{officerId}                                    |    x    |                |         |                                    
+ GET    | /officers/{officerId}/timeslots                          |    x    |        x       |    x    |    x
+ POST   | /officers/{officerId}/timeslots                          |    x    |        x       |         |                          
+ DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |        x       |         |               
+ GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |        x       |    x    |    
+        |                                                          |         |                |         | 
+ POST   | /teachers                                                |    x    |                |         |                                               
+ GET    | /teachers                                                |    x    |        x       |    x    |    x
+ GET    | /teachers/{teacherId}                                    |    x    |        x       |    x    |    x
+ DELETE | /teachers/{teacherId}                                    |    x    |                |         |                                      
+ GET    | /teachers/{teacherId}/timeslots                          |    x    |        x       |    x    |    x
+ POST   | /teachers/{teacherId}/timeslots                          |    x    |        x       |         |                           
+ DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |        x       |         |                
+ GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |        x       |    x    |    
+        |                                                          |         |                |         | 
+ GET    | /students/{studentId}/appointments                       |    x    |        x       |    x    |   
+ POST   | /students/{studentId}/appointments                       | **???** |                |    x    |     
+ DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |                |    x    |     
+        |                                                          |         |                |         | 
+ GET    | /guests/{guestId}/appointments                           |    x    |        x       |    x    |   
+ POST   | /guests/{guestId}/appointments                           | **???** |                |    x    |     
+ DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |                |    x    |     
+  
+ **to be discussed*
+
 
 ### User flows
 The app should demonstrate contract (API) based following user flows:
