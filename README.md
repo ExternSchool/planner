@@ -250,30 +250,30 @@ This project has to provide the following features:</br>
  * DELETE   /guests/{guestId}/appointments/{appointmentId}
 
  #### 5.4.1. External API Rights 
- Method |                            URI                           |  Admin  | Officer/Teacher| Student | Guest*
- ------ | -------------------------------------------------------- | ------- | -------------- | ------- | -------
- POST   | /officers                                                |    x    |                |         | 
- GET    | /officers                                                |    x    |        x       |    x    |    x
- GET    | /officers/{officerId}                                    |    x    |        x       |    x    |    x
- DELETE | /officers/{officerId}                                    |    x    |                |         |                                    
- GET    | /officers/{officerId}/timeslots                          |    x    |        x       |    x    |    x
- POST   | /officers/{officerId}/timeslots                          |    x    |        x       |         |                          
- DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |        x       |         |               
- GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |        x       |    x    |    
- POST   | /teachers                                                |    x    |                |         |                                               
- GET    | /teachers                                                |    x    |        x       |    x    |    x
- GET    | /teachers/{teacherId}                                    |    x    |        x       |    x    |    x
- DELETE | /teachers/{teacherId}                                    |    x    |                |         |                                      
- GET    | /teachers/{teacherId}/timeslots                          |    x    |        x       |    x    |    x
- POST   | /teachers/{teacherId}/timeslots                          |    x    |        x       |         |                           
- DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |        x       |         |                
- GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |        x       |    x    |    
- GET    | /students/{studentId}/appointments                       |    x    |        x       |    x    |   
- POST   | /students/{studentId}/appointments                       | **???** |                |    x    |     
- DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |                |    x    |     
- GET    | /guests/{guestId}/appointments                           |    x    |        x       |    x    |   
- POST   | /guests/{guestId}/appointments                           | **???** |                |    x    |     
- DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |                |    x    |     
+ Method |                            URI                           |  Admin  | Off./Teacher| Student | Guest*
+ ------ | -------------------------------------------------------- | ------- | ----------- | ------- | -------
+ POST   | /officers                                                |    x    |             |         | 
+ GET    | /officers                                                |    x    |      x      |    x    |    x
+ GET    | /officers/{officerId}                                    |    x    |      x      |    x    |    x
+ DELETE | /officers/{officerId}                                    |    x    |             |         |                                    
+ GET    | /officers/{officerId}/timeslots                          |    x    |      x      |    x    |    x
+ POST   | /officers/{officerId}/timeslots                          |    x    |      x      |         |                          
+ DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |      x      |         |               
+ GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |      x      |    x    |    
+ POST   | /teachers                                                |    x    |             |         |                                               
+ GET    | /teachers                                                |    x    |      x      |    x    |    x
+ GET    | /teachers/{teacherId}                                    |    x    |      x      |    x    |    x
+ DELETE | /teachers/{teacherId}                                    |    x    |             |         |                                      
+ GET    | /teachers/{teacherId}/timeslots                          |    x    |      x      |    x    |    x
+ POST   | /teachers/{teacherId}/timeslots                          |    x    |      x      |         |                           
+ DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |      x      |         |                
+ GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |      x      |    x    |    
+ GET    | /students/{studentId}/appointments                       |    x    |      x      |    x    |   
+ POST   | /students/{studentId}/appointments                       | **???** |             |    x    |     
+ DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |             |    x    |     
+ GET    | /guests/{guestId}/appointments                           |    x    |      x      |    x    |    x
+ POST   | /guests/{guestId}/appointments                           | **???** |             |         |    x 
+ DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |             |         |    x
  **to be discussed*
 
 
