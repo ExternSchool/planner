@@ -1,7 +1,7 @@
 # Visit Planner
 ## THIS IS A DRAFT VERSION
 
-## Story
+## 1. Story
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
 located in Kiev, Ukraine.</br>
 The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
@@ -43,7 +43,7 @@ unnecessary visits to the school;</br>
  * and so on.
 </br>
 
-## Purpose and scope
+## 2. Purpose and scope
 This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is going to:
  * give the teachers modern tools to do their job in most effective way;
  * facilitate the process of scheduling school visits for the young students, their parents, teachers and school 
@@ -57,9 +57,9 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  of the databases formed;
 </br>
 
-## Stakeholders
-### Hosts:
-#### Administration and assistant persons: 
+## 3. Stakeholders
+### 3.1. Hosts:
+#### 3.1.1. School officers and assistants: 
  * the principal - receives actual, former and future students and their parents, as well as other visitors, receives 
  primary documents and enrolls students to the school
  * vice-principals - meet actual students and their parents, coordinate individual study plans, receive filled 
@@ -69,7 +69,7 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  their tests, meets the students, organizes and conducts test session
  * the head of the school parents' committee, heads of class parents' committees meet students' parents
  
-#### Teachers:
+#### 3.1.2. Teachers:
  * prepare study materials and test forms
  * meet students to consult them on the study subjects according to their appointments
  * as a result of students' interviews give them permissions to pass their tests
@@ -79,27 +79,27 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  Every host has 2 roles: they have their positions (principal/vice-principal/psychologist/teacher) AND they teach school
  subjects
  
-### Visitors:
-#### Students
+### 3.2. Visitors:
+#### 3.2.1. Students
  * study at home their school courses self-paced in correspondence with their study plans;
  * visit their school teachers for consultations according to their settled individual plans;
  * pass their tests and interviews to complete their studying;
  
-#### Parents of the Students, other attendants
+#### 3.2.2. Parents of the Students, other attendants
  * apply to the school for the student's enrollment, deal with their documents;
  * coordinate with administration study plans for their students;
  * organize and manage their children studying process;
  
-## Common Requirements
-### Usability requirements
+## 4. Common Requirements
+### 4.1. Usability requirements
  * UI should be user friendly, easy to understand and operate
  * should be safe: previous registration for anyone who receives personal data (names, phone numbers etc.) should be 
  confirmed with a registry code given by school staff, unregistered guests should receive common public data only
  * should be fun, motivating young students 
  * continuous usability testing is a preference
 
-### Technical requirements 
-#### Projects Composition
+### 4.2. Technical requirements 
+#### 4.2.1. Project Composition
 This project:
  * Visit Planner
  
@@ -109,31 +109,30 @@ Future projects:
  * Electronic Diary. Student's time planner based on the records from Visit Planner DB
 </br>
 
-#### User Groups and Roles
+#### 4.2.2. User Groups and Roles
  * Application and database administrators
-##### Hosts
- * School personnel (administration, teachers, other staff) and parents' community representatives, organizing 
- learning process
+##### 4.2.2.1. Hosts
+ * School officers, teachers, assistants, parents' community representatives, organizing learning process
  * Teachers, teaching their school subjects  
-##### Visitors:
+##### 4.2.2.2. Visitors:
  * Students - registered and verified students
  * Guests - everyone who visits service without any authorization or registration, unverified users
 
-### Environmental requirements
+### 4.3. Environmental requirements
  * russian/ukrainian localization
  * Ukrainian holidays
 
-### Support requirements
+### 4.4. Support requirements
  * should not require operational maintenance
  * no support/devops team available - preferably serverless and/or cloud based service
  * minimal cost, preferably use free tier service providers
  
-### Interaction requirements 
+### 4.5. Interaction requirements 
  * interacts via external RESTful API 
 
 
-## Visit Planner Requirements
-### Functional Requirements. User stories
+## 5. Visit Planner Requirements
+### 5.1. Functional Requirements. User stories
 This project has to provide the following features:</br>
  * schedule reception time for the principal, vice-principals, psychologist;
  * set every teacher's usual routines for a long period of time (semester or two), specifying the time when they are 
@@ -160,8 +159,8 @@ This project has to provide the following features:</br>
  punctual students, competitions could be organized and so on; 
 </br>
 
-### Domain model and database implementation (skeleton):
-#### SQL persistent Entities:
+### 5.2. Domain model and database implementation (skeleton):
+#### 5.2.1. SQL persistent Entities:
  * host: *hostId*, first name, middle name, family name, mail, phone number, position, taught subjects list, room number, 
  time slots by days of week
  * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
@@ -174,7 +173,7 @@ This project has to provide the following features:</br>
  * guest: *guestId* - registered users with stored their: name, mail, phone number, 
  *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
 
-#### alternative noSQL schema domain organization:
+#### 5.2.2. Alternative noSQL schema domain organization:
  * subject: subject_id, year of study/grade/class, per semester: (consultation hours, is there a test)
  * student: student_id, name, mail, phone number, class, list of:(**subject_id**, **teacher_id**) 
  * teacher: teacher_id, name, position, taught subjects list (**subject_id**), mail, phone number, optionally
@@ -187,10 +186,10 @@ This project has to provide the following features:</br>
  * guest: guest_id, name, mail, phone number,
  *optionally* *IP* to control multiple appointment requests from the same IP for security reasons
 
-##### The problem: *every **bold Id** has to be handled manually*
+###### The problem: *every **bold Id** has to be handled manually*
  
  
-### Visit Planner External API
+### 5.3. Visit Planner External API
  * POST     /hosts                                              
  * GET      /hosts
  * GET      /hosts/{hostId}
@@ -203,7 +202,7 @@ This project has to provide the following features:</br>
  * POST     /visitors/{visitorId}/appointments
  * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
  
- #### External API Rights 
+#### 5.3.1. External API Rights 
  Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
  ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
  POST   | /hosts                                              |    x    |         |         | 
@@ -219,7 +218,7 @@ This project has to provide the following features:</br>
  DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
  **to be discussed*
 
-### ... Alternative Visit Planner External API
+### 5.4. Alternative Visit Planner External API
 **Officers:**
  * POST     /officers                                              
  * GET      /officers
@@ -250,38 +249,38 @@ This project has to provide the following features:</br>
  * POST     /guests/{guestId}/appointments
  * DELETE   /guests/{guestId}/appointments/{appointmentId}
 
- #### External API Rights 
- Method |                            URI                           |  Admin  | Officer/Teacher| Student | Guest*
- ------ | -------------------------------------------------------- | ------- | -------------- | ------- | -------
- POST   | /officers                                                |    x    |                |         | 
- GET    | /officers                                                |    x    |        x       |    x    |    x
- GET    | /officers/{officerId}                                    |    x    |        x       |    x    |    x
- DELETE | /officers/{officerId}                                    |    x    |                |         |                                    
- GET    | /officers/{officerId}/timeslots                          |    x    |        x       |    x    |    x
- POST   | /officers/{officerId}/timeslots                          |    x    |        x       |         |                          
- DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |        x       |         |               
- GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |        x       |    x    |    
- POST   | /teachers                                                |    x    |                |         |                                               
- GET    | /teachers                                                |    x    |        x       |    x    |    x
- GET    | /teachers/{teacherId}                                    |    x    |        x       |    x    |    x
- DELETE | /teachers/{teacherId}                                    |    x    |                |         |                                      
- GET    | /teachers/{teacherId}/timeslots                          |    x    |        x       |    x    |    x
- POST   | /teachers/{teacherId}/timeslots                          |    x    |        x       |         |                           
- DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |        x       |         |                
- GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |        x       |    x    |    
- GET    | /students/{studentId}/appointments                       |    x    |        x       |    x    |   
- POST   | /students/{studentId}/appointments                       | **???** |                |    x    |     
- DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |                |    x    |     
- GET    | /guests/{guestId}/appointments                           |    x    |        x       |    x    |   
- POST   | /guests/{guestId}/appointments                           | **???** |                |    x    |     
- DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |                |    x    |     
+ #### 5.4.1. External API Rights 
+ Method |                            URI                           |  Admin  | Off./Teacher| Student | Guest*
+ ------ | -------------------------------------------------------- | ------- | ----------- | ------- | -------
+ POST   | /officers                                                |    x    |             |         | 
+ GET    | /officers                                                |    x    |      x      |    x    |    x
+ GET    | /officers/{officerId}                                    |    x    |      x      |    x    |    x
+ DELETE | /officers/{officerId}                                    |    x    |             |         |                                    
+ GET    | /officers/{officerId}/timeslots                          |    x    |      x      |    x    |    x
+ POST   | /officers/{officerId}/timeslots                          |    x    |      x      |         |                          
+ DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |      x      |         |               
+ GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |      x      |    x    |    
+ POST   | /teachers                                                |    x    |             |         |                                               
+ GET    | /teachers                                                |    x    |      x      |    x    |    x
+ GET    | /teachers/{teacherId}                                    |    x    |      x      |    x    |    x
+ DELETE | /teachers/{teacherId}                                    |    x    |             |         |                                      
+ GET    | /teachers/{teacherId}/timeslots                          |    x    |      x      |    x    |    x
+ POST   | /teachers/{teacherId}/timeslots                          |    x    |      x      |         |                           
+ DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |      x      |         |                
+ GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |      x      |    x    |    
+ GET    | /students/{studentId}/appointments                       |    x    |      x      |    x    |   
+ POST   | /students/{studentId}/appointments                       | **???** |             |    x    |     
+ DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |             |    x    |     
+ GET    | /guests/{guestId}/appointments                           |    x    |      x      |    x    |    x
+ POST   | /guests/{guestId}/appointments                           | **???** |             |         |    x 
+ DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |             |         |    x
  **to be discussed*
 
 
-### User flows
+### 5.5. User flows
 The app should demonstrate contract (API) based following user flows:
 
-#### Edge Service Identity Management
+#### 5.5.1. Edge Service Identity Management
  * Register as a new user
  * Confirm registration code
  * Sign in (as a user who has already confirmed a registration code) -- visitor, host
@@ -291,30 +290,30 @@ The app should demonstrate contract (API) based following user flows:
  * Change password
  * Sign-out
  
-#### Visit Planner Features
+#### 5.5.2. Visit Planner Features
   * View list of hosts
   * Add a new host (Admin-only feature)
   * Delete a host (Admin-only feature)
   * View list of timeslots at a host
   * and so on according to the API
 
-##### cloud infrastructure
+### 5.6. Cloud infrastructure
  * AWS EC2, S3 -- 1 year free tier, best reaction to unstable loads
  * AWS RDS -- 1 year free tier OR...
  * MongoDB Atlas A0 at AWS -- 3 shards 512M database instantly free
  
-##### microservices diagram 
+### 5.7. Microservices diagram 
 ![Microservices diagram](https://user-images.githubusercontent.com/10642971/38766137-7368b23a-3fd6-11e8-9679-69b12c7939f8.png)
 
-##### server/client platform
+### 5.8. Server/client platform
  * Java 8, Spring Boot 2, Netflix OSS, okta, Swagger/Open API
  * Thymeleaf3 templates, Bootstrap4, CSS3 ...OR any other great framework ...OR AWS Lambda JS based client?
 
-##### security
+### 5.9. Security
  * Spring Security 5.0
  * OAuth with {okta} (free tier up to 7000 active users)
  
-##### clients
+### 5.10. Clients
  * standard HTML5 web browser
  * *optional* custom RESTful applications 
 
