@@ -76,8 +76,7 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  * check out the results of the tests passed
  * evaluate and grade students performance
  
- Every host has 2 roles: they have their positions (principal/vice-principal/psychologist/teacher) AND they teach school
- subjects
+Any school officer or assistant (principal/vice-principal/psychologist/librarian etc) can also be a teacher and vice versa.
  
 ### 3.2. Visitors:
 #### 3.2.1. Students
@@ -160,7 +159,7 @@ This project has to provide the following features:</br>
 </br>
 
 ### 5.2. Domain model and database implementation (skeleton):
-#### 5.2.1. SQL persistent Entities:
+#### 5.2.1. Alternative SQL persistent Entities:
  * host: *hostId*, first name, middle name, family name, mail, phone number, position, taught subjects list, room number, 
  time slots by days of week
  * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
@@ -173,7 +172,7 @@ This project has to provide the following features:</br>
  * guest: *guestId* - registered users with stored their: name, mail, phone number, 
  *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
 
-#### 5.2.2. Alternative noSQL schema domain organization:
+#### 5.2.2. noSQL schema domain organization:
  * subject: subject_id, year of study/grade/class, per semester: (consultation hours, is there a test)
  * student: student_id, name, mail, phone number, class, list of:(**subject_id**, **teacher_id**) 
  * teacher: teacher_id, name, position, taught subjects list (**subject_id**), mail, phone number, optionally
@@ -186,10 +185,10 @@ This project has to provide the following features:</br>
  * guest: guest_id, name, mail, phone number,
  *optionally* *IP* to control multiple appointment requests from the same IP for security reasons
 
-###### The problem: *every **bold Id** has to be handled manually*
+###### The problem: since MongoDB has no joints *every **bold Id** has to be handled manually*
  
  
-### 5.3. Visit Planner External API
+### 5.3. Visit Planner External API. Option #1. Concise.
  * POST     /hosts                                              
  * GET      /hosts
  * GET      /hosts/{hostId}
@@ -218,7 +217,7 @@ This project has to provide the following features:</br>
  DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
  **to be discussed*
 
-### 5.4. Alternative Visit Planner External API
+### 5.4. Visit Planner External API. Option #2. Extended.
 **Officers:**
  * POST     /officers                                              
  * GET      /officers
@@ -278,7 +277,7 @@ This project has to provide the following features:</br>
 
 
 ### 5.5. User flows
-The app should demonstrate contract (API) based following user flows:
+The app should demonstrate following user flows:
 
 #### 5.5.1. Edge Service Identity Management
  * Register as a new user
