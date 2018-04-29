@@ -1,0 +1,144 @@
+<html>
+<head>
+<!--  jQuery -->
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+<!-- Isolated Version of Bootstrap, not needed if your site already uses Bootstrap -->
+<link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" />
+
+<!-- Bootstrap Date-Picker Plugin -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.uk.min.js" integrity="sha256-gJ+sB+muQyOKhTNx/XvtaXXkEr88FXSS3xMgtVR3V+E=" crossorigin="anonymous"></script>
+</head>
+<body>
+<!-- Special version of Bootstrap that only affects content wrapped in .bootstrap-iso -->
+<link rel="stylesheet" href="https://formden.com/static/cdn/bootstrap-iso.css" /> 
+
+<!-- Inline CSS based on choices in "Settings" tab -->
+<style>.bootstrap-iso .formden_header h2, .bootstrap-iso .formden_header p, .bootstrap-iso form{font-family: Arial, Helvetica, sans-serif; color: black}.bootstrap-iso form button, .bootstrap-iso form button:hover{color: white !important;} .asteriskField{color: red;}</style>
+<div>
+	<h1>Попередній запис</h1>
+</div>
+<!-- HTML Form (wrapped in a .bootstrap-iso div) -->
+<div class="bootstrap-iso">
+ <div class="container-fluid">
+  <div class="row">
+   <div class="col-md-6 col-sm-6 col-xs-12">
+    <form method="post">
+     <div class="form-group ">
+      <label class="control-label requiredField">
+       Записатися на:
+       <span class="asteriskField">
+        *
+       </span>
+      </label>
+      <div class="">
+       <div class="radio">
+        <label class="radio">
+         <input name="radio" type="radio" value="Прийом до директора"/>
+         Прийом до директора
+        </label>
+       </div>
+       <div class="radio">
+        <label class="radio">
+         <input name="radio" type="radio" value="Прийом до заступника директора"/>
+         Прийом до заступника директора
+        </label>
+       </div>
+       <div class="radio">
+        <label class="radio">
+         <input name="radio" type="radio" value="Зустріч з психологом"/>
+         Зустріч з психологом
+        </label>
+       </div>
+       <div class="radio">
+        <label class="radio">
+         <input name="radio" type="radio" value="Консультацію до вчителя"/>
+         Консультацію до вчителя
+        </label>
+       </div>
+       <div class="radio">
+        <label class="radio">
+         <input name="radio" type="radio" value="Контрольну роботу"/>
+         Контрольну роботу
+        </label>
+       </div>
+       <span class="help-block" id="hint_radio">
+        Оберіть один з наведених варіантів
+       </span>
+      </div>
+     </div>
+     <div class="form-group ">
+      <label class="control-label " for="select">
+       Прізвище, ім'я, по-батькові вчителя
+      </label>
+      <select class="select form-control" id="select" name="select">
+       <option value="Войтович Едуард Георгійович">
+        Войтович Едуард Георгійович
+       </option>
+       <option value="Стрельникова Світлана Миколаївна">
+        Стрельникова Світлана Миколаївна
+       </option>
+       <option value="Головня Таміла Олександрівна">
+        Головня Таміла Олександрівна
+       </option>
+       <option value="Фесюк Алла Костянтинівна">
+        Фесюк Алла Костянтинівна
+       </option>
+       <option value="Кучеренко Алла Василівна">
+        Кучеренко Алла Василівна
+       </option>
+      </select>
+     </div>
+     <div class="form-group ">
+      <label class="control-label " for="date">
+       Дата
+      </label>
+      <div class="input-group">
+       <div class="input-group-addon">
+        Запис можливий на:
+       </div>
+       <input class="form-control" id="date" name="date" placeholder="Число/Місяць/Рік" type="text"/>
+      </div>
+      <span class="help-block" id="hint_date">
+       Введіть дату у форматі ДД/ММ/РРРР, наприклад: 01/05/2018, або виберіть зі списка доступних
+      </span>
+     </div>
+     <div class="form-group">
+      <div>
+       <button class="btn btn-primary " name="submit" type="submit">
+        Вибрати
+       </button>
+      </div>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+      var date_input=$('input[name="date"]'); //our date input has the name "date"
+      var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+      var options={
+        format: 'dd/mm/yyyy',
+        container: container,
+        weekStart: 1,
+		startDate: "01/09/2018",
+		endDate: "30/05/2019",
+		maxViewMode: 2,
+		todayBtn: true,
+		language: "uk",
+		daysOfWeekDisabled: "0,3,4,6",
+		daysOfWeekHighlighted: "1,2,5",
+		todayHighlight: true,
+		datesDisabled: ['04/09/2018', '14/09/2018'],
+        autoclose: true
+      };
+      date_input.datepicker(options);
+    })
+</script>
+</body>
+</html>
