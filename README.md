@@ -1,5 +1,7 @@
 # Visit Planner
-## THIS IS A DRAFT VERSION
+#### THIS IS A DRAFT VERSION
+Latest working document is evolving and improving here: [https://externschool.github.io](https://externschool.github.io)
+ (in Russian)
 
 ## 1. Story
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
@@ -127,8 +129,8 @@ Future projects:
  * minimal cost, preferably use free tier service providers
  
 ### 4.5. Interaction requirements 
- * interacts via external RESTful API 
-
+ * RESTful API 
+ * *TBD*
 
 ## 5. Visit Planner Requirements
 ### 5.1. Functional Requirements. User stories
@@ -158,35 +160,7 @@ This project has to provide the following features:</br>
  punctual students, competitions could be organized and so on; 
 </br>
 
-### 5.2. Domain model and database implementation (skeleton):
-#### 5.2.1. Alternative SQL persistent Entities:
- * host: *hostId*, first name, middle name, family name, mail, phone number, position, taught subjects list, room number, 
- time slots by days of week
- * visitor: *visitorId*, first name, middle name, family name, mail, phone number, class, subject/teacher pairs
- * timeslot: *timeslotId*, hostId, date, start time (inclusive), end time (exclusive) OR a time interval?
- * appointment: *appointmentId*, hostId, timeslotId, visitorId, flag: fixed appointment OR reserve queue record
- * year of study/grade/class: *classId*, subjects list
- * school subject: *subjectId*, name, year of study, semesters taught, per semester: { consultation hours, is there a 
- test to be passed } 
- * ...
- * guest: *guestId* - registered users with stored their: name, mail, phone number, 
- *optionally* *IP* to control for security reasons multiple appointment requests from the same IP 
-
-#### 5.2.2. noSQL schema domain organization:
- * subject: subject_id, year of study/grade/class, per semester: (consultation hours, is there a test)
- * student: student_id, name, mail, phone number, class, list of:(**subject_id**, **teacher_id**) 
- * teacher: teacher_id, name, position, taught subjects list (**subject_id**), mail, phone number, optionally
-  list of students: (**student_id**)
- * teachers time line (one for each one): teacher_line_id, **teacher_id**, list of time slots:
- (date, start time, end time, **student_id**, subject) -- available for students reservations
- * personnel: personnel_id, name, position
- * personnel time line (one for each one): personnel_line_id, **personnel_id**, list of time slots:
- (date, start time, end time, **guest_id**) -- available for guests appointments
- * guest: guest_id, name, mail, phone number,
- *optionally* *IP* to control multiple appointment requests from the same IP for security reasons
-
-###### The problem: since MongoDB has no joints *every **bold Id** has to be handled manually*
- 
+### 5.2. Domain model and database implementation (skeleton): 
  
 ### 5.3. Visit Planner External API. Option #1. Concise.
  * POST     /hosts                                              
@@ -215,7 +189,7 @@ This project has to provide the following features:</br>
  GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
  POST   | /visitors/{visitorId}/appointments                  |         |         |    x    |     
  DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
- **to be discussed*
+ **TBD*
 
 ### 5.4. Visit Planner External API. Option #2. Extended.
 **Officers:**
@@ -273,7 +247,7 @@ This project has to provide the following features:</br>
  GET    | /guests/{guestId}/appointments                           |    x    |      x      |    x    |    x
  POST   | /guests/{guestId}/appointments                           | **???** |             |         |    x 
  DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |             |         |    x
- **to be discussed*
+ **TBD*
 
 
 ### 5.5. User flows
@@ -294,25 +268,25 @@ The app should demonstrate following user flows:
   * Add a new host (Admin-only feature)
   * Delete a host (Admin-only feature)
   * View list of timeslots at a host
-  * and so on according to the API
+  * and so on according to the [Docs](https://externschool.github.io)
 
 ### 5.6. Cloud infrastructure
- * AWS EC2, S3 -- 1 year free tier, best reaction to unstable loads
- * AWS RDS -- 1 year free tier OR...
- * MongoDB Atlas A0 at AWS -- 3 shards 512M database instantly free
- 
-### 5.7. Microservices diagram 
+ * *TBD*
+  
+### 5.7. Microservice Integration diagram 
 ![Microservices diagram](https://user-images.githubusercontent.com/10642971/38766137-7368b23a-3fd6-11e8-9679-69b12c7939f8.png)
 
 ### 5.8. Server/client platform
- * Java 8, Spring Boot 2, Netflix OSS, okta, Swagger/Open API
- * Thymeleaf3 templates, Bootstrap4, CSS3 ...OR any other great framework ...OR AWS Lambda JS based client?
+ * Java 8, Spring Boot 2, Spring 5, Maven, Spring Data, Spring Web, Spring Security
+ * Liquibase, H2, PostgeSQL
+ * Mockito, AssertJ, JUnit, DbUnit
+ * Thymeleaf3, Bootstrap4, CSS3
 
 ### 5.9. Security
- * Spring Security 5.0
- * OAuth with {okta} (free tier up to 7000 active users)
+ * Spring Security 
+ * OAuth with {okta} (free tier up to 7000 active users) -- *TBD* 
  
 ### 5.10. Clients
  * standard HTML5 web browser
- * *optional* custom RESTful applications 
+ * RESTful clients -- *TBD* 
 
