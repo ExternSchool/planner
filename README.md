@@ -1,3 +1,4 @@
+# Tests
 # Visit Planner
 #### THIS IS A DRAFT VERSION
 Latest working document is evolving and improving here: [https://externschool.github.io](https://externschool.github.io)
