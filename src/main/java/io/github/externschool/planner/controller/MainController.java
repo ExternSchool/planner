@@ -1,8 +1,11 @@
 package io.github.externschool.planner.controller;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-public class GreetingController {
+@Controller
+public class MainController {
+
     @GetMapping("/")
     public String greeting() {
         return "greeting";
