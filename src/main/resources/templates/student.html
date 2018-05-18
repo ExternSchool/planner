@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>-->
+    <!--<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />-->
+
+    <!-- Bootstrap Date-Picker Plugin -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker3.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.uk.min.js" integrity="sha256-gJ+sB+muQyOKhTNx/XvtaXXkEr88FXSS3xMgtVR3V+E=" crossorigin="anonymous"></script>
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+
+    <title>User page</title>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        <a href="#" th:href="@{#}" class="btn btn-outline-danger my-2 my-sm-0 float-lg-right">Generate Key</a>
+    </div>
+        <h3 class="h3 mb-3 font-weight-normal" th:inline="text">Student: [[${#httpServletRequest.remoteUser}]]</h3>
+    <fieldset>
+        <form class="form" th:action="@{/student}" method="post">
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Identification Key</label>
+                <div class="col-lg-9">
+                    <input type="text" placeholder="A key provided by the school to link the user with a real student"
+                           th:id="key" value="" class="form-control"  autofocus>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Email Address (Username)</label>
+                <div class="col-lg-9">
+                    <input type="email" name="username" th:id="username" class="form-control"
+                           placeholder="Email address used as Username, has to be unique"
+                    required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">First name</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" id="name" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Patronymic</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" id="patronymic" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Surname</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" id="surname" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Date of Birth</label>
+                <div class="col-lg-9">
+                    <input type="text" class="form-control pull-right" id="date" name="date" placeholder="DD/MM/YYYY"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Telephone Number</label>
+                <div class="col-lg-9">
+                    <input type="tel" placeholder="Telephone Number (Format: +99(999)999-9999)" id="tel" value=""
+                           class="form-control"
+                           pattern='[\+]\d{2}[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Phone Number (Format: +99(999)999-9999)'>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Address</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" id="address" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Year of Study (Grade)</label>
+                <div class="col-lg-9">
+                    <select id="grade" class="form-control" th:id="grade" size="0">
+                        <option value="Grade_1">Grade 1</option>
+                        <option value="Grade_2">Grade 2</option>
+                        <option value="Grade_3">Grade 3</option>
+                        <option value="Grade_4">Grade 4</option>
+                        <option value="Grade_5">Grade 5</option>
+                        <option value="Grade_6">Grade 6</option>
+                        <option value="Grade_7">Grade 7</option>
+                        <option value="Grade_8">Grade 8</option>
+                        <option value="Grade_9">Grade 9</option>
+                        <option value="Grade_10">Grade 10</option>
+                        <option value="Grade_11">Grade 11</option>
+                        <option value="Grade_12">Grade 12</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Password</label>
+                <div class="col-lg-9">
+                    <input type="password" th:id="password" id="password" class="form-control"
+                           placeholder="Password requires at least 6 characters using UpperCase, LowerCase, Number/SpecialChar"
+                           pattern="(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                           title="at least 6 characters using UpperCase, LowerCase, Number/SpecialChar"
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Confirm</label>
+                <div class="col-lg-9">
+                    <input type="password" placeholder="Confirm Password" id="confirm_password" class="form-control"
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label"></label>
+                <div class="col-lg-9">
+                    <input class="btn btn-secondary" value="Cancel">
+                    <input class="btn btn-primary" th:id="save" value="Save Changes"  type="submit">
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
+<!-- Script -->
+<script type="text/javascript">
+    var password = document.getElementById("password")
+        , confirm_password = document.getElementById("confirm_password");
+
+    function validatePassword(){
+        if(password.value != confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords Don't Match");
+        } else {
+            confirm_password.setCustomValidity('');
+        }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+
+    // datepicker
+    $(document).ready(function(){
+        var date_input=$('input[name="date"]'); //our date input has the name "date"
+        var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+        var options={
+            format: 'dd/mm/yyyy',
+            container: container,
+            weekStart: 1,
+            startDate: "01/01/1990",
+            endDate: "01/01/2018",
+            maxViewMode: 2,
+            todayBtn: true,
+            language: "uk",
+            todayHighlight: true,
+            autoclose: true
+        };
+        date_input.datepicker(options);
+    })
+
+    // $(function() {
+    //     $('input[name="birthday"]').daterangepicker({
+    //         "singleDatePicker": true,
+    //         "autoApply": true,
+    //         "locale": {
+    //             "format": "DD/MM/YYYY",
+    //             "separator": " - ",
+    //             "applyLabel": "Apply",
+    //             "cancelLabel": "Cancel",
+    //             "fromLabel": "From",
+    //             "toLabel": "To",
+    //             "customRangeLabel": "Custom",
+    //             "weekLabel": "W",
+    //             "daysOfWeek": [
+    //                 "Su",
+    //                 "Mo",
+    //                 "Tu",
+    //                 "We",
+    //                 "Th",
+    //                 "Fr",
+    //                 "Sa"
+    //             ],
+    //             "monthNames": [
+    //                 "January",
+    //                 "February",
+    //                 "March",
+    //                 "April",
+    //                 "May",
+    //                 "June",
+    //                 "July",
+    //                 "August",
+    //                 "September",
+    //                 "October",
+    //                 "November",
+    //                 "December"
+    //             ],
+    //             "firstDay": 1
+    //         },
+    //         "alwaysShowCalendars": true,
+    //         "startDate": "01/01/2010",
+    //         "endDate": "01/01/2018",
+    //         "minDate": "01/01/1990",
+    //         "maxDate": moment(),
+    //         "opens": "left",
+    //         "drops": "up"
+    //     }, function(start, end, label) {
+    //         var years = moment().diff(start, 'years');
+    //         alert("User is " + years + " years old!");
+    //     });
+    // });
+
+
+</script>
+
+</body>
+</html>
