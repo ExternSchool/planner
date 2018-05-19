@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -14,21 +15,33 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().anyRequest().fullyAuthenticated()
-                .antMatchers("/").permitAll()
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/", "/index", "/home", "/greeting",
+                        "/signup",
+                        "/js/**",
+                        "/css/**",
+                        "/img/**",
+                        "/webjars/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
-                .formLogin().defaultSuccessUrl("/", true)
-                .loginPage("/login").permitAll().and().logout().permitAll()
-                .and().httpBasic();
-
+                .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+                .logout()
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login?logout")
+                .permitAll();
     }
 
-    @SuppressWarnings("deprecated")
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authBuilder) throws Exception{
-        authBuilder.inMemoryAuthentication().passwordEncoder(NoOpPasswordEncoder.getInstance())
-                .withUser("user").password("user").roles("USER")
+        authBuilder.inMemoryAuthentication()
+                .withUser("user@").password("{noop}user").roles("USER")
                 .and()
-                .withUser("admin").password("admin").roles("USER", "ADMIN");
+                .withUser("admin@").password("{noop}admin").roles("USER", "ADMIN");
     }
 }
