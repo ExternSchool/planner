@@ -12,9 +12,6 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "identical_key")
-    private String identicalKey;
-
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -32,8 +29,7 @@ public class User {
 
     }
 
-    public User(String identicalKey, String phoneNumber, String email, String password, String encryptedPassword) {
-        this.identicalKey = identicalKey;
+    public User(String phoneNumber, String email, String password, String encryptedPassword) {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.password = password;
@@ -46,14 +42,6 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getIdenticalKey() {
-        return identicalKey;
-    }
-
-    public void setIdenticalKey(String identicalKey) {
-        this.identicalKey = identicalKey;
     }
 
     public String getPhoneNumber() {
@@ -94,7 +82,6 @@ public class User {
         if (!(o instanceof User)) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(identicalKey, user.identicalKey) &&
                 Objects.equals(phoneNumber, user.phoneNumber) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
@@ -104,6 +91,6 @@ public class User {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, identicalKey, phoneNumber, email, password, encryptedPassword);
+        return Objects.hash(id, phoneNumber, email, password, encryptedPassword);
     }
 }
