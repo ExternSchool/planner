@@ -61,9 +61,7 @@ html{
 }
 
 .form-group {
-    /*-webkit-box-align: start;*/
     align-items: left;
-    /*-webkit-box-pack: start;*/
     justify-content: space-evenly;
     text-align: justify;
     text-justify: inter-word;

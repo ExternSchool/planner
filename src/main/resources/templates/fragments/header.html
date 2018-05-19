@@ -16,28 +16,9 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item active">
-                    <a class="nav-link active" href="/home">Home</a>
+                    <a class="nav-link active" href="#">Home</a>
                 </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_USER')">
-                        <a class="nav-link" href="/guest">Guest</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_USER')">
-                        <a class="nav-link" href="/student">Student</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_USER')">
-                        <a class="nav-link" href="/teacher">Teacher</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a class="nav-link" href="/admin">Admin</a>
-                    </div>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link disabled" href="#">Disabled</a>
                 </li>
@@ -46,8 +27,8 @@
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                 <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Search</button>
                 <div sec:authorize="isAnonymous()">
-                    <a href="/signup" th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Sign Up</a>
-                    <a href="/login" th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Log In</a>
+                    <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Sign Up</a>
+                    <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Log In</a>
                 </div>
                 <div sec:authorize="isAuthenticated()">
                     <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"> Log Out</a>
