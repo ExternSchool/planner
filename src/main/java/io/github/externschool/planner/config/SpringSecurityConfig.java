@@ -6,7 +6,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
@@ -20,15 +19,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().defaultSuccessUrl("/", true)
                 .loginPage("/login").permitAll().and().logout().permitAll()
                 .and().httpBasic();
-
     }
 
-    @SuppressWarnings("deprecated")
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authBuilder) throws Exception{
-        authBuilder.inMemoryAuthentication().passwordEncoder(NoOpPasswordEncoder.getInstance())
-                .withUser("user").password("user").roles("USER")
+        authBuilder.inMemoryAuthentication()
+                .withUser("user@").password("{noop}user").roles("USER")
                 .and()
-                .withUser("admin").password("admin").roles("USER", "ADMIN");
+                .withUser("admin@").password("{noop}admin").roles("USER", "ADMIN");
     }
 }
