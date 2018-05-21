@@ -1,16 +1,40 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-
-    <!--<link rel="icon" type="image/png" href="img/pic.png"/>-->
-    <link rel="icon" type="image/png" href="img/favorite.png"/>
-    <title>Extern School </title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <title>Extern School</title>
 </head>
-<body style="color:Yellow; background-color: grey">
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
 
 <img src="../static/img/pic.png" th:src="@{/img/pic.png}" width="50" height="50" /></a>
-<center><h1  style="color: yellow;">Welcome to Extern School</h1></center>
+<center><h1 class="h3 mb-3 font-weight-normal">Welcome to Extern School</h1></center>
+
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
 </body>
 </html>
-
