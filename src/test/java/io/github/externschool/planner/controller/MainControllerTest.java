@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-public class MaingTest {
+public class MainControllerTest {
 
     private MockMvc mockMvc;
 
@@ -26,11 +26,10 @@ public class MaingTest {
     }
 
     @Test
-    public void testIndex() throws Exception{
+    public void testStartingPageReturnsGreetingView() throws Exception{
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("greeting"))
                 .andDo(print());
     }
-//
 }
