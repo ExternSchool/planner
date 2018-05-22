@@ -22,7 +22,7 @@ public class SpringSecurityConfigTest {
 
     @Test
     public void userIsAuthenticatedTest() throws Exception {
-        mockMvc.perform(formLogin().user("admin@").password("admin"))
+        mockMvc.perform(formLogin().user("admin@a").password("admin"))
                 .andExpect(authenticated());
     }
 }
