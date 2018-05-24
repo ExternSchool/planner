@@ -1,5 +1,7 @@
 package io.github.externschool.planner.dto;
 
+import io.github.externschool.planner.entity.User;
+
 import javax.validation.constraints.NotNull;
 
 public class UserDTO {
@@ -66,6 +68,15 @@ public class UserDTO {
                 ", password='" + password + '\'' +
                 '}';
     }
+
+    public User constructUser() {
+        User user = new User();
+        user.setEmail(this.getEmail());
+        user.setPassword(this.getPassword());
+        user.setPhoneNumber(this.getPhoneNumber());
+        return user;
+    }
+
 
     @Override
     public boolean equals(Object o) {
