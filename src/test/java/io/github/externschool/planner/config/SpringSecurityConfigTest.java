@@ -16,13 +16,12 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 @SpringBootTest
 public class SpringSecurityConfigTest {
 
-
     @Autowired
     MockMvc mockMvc;
 
     @Test
     public void userIsAuthenticatedTest() throws Exception {
-        mockMvc.perform(formLogin().user("admin@a").password("admin"))
+        mockMvc.perform(formLogin().user("admin@a").password("Admin1"))
                 .andExpect(authenticated());
     }
 }
