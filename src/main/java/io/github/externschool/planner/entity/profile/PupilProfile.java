@@ -1,18 +1,13 @@
 package io.github.externschool.planner.entity.profile;
 
-import sun.util.resources.LocaleData;
+import java.time.LocalDate;
 
 public class PupilProfile extends Profile {
 
-    private LocaleData dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String maleOrFemale; //maybe Enum?
 
     //another fields
-
-
-
-
-
 
 }
