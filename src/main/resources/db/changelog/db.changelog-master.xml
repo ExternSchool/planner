@@ -1,0 +1,27 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="Maxim" id="1">
+        <createTable tableName="authority">
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="Maxim" id="2">
+        <insert tableName="authority">
+            <column name="name" value="student"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="name" value="teacher"/>
+        </insert>
+        <insert tableName="authority">
+            <column name="name" value="guest"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>
