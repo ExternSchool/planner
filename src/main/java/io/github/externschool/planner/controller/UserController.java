@@ -34,12 +34,12 @@ public class UserController {
     //TODO Browser-side SignUp form validation used
     //TODO Implement DTO validation to avoid fake data submitted in POST requests
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public String saveOrUpdate(UserDTO userDTO, Model model, User user) {
-//        model.addAttribute("user", userDTO);
-        user = userDTO.constructUser();
+    public String saveOrUpdate(UserDTO userDTO) {
+
+       User user = userDTO.constructUser();
 
         userService.createNewUser(user);
 
-        return "success";
+        return "redirect:/login";
     }
 }

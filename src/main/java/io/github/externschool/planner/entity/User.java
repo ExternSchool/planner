@@ -1,5 +1,7 @@
 package io.github.externschool.planner.entity;
 
+import io.github.externschool.planner.dto.UserDTO;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -86,6 +88,14 @@ public class User {
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(encryptedPassword, user.encryptedPassword);
+    }
+
+    public UserDTO constructUser() {
+        UserDTO useDtO = new UserDTO();
+        useDtO.setEmail(this.getEmail());
+        useDtO.setPassword(this.getPassword());
+        useDtO.setPhoneNumber(this.getPhoneNumber());
+        return  useDtO;
     }
 
     @Override
