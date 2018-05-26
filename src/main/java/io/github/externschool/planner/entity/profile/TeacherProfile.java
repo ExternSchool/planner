@@ -5,7 +5,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "school_employee_profile")
-public class SchoolEmployeeProfile extends Profile {
+public class TeacherProfile extends GuestProfile {
 
     private String schoolOfficer;
 
@@ -13,8 +13,10 @@ public class SchoolEmployeeProfile extends Profile {
 
     //Set<Subject> subjectList = new HashSet(); // in case of teaching more than one subject
 
-    //Set<ScheduleTime> schedule = ne HashSet() // reception days/time
+    //Set<ScheduleTime> teacherSchedule = new HashSet() // reception days/time
 
     //another fields
+
+
 
 }
