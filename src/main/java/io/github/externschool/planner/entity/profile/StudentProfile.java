@@ -1,7 +1,11 @@
 package io.github.externschool.planner.entity.profile;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "student_profile")
 public class StudentProfile extends GuestProfile {
 
     private LocalDate dateOfBirth;

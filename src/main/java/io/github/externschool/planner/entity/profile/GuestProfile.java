@@ -1,13 +1,15 @@
 package io.github.externschool.planner.entity.profile;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "quest_profile")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class GuestProfile {
 
+    @Id
+    @Column(name = "guest_profile_id")
     private Long id;
 
     private Long validationKey;
