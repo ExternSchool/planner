@@ -1,6 +1,8 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.service.UserService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,15 +19,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.http.RequestEntity.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -34,6 +35,8 @@ public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -83,31 +86,11 @@ public class UserControllerTest {
                 "!Qwert");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(mapUser(user)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andExpect(view().name("success"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Successful Sign Up")))
-                .andExpect(model().attribute("user", equalTo(user)));
+                .andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
     }
 
-    //TODO Browser-side SignUp form validation used
-    //TODO This test should fail after DTO validation implemented to avoid fake data in POST requests submission
-    @Test
-    public void testPostSignupWithInorrectParameters_ReturnsUserSuccessTemplate() throws Exception {
-        UserDTO user = new UserDTO("aJd4da65dH5d54Dj",
-                "user",
-                "999",
-                "false");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(mapUser(user)))
-                .andExpect(status().isOk())
-                .andDo(print())
-                .andExpect(view().name("success"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Successful Sign Up")))
-                .andExpect(model().attribute("user", equalTo(user)));
-    }
+
 
     private MultiValueMap<String, String> mapUser(UserDTO user) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
