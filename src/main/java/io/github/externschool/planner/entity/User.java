@@ -2,20 +2,23 @@ package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.dto.UserDTO;
 
+import io.github.externschool.planner.entity.profile.Profile;
+
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "user")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private Profile profile;
 
     @Column(name = "email")
     private String email;
@@ -27,15 +30,10 @@ public class User {
     @Column(name = "encrypted_password")
     private String encryptedPassword;
 
-    public User(){
+    //private Role role;
 
-    }
+    public User() {
 
-    public User(String phoneNumber, String email, String password, String encryptedPassword) {
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
     }
 
     public Long getId() {
@@ -46,12 +44,12 @@ public class User {
         this.id = id;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public Profile getProfile() {
+        return profile;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
     public String getEmail() {
@@ -78,29 +76,30 @@ public class User {
         this.encryptedPassword = encryptedPassword;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof User)) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(phoneNumber, user.phoneNumber) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(encryptedPassword, user.encryptedPassword);
     }
 
+
     public UserDTO constructUser() {
         UserDTO useDtO = new UserDTO();
         useDtO.setEmail(this.getEmail());
         useDtO.setPassword(this.getPassword());
-        useDtO.setPhoneNumber(this.getPhoneNumber());
-        return  useDtO;
+        return useDtO;
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, phoneNumber, email, password, encryptedPassword);
+        return Objects.hash(id, email, password, encryptedPassword);
     }
+
 }
