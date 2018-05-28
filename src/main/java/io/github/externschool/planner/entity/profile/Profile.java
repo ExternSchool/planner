@@ -1,16 +1,23 @@
 package io.github.externschool.planner.entity.profile;
 
+import io.github.externschool.planner.entity.User;
+
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "quest_profile")
+@Table(name = "profile")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class GuestProfile {
+public class Profile {
 
     @Id
-    @Column(name = "guest_profile_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "profile_id")
     private Long id;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private Long validationKey;
 
@@ -20,8 +27,6 @@ public class GuestProfile {
 
     private String lastName;
 
-    private String email;
-
     private String phoneNumber;
 
     private String password;
@@ -29,18 +34,18 @@ public class GuestProfile {
     private String encryptedPassword;
 
 
-    public GuestProfile(){
+    public Profile(){
 
     }
 
-    public GuestProfile(Long id, Long validationKey, String firstName, String patronymicName, String lastName,
-                        String email, String phoneNumber, String password, String encryptedPassword) {
+    public Profile(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
+                   String phoneNumber, String password, String encryptedPassword) {
         this.id = id;
+        this.user = user;
         this.validationKey = validationKey;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
-        this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
@@ -52,6 +57,14 @@ public class GuestProfile {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Long getValidationKey() {
@@ -86,14 +99,6 @@ public class GuestProfile {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -120,13 +125,12 @@ public class GuestProfile {
 
     @Override
     public String toString() {
-        return "GuestProfile{" +
+        return "Profile{" +
                 "id=" + id +
                 ", validationKey=" + validationKey +
                 ", firstName='" + firstName + '\'' +
                 ", patronymicName='" + patronymicName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", password='" + password + '\'' +
                 ", encryptedPassword='" + encryptedPassword + '\'' +
@@ -136,14 +140,13 @@ public class GuestProfile {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof GuestProfile)) return false;
-        GuestProfile that = (GuestProfile) o;
+        if (!(o instanceof Profile)) return false;
+        Profile that = (Profile) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(validationKey, that.validationKey) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
-                Objects.equals(email, that.email) &&
                 Objects.equals(phoneNumber, that.phoneNumber) &&
                 Objects.equals(password, that.password) &&
                 Objects.equals(encryptedPassword, that.encryptedPassword);
@@ -152,7 +155,7 @@ public class GuestProfile {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, validationKey, firstName, patronymicName, lastName, email, phoneNumber,
+        return Objects.hash(id, validationKey, firstName, patronymicName, lastName, phoneNumber,
                 password, encryptedPassword);
     }
 }

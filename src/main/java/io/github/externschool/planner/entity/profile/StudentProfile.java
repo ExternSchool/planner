@@ -1,34 +1,33 @@
 package io.github.externschool.planner.entity.profile;
 
+import io.github.externschool.planner.entity.User;
+
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "student_profile")
-public class StudentProfile extends GuestProfile {
+public class StudentProfile extends Profile {
 
     private LocalDate dateOfBirth;
 
     private String gender;
 
-    private String adress;
+    private String address;
 
     private int yearOfStudy;
 
 
-    public StudentProfile() {
-    }
-
-    public StudentProfile(Long id, Long validationKey, String firstName, String patronymicName,
-                          String lastName, String email, String phoneNumber, String password,
-                          String encryptedPassword, LocalDate dateOfBirth, String gender, String adress,
-                          int yearOfStudy) {
-        super(id, validationKey, firstName, patronymicName, lastName, email, phoneNumber,
+    public StudentProfile(Long id, User user, Long validationKey, String firstName,
+                          String patronymicName, String lastName, String phoneNumber,
+                          String password, String encryptedPassword, LocalDate dateOfBirth,
+                          String gender, String address, int yearOfStudy) {
+        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber,
                 password, encryptedPassword);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
-        this.adress = adress;
+        this.address = address;
         this.yearOfStudy = yearOfStudy;
     }
 
@@ -48,12 +47,12 @@ public class StudentProfile extends GuestProfile {
         this.gender = gender;
     }
 
-    public String getAdress() {
-        return adress;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdress(String adress) {
-        this.adress = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getYearOfStudy() {
@@ -69,8 +68,10 @@ public class StudentProfile extends GuestProfile {
         return "StudentProfile{" +
                 "dateOfBirth=" + dateOfBirth +
                 ", gender='" + gender + '\'' +
-                ", adress='" + adress + '\'' +
+                ", address='" + address + '\'' +
                 ", yearOfStudy=" + yearOfStudy +
                 '}';
     }
+
+
 }
