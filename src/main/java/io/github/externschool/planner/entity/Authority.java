@@ -30,6 +30,10 @@ public class Authority {
         this.name = name;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -42,9 +46,5 @@ public class Authority {
     public int hashCode() {
 
         return Objects.hash(name);
-    }
-
-    public List<User> getUsers() {
-        return users;
     }
 }

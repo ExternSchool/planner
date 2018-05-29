@@ -7,7 +7,7 @@
     <changeSet author="Maxim" id="1">
         <createTable tableName="authority">
             <column name="name" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
         </createTable>
     </changeSet>
