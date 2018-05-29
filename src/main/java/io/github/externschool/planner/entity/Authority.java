@@ -1,7 +1,7 @@
 package io.github.externschool.planner.entity;
 
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "authority")
@@ -11,6 +11,9 @@ public class Authority {
     @Id
     @Column
     private String name;
+
+    @ManyToMany(mappedBy = "authorities")
+    private List<User> users = new ArrayList<>();
 
     public Authority() {
     }
@@ -39,5 +42,9 @@ public class Authority {
     public int hashCode() {
 
         return Objects.hash(name);
+    }
+
+    public List<User> getUsers() {
+        return users;
     }
 }

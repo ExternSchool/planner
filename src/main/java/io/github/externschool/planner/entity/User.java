@@ -3,7 +3,7 @@ package io.github.externschool.planner.entity;
 import io.github.externschool.planner.dto.UserDTO;
 
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
@@ -27,8 +27,17 @@ public class User {
     @Column(name = "encrypted_password")
     private String encryptedPassword;
 
-    public User(){
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "user_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "name")
+    )
+    private List<Authority> authorities = new ArrayList<>();
 
+    public User(){
     }
 
     public User(String phoneNumber, String email, String password, String encryptedPassword) {
@@ -36,6 +45,16 @@ public class User {
         this.email = email;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
+    }
+
+    public void addAuthority(Authority authority) {
+        authorities.add(authority);
+        authority.getUsers().add(this);
+    }
+
+    public void removeAuthority(Authority authority) {
+        authorities.remove(authority);
+        authority.getUsers().remove(this);
     }
 
     public Long getId() {
