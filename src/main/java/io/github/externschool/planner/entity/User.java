@@ -39,11 +39,11 @@ public class User {
     }
 
     public UserDTO constructUser() {
-        UserDTO useDtO = new UserDTO();
-        useDtO.setUsername(this.getUsername());
-        useDtO.setPassword(this.getPassword());
-        useDtO.setPhoneNumber(this.getPhoneNumber());
-        return  useDtO;
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(this.getUsername());
+        userDTO.setPassword(this.getPassword());
+        userDTO.setPhoneNumber(this.getPhoneNumber());
+        return  userDTO;
     }
 
     public Long getId() {
