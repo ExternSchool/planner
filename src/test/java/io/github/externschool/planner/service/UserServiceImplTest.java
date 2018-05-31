@@ -25,12 +25,12 @@ public class UserServiceImplTest {
 
         User dmytro = new User();
 
-        dmytro.setEmail("dmytro@gmail.com");
+        dmytro.setUsername("dmytro@gmail.com");
 
         userService.createNewUser(dmytro);
 
-        User retrieveDmytro = userRepository.findByEmail("dmytro@gmail.com");
+        User retrieveDmytro = userRepository.findByUsername("dmytro@gmail.com");
 
-        assertThat(retrieveDmytro.getEmail()).isEqualTo(dmytro.getEmail());
+        assertThat(retrieveDmytro.getUsername()).isEqualTo(dmytro.getUsername());
     }
 }

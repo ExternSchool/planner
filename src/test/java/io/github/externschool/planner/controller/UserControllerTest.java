@@ -1,7 +1,6 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.UserDTO;
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.service.UserService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -18,15 +17,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.RequestEntity.post;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -89,13 +88,10 @@ public class UserControllerTest {
                 .andExpect(status().isFound()).andExpect(redirectedUrl("/login"));
     }
 
-
-
-
     private MultiValueMap<String, String> mapUser(UserDTO user) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("verificationKey",user.getVerificationKey());
-        map.add("email",user.getEmail());
+        map.add("email",user.getUsername());
         map.add("phoneNumber", user.getPhoneNumber());
         map.add("password", user.getPassword());
 

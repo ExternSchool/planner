@@ -36,7 +36,7 @@ public class UserController {
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String saveOrUpdate(UserDTO userDTO) {
 
-       User user = userDTO.constructUser();
+        User user = userDTO.constructUser();
 
         userService.createNewUser(user);
 

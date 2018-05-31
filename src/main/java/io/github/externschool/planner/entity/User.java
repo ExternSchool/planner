@@ -17,8 +17,8 @@ public class User {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "username")
+    private String username;
 
     @Transient
     @Column(name = "password")
@@ -31,11 +31,19 @@ public class User {
 
     }
 
-    public User(String phoneNumber, String email, String password, String encryptedPassword) {
+    public User(String phoneNumber, String username, String password, String encryptedPassword) {
         this.phoneNumber = phoneNumber;
-        this.email = email;
+        this.username = username;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
+    }
+
+    public UserDTO constructUser() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(this.getUsername());
+        userDTO.setPassword(this.getPassword());
+        userDTO.setPhoneNumber(this.getPhoneNumber());
+        return  userDTO;
     }
 
     public Long getId() {
@@ -54,12 +62,12 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -85,22 +93,14 @@ public class User {
         User user = (User) o;
         return Objects.equals(id, user.id) &&
                 Objects.equals(phoneNumber, user.phoneNumber) &&
-                Objects.equals(email, user.email) &&
+                Objects.equals(username, user.username) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(encryptedPassword, user.encryptedPassword);
-    }
-
-    public UserDTO constructUser() {
-        UserDTO useDtO = new UserDTO();
-        useDtO.setEmail(this.getEmail());
-        useDtO.setPassword(this.getPassword());
-        useDtO.setPhoneNumber(this.getPhoneNumber());
-        return  useDtO;
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, phoneNumber, email, password, encryptedPassword);
+        return Objects.hash(id, phoneNumber, username, password, encryptedPassword);
     }
 }
