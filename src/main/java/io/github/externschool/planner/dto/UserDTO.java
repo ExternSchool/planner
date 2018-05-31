@@ -9,7 +9,7 @@ public class UserDTO {
     private String verificationKey;
 
     @NotNull
-    private String email;
+    private String username;
 
     @NotNull
     private String phoneNumber;
@@ -20,9 +20,9 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(String verificationKey, String email, String phoneNumber, String password) {
+    public UserDTO(String verificationKey, String username, String phoneNumber, String password) {
         this.verificationKey = verificationKey;
-        this.email = email;
+        this.username = username;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
@@ -35,12 +35,12 @@ public class UserDTO {
         this.verificationKey = verificationKey;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPhoneNumber() {
@@ -63,7 +63,7 @@ public class UserDTO {
     public String toString() {
         return "User{" +
                 "verificationKey='" + verificationKey + '\'' +
-                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", password='" + password + '\'' +
                 '}';
@@ -71,12 +71,11 @@ public class UserDTO {
 
     public User constructUser() {
         User user = new User();
-        user.setEmail(this.getEmail());
+        user.setUsername(this.getUsername());
         user.setPassword(this.getPassword());
         user.setPhoneNumber(this.getPhoneNumber());
         return user;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -85,14 +84,14 @@ public class UserDTO {
 
         UserDTO userDTO = (UserDTO) o;
 
-        if (!email.equals(userDTO.email)) return false;
+        if (!username.equals(userDTO.username)) return false;
         if (!phoneNumber.equals(userDTO.phoneNumber)) return false;
         return password.equals(userDTO.password);
     }
 
     @Override
     public int hashCode() {
-        int result = email.hashCode();
+        int result = username.hashCode();
         result = 31 * result + phoneNumber.hashCode();
         result = 31 * result + password.hashCode();
         return result;
