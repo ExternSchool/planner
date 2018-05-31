@@ -7,24 +7,22 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "student_profile")
-public class StudentProfile extends Profile {
+@Table(name = "student")
+public class Student extends Person {
 
     private LocalDate dateOfBirth;
 
-    private String gender;
+    private Gender gender;
 
     private String address;
 
     private int yearOfStudy;
 
-
-    public StudentProfile(Long id, User user, Long validationKey, String firstName,
-                          String patronymicName, String lastName, String phoneNumber,
-                          String password, String encryptedPassword, LocalDate dateOfBirth,
-                          String gender, String address, int yearOfStudy) {
-        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber,
-                password, encryptedPassword);
+    public Student(Long id, User user, Long validationKey, String firstName, String patronymicName,
+                   String lastName, String phoneNumber, String password, String encryptedPassword,
+                   LocalDate dateOfBirth, Gender gender, String address, int yearOfStudy) {
+                   super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber,
+                   password, encryptedPassword);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
@@ -39,11 +37,11 @@ public class StudentProfile extends Profile {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -65,7 +63,7 @@ public class StudentProfile extends Profile {
 
     @Override
     public String toString() {
-        return "StudentProfile{" +
+        return "Student{" +
                 "dateOfBirth=" + dateOfBirth +
                 ", gender='" + gender + '\'' +
                 ", address='" + address + '\'' +

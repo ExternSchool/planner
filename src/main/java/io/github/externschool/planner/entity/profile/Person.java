@@ -6,20 +6,17 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "profile")
+@Table(name = "person")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class Profile {
+public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "profile_id")
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
-
-    private Long validationKey;
 
     private String firstName;
 
@@ -29,26 +26,18 @@ public class Profile {
 
     private String phoneNumber;
 
-    private String password;
-
-    private String encryptedPassword;
-
-
-    public Profile(){
+    public Person(){
 
     }
 
-    public Profile(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String password, String encryptedPassword) {
+    public Person(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
+                  String phoneNumber, String password, String encryptedPassword) {
         this.id = id;
         this.user = user;
-        this.validationKey = validationKey;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
     }
 
     public Long getId() {
@@ -65,14 +54,6 @@ public class Profile {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Long getValidationKey() {
-        return validationKey;
-    }
-
-    public void setValidationKey(Long validationKey) {
-        this.validationKey = validationKey;
     }
 
     public String getFirstName() {
@@ -107,55 +88,32 @@ public class Profile {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
     @Override
     public String toString() {
-        return "Profile{" +
+        return "Person{" +
                 "id=" + id +
-                ", validationKey=" + validationKey +
                 ", firstName='" + firstName + '\'' +
                 ", patronymicName='" + patronymicName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", password='" + password + '\'' +
-                ", encryptedPassword='" + encryptedPassword + '\'' +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Profile)) return false;
-        Profile that = (Profile) o;
+        if (!(o instanceof Person)) return false;
+        Person that = (Person) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(validationKey, that.validationKey) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
-                Objects.equals(phoneNumber, that.phoneNumber) &&
-                Objects.equals(password, that.password) &&
-                Objects.equals(encryptedPassword, that.encryptedPassword);
+                Objects.equals(phoneNumber, that.phoneNumber);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, validationKey, firstName, patronymicName, lastName, phoneNumber,
-                password, encryptedPassword);
+        return Objects.hash(id, firstName, patronymicName, lastName, phoneNumber);
     }
 }

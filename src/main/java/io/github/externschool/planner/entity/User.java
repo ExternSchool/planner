@@ -2,7 +2,7 @@ package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.dto.UserDTO;
 
-import io.github.externschool.planner.entity.profile.Profile;
+import io.github.externschool.planner.entity.profile.Person;
 
 
 import javax.persistence.*;
@@ -10,15 +10,15 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user")
-@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id")
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private Profile profile;
+    private Person person;
 
     @Column(name = "email")
     private String email;
@@ -30,10 +30,15 @@ public class User {
     @Column(name = "encrypted_password")
     private String encryptedPassword;
 
-    //private Role role;
-
     public User() {
 
+    }
+
+    public User(Person person, String email, String password, String encryptedPassword) {
+        this.person = person;
+        this.email = email;
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
     }
 
     public Long getId() {
@@ -44,12 +49,12 @@ public class User {
         this.id = id;
     }
 
-    public Profile getProfile() {
-        return profile;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setProfile(Profile profile) {
-        this.profile = profile;
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     public String getEmail() {
@@ -90,10 +95,10 @@ public class User {
 
 
     public UserDTO constructUser() {
-        UserDTO useDtO = new UserDTO();
-        useDtO.setEmail(this.getEmail());
-        useDtO.setPassword(this.getPassword());
-        return useDtO;
+        UserDTO userDtO = new UserDTO();
+        userDtO.setEmail(this.getEmail());
+        userDtO.setPassword(this.getPassword());
+        return userDtO;
     }
 
     @Override

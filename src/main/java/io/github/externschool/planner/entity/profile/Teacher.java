@@ -4,10 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "school_employee_profile")
-public class TeacherProfile extends Profile {
-
-    Long id;
+@Table(name = "teacher")
+public class Teacher extends Person {
 
     private String schoolOfficer;
 
