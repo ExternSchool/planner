@@ -73,7 +73,6 @@ public class UserDTO {
         User user = new User();
         user.setEmail(this.getEmail());
         user.setPassword(this.getPassword());
-        user.setPhoneNumber(this.getPhoneNumber());
         return user;
     }
 
