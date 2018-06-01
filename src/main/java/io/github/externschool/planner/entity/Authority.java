@@ -1,7 +1,12 @@
 package io.github.externschool.planner.entity;
 
-import javax.persistence.*;
-import java.util.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "authority")
@@ -12,8 +17,9 @@ public class Authority {
     @Column
     private String name;
 
-    @ManyToMany(mappedBy = "authorities")
-    private List<User> users = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Authority() {
     }
@@ -22,16 +28,16 @@ public class Authority {
         this.name = name;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<User> getUsers() {
-        return users;
     }
 
     @Override
