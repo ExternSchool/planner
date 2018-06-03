@@ -8,7 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.HashSet;
@@ -37,7 +39,14 @@ public class User {
     @Column(name = "encrypted_password")
     private String encryptedPassword;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "user_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id")
+    )
     private Set<Authority> authorities = new HashSet<>();
 
     public User() {
@@ -48,20 +57,6 @@ public class User {
         this.email = email;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
-    }
-
-    public Set<Authority> getAuthorities() {
-        return authorities;
-    }
-
-    public void addAuthority(Authority authority) {
-        authorities.add(authority);
-        authority.setUser(this);
-    }
-
-    public void removeAuthority(Authority authority) {
-        authority.setUser(null);
-        this.authorities.remove(authority);
     }
 
     public Long getId() {

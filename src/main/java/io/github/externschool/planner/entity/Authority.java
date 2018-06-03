@@ -3,10 +3,11 @@ package io.github.externschool.planner.entity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "authority")
@@ -17,19 +18,14 @@ public class Authority {
     @Column
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToMany(mappedBy = "authorities")
+    private Set<User> users = new HashSet<>();
 
     public Authority() {
     }
 
     public Authority(String name) {
         this.name = name;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getName() {
