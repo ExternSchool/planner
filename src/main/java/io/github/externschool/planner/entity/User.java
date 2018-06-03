@@ -80,12 +80,12 @@ public class User {
     public void addAuthority(Authority authority) {
         authorities.add(authority);
         authority.getUsers().add(this);
-        }
+    }
 
-        public void removeAuthority(Authority authority) {
+    public void removeAuthority(Authority authority) {
         authorities.remove(authority);
         authority.getUsers().remove(this);
-        }
+    }
 
     public String getEmail() {
         return email;
