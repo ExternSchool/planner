@@ -1,6 +1,7 @@
 package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.OneToOne;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -23,21 +25,11 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "email")
-    private String email;
-
-    @Transient
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "encrypted_password")
-    private String encryptedPassword;
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private Person person;
 
     @ManyToMany(cascade = {
             CascadeType.PERSIST,
@@ -49,11 +41,21 @@ public class User {
     )
     private Set<Authority> authorities = new HashSet<>();
 
+    @Column(name = "email")
+    private String email;
+
+    @Transient
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "encrypted_password")
+    private String encryptedPassword;
+
     public User() {
     }
 
-    public User(String phoneNumber, String email, String password, String encryptedPassword) {
-        this.phoneNumber = phoneNumber;
+    public User(Person person, String email, String password, String encryptedPassword) {
+        this.person = person;
         this.email = email;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
@@ -67,13 +69,23 @@ public class User {
         this.id = id;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public Person getPerson() {
+        return person;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPerson(Person person) {
+        this.person = person;
     }
+
+    public void addAuthority(Authority authority) {
+        authorities.add(authority);
+        authority.getUsers().add(this);
+        }
+
+        public void removeAuthority(Authority authority) {
+        authorities.remove(authority);
+        authority.getUsers().remove(this);
+        }
 
     public String getEmail() {
         return email;
@@ -105,7 +117,6 @@ public class User {
         if (!(o instanceof User)) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) &&
-                Objects.equals(phoneNumber, user.phoneNumber) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(encryptedPassword, user.encryptedPassword) &&
@@ -113,16 +124,14 @@ public class User {
     }
 
     public UserDTO constructUser() {
-        UserDTO useDtO = new UserDTO();
-        useDtO.setEmail(this.getEmail());
-        useDtO.setPassword(this.getPassword());
-        useDtO.setPhoneNumber(this.getPhoneNumber());
-        return useDtO;
+        UserDTO userDtO = new UserDTO();
+        userDtO.setEmail(this.getEmail());
+        userDtO.setPassword(this.getPassword());
+        return userDtO;
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id, phoneNumber, email, password, encryptedPassword, authorities);
+        return Objects.hash(id, email, password, encryptedPassword, authorities);
     }
 }
