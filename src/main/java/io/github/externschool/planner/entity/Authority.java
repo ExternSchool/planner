@@ -1,7 +1,13 @@
 package io.github.externschool.planner.entity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "authority")
@@ -11,6 +17,9 @@ public class Authority {
     @Id
     @Column
     private String name;
+
+    @ManyToMany(mappedBy = "authorities")
+    private Set<User> users = new HashSet<>();
 
     public Authority() {
     }
@@ -25,6 +34,14 @@ public class Authority {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
     @Override

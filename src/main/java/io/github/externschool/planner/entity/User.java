@@ -1,12 +1,23 @@
 package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.dto.UserDTO;
-
 import io.github.externschool.planner.entity.profile.Person;
 
-
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToOne;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -20,6 +31,16 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Person person;
 
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "user_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id")
+    )
+    private Set<Authority> authorities = new HashSet<>();
+
     @Column(name = "email")
     private String email;
 
@@ -31,7 +52,6 @@ public class User {
     private String encryptedPassword;
 
     public User() {
-
     }
 
     public User(Person person, String email, String password, String encryptedPassword) {
@@ -55,6 +75,16 @@ public class User {
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public void addAuthority(Authority authority) {
+        authorities.add(authority);
+        authority.getUsers().add(this);
+    }
+
+    public void removeAuthority(Authority authority) {
+        authorities.remove(authority);
+        authority.getUsers().remove(this);
     }
 
     public String getEmail() {
@@ -81,7 +111,6 @@ public class User {
         this.encryptedPassword = encryptedPassword;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,9 +119,9 @@ public class User {
         return Objects.equals(id, user.id) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
-                Objects.equals(encryptedPassword, user.encryptedPassword);
+                Objects.equals(encryptedPassword, user.encryptedPassword) &&
+                Objects.equals(authorities, user.authorities);
     }
-
 
     public UserDTO constructUser() {
         UserDTO userDtO = new UserDTO();
@@ -103,8 +132,6 @@ public class User {
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id, email, password, encryptedPassword);
+        return Objects.hash(id, email, password, encryptedPassword, authorities);
     }
-
 }
