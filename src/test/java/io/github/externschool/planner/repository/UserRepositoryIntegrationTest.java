@@ -99,7 +99,7 @@ public class UserRepositoryIntegrationTest {
     }
 
     private User getUser(User expectedUser) {
-        userRepository.save(expectedUser);
+        entityManager.persist(expectedUser);
         Long actualId = expectedUser.getId();
 
         return entityManager.find(User.class, actualId);
