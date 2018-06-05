@@ -21,36 +21,38 @@ public class RoleRepositoryIntegrationTest {
 
     @Test
     public void testTableContainsPresetRoles() {
-        List<String> names = new ArrayList<>(Arrays.asList("admin", "guest", "officer", "student", "teacher"));
+        List<String> names = new ArrayList<>(Arrays.asList(
+                "ROLE_ADMIN", "ROLE_GUEST", "ROLE_OFFICER", "ROLE_STUDENT", "ROLE_TEACHER"));
         List<Role> roles = readRoles();
 
-        assertThat(roles).isNotEmpty();
-        assertThat(roles.size() == 5);
+        assertThat(roles)
+                .isNotEmpty()
+                .size().isEqualTo(5);
         for (String name: names) {
-            assertThat(roles.contains(new Role(name)));
+            assertThat(roles).contains(new Role(name));
         }
     }
 
     @Test
-    public void testCreateReadUpdateDeleteRoles() {
-        Role newRole = new Role("anything else");
+    public void testCreateAndDeleteRoles() {
+        Role newRole = new Role("ROLE_NEW");
+
         roleRepository.save(newRole);
         List<Role> roles = readRoles();
 
-        assertThat(roles.size() == 6);
-        assertThat(roles.contains(newRole));
+        assertThat(roles)
+                .contains(newRole)
+                .size().isEqualTo(6);
 
         roleRepository.delete(newRole);
         roles = readRoles();
 
-        assertThat(roles.size() == 5);
-        assertThat(!roles.contains(newRole));
+        assertThat(roles)
+                .doesNotContain(newRole)
+                .size().isEqualTo(5);
     }
 
     private List<Role> readRoles() {
-        List<Role> roles = new ArrayList<>();
-        roleRepository.findAll().forEach(roles::add);
-
-        return roles;
+        return new ArrayList<>(roleRepository.findAll());
     }
 }
