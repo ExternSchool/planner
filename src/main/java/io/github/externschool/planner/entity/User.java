@@ -1,5 +1,6 @@
 package io.github.externschool.planner.entity;
 
+import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.CascadeType;
@@ -24,7 +25,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
@@ -119,12 +120,13 @@ public class User {
                 Objects.equals(roles, user.roles);
     }
 
-//    public UserDTO constructUser() {
-//        UserDTO userDtO = new UserDTO();
-//        userDtO.setEmail(this.getEmail());
-//        userDtO.setPassword(this.getPassword());
-//        return userDtO;
-//    }
+    //TODO Move to UserToUserDtoConverter
+    public UserDTO constructUser() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail(this.getEmail());
+        userDTO.setPassword(this.getPassword());
+        return userDTO;
+    }
 
     @Override
     public int hashCode() {
