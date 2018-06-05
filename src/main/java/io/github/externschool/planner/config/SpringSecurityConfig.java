@@ -36,6 +36,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .httpBasic();
+
+        http.headers().frameOptions().disable();
     }
 
     @Autowired
