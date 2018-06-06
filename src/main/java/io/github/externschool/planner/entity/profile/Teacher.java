@@ -7,17 +7,16 @@ import javax.persistence.Table;
 @Table(name = "teacher")
 public class Teacher extends Person {
 
-    private String schoolOfficer;
+//    private String schoolOfficer;
 
-//    Set<Subject> subjectList = new HashSet();
+//    Set<TeacherSubject> subjectList = new HashSet();
 //
-//
-//    public Teacher(String schoolOfficer, Set<Subject> subjectList) {
+//    public Teacher(String schoolOfficer, Set<TeacherSubject> subjectList) {
 //        this.schoolOfficer = schoolOfficer;
 //        this.subjectList = subjectList;
 //    }
 //
-//    public Teacher(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName, String phoneNumber, String password, String encryptedPassword, String schoolOfficer, Set<Subject> subjectList) {
+//    public Teacher(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName, String phoneNumber, String password, String encryptedPassword, String schoolOfficer, Set<TeacherSubject> subjectList) {
 //        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber, password, encryptedPassword);
 //        this.schoolOfficer = schoolOfficer;
 //        this.subjectList = subjectList;
@@ -31,11 +30,11 @@ public class Teacher extends Person {
 //        this.schoolOfficer = schoolOfficer;
 //    }
 //
-//    public Set<Subject> getSubjectList() {
+//    public Set<TeacherSubject> getSubjectList() {
 //        return subjectList;
 //    }
 //
-//    public void setSubjectList(Set<Subject> subjectList) {
+//    public void setSubjectList(Set<TeacherSubject> subjectList) {
 //        this.subjectList = subjectList;
 //    }
 //
@@ -46,4 +45,5 @@ public class Teacher extends Person {
 //                ", subjectList=" + subjectList +
 //                '}';
 //    }
+
 }

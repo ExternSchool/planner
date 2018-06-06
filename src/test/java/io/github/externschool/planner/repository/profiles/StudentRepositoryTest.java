@@ -37,8 +37,6 @@ public class StudentRepositoryTest {
 
         List<Student> studentList = this.studentRepository.findAll();
 
-        System.out.println(studentList.get(0));
-
         assertThat(studentList).isNotNull()
                 .hasSize(2)
                 .containsSubsequence(student1, student2);

@@ -43,6 +43,5 @@ public class PersonRepositoryTest {
         assertThat(personList).isNotNull()
                 .hasSize(2).containsSubsequence(person1, person2);
 
-        assert(personList.get(0).equals(person1));
     }
 }
