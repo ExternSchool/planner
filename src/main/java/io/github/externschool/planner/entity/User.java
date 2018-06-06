@@ -11,10 +11,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToOne;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -22,7 +23,6 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
@@ -31,21 +31,16 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Person person;
 
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "user_authority",
+    @ManyToMany
+    @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "authority_id")
-    )
-    private Set<Authority> authorities = new HashSet<>();
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Transient
-    @Column(name = "password")
     private String password;
 
     @Column(name = "encrypted_password")
@@ -77,14 +72,16 @@ public class User {
         this.person = person;
     }
 
-    public void addAuthority(Authority authority) {
-        authorities.add(authority);
-        authority.getUsers().add(this);
+    public void addRole(Role role) {
+        roles.add(role);
     }
 
-    public void removeAuthority(Authority authority) {
-        authorities.remove(authority);
-        authority.getUsers().remove(this);
+    public void removeRole(Role role) {
+        roles.remove(role);
+    }
+
+    public Collection<Role> getRoles() {
+        return roles;
     }
 
     public String getEmail() {
@@ -120,18 +117,19 @@ public class User {
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(encryptedPassword, user.encryptedPassword) &&
-                Objects.equals(authorities, user.authorities);
+                Objects.equals(roles, user.roles);
     }
 
+    //TODO Move to UserToUserDtoConverter
     public UserDTO constructUser() {
-        UserDTO userDtO = new UserDTO();
-        userDtO.setEmail(this.getEmail());
-        userDtO.setPassword(this.getPassword());
-        return userDtO;
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail(this.getEmail());
+        userDTO.setPassword(this.getPassword());
+        return userDTO;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, encryptedPassword, authorities);
+        return Objects.hash(id, email, password, encryptedPassword, roles);
     }
 }

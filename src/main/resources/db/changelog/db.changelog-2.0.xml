@@ -5,14 +5,20 @@
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <changeSet author="Maxim" id="2">
-        <insert tableName="authority">
-            <column name="name" value="student"/>
+        <insert tableName="role">
+            <column name="name" value="ROLE_STUDENT"/>
         </insert>
-        <insert tableName="authority">
-            <column name="name" value="teacher"/>
+        <insert tableName="role">
+            <column name="name" value="ROLE_TEACHER"/>
         </insert>
-        <insert tableName="authority">
-            <column name="name" value="guest"/>
+        <insert tableName="role">
+            <column name="name" value="ROLE_GUEST"/>
+        </insert>
+        <insert tableName="role">
+            <column name="name" value="ROLE_OFFICER"/>
+        </insert>
+        <insert tableName="role">
+            <column name="name" value="ROLE_ADMIN"/>
         </insert>
     </changeSet>
 
