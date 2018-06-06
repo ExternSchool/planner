@@ -5,7 +5,7 @@
    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
 
     <changeSet author="Maxim" id="1">
-        <createTable tableName="authority">
+        <createTable tableName="role">
             <column name="name" type="VARCHAR(255)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>

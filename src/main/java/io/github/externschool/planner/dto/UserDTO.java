@@ -69,6 +69,7 @@ public class UserDTO {
                 '}';
     }
 
+    //TODO Move to UserDtoToUserConverter
     public User constructUser() {
         User user = new User();
         user.setEmail(this.getEmail());
