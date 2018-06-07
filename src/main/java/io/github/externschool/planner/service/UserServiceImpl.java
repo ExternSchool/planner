@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
-//    private RoleService roleService;
+    private RoleService roleService;
     private PasswordEncoder passwordEncoder;
 
     public UserServiceImpl(UserRepository userRepository,
-//                           RoleService roleService,
+                           RoleService roleService,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-//        this.roleService = roleService;
+        this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-//        user.addRole(roleService.getRoleByName("GUEST"));
+        user.addRole(roleService.getRoleByName("GUEST"));
 
         return userRepository.save(user);
     }

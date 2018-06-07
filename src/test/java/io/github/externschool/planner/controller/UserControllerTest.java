@@ -64,8 +64,7 @@ public class UserControllerTest {
     @Test
     public void testGetSuccessUnauthorized_ReturnsUnauthorized() throws Exception {
         mockMvc.perform(get("/success").with(anonymous()))
-                .andExpect(status().isUnauthorized())
-                .andDo(print());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

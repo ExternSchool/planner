@@ -1,6 +1,5 @@
 package io.github.externschool.planner.entity;
 
-import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.CascadeType;
@@ -15,7 +14,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
