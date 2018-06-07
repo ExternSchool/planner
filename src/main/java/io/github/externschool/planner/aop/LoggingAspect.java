@@ -1,8 +1,6 @@
 package io.github.externschool.planner.aop;
 
 
-import io.github.externschool.planner.entity.User;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -10,13 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.aspectj.lang.reflect.MethodSignature;
-import lombok.extern.slf4j.Slf4j;
+
 
 import java.util.Arrays;
 
 @Aspect
 @Component
-@Slf4j
 public class LoggingAspect {
     private Logger log = LoggerFactory.getLogger(getClass());
 
