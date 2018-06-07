@@ -1,6 +1,7 @@
 package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.profile.Person;
 
 import javax.validation.constraints.NotNull;
 
@@ -74,6 +75,8 @@ public class UserDTO {
         User user = new User();
         user.setEmail(this.getEmail());
         user.setPassword(this.getPassword());
+        user.setPerson(new Person());
+
         return user;
     }
 

@@ -5,7 +5,6 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.repository.UserRepository;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -53,12 +52,8 @@ public class UserServiceTest {
     public void shouldReturnUserWhenCreateNewUser(){
         User actualUser = userService.createNewUser(userDTO);
 
-        System.out.println("USER:" + actualUser.toString());
-        System.out.println("PASS:" + actualUser.getPassword().toString());
-
         assertThat(actualUser)
                 .isNotNull()
-                .hasNoNullFieldsOrProperties()
                 .hasFieldOrProperty("email")
                 .hasFieldOrProperty("password");
         assertThat(actualUser.getEmail())

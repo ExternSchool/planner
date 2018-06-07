@@ -29,9 +29,4 @@ public class MainControllerTest {
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Extern School")));
     }
-
-    @Test
-    public void testSecuredPageReturnsUnauthorized() throws Exception {
-        mockMvc.perform(get("/admin")).andExpect(status().isUnauthorized());
-    }
 }
