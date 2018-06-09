@@ -40,8 +40,6 @@ public class StudentRepositoryTest {
         assertThat(studentList).isNotNull()
                 .hasSize(2)
                 .containsSubsequence(student1, student2);
-
-        assert(studentList.get(0).equals(student1));
     }
 
 }
