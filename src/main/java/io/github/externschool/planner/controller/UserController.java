@@ -3,7 +3,6 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.service.UserServiceImpl;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,10 +34,7 @@ public class UserController {
     //TODO Implement DTO validation to avoid fake data submitted in POST requests
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String saveOrUpdate(UserDTO userDTO) {
-
-       User user = userDTO.constructUser();
-
-        userService.createNewUser(user);
+        userService.createNewUser(userDTO);
 
         return "redirect:/login";
     }

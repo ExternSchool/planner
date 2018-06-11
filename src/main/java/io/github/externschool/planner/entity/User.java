@@ -1,11 +1,11 @@
 package io.github.externschool.planner.entity;
 
-import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -14,8 +14,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -31,7 +29,7 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Person person;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -40,20 +38,16 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Transient
+    @Column(name = "password", nullable = false, length = 60)
     private String password;
-
-    @Column(name = "encrypted_password")
-    private String encryptedPassword;
 
     public User() {
     }
 
-    public User(Person person, String email, String password, String encryptedPassword) {
+    public User(Person person, String email, String password) {
         this.person = person;
         this.email = email;
         this.password = password;
-        this.encryptedPassword = encryptedPassword;
     }
 
     public Long getId() {
@@ -80,8 +74,12 @@ public class User {
         roles.remove(role);
     }
 
-    public Collection<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public String getEmail() {
@@ -100,14 +98,6 @@ public class User {
         this.password = password;
     }
 
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -116,20 +106,11 @@ public class User {
         return Objects.equals(id, user.id) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(password, user.password) &&
-                Objects.equals(encryptedPassword, user.encryptedPassword) &&
                 Objects.equals(roles, user.roles);
-    }
-
-    //TODO Move to UserToUserDtoConverter
-    public UserDTO constructUser() {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setEmail(this.getEmail());
-        userDTO.setPassword(this.getPassword());
-        return userDTO;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, encryptedPassword, roles);
+        return Objects.hash(id, email, password, roles);
     }
 }

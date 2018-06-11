@@ -22,25 +22,11 @@ public class MainControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    public void testLoginPageReturnsLoginFormView() throws Exception {
-        mockMvc.perform(get("/login"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Login Form")));
-    }
-
-    @Test
-    public void testStartingPageReturnsGreetingView() throws Exception {
+    public void shouldReturnsGreetingViewStatusOk_whenRootPageRequested() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("greeting"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Extern School")));
-    }
-
-    @Test
-    public void testSecuredPageReturnsUnauthorized() throws Exception {
-        mockMvc.perform(get("/admin")).andExpect(status().isUnauthorized());
     }
 }

@@ -14,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,11 +34,11 @@ public class UserRepositoryIntegrationTest {
 
     @Before
     public void setUp(){
-        expectedUser = new User(new Person(), email, "password", "encrypted");
+        expectedUser = new User(new Person(), email, "password");
     }
 
     @Test
-    public void testCreateUser() {
+    public void shouldReturnExpectedUser_WhenCreateUser() {
         userRepository.save(expectedUser);
         User actualUser = findWithEntityManager(expectedUser);
 
@@ -48,13 +47,13 @@ public class UserRepositoryIntegrationTest {
                 .hasFieldOrProperty("person")
                 .hasFieldOrProperty("email")
                 .hasFieldOrProperty("roles")
-                .hasFieldOrProperty("encryptedPassword")
+                .hasFieldOrProperty("password")
                 .hasNoNullFieldsOrProperties()
                 .isEqualTo(expectedUser);
     }
 
     @Test
-    public void testDeleteUser() {
+    public void shouldReturnNull_WhenFindByEmailDeletedUser() {
         User actualUser = findWithEntityManager(expectedUser);
         userRepository.delete(actualUser);
 
@@ -66,20 +65,20 @@ public class UserRepositoryIntegrationTest {
     }
 
     @Test
-    public void testUpdateUser() {
+    public void shouldReturnExpectedUser_WhenSaveUser() {
         String encryptedPassword = "PASSWORD";
-        expectedUser.setEncryptedPassword(encryptedPassword);
+        expectedUser.setPassword(encryptedPassword);
         userRepository.save(expectedUser);
         User actualUser = findWithEntityManager(expectedUser);
 
         assertThat(actualUser)
                 .isNotNull()
                 .hasNoNullFieldsOrProperties();
-        assertThat(actualUser.getEncryptedPassword()).isEqualTo(encryptedPassword);
+        assertThat(actualUser.getPassword()).isEqualTo(encryptedPassword);
     }
 
     @Test
-    public void testReadUserFields() {
+    public void shouldReturnExpectedFields_WhenReadUserFields() {
         User actualUser = findWithEntityManager(expectedUser);
 
         assertThat(actualUser.getPerson())
@@ -88,12 +87,12 @@ public class UserRepositoryIntegrationTest {
                 .isEqualTo(email);
         assertThat(actualUser.getPassword())
                 .isEqualTo(expectedUser.getPassword());
-        assertThat(actualUser.getEncryptedPassword())
-                .isEqualTo(expectedUser.getEncryptedPassword());
+        assertThat(actualUser.getPassword())
+                .isEqualTo(expectedUser.getPassword());
     }
 
     @Test
-    public void testUserRoles() {
+    public void shouldReturnExpectedRoles_WhenReadUserRoles() {
         Set<Role> expectedRoles = new HashSet<>(roleRepository.findAll());
         expectedRoles.forEach(expectedUser::addRole);
         User actualUser = findWithEntityManager(expectedUser);
@@ -103,12 +102,17 @@ public class UserRepositoryIntegrationTest {
                 .isNotEmpty()
                 .containsExactlyInAnyOrderElementsOf(expectedRoles)
                 .doesNotHaveDuplicates();
+    }
 
-        Role removed = new Role("ROLE_OFFICER");
+    @Test
+    public void shouldReturnExpectedRoles_WhenDeleteAddedUserRole() {
+        Set<Role> expectedRoles = new HashSet<>(roleRepository.findAll());
+        expectedRoles.forEach(expectedUser::addRole);
+        Role removed = new Role("OFFICER");
         expectedUser.removeRole(removed);
         expectedRoles = new HashSet<>(expectedUser.getRoles());
-        actualUser = findWithEntityManager(expectedUser);
-        actualRoles = new HashSet<>(actualUser.getRoles());
+        User actualUser = findWithEntityManager(expectedUser);
+        Set<Role> actualRoles = new HashSet<>(actualUser.getRoles());
 
         assertThat(actualRoles)
                 .isNotEmpty()
