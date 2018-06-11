@@ -20,9 +20,9 @@ public class RoleRepositoryIntegrationTest {
     private RoleRepository roleRepository;
 
     @Test
-    public void testTableContainsPresetRoles() {
+    public void shouldReturnPresetRoles_WhenFindAllRoles() {
         List<String> names = new ArrayList<>(Arrays.asList(
-                "ROLE_ADMIN", "ROLE_GUEST", "ROLE_OFFICER", "ROLE_STUDENT", "ROLE_TEACHER"));
+                "ADMIN", "GUEST", "OFFICER", "STUDENT", "TEACHER"));
         List<Role> roles = readRoles();
 
         assertThat(roles)
@@ -34,8 +34,8 @@ public class RoleRepositoryIntegrationTest {
     }
 
     @Test
-    public void testCreateAndDeleteRoles() {
-        Role newRole = new Role("ROLE_NEW");
+    public void shouldAddOneRole_WhenSaveNewRole() {
+        Role newRole = new Role("NEW");
 
         roleRepository.save(newRole);
         List<Role> roles = readRoles();
@@ -43,9 +43,14 @@ public class RoleRepositoryIntegrationTest {
         assertThat(roles)
                 .contains(newRole)
                 .size().isEqualTo(6);
+    }
 
+    @Test
+    public void shouldSubtractOneRole_WhenDeleteRole() {
+        Role newRole = new Role("NEW");
+        roleRepository.save(newRole);
         roleRepository.delete(newRole);
-        roles = readRoles();
+        List<Role> roles = readRoles();
 
         assertThat(roles)
                 .doesNotContain(newRole)

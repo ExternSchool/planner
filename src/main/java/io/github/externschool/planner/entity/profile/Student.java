@@ -18,6 +18,10 @@ public class Student extends Person {
 
     private int yearOfStudy;
 
+    public Student(){
+
+    }
+
     public Student(Long id, User user, Long validationKey, String firstName, String patronymicName,
                    String lastName, String phoneNumber, String password, String encryptedPassword,
                    LocalDate dateOfBirth, Gender gender, String address, int yearOfStudy) {
