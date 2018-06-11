@@ -4,7 +4,10 @@ import io.github.externschool.planner.entity.profile.Person;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface GuestRepository extends CrudRepository<Person, Long> {
+import java.util.List;
 
+@Repository
+public interface PersonRepository extends CrudRepository<Person, Long> {
+
+    List<Person> findAll();
 }
