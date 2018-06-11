@@ -1,0 +1,1 @@
+insert into schedule_event_type (id,name,count_participant) values (1,'TestEventType',1);
