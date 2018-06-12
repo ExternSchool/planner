@@ -30,8 +30,7 @@ public class Teacher extends Person {
     }
 
     public Teacher(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String password, String encryptedPassword, String officer,
-                   Set<SchoolSubject> subjectList) {
+                   String phoneNumber, String officer, Set<SchoolSubject> subjectList) {
         super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
         this.subjectList = subjectList;
