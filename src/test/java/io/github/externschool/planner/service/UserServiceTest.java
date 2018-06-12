@@ -15,7 +15,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -54,8 +53,6 @@ public class UserServiceTest {
     public void shouldReturnUserWhenCreateNewUser(){
         User actualUser = userService.createNewUser(userDTO);
 
-        verify(userRepository).save(actualUser);
-
         assertThat(actualUser)
                 .isNotNull()
                 .hasFieldOrProperty("email")
@@ -71,8 +68,6 @@ public class UserServiceTest {
     @Test
     public void shouldReturnUserWhenFindUserByEmail(){
         User actualUser = userService.findUserByEmail(expectedUser.getEmail());
-
-        verify(userRepository).findByEmail(actualUser.getEmail());
 
         assertThat(actualUser)
                 .isNotNull()
