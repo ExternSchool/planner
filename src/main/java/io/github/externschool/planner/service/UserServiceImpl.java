@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,14 +27,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createNewUser(final UserDTO userDTO) {
+    public User createNewUser(final UserDTO userDTO) throws EmailExistsException {
+        if (emailExists(userDTO)) throw new EmailExistsException("There is already a user with the email provided");
         User user = new User();
-        if (!emailExists(userDTO)) {
-            user.setEmail(userDTO.getEmail());
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        } else {
-            user = userRepository.findByEmail(userDTO.getEmail());
-        }
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        //TODO Set user role here
 
         return userRepository.save(user);
     }
