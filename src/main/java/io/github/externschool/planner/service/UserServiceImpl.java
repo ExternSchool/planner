@@ -34,6 +34,8 @@ public class UserServiceImpl implements UserService {
         } else {
             user = userRepository.findByEmail(userDTO.getEmail());
         }
+        if (user.getRoles().isEmpty())
+            user.getRoles().add(roleService.getRoleByName("GUEST"));
 
         return userRepository.save(user);
     }

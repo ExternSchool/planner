@@ -14,6 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -30,7 +32,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
         String email = "dmytro@gmail.com";
-        Role role = new Role("ROLE_GUEST");
+        Role role = new Role("GUEST");
         String password = "OY&D3e45pieD%JN!F45KSidufh";
 
         userDTO = new UserDTO();
@@ -52,6 +54,8 @@ public class UserServiceTest {
     public void shouldReturnUserWhenCreateNewUser(){
         User actualUser = userService.createNewUser(userDTO);
 
+        verify(userRepository).save(actualUser);
+
         assertThat(actualUser)
                 .isNotNull()
                 .hasFieldOrProperty("email")
@@ -60,11 +64,15 @@ public class UserServiceTest {
                 .isEqualTo(userDTO.getEmail());
         assertThat(actualUser.getPassword())
                 .isEqualTo(userDTO.getPassword());
+        assertTrue(actualUser.getRoles()
+                .contains(new Role("GUEST")));
     }
 
     @Test
-    public void shoudReturnUserWhenFindUserByEmail(){
+    public void shouldReturnUserWhenFindUserByEmail(){
         User actualUser = userService.findUserByEmail(expectedUser.getEmail());
+
+        verify(userRepository).findByEmail(actualUser.getEmail());
 
         assertThat(actualUser)
                 .isNotNull()
