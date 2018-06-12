@@ -23,10 +23,9 @@ public class Student extends Person {
     }
 
     public Student(Long id, User user, Long validationKey, String firstName, String patronymicName,
-                   String lastName, String phoneNumber, String password, String encryptedPassword,
+                   String lastName, String phoneNumber,
                    LocalDate dateOfBirth, Gender gender, String address, int yearOfStudy) {
-                   super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber,
-                   password, encryptedPassword);
+                   super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
