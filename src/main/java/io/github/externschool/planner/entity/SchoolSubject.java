@@ -29,6 +29,9 @@ public class SchoolSubject {
     @Column
     private Set<Teacher> teachers = new HashSet<>();
 
+    public SchoolSubject() {
+    }
+
     public SchoolSubject(Long id, String subjectName, Set<Teacher> teachers) {
         this.id = id;
         this.subjectName = subjectName;
