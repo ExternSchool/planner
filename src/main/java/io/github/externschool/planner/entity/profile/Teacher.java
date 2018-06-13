@@ -26,10 +26,12 @@ public class Teacher extends Person {
         this.subjectList = subjectList;
     }
 
+    public Teacher() {
+    }
+
     public Teacher(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String password, String encryptedPassword, String officer,
-                   Set<SchoolSubject> subjectList) {
-        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber, password, encryptedPassword);
+                   String phoneNumber, String officer, Set<SchoolSubject> subjectList) {
+        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
         this.subjectList = subjectList;
     }
