@@ -25,11 +25,15 @@
     <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post">
         <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Log In</a>
         <h3 class="h3 mb-3 font-weight-normal">Please Sign Up</h3>
+        <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
+               th:unless="${#httpServletRequest.getParameter('error') == null}">
+            Show some error msg
+        </small>
         <fieldset>
             <div class="form-group">
-                <label for="email" class="sr-only">Email address</label>
+                <label for="email" class="sr-only">Email</label>
                 <input class="form-control" type="email" id="email" th:field="*{email}"
-                       placeholder="Email address as user name" required autofocus>
+                       placeholder="Email as user name" required autofocus>
             </div>
             <div class="form-group">
                 <label for="password" class="sr-only">Password</label>

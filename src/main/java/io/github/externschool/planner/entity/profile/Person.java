@@ -32,7 +32,7 @@ public class Person {
     }
 
     public Person(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                  String phoneNumber, String password, String encryptedPassword) {
+                  String phoneNumber) {
         this.id = id;
         this.user = user;
         this.firstName = firstName;

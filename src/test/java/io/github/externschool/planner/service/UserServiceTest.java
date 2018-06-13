@@ -3,9 +3,12 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,9 @@ public class UserServiceTest {
 
     @MockBean
     UserRepository userRepository;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private User expectedUser;
     private UserDTO userDTO;
@@ -49,8 +55,8 @@ public class UserServiceTest {
                 .thenReturn(expectedUser);
     }
 
-    @Test
-    public void shouldReturnUserWhenCreateNewUser(){
+    @Test(expected = EmailExistsException.class)
+    public void shouldReturnUser_WhenCreateNewUser(){
         User actualUser = userService.createNewUser(userDTO);
 
         assertThat(actualUser)
@@ -66,12 +72,20 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnUserWhenFindUserByEmail(){
+    public void shouldReturnUser_WhenFindUserByEmail(){
         User actualUser = userService.findUserByEmail(expectedUser.getEmail());
 
         assertThat(actualUser)
                 .isNotNull()
                 .isEqualTo(expectedUser)
                 .isEqualToComparingFieldByField(expectedUser);
+    }
+
+    @Test(expected = EmailExistsException.class)
+    public void shouldThrowEmailExistsException_IfUserExists() {
+        userService.createNewUser(userDTO);
+
+        thrown.expect(EmailExistsException.class);
+        thrown.expectMessage("There is already a user with the email provided");
     }
 }
