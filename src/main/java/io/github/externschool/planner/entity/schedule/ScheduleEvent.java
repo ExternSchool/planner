@@ -54,6 +54,12 @@ public class ScheduleEvent {
     @Column(name = "is_open")
     private boolean isOpen;
 
+    @Column(name = "is_cancelled")
+    private boolean isCancelled;
+
+    @Column(name = "is_accomplished")
+    private boolean isAccomplished;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -83,7 +89,9 @@ public class ScheduleEvent {
                           final LocalDateTime endOfEvent,
                           final LocalDateTime createdAt,
                           final LocalDateTime modifiedAt,
-                          final boolean isOpen) {
+                          final boolean isOpen,
+                          final boolean isCancelled,
+                          final boolean isAccomplished) {
 
 
         this.id = id;
@@ -98,6 +106,8 @@ public class ScheduleEvent {
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.isOpen = isOpen;
+        this.isCancelled = isCancelled;
+        this.isAccomplished = isAccomplished;
     }
 
     public Long getId() {
@@ -196,6 +206,22 @@ public class ScheduleEvent {
         isOpen = open;
     }
 
+    public boolean isCancelled() {
+        return isCancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        isCancelled = cancelled;
+    }
+
+    public boolean isAccomplished() {
+        return isAccomplished;
+    }
+
+    public void setAccomplished(boolean accomplished) {
+        isAccomplished = accomplished;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -223,6 +249,8 @@ public class ScheduleEvent {
                 ", createdAt=" + createdAt +
                 ", modifiedAt=" + modifiedAt +
                 ", isOpen=" + isOpen +
+                ", isCancelled=" + isCancelled +
+                ", isAccomplished=" + isAccomplished +
                 ", owner=" + owner +
                 ", type=" + type +
                 ", participants=" + participants +
@@ -246,6 +274,8 @@ public class ScheduleEvent {
         private LocalDateTime createdAt = LocalDateTime.now();
         private LocalDateTime modifiedAt;
         private boolean isOpen;
+        private boolean isCancelled;
+        private boolean isAccomplished;
 
         private ScheduleEventBuilder() {}
 
@@ -299,6 +329,16 @@ public class ScheduleEvent {
             return this;
         }
 
+        public ScheduleEventBuilder withCancelledStatus(final boolean status) {
+            this.isCancelled = status;
+            return this;
+        }
+
+        public ScheduleEventBuilder withAccomplishedStatus(final boolean status) {
+            this.isAccomplished = status;
+            return this;
+        }
+
         public ScheduleEvent build() {
             return new ScheduleEvent(
                     this.id,
@@ -312,7 +352,9 @@ public class ScheduleEvent {
                     this.endOfEvent,
                     this.createdAt,
                     this.modifiedAt,
-                    this.isOpen
+                    this.isOpen,
+                    this.isCancelled,
+                    this.isAccomplished
             );
         }
     }
