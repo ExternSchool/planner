@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "student")
-public class Student extends Person {
+public class Student extends Guest {
 
     private LocalDate dateOfBirth;
 
@@ -16,20 +16,20 @@ public class Student extends Person {
 
     private String address;
 
-    private int yearOfStudy;
+    private int gradeLevel;
 
     public Student(){
-
     }
 
-    public Student(Long id, User user, Long validationKey, String firstName, String patronymicName,
+    public Student(Long id, User user, String validationKey, String firstName, String patronymicName,
                    String lastName, String phoneNumber,
-                   LocalDate dateOfBirth, Gender gender, String address, int yearOfStudy) {
-                   super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
+                   LocalDate dateOfBirth, Gender gender, String address, int gradeLevel) {
+
+        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
-        this.yearOfStudy = yearOfStudy;
+        this.gradeLevel = gradeLevel;
     }
 
     public LocalDate getDateOfBirth() {
@@ -56,12 +56,12 @@ public class Student extends Person {
         this.address = address;
     }
 
-    public int getYearOfStudy() {
-        return yearOfStudy;
+    public int getGradeLevel() {
+        return gradeLevel;
     }
 
-    public void setYearOfStudy(int yearOfStudy) {
-        this.yearOfStudy = yearOfStudy;
+    public void setGradeLevel(int gradeLevel) {
+        this.gradeLevel = gradeLevel;
     }
 
     @Override
@@ -70,9 +70,7 @@ public class Student extends Person {
                 "dateOfBirth=" + dateOfBirth +
                 ", gender='" + gender + '\'' +
                 ", address='" + address + '\'' +
-                ", yearOfStudy=" + yearOfStudy +
+                ", gradeLevel=" + gradeLevel +
                 '}';
     }
-
-
 }

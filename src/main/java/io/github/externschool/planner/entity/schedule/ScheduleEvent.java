@@ -52,13 +52,13 @@ public class ScheduleEvent {
     private LocalDateTime modifiedAt;
 
     @Column(name = "is_open")
-    private boolean isOpen;
+    private Boolean isOpen;
 
     @Column(name = "is_cancelled")
-    private boolean isCancelled;
+    private Boolean isCancelled;
 
     @Column(name = "is_accomplished")
-    private boolean isAccomplished;
+    private Boolean isAccomplished;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")

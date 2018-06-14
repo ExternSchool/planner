@@ -34,8 +34,7 @@ public class User {
     @Column(name = "password", nullable = false, length = 60)
     private String password;
 
-//    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Person person;
 
     @ManyToMany(fetch = FetchType.EAGER)
