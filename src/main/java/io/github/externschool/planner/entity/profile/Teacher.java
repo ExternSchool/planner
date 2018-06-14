@@ -19,21 +19,21 @@ public class Teacher extends Guest {
 
     @ManyToMany
     @Column
-    Set<SchoolSubject> subjectList = new HashSet();
+    Set<SchoolSubject> subjects = new HashSet();
 
-    public Teacher(String officer, Set<SchoolSubject> subjectList) {
+    public Teacher(String officer, Set<SchoolSubject> subjects) {
         this.officer= officer;
-        this.subjectList = subjectList;
+        this.subjects = subjects;
     }
 
     public Teacher() {
     }
 
     public Teacher(Long id, User user, String validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String officer, Set<SchoolSubject> subjectList) {
+                   String phoneNumber, String officer, Set<SchoolSubject> subjects) {
         super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
-        this.subjectList = subjectList;
+        this.subjects = subjects;
     }
 
     public String getOfficer() {
@@ -44,19 +44,19 @@ public class Teacher extends Guest {
         this.officer = officer;
     }
 
-    public Set<SchoolSubject> getSubjectList() {
-        return subjectList;
+    public Set<SchoolSubject> getSubjects() {
+        return subjects;
     }
 
-    public void setSubjectList(Set<SchoolSubject> subjectList) {
-        this.subjectList = subjectList;
+    public void setSubjects(Set<SchoolSubject> subjects) {
+        this.subjects = subjects;
     }
 
     @Override
     public String toString() {
         return "Teacher{" +
                 "officer='" +  + '\'' +
-                ", subjectList=" + subjectList +
+                ", subjects=" + subjects +
                 '}';
     }
 }

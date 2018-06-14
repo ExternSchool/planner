@@ -39,14 +39,11 @@ public class PersonRepositoryTest {
 
         entityManager.persist(person1);
         entityManager.persist(person2);
-
-
         List<Person> personList = this.personRepository.findAll();
 
         assertThat(personList)
                 .isNotNull()
                 .hasSize(2)
                 .containsSubsequence(person1, person2);
-
     }
 }
