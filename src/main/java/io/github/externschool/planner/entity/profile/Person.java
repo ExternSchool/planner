@@ -13,11 +13,12 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.time.LocalDateTime;
+import javax.persistence.Transient;
+import java.util.Objects;
 
 @Entity
-@Inheritance(strategy= InheritanceType.JOINED)
 @Table(name = "person")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Person {
 
     @Id
@@ -29,19 +30,38 @@ public class Person {
     @JoinColumn(name = "id")
     private User user;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
+    @Column(name = "patronymic_name")
+    private String patronymicName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Transient
+    private String validationKey;
 
     public Person() {
     }
 
-    public Person(User user, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public Person(final Long id,
+                  final User user,
+                  final String firstName,
+                  final String patronymicName,
+                  final String lastName,
+                  final String phoneNumber,
+                  final String validationKey) {
+        this.id = id;
         this.user = user;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+        this.firstName = firstName;
+        this.patronymicName = patronymicName;
+        this.lastName = lastName;
+        this.phoneNumber = phoneNumber;
+        this.validationKey = validationKey;
     }
 
     public Long getId() {
@@ -60,43 +80,64 @@ public class Person {
         this.user = user;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public LocalDateTime getModifiedAt() {
-        return modifiedAt;
+    public String getPatronymicName() {
+        return patronymicName;
     }
 
-    public void setModifiedAt(LocalDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
+    public void setPatronymicName(String patronymicName) {
+        this.patronymicName = patronymicName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Person person = (Person) o;
-
-        return id != null ? id.equals(person.id) : person.id == null;
+    public String getLastName() {
+        return lastName;
     }
 
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override
     public String toString() {
         return "Person{" +
                 "id=" + id +
-                ", createdAt=" + createdAt +
-                ", modifiedAt=" + modifiedAt +
+                ", firstName='" + firstName + '\'' +
+                ", patronymicName='" + patronymicName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Person)) return false;
+        Person that = (Person) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(firstName, that.firstName) &&
+                Objects.equals(patronymicName, that.patronymicName) &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(phoneNumber, that.phoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, firstName, patronymicName, lastName, phoneNumber);
     }
 }

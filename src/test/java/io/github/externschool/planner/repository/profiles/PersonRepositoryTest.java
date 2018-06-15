@@ -9,7 +9,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -29,13 +28,13 @@ public class PersonRepositoryTest {
 
         Person person1 = new Person();
         person1.setUser(new User("user@email.com", "password"));
-        person1.setCreatedAt(LocalDateTime.now());
-        person1.setModifiedAt(LocalDateTime.now());
+        person1.setFirstName("Dmytro");
+        person1.setLastName("Manzhula");
 
         Person person2 = new Person();
         person2.setUser(new User("admin@email.com", "password"));
-        person2.setCreatedAt(LocalDateTime.now());
-        person2.setModifiedAt(LocalDateTime.now());
+        person2.setFirstName("Vasia");
+        person2.setLastName("Pupkin");
 
         entityManager.persist(person1);
         entityManager.persist(person2);

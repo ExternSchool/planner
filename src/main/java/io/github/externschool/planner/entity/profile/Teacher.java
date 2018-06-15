@@ -5,21 +5,27 @@ import io.github.externschool.planner.entity.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "teacher")
-public class Teacher extends Guest {
+public class Teacher extends Person {
 
     @Column(name = "officer")
     private String officer;
 
-    @ManyToMany
-    @Column
-    Set<SchoolSubject> subjects = new HashSet();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "teacher_subjects",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private Set<SchoolSubject> subjects = new HashSet();
 
     public Teacher(String officer, Set<SchoolSubject> subjects) {
         this.officer= officer;
@@ -29,9 +35,16 @@ public class Teacher extends Guest {
     public Teacher() {
     }
 
-    public Teacher(Long id, User user, String validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String officer, Set<SchoolSubject> subjects) {
-        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
+    public Teacher(final Long id,
+                   final User user,
+                   final String firstName,
+                   final String patronymicName,
+                   final String lastName,
+                   final String phoneNumber,
+                   final String validationKey,
+                   final String officer,
+                   final Set<SchoolSubject> subjects) {
+        super(id, user, firstName, patronymicName, lastName, phoneNumber, validationKey);
         this.officer = officer;
         this.subjects = subjects;
     }
@@ -52,11 +65,37 @@ public class Teacher extends Guest {
         this.subjects = subjects;
     }
 
+    public void addSubject(SchoolSubject subject) {
+        subjects.add(subject);
+    }
+
+    public void removeSubject(SchoolSubject subject) {
+        subjects.remove(subject);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Teacher teacher = (Teacher) o;
+
+        return officer != null ? officer.equals(teacher.officer) : teacher.officer == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (officer != null ? officer.hashCode() : 0);
+        return result;
+    }
+
     @Override
     public String toString() {
         return "Teacher{" +
                 "officer='" +  + '\'' +
-                ", subjects=" + subjects +
+                ", subjects=" + subjects.stream().map(Object::toString).collect(Collectors.joining(",")) +
                 '}';
     }
 }
