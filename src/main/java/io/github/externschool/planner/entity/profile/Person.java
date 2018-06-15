@@ -42,7 +42,7 @@ public class Person {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Transient
+    @Column(name = "validation_key")
     private String validationKey;
 
     public Person() {
@@ -110,6 +110,14 @@ public class Person {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getValidationKey() {
+        return validationKey;
+    }
+
+    public void setValidationKey(String validationKey) {
+        this.validationKey = validationKey;
     }
 
     @Override

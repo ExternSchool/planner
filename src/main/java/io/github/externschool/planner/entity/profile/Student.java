@@ -124,7 +124,7 @@ public class Student extends Person {
                 ", gender=" + gender +
                 ", address='" + address + '\'' +
                 ", gradeLevel=" + gradeLevel +
-                ", subjects=" + subjects.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                ", subjects=" + subjects +
                 '}';
     }
 }

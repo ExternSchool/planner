@@ -19,7 +19,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class TeacherRepositoryTest {
 
     @Autowired
-    private TeacherRepository teacherRepository;
+    private TeacherRepository repository;
 
     @Autowired
     TestEntityManager entityManager;
@@ -36,7 +36,7 @@ public class TeacherRepositoryTest {
 
         entityManager.persist(firstTeacher);
         entityManager.persist(secondTeacher);
-        List<Teacher> teachers = this.teacherRepository.findAll();
+        List<Teacher> teachers = this.repository.findAll();
 
         assertThat(teachers)
                 .isNotNull()

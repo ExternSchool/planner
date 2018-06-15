@@ -12,7 +12,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "teacher")
@@ -94,8 +93,8 @@ public class Teacher extends Person {
     @Override
     public String toString() {
         return "Teacher{" +
-                "officer='" +  + '\'' +
-                ", subjects=" + subjects.stream().map(Object::toString).collect(Collectors.joining(",")) +
+                "officer='" + officer + '\'' +
+                ", subjects=" + subjects +
                 '}';
     }
 }
