@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<html lang="en">
+<head>
+    <title>Teacher page</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='teacher')"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
+    <fieldset>
+        <form class="form" th:action="@{/templates/teacher}" method="post">
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Email</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="email" placeholder="Email" name="email" th:id="email" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Phone Number</label>
+                <div class="col-lg-9">
+                    <input type="tel" placeholder="Phone Number Format: (999)999-9999" id="tel" value=""
+                           class="form-control"
+                           pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Phone Number Format: (999)999-9999'
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Validation Key</label>
+                <div class="input-group col-lg-9">
+                    <input class="form-control" type="text" id="validationKey" th:id="validationKey"
+                           placeholder="A key provided by the school to link the user with a real person" value="">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="button">Generate New Key</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">First name</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" placeholder="Given Name" id="name" value=""
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Patronym</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymic" value=""
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Surname</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" placeholder="Family Name" id="surname" value=""
+                           required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Officer position</label>
+                <div class="col-lg-9">
+                    <input class="form-control" type="text" placeholder="Officer position name"
+                           id="position" th:id="position" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Add Subject</label>
+                <div class="input-group col-lg-9">
+                    <select class="form-control" id="subject_select" th:id="subject_select" size="0">
+                        <option value="Subj_4">Calculus</option>
+                        <option selected value="Subj_1">Mathematics</option>
+                        <option value="Subj_2">Algebra</option>
+                        <option value="Subj_3">Geometry</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success" type="button">Add New</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label">Delete Subject</label>
+                <div class="input-group col-lg-9">
+                    <select class="form-control" id="subjects" th:id="subjects" size="0">
+                        <option value="Subj_4">Calculus</option>
+                        <option value="Subj_1">Mathematics</option>
+                        <option value="Subj_2">Algebra</option>
+                        <option value="Subj_3">Geometry</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-danger" type="button">Delete</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-lg-3 col-form-label form-control-label"></label>
+                <div class="col-lg-9">
+                    <input class="btn btn-secondary" value="Cancel">
+                    <input class="btn btn-primary" th:id="save" value="Save Changes"  type="submit">
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
+</body>
+</html>
