@@ -1,35 +1,58 @@
 package io.github.externschool.planner.entity.profile;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "student")
 public class Student extends Person {
 
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Column(name = "gender")
     private Gender gender;
 
+    @Column(name = "address")
     private String address;
 
-    private int yearOfStudy;
+    @Column(name = "grade_level")
+    private int gradeLevel;
+
+    @ManyToMany
+    @Column(name = "school_subjects")
+    private Set<SchoolSubject> subjects = new HashSet();
 
     public Student(){
-
     }
 
-    public Student(Long id, User user, Long validationKey, String firstName, String patronymicName,
-                   String lastName, String phoneNumber,
-                   LocalDate dateOfBirth, Gender gender, String address, int yearOfStudy) {
-                   super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
+    public Student(final Long id,
+                   final User user,
+                   final String firstName,
+                   final String patronymicName,
+                   final String lastName,
+                   final String phoneNumber,
+                   final String validationKey,
+                   final LocalDate dateOfBirth,
+                   final Gender gender,
+                   final String address,
+                   final int gradeLevel,
+                   final Set<SchoolSubject> subjects) {
+        super(id, user, firstName, patronymicName, lastName, phoneNumber, validationKey);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
-        this.yearOfStudy = yearOfStudy;
+        this.gradeLevel = gradeLevel;
+        this.subjects = subjects;
     }
 
     public LocalDate getDateOfBirth() {
@@ -56,23 +79,52 @@ public class Student extends Person {
         this.address = address;
     }
 
-    public int getYearOfStudy() {
-        return yearOfStudy;
+    public int getGradeLevel() {
+        return gradeLevel;
     }
 
-    public void setYearOfStudy(int yearOfStudy) {
-        this.yearOfStudy = yearOfStudy;
+    public void setGradeLevel(int gradeLevel) {
+        this.gradeLevel = gradeLevel;
+    }
+
+    public Set<SchoolSubject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(Set<SchoolSubject> subjects) {
+        this.subjects = subjects;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Student student = (Student) o;
+
+        if (dateOfBirth != null ? !dateOfBirth.equals(student.dateOfBirth) : student.dateOfBirth != null) return false;
+        return gender == student.gender;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
+        result = 31 * result + (gender != null ? gender.hashCode() : 0);
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + gradeLevel;
+        return result;
     }
 
     @Override
     public String toString() {
         return "Student{" +
                 "dateOfBirth=" + dateOfBirth +
-                ", gender='" + gender + '\'' +
+                ", gender=" + gender +
                 ", address='" + address + '\'' +
-                ", yearOfStudy=" + yearOfStudy +
+                ", gradeLevel=" + gradeLevel +
+                ", subjects=" + subjects +
                 '}';
     }
-
-
 }
