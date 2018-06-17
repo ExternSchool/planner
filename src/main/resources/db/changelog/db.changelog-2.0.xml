@@ -6,19 +6,19 @@
 
     <changeSet author="Maxim" id="2">
         <insert tableName="role">
-            <column name="name" value="ROLE_ADMIN"/>
+            <column name="name" value="ADMIN"/>
         </insert>
         <insert tableName="role">
-            <column name="name" value="ROLE_GUEST"/>
+            <column name="name" value="GUEST"/>
         </insert>
         <insert tableName="role">
-            <column name="name" value="ROLE_TEACHER"/>
+            <column name="name" value="TEACHER"/>
         </insert>
         <insert tableName="role">
-            <column name="name" value="ROLE_OFFICER"/>
+            <column name="name" value="OFFICER"/>
         </insert>
         <insert tableName="role">
-            <column name="name" value="ROLE_STUDENT"/>
+            <column name="name" value="STUDENT"/>
         </insert>
     </changeSet>
 

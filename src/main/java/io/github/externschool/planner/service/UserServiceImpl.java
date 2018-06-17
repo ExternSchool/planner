@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         if (user.getRoles().isEmpty()) {
-            user.getRoles().add(roleService.getRoleByName("ROLE_GUEST"));
+            user.getRoles().add(roleService.getRoleByName("GUEST"));
         } 
 
         return userRepository.save(user);
