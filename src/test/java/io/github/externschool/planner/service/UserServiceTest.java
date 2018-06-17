@@ -68,7 +68,7 @@ public class UserServiceTest {
         assertThat(actualUser.getPassword())
                 .isEqualTo(userDTO.getPassword());
         assertTrue(actualUser.getRoles()
-                .contains(new Role("GUEST")));
+                .contains(new Role("ROLE_GUEST")));
     }
 
     @Test
