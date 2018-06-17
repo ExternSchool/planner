@@ -37,7 +37,7 @@ public class UserServiceTest {
     @Before
     public void setUp() {
         String email = "dmytro@gmail.com";
-        Role role = new Role("GUEST");
+        Role role = new Role("ROLE_GUEST");
         String password = "OY&D3e45pieD%JN!F45KSidufh";
 
         userDTO = new UserDTO();
