@@ -1,5 +1,6 @@
 package io.github.externschool.planner.repository.profiles;
 
+import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -27,21 +27,22 @@ public class PersonRepositoryTest {
     public void shouldReturnListOfPersons(){
 
         Person person1 = new Person();
+        person1.setUser(new User("user@email.com", "password"));
         person1.setFirstName("Dmytro");
         person1.setLastName("Manzhula");
 
         Person person2 = new Person();
+        person2.setUser(new User("admin@email.com", "password"));
         person2.setFirstName("Vasia");
         person2.setLastName("Pupkin");
 
         entityManager.persist(person1);
         entityManager.persist(person2);
-
-
         List<Person> personList = this.personRepository.findAll();
 
-        assertThat(personList).isNotNull()
-                .hasSize(2).containsSubsequence(person1, person2);
-
+        assertThat(personList)
+                .isNotNull()
+                .hasSize(2)
+                .containsSubsequence(person1, person2);
     }
 }
