@@ -13,7 +13,6 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.Objects;
 
 @Entity
@@ -42,8 +41,8 @@ public class Person {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "validation_key")
-    private String validationKey;
+    @Column(name = "verification_key")
+    private String verificationKey;
 
     public Person() {
     }
@@ -54,14 +53,14 @@ public class Person {
                   final String patronymicName,
                   final String lastName,
                   final String phoneNumber,
-                  final String validationKey) {
+                  final String verificationKey) {
         this.id = id;
         this.user = user;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
-        this.validationKey = validationKey;
+        this.verificationKey = verificationKey;
     }
 
     public Long getId() {
@@ -112,12 +111,12 @@ public class Person {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getValidationKey() {
-        return validationKey;
+    public String getVerificationKey() {
+        return verificationKey;
     }
 
-    public void setValidationKey(String validationKey) {
-        this.validationKey = validationKey;
+    public void setVerificationKey(String verificationKey) {
+        this.verificationKey = verificationKey;
     }
 
     @Override
