@@ -1,7 +1,6 @@
 package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.profile.Teacher;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -43,19 +42,6 @@ public class TeacherDTO {
         this.phoneNumber = phoneNumber;
         this.officer = officer;
         this.schoolSubjects = schoolSubjects;
-    }
-
-    public TeacherDTO constructTeacher(Teacher teacher){
-        TeacherDTO teacherDTO = new TeacherDTO();
-
-        teacherDTO.setFirstName(teacher.getFirstName());
-        teacherDTO.setLastName(teacher.getLastName());
-        teacherDTO.setOfficer(teacher.getOfficer());
-        teacherDTO.setPatronymicName(teacher.getPatronymicName());
-        teacherDTO.setPhoneNumber(teacher.getPhoneNumber());
-        teacherDTO.setSchoolSubjects(teacher.getSubjects());
-
-        return teacherDTO;
     }
 
     public String getVerificationKey() {
