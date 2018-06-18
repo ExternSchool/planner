@@ -53,7 +53,7 @@ public class TeacherDTO {
         teacherDTO.setOfficer(teacher.getOfficer());
         teacherDTO.setPatronymicName(teacher.getPatronymicName());
         teacherDTO.setPhoneNumber(teacher.getPhoneNumber());
-        teacherDTO.setSchoolSubjects(teacher.getSubjectList());
+        teacherDTO.setSchoolSubjects(teacher.getSubjects());
 
         return teacherDTO;
     }
