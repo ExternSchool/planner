@@ -1,9 +1,12 @@
 package io.github.externschool.planner.dto;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 public class TeacherDTO {
 
@@ -22,39 +25,37 @@ public class TeacherDTO {
     private String phoneNumber;
 
     @NotNull
-    private String email;
-
-    @NotNull
     private String officer;
 
-    private String schoolSubject;
+    private Set<SchoolSubject> schoolSubjects = new HashSet<>();
 
     public TeacherDTO(){
 
     }
 
-    public TeacherDTO(String verificationKey, String firstName, String patronymicName, String lastName,
-                      String phoneNumber, String email, String officer, String schoolSubject) {
+    public TeacherDTO(String verificationKey, @NotNull String firstName, @NotNull String patronymicName,
+                      @NotNull String lastName, @NotNull String phoneNumber, @NotNull String officer,
+                      Set<SchoolSubject> schoolSubjects) {
         this.verificationKey = verificationKey;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
-        this.email = email;
         this.officer = officer;
-        this.schoolSubject = schoolSubject;
+        this.schoolSubjects = schoolSubjects;
     }
 
-    public Teacher constructTeacher(){
+    public TeacherDTO constructTeacher(Teacher teacher){
+        TeacherDTO teacherDTO = new TeacherDTO();
 
-        Teacher teacher = new Teacher();
-        teacher.setFirstName(this.getFirstName());
-        teacher.setLastName(this.getLastName());
-        teacher.setOfficer(this.getOfficer());
-        teacher.setPatronymicName(this.getPatronymicName());
-        teacher.setPhoneNumber(this.getPhoneNumber());
+        teacherDTO.setFirstName(teacher.getFirstName());
+        teacherDTO.setLastName(teacher.getLastName());
+        teacherDTO.setOfficer(teacher.getOfficer());
+        teacherDTO.setPatronymicName(teacher.getPatronymicName());
+        teacherDTO.setPhoneNumber(teacher.getPhoneNumber());
+        teacherDTO.setSchoolSubjects(teacher.getSubjectList());
 
-        return teacher;
+        return teacherDTO;
     }
 
     public String getVerificationKey() {
@@ -97,14 +98,6 @@ public class TeacherDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getOfficer() {
         return officer;
     }
@@ -113,12 +106,12 @@ public class TeacherDTO {
         this.officer = officer;
     }
 
-    public String getSchoolSubject() {
-        return schoolSubject;
+    public Set<SchoolSubject> getSchoolSubjects() {
+        return schoolSubjects;
     }
 
-    public void setSchoolSubject(String schoolSubject) {
-        this.schoolSubject = schoolSubject;
+    public void setSchoolSubjects(Set<SchoolSubject> schoolSubjects) {
+        this.schoolSubjects = schoolSubjects;
     }
 
     @Override
@@ -131,15 +124,12 @@ public class TeacherDTO {
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
                 Objects.equals(phoneNumber, that.phoneNumber) &&
-                Objects.equals(email, that.email) &&
-                Objects.equals(officer, that.officer) &&
-                Objects.equals(schoolSubject, that.schoolSubject);
+                Objects.equals(officer, that.officer);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(verificationKey, firstName, patronymicName, lastName, phoneNumber, email, officer,
-                schoolSubject);
+        return Objects.hash(verificationKey, firstName, patronymicName, lastName, phoneNumber, officer);
     }
 }
