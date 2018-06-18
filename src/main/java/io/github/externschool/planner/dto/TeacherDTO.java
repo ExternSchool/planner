@@ -33,8 +33,8 @@ public class TeacherDTO {
 
     }
 
-    public TeacherDTO(String verificationKey, @NotNull String firstName, @NotNull String patronymicName,
-                      @NotNull String lastName, @NotNull String phoneNumber, @NotNull String officer,
+    public TeacherDTO(String verificationKey, String firstName, String patronymicName,
+                      String lastName, String phoneNumber, String officer,
                       Set<SchoolSubject> schoolSubjects) {
         this.verificationKey = verificationKey;
         this.firstName = firstName;
