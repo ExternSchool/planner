@@ -9,6 +9,8 @@ import java.util.Set;
 
 public class TeacherDTO {
 
+    private Long id;
+
     private String verificationKey;
 
     @NotNull
@@ -32,9 +34,10 @@ public class TeacherDTO {
 
     }
 
-    public TeacherDTO(String verificationKey, String firstName, String patronymicName,
+    public TeacherDTO(Long id, String verificationKey, String firstName, String patronymicName,
                       String lastName, String phoneNumber, String officer,
                       Set<SchoolSubject> schoolSubjects) {
+        this.id = id;
         this.verificationKey = verificationKey;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
@@ -42,6 +45,14 @@ public class TeacherDTO {
         this.phoneNumber = phoneNumber;
         this.officer = officer;
         this.schoolSubjects = schoolSubjects;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getVerificationKey() {
@@ -105,7 +116,8 @@ public class TeacherDTO {
         if (this == o) return true;
         if (!(o instanceof TeacherDTO)) return false;
         TeacherDTO that = (TeacherDTO) o;
-        return Objects.equals(verificationKey, that.verificationKey) &&
+        return Objects.equals(id, that.id) &&
+                Objects.equals(verificationKey, that.verificationKey) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
@@ -116,6 +128,6 @@ public class TeacherDTO {
     @Override
     public int hashCode() {
 
-        return Objects.hash(verificationKey, firstName, patronymicName, lastName, phoneNumber, officer);
+        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber, officer);
     }
 }
