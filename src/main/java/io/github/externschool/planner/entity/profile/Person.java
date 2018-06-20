@@ -2,7 +2,17 @@ package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.User;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
@@ -19,26 +29,38 @@ public class Person {
     @JoinColumn(name = "id")
     private User user;
 
+    @Column(name = "first_name")
     private String firstName;
 
+    @Column(name = "patronymic_name")
     private String patronymicName;
 
+    @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "phone_number")
     private String phoneNumber;
 
-    public Person(){
+    @Column(name = "verification_key")
+    private String verificationKey;
 
+    public Person() {
     }
 
-    public Person(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                  String phoneNumber) {
+    public Person(final Long id,
+                  final User user,
+                  final String firstName,
+                  final String patronymicName,
+                  final String lastName,
+                  final String phoneNumber,
+                  final String verificationKey) {
         this.id = id;
         this.user = user;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
+        this.verificationKey = verificationKey;
     }
 
     public Long getId() {
@@ -87,6 +109,14 @@ public class Person {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getVerificationKey() {
+        return verificationKey;
+    }
+
+    public void setVerificationKey(String verificationKey) {
+        this.verificationKey = verificationKey;
     }
 
     @Override

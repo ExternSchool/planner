@@ -22,7 +22,7 @@ public class RoleRepositoryIntegrationTest {
     @Test
     public void shouldReturnPresetRoles_WhenFindAllRoles() {
         List<String> names = new ArrayList<>(Arrays.asList(
-                "ADMIN", "GUEST", "OFFICER", "STUDENT", "TEACHER"));
+                "ROLE_ADMIN", "ROLE_GUEST", "ROLE_OFFICER", "ROLE_STUDENT", "ROLE_TEACHER"));
         List<Role> roles = readRoles();
 
         assertThat(roles)
@@ -35,7 +35,7 @@ public class RoleRepositoryIntegrationTest {
 
     @Test
     public void shouldAddOneRole_WhenSaveNewRole() {
-        Role newRole = new Role("NEW");
+        Role newRole = new Role("ROLE_NEW");
 
         roleRepository.save(newRole);
         List<Role> roles = readRoles();
@@ -47,7 +47,7 @@ public class RoleRepositoryIntegrationTest {
 
     @Test
     public void shouldSubtractOneRole_WhenDeleteRole() {
-        Role newRole = new Role("NEW");
+        Role newRole = new Role("ROLE_NEW");
         roleRepository.save(newRole);
         roleRepository.delete(newRole);
         List<Role> roles = readRoles();

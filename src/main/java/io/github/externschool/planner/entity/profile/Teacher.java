@@ -5,6 +5,9 @@ import io.github.externschool.planner.entity.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
@@ -17,23 +20,32 @@ public class Teacher extends Person {
     @Column(name = "officer")
     private String officer;
 
-    @ManyToMany
-    @Column
-    Set<SchoolSubject> subjectList = new HashSet();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "teacher_subjects",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private Set<SchoolSubject> subjects = new HashSet();
 
-    public Teacher(String officer, Set<SchoolSubject> subjectList) {
+    public Teacher(String officer, Set<SchoolSubject> subjects) {
         this.officer= officer;
-        this.subjectList = subjectList;
+        this.subjects = subjects;
     }
 
     public Teacher() {
     }
 
-    public Teacher(Long id, User user, Long validationKey, String firstName, String patronymicName, String lastName,
-                   String phoneNumber, String officer, Set<SchoolSubject> subjectList) {
-        super(id, user, validationKey, firstName, patronymicName, lastName, phoneNumber);
+    public Teacher(final Long id,
+                   final User user,
+                   final String firstName,
+                   final String patronymicName,
+                   final String lastName,
+                   final String phoneNumber,
+                   final String verificationKey,
+                   final String officer,
+                   final Set<SchoolSubject> subjects) {
+        super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
         this.officer = officer;
-        this.subjectList = subjectList;
+        this.subjects = subjects;
     }
 
     public String getOfficer() {
@@ -44,19 +56,45 @@ public class Teacher extends Person {
         this.officer = officer;
     }
 
-    public Set<SchoolSubject> getSubjectList() {
-        return subjectList;
+    public Set<SchoolSubject> getSubjects() {
+        return subjects;
     }
 
-    public void setSubjectList(Set<SchoolSubject> subjectList) {
-        this.subjectList = subjectList;
+    public void setSubjects(Set<SchoolSubject> subjects) {
+        this.subjects = subjects;
+    }
+
+    public void addSubject(SchoolSubject subject) {
+        subjects.add(subject);
+    }
+
+    public void removeSubject(SchoolSubject subject) {
+        subjects.remove(subject);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Teacher teacher = (Teacher) o;
+
+        return officer != null ? officer.equals(teacher.officer) : teacher.officer == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (officer != null ? officer.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Teacher{" +
-                "officer='" +  + '\'' +
-                ", subjectList=" + subjectList +
+                "officer='" + officer + '\'' +
+                ", subjects=" + subjects +
                 '}';
     }
 }
