@@ -18,23 +18,22 @@ public class SchoolSubject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "subject_id", nullable = false
-    , updatable = false)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "subject_name")
-    private String subjectName;
+    @Column(name = "name")
+    private String name;
 
     @ManyToMany
-    @Column
+    @Column(name = "teachers")
     private Set<Teacher> teachers = new HashSet<>();
 
     public SchoolSubject() {
     }
 
-    public SchoolSubject(Long id, String subjectName, Set<Teacher> teachers) {
+    public SchoolSubject(Long id, String name, Set<Teacher> teachers) {
         this.id = id;
-        this.subjectName = subjectName;
+        this.name = name;
         this.teachers = teachers;
     }
 
@@ -46,12 +45,12 @@ public class SchoolSubject {
         this.id = id;
     }
 
-    public String getSubjectName() {
-        return subjectName;
+    public String getName() {
+        return name;
     }
 
-    public void setSubjectName(String subjectName) {
-        this.subjectName = subjectName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Set<Teacher> getTeachers() {
@@ -66,7 +65,7 @@ public class SchoolSubject {
     public String toString() {
         return "SchoolSubject{" +
                 "id=" + id +
-                ", subjectName='" + subjectName + '\'' +
+                ", name='" + name + '\'' +
                 ", teachers=" + teachers +
                 '}';
     }
