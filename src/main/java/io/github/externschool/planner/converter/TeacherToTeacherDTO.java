@@ -10,7 +10,7 @@ public class TeacherToTeacherDTO implements Converter<Teacher, TeacherDTO> {
     public TeacherDTO convert(Teacher teacher) {
         return new TeacherDTO(
                 teacher.getId(),
-                "1",//teacher.getVerificationKey(),
+                teacher.getVerificationKey(),
                 teacher.getFirstName(),
                 teacher.getPatronymicName(),
                 teacher.getLastName(),
