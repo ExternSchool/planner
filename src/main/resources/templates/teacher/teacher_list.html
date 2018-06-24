@@ -33,11 +33,11 @@
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teachers</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
         <table class="col-lg-9 table table-hover">
-            <thead class="thead-light">
+            <thead>
             <tr>
+                <th>Lastname</th>
                 <th>Firstname</th>
                 <th>Patronym</th>
-                <th>Lastname</th>
                 <th>Officer</th>
                 <th>Phone</th>
                 <th>Edit</th>
@@ -46,9 +46,9 @@
             </thead>
             <tbody>
             <tr th:each="teacher : ${teachers}">
+                <td th:text="${teacher.getLastName()}">Surname</td>
                 <td th:text="${teacher.getFirstName()}">Name</td>
                 <td th:text="${teacher.getPatronymicName()}">Patronym</td>
-                <td th:text="${teacher.getLastName()}">Surname</td>
                 <td th:text="${teacher.getOfficer()}">Officer</td>
                 <td th:text="${teacher.getPhoneNumber()}">Phone</td>
                 <td>
