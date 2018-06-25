@@ -15,7 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "teacher")
-public class Teacher extends Person implements Comparable<Teacher> {
+public class Teacher extends Person {
 
     @Column(name = "officer")
     private String officer;
@@ -96,14 +96,5 @@ public class Teacher extends Person implements Comparable<Teacher> {
                 "officer='" + officer + '\'' +
                 ", subjects=" + subjects +
                 '}';
-    }
-
-    @Override
-    public int compareTo(Teacher teacher) {
-        int flag = this.getLastName().compareTo(teacher.getLastName());
-        if (flag == 0) {
-            flag = this.getFirstName().compareTo(teacher.getFirstName());
-        }
-        return flag;
     }
 }

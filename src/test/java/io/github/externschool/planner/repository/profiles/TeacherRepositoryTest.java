@@ -2,6 +2,7 @@ package io.github.externschool.planner.repository.profiles;
 
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Teacher;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,23 +25,54 @@ public class TeacherRepositoryTest {
     @Autowired
     TestEntityManager entityManager;
 
-    @Test
-    public void shouldReturnListOfPersons(){
-        Teacher firstTeacher = new Teacher("principal", new HashSet<>());
+    private Teacher firstTeacher;
+    private Teacher secondTeacher;
+    private Teacher thirdTeacher;
+
+    @Before
+    public void setUp() {
+        firstTeacher = new Teacher("principal", new HashSet<>());
         firstTeacher.setUser(new User("user@email.com", "password"));
         firstTeacher.setOfficer("Psychologist");
+        firstTeacher.setLastName("A");
+        firstTeacher.setFirstName("Z");
 
-        Teacher secondTeacher = new Teacher("", new HashSet<>());
+        secondTeacher = new Teacher("", new HashSet<>());
         secondTeacher.setUser(new User("admin@email.com", "password"));
         secondTeacher.setOfficer("Principal");
+        secondTeacher.setLastName("C");
+        secondTeacher.setFirstName("A");
+
+        thirdTeacher = new Teacher("chemist", new HashSet<>());
+        thirdTeacher.setUser(new User("chemist@email.com", "password"));
+        thirdTeacher.setOfficer("Chemist");
+        thirdTeacher.setLastName("A");
+        thirdTeacher.setFirstName("A");
 
         entityManager.persist(firstTeacher);
         entityManager.persist(secondTeacher);
+        entityManager.persist(thirdTeacher);
+
+    }
+
+    @Test
+    public void shouldReturnListOfTeacher() {
         List<Teacher> teachers = this.repository.findAll();
 
         assertThat(teachers)
                 .isNotNull()
-                .hasSize(2)
-                .containsSubsequence(firstTeacher, secondTeacher);
+                .hasSize(3)
+                .containsSubsequence(firstTeacher, secondTeacher, thirdTeacher);
     }
+
+    @Test
+    public void shouldReturnSortedListOfTeacher() {
+        List<Teacher> teachers = this.repository.findAllSortByLastNameAndFirstName();
+
+        assertThat(teachers)
+                .isNotNull()
+                .hasSize(3)
+                .containsSubsequence(thirdTeacher, firstTeacher, secondTeacher);
+    }
+
 }

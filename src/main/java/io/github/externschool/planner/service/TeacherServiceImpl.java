@@ -4,7 +4,6 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -27,9 +26,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Teacher> findAllSortByLastNameAndFirstName() {
-        List<Teacher> teachers = teacherRepository.findAll();
-        Collections.sort(teachers);
-        return teachers;
+        return teacherRepository.findAllSortByLastNameAndFirstName();
     }
 
     @Override
