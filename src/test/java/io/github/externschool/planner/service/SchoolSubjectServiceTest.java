@@ -1,33 +1,76 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
+import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
-import javax.persistence.EntityManager;
+import java.util.ArrayList;
+import java.util.List;
 
-@RunWith(SpringRunner.class)
-@DataJpaTest
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 public class SchoolSubjectServiceTest {
 
-    @Autowired
+    @Mock
     private SchoolSubjectRepository subjectRepository;
 
-    @Autowired
-    private EntityManager entityManager;
+    @Mock
+    private TeacherRepository teacherRepository;
+
+    @InjectMocks
+    private SchoolSubjectServiceImpl schoolSubjectService;
+
+    private Teacher teacher;
+    private SchoolSubject schoolSubject1;
+    private SchoolSubject schoolSubject2;
+    private List<SchoolSubject> subjects = new ArrayList<>();
+
+    @Before
+    public void setup(){
+        teacher = new Teacher();
+        teacher.setOfficer("Math");
+
+        schoolSubject1 = new SchoolSubject();
+        schoolSubject1.setId(1L);
+        schoolSubject1.setName("math");
+
+        schoolSubject2 = new SchoolSubject();
+        schoolSubject2.setId(2L);
+        schoolSubject2.setName("history");
+
+
+        MockitoAnnotations.initMocks(this);
+    }
+
+
 
     @Test
-    public void shouldReturnSubjectIfCreated(){
-        SchoolSubject schoolSubject = new SchoolSubject();
-        schoolSubject.setName("math");
-        entityManager.persist(schoolSubject);
+    public void shouldReturnSubjectsById(){
 
-        SchoolSubject retrievedSubject = subjectRepository.findByName("math");
+        Mockito.when(subjectRepository.getOne(schoolSubject1.getId()))
+                .thenReturn(schoolSubject1);
 
-        assert(schoolSubject.equals(retrievedSubject));
+        SchoolSubject actualSubject1 = schoolSubjectService.findSubjectById(schoolSubject1.getId());
+
+        assertThat(actualSubject1).isEqualTo(schoolSubject1);
+
+    }
+
+    @Test
+    public void shouldReturnSubjectList(){
+        Mockito.when(subjectRepository.findAll())
+                .thenReturn(subjects);
+    }
+
+    @Test
+    public void shouldDeleteSchoolSubject(){
+        //code here
     }
 }

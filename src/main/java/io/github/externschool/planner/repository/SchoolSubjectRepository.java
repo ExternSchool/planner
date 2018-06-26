@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface SchoolSubjectRepository extends JpaRepository<SchoolSubject, Long> {
 
     SchoolSubject findByName(String name);
+
+
 }
