@@ -34,20 +34,17 @@ public class TeacherRepositoryTest {
         firstTeacher = new Teacher("principal", new HashSet<>());
         firstTeacher.setUser(new User("user@email.com", "password"));
         firstTeacher.setOfficer("Psychologist");
-        firstTeacher.setLastName("A");
-        firstTeacher.setFirstName("Z");
+        firstTeacher.setLastName("C");
 
         secondTeacher = new Teacher("", new HashSet<>());
         secondTeacher.setUser(new User("admin@email.com", "password"));
         secondTeacher.setOfficer("Principal");
-        secondTeacher.setLastName("C");
-        secondTeacher.setFirstName("A");
+        secondTeacher.setLastName("B");
 
         thirdTeacher = new Teacher("chemist", new HashSet<>());
         thirdTeacher.setUser(new User("chemist@email.com", "password"));
         thirdTeacher.setOfficer("Chemist");
         thirdTeacher.setLastName("A");
-        thirdTeacher.setFirstName("A");
 
         entityManager.persist(firstTeacher);
         entityManager.persist(secondTeacher);
@@ -66,13 +63,23 @@ public class TeacherRepositoryTest {
     }
 
     @Test
+    public void shouldReturnTeacherById() {
+        Teacher expectedTeacher = this.repository.findTeacherById(secondTeacher.getId());
+
+        assertThat(expectedTeacher)
+                .isNotNull()
+                .isEqualTo(secondTeacher)
+                .isEqualToComparingFieldByField(secondTeacher);
+    }
+
+    @Test
     public void shouldReturnSortedListOfTeacher() {
-        List<Teacher> teachers = this.repository.findAllSortByLastNameAndFirstName();
+        List<Teacher> teachers = this.repository.findAllByOrderByLastNameAsc();
 
         assertThat(teachers)
                 .isNotNull()
                 .hasSize(3)
-                .containsSubsequence(thirdTeacher, firstTeacher, secondTeacher);
+                .containsSubsequence(thirdTeacher, secondTeacher, firstTeacher);
     }
 
 }

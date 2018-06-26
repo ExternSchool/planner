@@ -1,7 +1,6 @@
 package io.github.externschool.planner.repository.profiles;
 
 import io.github.externschool.planner.entity.profile.Teacher;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +13,6 @@ public interface TeacherRepository extends CrudRepository<Teacher, Long> {
 
     Teacher findTeacherById(Long id);
 
-    @Query("SELECT t FROM Teacher t ORDER BY t.lastName, t.firstName")
-    List<Teacher> findAllSortByLastNameAndFirstName();
+    List<Teacher> findAllByOrderByLastNameAsc();
 
 }

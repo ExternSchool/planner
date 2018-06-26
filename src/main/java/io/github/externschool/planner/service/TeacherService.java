@@ -10,7 +10,7 @@ public interface TeacherService {
 
     List<Teacher> findAllTeachers();
 
-    List<Teacher> findAllSortByLastNameAndFirstName();
+    List<Teacher> findAllByOrderByLastNameAsc();
 
     Teacher saveOrUpdateTeacher(Teacher teacher);
 

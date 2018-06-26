@@ -25,8 +25,8 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> findAllSortByLastNameAndFirstName() {
-        return teacherRepository.findAllSortByLastNameAndFirstName();
+    public List<Teacher> findAllByOrderByLastNameAsc() {
+        return teacherRepository.findAllByOrderByLastNameAsc();
     }
 
     @Override
