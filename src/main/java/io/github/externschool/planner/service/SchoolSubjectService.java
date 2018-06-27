@@ -1,6 +1,7 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
