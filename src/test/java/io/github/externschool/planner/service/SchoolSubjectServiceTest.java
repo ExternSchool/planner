@@ -34,11 +34,8 @@ public class SchoolSubjectServiceTest {
     @Before
     public void setup(){
         mathAndHistoryTeacher = new Teacher();
-       // mathAndHistoryTeacher.setOfficer("MathAndHistory");
 
         mathOnlyTeacher = new Teacher();
-        //mathOnlyTeacher.setOfficer("Math");
-
 
         schoolSubject1 = new SchoolSubject();
         schoolSubject1.setId(1L);
