@@ -1,8 +1,10 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.profile.Teacher;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SchoolSubjectService {
 
@@ -12,6 +14,6 @@ public interface SchoolSubjectService {
 
     SchoolSubject saveOrUpdateSubject(SchoolSubject schoolSubject);
 
-    void deleteSubjectById(Long id);
+    void deleteSubjectFromTeacher(Optional<Teacher> teacher, SchoolSubject schoolSubject);
 
 }

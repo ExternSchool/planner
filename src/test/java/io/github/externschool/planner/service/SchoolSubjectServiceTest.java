@@ -11,8 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -27,15 +26,19 @@ public class SchoolSubjectServiceTest {
     @InjectMocks
     private SchoolSubjectServiceImpl schoolSubjectService;
 
-    private Teacher teacher;
+    private Teacher mathAndHistoryTeacher;
+    private Teacher mathOnlyTeacher;
     private SchoolSubject schoolSubject1;
     private SchoolSubject schoolSubject2;
-    private List<SchoolSubject> subjects = new ArrayList<>();
 
     @Before
     public void setup(){
-        teacher = new Teacher();
-        teacher.setOfficer("Math");
+        mathAndHistoryTeacher = new Teacher();
+       // mathAndHistoryTeacher.setOfficer("MathAndHistory");
+
+        mathOnlyTeacher = new Teacher();
+        //mathOnlyTeacher.setOfficer("Math");
+
 
         schoolSubject1 = new SchoolSubject();
         schoolSubject1.setId(1L);
@@ -44,6 +47,11 @@ public class SchoolSubjectServiceTest {
         schoolSubject2 = new SchoolSubject();
         schoolSubject2.setId(2L);
         schoolSubject2.setName("history");
+
+        mathAndHistoryTeacher.addSubject(schoolSubject1);
+        mathAndHistoryTeacher.addSubject(schoolSubject2);
+
+        mathOnlyTeacher.addSubject(schoolSubject1);
 
 
         MockitoAnnotations.initMocks(this);
@@ -64,13 +72,20 @@ public class SchoolSubjectServiceTest {
     }
 
     @Test
-    public void shouldReturnSubjectList(){
-        Mockito.when(subjectRepository.findAll())
-                .thenReturn(subjects);
-    }
+    public void shouldDeleteSchoolSubjectFromTeacher(){
 
-    @Test
-    public void shouldDeleteSchoolSubject(){
-        //code here
+        Mockito.when(teacherRepository.findById(mathAndHistoryTeacher.getId()))
+                .thenReturn(java.util.Optional.ofNullable(mathAndHistoryTeacher));
+
+        Optional<Teacher> actualTeacher = teacherRepository.findById(mathAndHistoryTeacher.getId());
+
+        System.out.println(actualTeacher.get());
+
+        schoolSubjectService.deleteSubjectFromTeacher(actualTeacher, schoolSubject2);
+
+        System.out.println(actualTeacher.get());
+
+        assertThat(actualTeacher.get().getSubjects()).isEqualTo(mathOnlyTeacher.getSubjects());
+
     }
 }
