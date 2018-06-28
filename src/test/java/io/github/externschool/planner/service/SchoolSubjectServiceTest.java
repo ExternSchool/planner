@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -28,14 +30,18 @@ public class SchoolSubjectServiceTest {
 
     private Teacher mathAndHistoryTeacher;
     private Teacher mathOnlyTeacher;
+    private Teacher anotherMathTeacher;
     private SchoolSubject schoolSubject1;
     private SchoolSubject schoolSubject2;
 
+    List<Teacher> teachers = new ArrayList<>();
+
     @Before
     public void setup(){
-        mathAndHistoryTeacher = new Teacher();
 
+        mathAndHistoryTeacher = new Teacher();
         mathOnlyTeacher = new Teacher();
+        anotherMathTeacher = new Teacher();
 
         schoolSubject1 = new SchoolSubject();
         schoolSubject1.setId(1L);
@@ -50,6 +56,11 @@ public class SchoolSubjectServiceTest {
 
         mathOnlyTeacher.addSubject(schoolSubject1);
 
+        anotherMathTeacher.addSubject(schoolSubject1);
+
+        teachers.add(mathAndHistoryTeacher);
+        teachers.add(mathOnlyTeacher);
+        teachers.add(anotherMathTeacher);
 
         MockitoAnnotations.initMocks(this);
     }
@@ -83,6 +94,23 @@ public class SchoolSubjectServiceTest {
         System.out.println(actualTeacher.get());
 
         assertThat(actualTeacher.get().getSubjects()).isEqualTo(mathOnlyTeacher.getSubjects());
+
+    }
+
+    @Test
+    public void shouldDeleteSubject_fromAllTeachers(){
+
+        Mockito.when(teacherRepository.findAll())
+                .thenReturn(teachers);
+
+        List<Teacher> expectedTeachers = teacherRepository.findAll();
+
+        schoolSubjectService.deleteSubject(Optional.ofNullable(expectedTeachers), schoolSubject1);
+
+        for (Teacher t: expectedTeachers
+             ) {
+            assertThat(t.getSubjects().contains(schoolSubject1)).isFalse();
+        }
 
     }
 }

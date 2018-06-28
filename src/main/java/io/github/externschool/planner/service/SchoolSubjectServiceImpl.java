@@ -5,6 +5,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,21 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
         subjects.remove(schoolSubject);
 
         teacherRepository.save(teacher.get());
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteSubject(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject) {
+
+        for (Teacher teacher: teachers.get()
+             ) {
+            if (teacher.getSubjects().contains(schoolSubject)){
+
+                deleteSubjectFromTeacher(Optional.ofNullable(teacher), schoolSubject);
+            }
+            
+        }
 
     }
 }
