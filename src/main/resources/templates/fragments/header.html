@@ -6,7 +6,7 @@
 <head>
 </head>
 <body>
-<div th:fragment="header">
+<div th:fragment="header(activeTab)">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" href="#">Visit Planner</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
@@ -15,17 +15,41 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item active">
-                    <a class="nav-link active" href="/">Home</a>
+                <li class="nav-item">
+                    <a th:class="${activeTab == 'greeting'}? 'nav-link active' : 'nav-link'"
+                       href="/">Home</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/guest_profile">Guests</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="/student/student_profile">Students</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/">Teachers</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'subject'}? 'nav-link active' : 'nav-link'"
+                           href="/subject/">Subjects</a>
+                    </div>
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Search</button>
+                <div sec:authorize="!hasRole('ROLE_ADMIN')">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Search</button>
+                </div>
                 <div sec:authorize="isAnonymous()">
                     <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Sign Up</a>
                     <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Log In</a>
