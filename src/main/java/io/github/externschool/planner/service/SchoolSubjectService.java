@@ -8,7 +8,7 @@ public interface SchoolSubjectService {
 
     SchoolSubject findSubjectById(Long id);
 
-    List<SchoolSubject> findAll();
+    List<SchoolSubject> findAllByOrderByNameAsc();
 
     SchoolSubject saveOrUpdateSubject(SchoolSubject schoolSubject);
 

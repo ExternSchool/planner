@@ -113,6 +113,21 @@ public class SchoolSubjectServiceTest {
 
     }
 
+    @Test
+    public void shouldReturnAllSubjectsAsc_WhenFindAll(){
+
+        List<SchoolSubject> expectedList = new ArrayList<>();
+        expectedList.add(schoolSubject2);
+        expectedList.add(schoolSubject1);
+
+        Mockito.when(schoolSubjectService.findAllByOrderByNameAsc())
+                .thenReturn(expectedList);
+
+        List<SchoolSubject> sortedSubjects = schoolSubjectService.findAllByOrderByNameAsc();
+
+        assertThat(sortedSubjects).isEqualTo(expectedList);
+    }
+
     @After
     public void tearDown(){
         subjectRepository.deleteAll();
