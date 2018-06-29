@@ -1,5 +1,6 @@
 package io.github.externschool.planner.security;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserDetailsServiceTest {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
@@ -54,12 +55,12 @@ public class UserDetailsServiceTest {
                 true,
                 true,
                 true,
-                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("GUEST"))));
+                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST"))));
 
         User expectedUser = new User();
         expectedUser.setEmail(userEmail);
         expectedUser.setPassword(userPassword);
-        expectedUser.addRole(new Role("GUEST"));
+        expectedUser.addRole(new Role("ROLE_GUEST"));
 
         Mockito.when(userRepository.findByEmail(expectedUser.getEmail()))
                 .thenReturn(expectedUser);

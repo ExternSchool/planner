@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserServiceTest {
     @Autowired
     UserService userService;
