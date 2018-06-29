@@ -1,6 +1,7 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.service.SchoolSubjectService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SchoolSubjectRepositoryIntegrationTest {
     @Autowired
     private SchoolSubjectRepository repository;
+
+
+    private SchoolSubjectService subjectService;
 
     @Autowired
     private EntityManager entityManager;

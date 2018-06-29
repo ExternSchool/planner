@@ -34,9 +34,14 @@ public class TeacherDTO {
 
     }
 
-    public TeacherDTO(Long id, String verificationKey, String firstName, String patronymicName,
-                      String lastName, String phoneNumber, String officer,
-                      Set<SchoolSubject> schoolSubjects) {
+    public TeacherDTO(final Long id,
+                      final String verificationKey,
+                      final String firstName,
+                      final String patronymicName,
+                      final String lastName,
+                      final String phoneNumber,
+                      final String officer,
+                      final Set<SchoolSubject> schoolSubjects) {
         this.id = id;
         this.verificationKey = verificationKey;
         this.firstName = firstName;
