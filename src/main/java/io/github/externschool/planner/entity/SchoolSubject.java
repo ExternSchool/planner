@@ -53,14 +53,6 @@ public class SchoolSubject {
         this.name = name;
     }
 
-    public Set<Teacher> getTeachers() {
-        return teachers;
-    }
-
-    public void setTeachers(Set<Teacher> teachers) {
-        this.teachers = teachers;
-    }
-
     @Override
     public String toString() {
         return "SchoolSubject{" +
