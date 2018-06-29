@@ -44,17 +44,33 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     }
 
     @Override
-    @Transactional
-    public void deleteSubject(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject) {
+    public void deleteSubjectFromAllTeachers(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject) {
 
-        for (Teacher teacher: teachers.get()
-             ) {
+        for (Teacher teacher: teachers.get()) {
             if (teacher.getSubjects().contains(schoolSubject)){
-
                 deleteSubjectFromTeacher(Optional.ofNullable(teacher), schoolSubject);
             }
-            
         }
 
+        deleteSubject(schoolSubject.getId());
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteSubject(Long id) {
+
+        List<Teacher> teachers = teacherRepository.findAll();
+
+        SchoolSubject subject = subjectRepository.getOne(id);
+
+        for (Teacher teacher: teachers) {
+            if (teacher.getSubjects().contains(subject)){
+                teacher.getSubjects().remove(subject);
+                teacherRepository.save(teacher);
+            }
+        }
+
+        subjectRepository.deleteById(id);
     }
 }

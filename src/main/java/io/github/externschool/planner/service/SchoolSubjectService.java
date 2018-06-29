@@ -14,11 +14,10 @@ public interface SchoolSubjectService {
 
     SchoolSubject saveOrUpdateSubject(SchoolSubject schoolSubject);
 
-
-
     void deleteSubjectFromTeacher(Optional<Teacher> teacher, SchoolSubject schoolSubject);
 
-    void deleteSubject(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject);
+    void deleteSubjectFromAllTeachers(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject);
 
+    void deleteSubject(Long id);
 
 }

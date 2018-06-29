@@ -31,10 +31,12 @@ public class SchoolSubjectServiceTest {
     private Teacher mathAndHistoryTeacher;
     private Teacher mathOnlyTeacher;
     private Teacher anotherMathTeacher;
+
     private SchoolSubject schoolSubject1;
     private SchoolSubject schoolSubject2;
 
     List<Teacher> teachers = new ArrayList<>();
+    List<SchoolSubject> subjects = new ArrayList<>();
 
     @Before
     public void setup(){
@@ -62,10 +64,11 @@ public class SchoolSubjectServiceTest {
         teachers.add(mathOnlyTeacher);
         teachers.add(anotherMathTeacher);
 
+        subjects.add(schoolSubject1);
+        subjects.add(schoolSubject2);
+
         MockitoAnnotations.initMocks(this);
     }
-
-
 
     @Test
     public void shouldReturnSubjectsById(){
@@ -91,10 +94,7 @@ public class SchoolSubjectServiceTest {
 
         schoolSubjectService.deleteSubjectFromTeacher(actualTeacher, schoolSubject2);
 
-        System.out.println(actualTeacher.get());
-
         assertThat(actualTeacher.get().getSubjects()).isEqualTo(mathOnlyTeacher.getSubjects());
-
     }
 
     @Test
@@ -105,11 +105,27 @@ public class SchoolSubjectServiceTest {
 
         List<Teacher> expectedTeachers = teacherRepository.findAll();
 
-        schoolSubjectService.deleteSubject(Optional.ofNullable(expectedTeachers), schoolSubject1);
+        schoolSubjectService.deleteSubjectFromAllTeachers(Optional.ofNullable(expectedTeachers), schoolSubject1);
 
         for (Teacher t: expectedTeachers
              ) {
             assertThat(t.getSubjects().contains(schoolSubject1)).isFalse();
+        }
+    }
+
+    @Test
+    public void shouldDeleteSubject_ById(){
+
+        List<Teacher> expectedTeacher = new ArrayList<>();
+        expectedTeacher.add(mathOnlyTeacher);
+        expectedTeacher.add(anotherMathTeacher);
+
+        schoolSubjectService.deleteSubject(schoolSubject2.getId());
+
+        for (Teacher teacher: expectedTeacher) {
+
+            assertThat(teacher.getSubjects().contains(schoolSubject2)).isFalse();
+
         }
 
     }
