@@ -41,7 +41,6 @@ public class TeacherConvertersTest {
         final Set<SchoolSubject> schoolSubjects = new HashSet<>(Arrays.asList(firstSubject, secondSubject));
 
         expectedTeacher = new Teacher();
-        expectedTeacher.setUser(new User());
         expectedTeacher.setFirstName(firstName);
         expectedTeacher.setPatronymicName(patronymicName);
         expectedTeacher.setLastName(lastName);
