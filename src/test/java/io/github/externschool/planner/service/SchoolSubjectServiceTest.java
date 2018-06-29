@@ -3,29 +3,33 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
-import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class SchoolSubjectServiceTest {
 
-    @Mock
+    @MockBean
     private SchoolSubjectRepository subjectRepository;
 
-    @Mock
-    private TeacherRepository teacherRepository;
+    @MockBean
+    private TeacherServiceImpl teacherService;
 
-    @InjectMocks
+    @Autowired
     private SchoolSubjectServiceImpl schoolSubjectService;
 
     private Teacher mathAndHistoryTeacher;
@@ -76,57 +80,56 @@ public class SchoolSubjectServiceTest {
         Mockito.when(subjectRepository.getOne(schoolSubject1.getId()))
                 .thenReturn(schoolSubject1);
 
-        SchoolSubject actualSubject1 = schoolSubjectService.findSubjectById(schoolSubject1.getId());
+        SchoolSubject actualSubject = schoolSubjectService.findSubjectById(schoolSubject1.getId());
 
-        assertThat(actualSubject1).isEqualTo(schoolSubject1);
+        assertThat(actualSubject.getName()).isEqualTo(schoolSubject1.getName());
 
-    }
-
-    @Test
-    public void shouldDeleteSchoolSubjectFromTeacher(){
-
-        Mockito.when(teacherRepository.findById(mathAndHistoryTeacher.getId()))
-                .thenReturn(java.util.Optional.ofNullable(mathAndHistoryTeacher));
-
-        Optional<Teacher> actualTeacher = teacherRepository.findById(mathAndHistoryTeacher.getId());
-
-        System.out.println(actualTeacher.get());
-
-        schoolSubjectService.deleteSubjectFromTeacher(actualTeacher, schoolSubject2);
-
-        assertThat(actualTeacher.get().getSubjects()).isEqualTo(mathOnlyTeacher.getSubjects());
-    }
-
-    @Test
-    public void shouldDeleteSubject_fromAllTeachers(){
-
-        Mockito.when(teacherRepository.findAll())
-                .thenReturn(teachers);
-
-        List<Teacher> expectedTeachers = teacherRepository.findAll();
-
-        schoolSubjectService.deleteSubjectFromAllTeachers(Optional.ofNullable(expectedTeachers), schoolSubject1);
-
-        for (Teacher t: expectedTeachers
-             ) {
-            assertThat(t.getSubjects().contains(schoolSubject1)).isFalse();
-        }
     }
 
     @Test
     public void shouldDeleteSubject_ById(){
 
+        Mockito.when(teacherService.findAllTeachers())
+                .thenReturn(teachers);
+
+        Mockito.when(subjectRepository.findAll())
+                .thenReturn(subjects);
+
         List<Teacher> expectedTeacher = new ArrayList<>();
         expectedTeacher.add(mathOnlyTeacher);
         expectedTeacher.add(anotherMathTeacher);
+
+        List<SchoolSubject> expectedSubjects = new ArrayList<>();
+        expectedSubjects.add(schoolSubject1);
 
         schoolSubjectService.deleteSubject(schoolSubject2.getId());
 
         for (Teacher teacher: expectedTeacher) {
 
             assertThat(teacher.getSubjects().contains(schoolSubject2)).isFalse();
-
         }
 
+        assertThat(expectedSubjects.contains(schoolSubject2)).isFalse();
+
+    }
+
+    @Test
+    public void shouldReturnAllSubjectsAsc_WhenFindAll(){
+
+        List<SchoolSubject> expectedList = new ArrayList<>();
+        expectedList.add(schoolSubject2);
+        expectedList.add(schoolSubject1);
+
+        Mockito.when(schoolSubjectService.findAllByOrderByNameAsc())
+                .thenReturn(expectedList);
+
+        List<SchoolSubject> sortedSubjects = schoolSubjectService.findAllByOrderByNameAsc();
+
+        assertThat(sortedSubjects).isEqualTo(expectedList);
+    }
+
+    @After
+    public void tearDown(){
+        subjectRepository.deleteAll();
     }
 }
