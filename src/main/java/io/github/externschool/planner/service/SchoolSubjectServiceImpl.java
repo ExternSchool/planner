@@ -8,14 +8,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class SchoolSubjectServiceImpl implements SchoolSubjectService {
 
     private SchoolSubjectRepository subjectRepository;
     private TeacherRepository teacherRepository;
+    private TeacherService teacherService;
+
+    public SchoolSubjectServiceImpl(final SchoolSubjectRepository subjectRepository,
+                                    final TeacherRepository teacherRepository,
+                                    final TeacherService teacherService) {
+        this.subjectRepository = subjectRepository;
+        this.teacherRepository = teacherRepository;
+        this.teacherService = teacherService;
+    }
 
     @Override
     public SchoolSubject findSubjectById(Long id) {
@@ -33,44 +40,22 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
         return subjectRepository.save(schoolSubject);
     }
 
-    @Override
-    public void deleteSubjectFromTeacher(Optional<Teacher> teacher, SchoolSubject schoolSubject) {
-
-        Set<SchoolSubject> subjects = teacher.get().getSubjects();
-        subjects.remove(schoolSubject);
-
-        teacherRepository.save(teacher.get());
-
-    }
-
-    @Override
-    public void deleteSubjectFromAllTeachers(Optional<List<Teacher>> teachers, SchoolSubject schoolSubject) {
-
-        for (Teacher teacher: teachers.get()) {
-            if (teacher.getSubjects().contains(schoolSubject)){
-                deleteSubjectFromTeacher(Optional.ofNullable(teacher), schoolSubject);
-            }
-        }
-
-        deleteSubject(schoolSubject.getId());
-
-    }
 
     @Override
     @Transactional
     public void deleteSubject(Long id) {
 
-        List<Teacher> teachers = teacherRepository.findAll();
+        List<Teacher> teachers = teacherService.findAllTeachers();
 
         SchoolSubject subject = subjectRepository.getOne(id);
 
         for (Teacher teacher: teachers) {
             if (teacher.getSubjects().contains(subject)){
                 teacher.getSubjects().remove(subject);
-                teacherRepository.save(teacher);
+                teacherService.saveOrUpdateTeacher(teacher);
             }
         }
 
-        subjectRepository.deleteById(id);
+        subjectRepository.delete(subject);
     }
 }
