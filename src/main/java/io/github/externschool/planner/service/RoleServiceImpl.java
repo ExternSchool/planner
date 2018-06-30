@@ -13,7 +13,12 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public io.github.externschool.planner.entity.Role getRoleByName(String name) throws RoleNotFoundException {
+    public io.github.externschool.planner.entity.Role getRoleByName(String name) {
+
+        if (roleRepository.findByName(name) == null){
+            throw new RoleNotFoundException("Error");
+        }
+
         return roleRepository.findByName(name);
     }
 }
