@@ -16,9 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class BootstrapDataPopulatorTest {
     @Autowired
-    BootstrapDataPopulator bootstrap;
+    private BootstrapDataPopulator bootstrap;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
     private RoleService roleService;
 
