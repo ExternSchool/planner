@@ -1,6 +1,5 @@
 package io.github.externschool.planner.config;
 
-import io.github.externschool.planner.TestPlannerApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +42,7 @@ public class SpringSecurityConfigTest {
                 true,
                 true,
                 true,
-                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST"))));
+                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("GUEST"))));
     }
 
     @Test

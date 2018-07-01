@@ -46,30 +46,36 @@ public class BootstrapDataPopulator implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         createUser("q@q", "q", "ROLE_ADMIN");
 
-        createTeacher(Person.PersonBuilder.aPerson()
-                        .withFirstName("James")
-                        .withPatronymicName("Merrill")
-                        .withLastName("Carlsmith")
-                        .withPhoneNumber("(066)666-6666")
-                        .withVerificationKey(UUID.randomUUID().toString()).build(),
+        createTeacher(new Person(
+                        null,
+                        null,
+                        "James",
+                        "Merrill",
+                        "Carlsmith",
+                        "(066)666-6666",
+                        UUID.randomUUID().toString()),
                 "Psychologist",
                 Collections.singletonList("Cognitive dissonance theory"));
 
-        createTeacher(Person.PersonBuilder.aPerson()
-                        .withFirstName("Alexander")
-                        .withPatronymicName("Sutherland")
-                        .withLastName("Neill")
-                        .withPhoneNumber("(099)999-9999")
-                        .withVerificationKey(UUID.randomUUID().toString()).build(),
+        createTeacher(new Person(
+                        null,
+                        null,
+                        "Alexander",
+                        "Sutherland",
+                        "Neill",
+                        "(099)999-9999",
+                        UUID.randomUUID().toString()),
                 "Principal",
                 Arrays.asList("Quantum Mechanics","Algebraic topology"));
 
-        createTeacher(Person.PersonBuilder.aPerson()
-                        .withFirstName("Leonardo")
-                        .withPatronymicName("di ser Piero")
-                        .withLastName("da Vinci")
-                        .withPhoneNumber("(099)999-1111")
-                        .withVerificationKey(UUID.randomUUID().toString()).build(),
+        createTeacher(new Person(
+                        null,
+                        null,
+                        "Leonardo",
+                        "di ser Piero",
+                        "da Vinci",
+                        "(099)999-1111",
+                        UUID.randomUUID().toString()),
                 "Teacher",
                 Arrays.asList("Anatomy and physiology","Rocket Science"));
     }

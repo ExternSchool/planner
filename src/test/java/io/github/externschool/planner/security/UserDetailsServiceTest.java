@@ -18,7 +18,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
@@ -55,12 +54,12 @@ public class UserDetailsServiceTest {
                 true,
                 true,
                 true,
-                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("ROLE_GUEST"))));
+                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("GUEST"))));
 
         User expectedUser = new User();
         expectedUser.setEmail(userEmail);
         expectedUser.setPassword(userPassword);
-        expectedUser.addRole(new Role("ROLE_GUEST"));
+        expectedUser.addRole(new Role("GUEST"));
 
         Mockito.when(userRepository.findByEmail(expectedUser.getEmail()))
                 .thenReturn(expectedUser);
