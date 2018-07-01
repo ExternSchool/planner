@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+>
 <html lang="en">
 <head>
     <title>Teacher page</title>
@@ -30,87 +30,82 @@
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
     <fieldset>
-        <form class="form" th:action="@{/templates/teacher}" method="post">
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Verification Key</label>
-                <div class="input-group col-lg-9">
-                    <input class="form-control" type="text" id="verificationKey" th:id="verificationKey"
-                           placeholder="A key provided by the school to link the user with a real person data" value="">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="button">Generate New Key</button>
+        <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/update}" id="form">
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{change}"/>
+            <div class="form-row">
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="position">Officer position</label>
+                        <input class="form-control" type="text" placeholder="Officer position name"
+                               th:field="*{officer}" id="position">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
+                               th:field="*{lastName}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">First name</label>
+                        <input class="form-control" type="text" placeholder="First name" id="firstName"
+                               th:field="*{firstName}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patronymicName">Patronymic Name</label>
+                        <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
+                               th:field="*{patronymicName}" required>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="phone">Phone Number</label>
+                            <input class="form-control" type="tel" placeholder="Phone Number Format: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Phone Number Format: (999)999-9999'
+                                   id="phone" th:field="*{phoneNumber}" required>
+                        </div>
+                        <div class="form-group col-lg-6">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">First name</label>
-                <div class="col-lg-9">
-                    <input class="form-control" type="text" placeholder="Given Name" id="name" value=""
-                           required>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Patronym</label>
-                <div class="col-lg-9">
-                    <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymic" value=""
-                           required>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Surname</label>
-                <div class="col-lg-9">
-                    <input class="form-control" type="text" placeholder="Family Name" id="surname" value=""
-                           required>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Phone Number</label>
-                <div class="col-lg-9">
-                    <input type="tel" placeholder="Phone Number Format: (999)999-9999" id="tel" value=""
-                           class="form-control"
-                           pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Phone Number Format: (999)999-9999'
-                           required>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Officer position</label>
-                <div class="col-lg-9">
-                    <input class="form-control" type="text" placeholder="Officer position name"
-                           id="position" th:id="position" value="">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Add Subject</label>
-                <div class="input-group col-lg-9">
-                    <select class="form-control" id="subject_select" th:id="subject_select" size="0">
-                        <option value="Subj_4">Calculus</option>
-                        <option selected value="Subj_1">Mathematics</option>
-                        <option value="Subj_2">Algebra</option>
-                        <option value="Subj_3">Geometry</option>
-                    </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-success" type="button">Add New</button>
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="key">Verification Key</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}" readonly
+                                   placeholder="A key provided by the school to link the user with a real person data">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey">
+                                    Generate New Key
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label">Delete Subject</label>
-                <div class="input-group col-lg-9">
-                    <select class="form-control" id="subjects" th:id="subjects" size="0">
-                        <option value="Subj_4">Calculus</option>
-                        <option value="Subj_1">Mathematics</option>
-                        <option value="Subj_2">Algebra</option>
-                        <option value="Subj_3">Geometry</option>
-                    </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-danger" type="button">Delete</button>
+                    <div class="form-group">
+                        <label for="schoolSubjects">Select Subjects</label>
+                        <div class="input-group">
+                            <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
+                                    th:field="*{schoolSubjects}" size="10">
+                                <option th:each="subject : ${allSubjects}"
+                                        th:value="${subject.id}"
+                                        th:text="${subject.name}">
+                                    Subject
+                                </option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label form-control-label"></label>
-                <div class="col-lg-9">
-                    <input class="btn btn-secondary" value="Cancel">
-                    <input class="btn btn-primary" th:id="save" value="Save Changes"  type="submit">
+                    <div class="form-group row">
+                        <div class="col-lg-4">
+                            <a href="/teacher/update" method="GET">
+                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                    Cancel
+                                </button>
+                            </a>
+                        </div>
+                        <div class="col-lg-8">
+                            <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
