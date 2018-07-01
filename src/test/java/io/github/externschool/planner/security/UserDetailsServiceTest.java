@@ -1,5 +1,6 @@
 package io.github.externschool.planner.security;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -26,7 +27,7 @@ import java.util.HashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserDetailsServiceTest {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
