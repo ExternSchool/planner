@@ -70,7 +70,7 @@ public class TeacherServiceTest {
     }
 
     @Test
-    public void shouldReturnSortedList_whenFindAllSortByLastNameAndFirstName() {
+    public void shouldReturnSortedList_whenFindAllByOrderByLastNameAsc() {
         List<Teacher> expectedList = new ArrayList<>();
         expectedList.add(expectedTeacher);
 
