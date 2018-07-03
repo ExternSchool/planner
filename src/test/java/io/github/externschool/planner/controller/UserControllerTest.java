@@ -57,7 +57,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("success"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Successful Sign Up")));
+                .andExpect(content().string(Matchers.containsString("Successful Log in")));
     }
 
     @Test

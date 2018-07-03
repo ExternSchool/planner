@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -17,30 +17,24 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header"/>
+    <div th:replace="fragments/header :: header(activeTab='success')"/>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
     <form class="form-signin">
-        <h1 class="h3 mb-3 font-weight-normal">Successful Sign Up</h1>
+        <h1 class="h3 mb-3 font-weight-normal">Successful Log in</h1>
         <fieldset>
             <div class="form-group row">
                 <label class="control-label col-sm-6 text-left">Username: </label>
                 <div class="col-sm-6 text-right">
-                    <p class="form-control-static" th:text="${user.email}">someone@example.com</p>
+                    <p class="form-control-static" sec:authentication="name">Unregistered user</p>
                 </div>
             </div>
             <div class="form-group row">
-                <label class="control-label col-sm-6 text-left">Phone Number: </label>
+                <label class="control-label col-sm-6 text-left">Roles: </label>
                 <div class="col-sm-6 text-right">
-                    <p class="form-control-static" th:text="${user.phoneNumber}">phoneNumber</p>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="control-label col-sm-6 text-left">Verification Key: </label>
-                <div class="col-sm-6 text-right">
-                    <p class="form-control-static" th:text="${user.verificationKey}">verificationKey</p>
+                    <p class="form-control-static" sec:authentication="principal.authorities">Not authenticated</p>
                 </div>
             </div>
             <a class="btn btn-lg btn-outline-primary btn-block" th:href="@{/login}">Log In</a>
