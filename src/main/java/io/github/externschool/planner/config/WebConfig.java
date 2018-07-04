@@ -11,15 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    private final SchoolSubjectFormatter subjectFormatter;
-    private final LocalDateFormatter localDateFormatter;
-
     @Autowired
-    public WebConfig(final SchoolSubjectFormatter subjectFormatter,
-                     final LocalDateFormatter localDateFormatter) {
-        this.subjectFormatter = subjectFormatter;
-        this.localDateFormatter = localDateFormatter;
-    }
+    private SchoolSubjectFormatter subjectFormatter;
+    @Autowired
+    private LocalDateFormatter localDateFormatter;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
