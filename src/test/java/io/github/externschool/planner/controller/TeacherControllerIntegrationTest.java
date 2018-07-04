@@ -21,6 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -79,11 +80,11 @@ public class TeacherControllerIntegrationTest {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldReturnModelAndView_WhenGetRequestTeacherId() throws Exception {
+    public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
-        mockMvc.perform(get("/teacher/{id}", id))
+        mockMvc.perform(post("/teacher/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher", teacherDTO))
@@ -94,7 +95,7 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles="ADMIN")
     public void shouldReturnModelAndView_WhenGetRequestTeacherAdd() throws Exception {
-        mockMvc.perform(get("/teacher/add"))
+        mockMvc.perform(post("/teacher/add"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
@@ -126,7 +127,7 @@ public class TeacherControllerIntegrationTest {
 
     @Test
     @WithMockUser(roles="ADMIN")
-    public void shouldRedirectToTeacherList_WhenGetRequestUpdate() throws Exception {
+    public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
         mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
@@ -140,7 +141,7 @@ public class TeacherControllerIntegrationTest {
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
-        mockMvc.perform(get("/teacher/{id}/delete", id))
+        mockMvc.perform(delete("/teacher/{id}/delete", id))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
 

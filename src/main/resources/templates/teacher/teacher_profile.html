@@ -30,7 +30,7 @@
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
     <fieldset>
-        <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/update}" id="form">
+        <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
             <input type="hidden" th:field="*{id}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
@@ -93,7 +93,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-4">
-                            <a href="/teacher/update" method="GET">
+                            <a href="/teacher/update">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>
