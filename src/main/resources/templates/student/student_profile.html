@@ -4,7 +4,7 @@
 >
 <html lang="en">
 <head>
-    <title>Teacher Profile</title>
+    <title>Teacher page</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,21 +16,21 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
 </head>
 
 <body class="text-center">
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='teacher')"/>
+    <div th:replace="fragments/header :: header(activeTab='student')"/>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Student</small></h4>
     <fieldset>
-        <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
+        <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
             <input type="hidden" th:field="*{id}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
@@ -49,20 +49,51 @@
                         <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
                                th:field="*{patronymicName}" required>
                     </div>
-                    <div class="form-group">
-                        <label for="position">Officer position</label>
-                        <input class="form-control" type="text" placeholder="Officer position name"
-                               th:field="*{officer}" id="position">
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="gender">Gender</label>
+                            <select class="form-control" name="gender" id="gender" th:field="*{gender}">
+                                <option th:each="gender : ${T(io.github.externschool.planner.entity.enums.Gender).values()}"
+                                        th:value="${gender}"
+                                        th:text="${gender}">
+                                    Gender
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="dateOfBirth">Birth Date</label>
+                            <div class="input-group">
+                                <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
+                                       th:field="*{dateOfBirth}" id="dateOfBirth" required>
+                                <div class="input-group-addon">
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="grade">Grade</label>
+                            <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}">
+                                <!--<option th:each="grade: ${T(io.github.externschool.planner.entity.enums.GradeLevel).values()}"-->
+                                        <!--th:value="${grade}" th:text="${grade}">-->
+                                <option th:each="grade: ${grades}"
+                                        th:value="${grade.getLevel()}" th:text="${grade.getName()}">
+                                    Grade
+                                </option>
+                            </select>
+                        </div>
                         <div class="form-group col-lg-6">
                             <label for="phone">Phone Number</label>
                             <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
                                    pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
-                        <div class="form-group col-lg-6">
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input class="form-control" type="text" placeholder="Home address"
+                               th:field="*{address}" id="address">
                     </div>
                 </div>
                 <div class=" col-lg-6">
@@ -79,21 +110,20 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="schoolSubjects">Select Subjects</label>
+                        <label for="gradeLevel">Subjects List</label>
                         <div class="input-group">
-                            <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
-                                    th:field="*{schoolSubjects}" size="10">
-                                <option th:each="subject : ${allSubjects}"
+                            <select multiple class="form-control" name="gradeLevel" id="gradeLevel" size="14" disabled>
+                                <option th:each="subject : ${subjects}"
                                         th:value="${subject.id}"
-                                        th:text="${subject.name}">
+                                        th:text="${subject.getName()}">
                                     Subject
                                 </option>
-                            </select>
+                        </select>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row" style="padding: 8px 0;">
                         <div class="col-lg-4">
-                            <a href="/teacher/update">
+                            <a href="/student/update" method="GET">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>
@@ -107,11 +137,6 @@
                     </div>
                 </div>
             </div>
-            <div th:each="subject : ${teacher.schoolSubjects}">
-                <input type="text"
-                       th:value="${{subject}}"
-                       style="display:none;"/>
-            </div>
         </form>
     </fieldset>
 </main>
@@ -124,6 +149,10 @@
         </span>
     </div>
 </footer>
+
+<script type="text/javascript">
+
+</script>
 
 </body>
 </html>

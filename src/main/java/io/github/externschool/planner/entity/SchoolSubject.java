@@ -31,12 +31,6 @@ public class SchoolSubject {
     public SchoolSubject() {
     }
 
-    public SchoolSubject(Long id, String name, Set<Teacher> teachers) {
-        this.id = id;
-        this.name = name;
-        this.teachers = teachers;
-    }
-
     public Long getId() {
         return id;
     }
@@ -54,11 +48,19 @@ public class SchoolSubject {
     }
 
     @Override
-    public String toString() {
-        return "SchoolSubject{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", teachers=" + teachers +
-                '}';
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final SchoolSubject subject = (SchoolSubject) o;
+
+        return id.equals(subject.id);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }
