@@ -1,6 +1,5 @@
 package io.github.externschool.planner.converter;
 
-import io.github.externschool.planner.entity.SchoolSubject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
