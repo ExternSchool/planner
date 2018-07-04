@@ -1,5 +1,6 @@
 package io.github.externschool.planner.converter;
 
+import io.github.externschool.planner.PlannerApplication;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
@@ -9,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,8 +18,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringBootTest(classes = PlannerApplication.class)
 public class TeacherConvertersTest {
     @Autowired
     ConversionService conversionService;
@@ -27,6 +28,7 @@ public class TeacherConvertersTest {
 
     @Before
     public void setUp() {
+        final Long id = 1L;
         final String verificationKey = "0123456789qwertyuiopAJHGDKJADGKJD";
         final String firstName = "John";
         final String patronymicName = "Johnovich";
@@ -40,6 +42,7 @@ public class TeacherConvertersTest {
         final Set<SchoolSubject> schoolSubjects = new HashSet<>(Arrays.asList(firstSubject, secondSubject));
 
         expectedTeacher = new Teacher();
+        expectedTeacher.setId(id);
         expectedTeacher.setFirstName(firstName);
         expectedTeacher.setPatronymicName(patronymicName);
         expectedTeacher.setLastName(lastName);
@@ -49,11 +52,12 @@ public class TeacherConvertersTest {
         expectedTeacher.setSubjects(schoolSubjects);
 
         expectedDTO = new TeacherDTO();
-        expectedDTO.setVerificationKey(verificationKey);
+        expectedDTO.setId(id);
         expectedDTO.setFirstName(firstName);
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
         expectedDTO.setPhoneNumber(phoneNumber);
+        expectedDTO.setVerificationKey(verificationKey);
         expectedDTO.setOfficer(officer);
         expectedDTO.setSchoolSubjects(schoolSubjects);
     }
@@ -61,10 +65,8 @@ public class TeacherConvertersTest {
     @Test
     public void shouldReturnExpectedDTO() {
         TeacherDTO actualDTO = conversionService.convert(expectedTeacher, TeacherDTO.class);
-        assertThat(actualDTO)
-                .isNotNull()
-                .isEqualTo(expectedDTO)
-                .isEqualToComparingFieldByField(expectedDTO);
+        assertThat(actualDTO.getFirstName())
+                .isEqualTo(expectedDTO.getFirstName());
     }
 
     @Test
