@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.RoleRepository;
@@ -13,7 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RoleServiceTest {
 
     @Autowired
