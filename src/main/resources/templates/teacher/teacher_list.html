@@ -4,7 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <html lang="en">
 <head>
-    <title>Teacher page</title>
+    <title>Teachers List</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,7 +29,9 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <a th:href="@{/teacher/add}" class="float-right btn btn-outline-success">Add New</a>
+    <form th:method="post" th:action="@{/teacher/add}">
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success">Add New</button>
+    </form>
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teachers</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
         <table class="col-lg-9 table table-hover">
@@ -52,14 +54,18 @@
                 <td th:text="${teacher.getOfficer()}">Officer</td>
                 <td th:text="${teacher.getPhoneNumber()}">Phone</td>
                 <td>
-                    <a th:href="@{/teacher/{id}(id=${teacher.id})}" class="btn btn-outline-primary">
-                        <i class="far fa-edit" aria-hidden="true"></i>
-                    </a>
+                    <form th:method="post" th:action="@{/teacher/{id}(id=${teacher.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn btn-outline-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </td>
                 <td>
-                    <a th:href="@{/teacher/{id}/delete(id=${teacher.id})}" class="btn btn-outline-danger">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                    </a>
+                    <form th:method="delete" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-outline-danger">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </td>
             </tr>
             </tbody>

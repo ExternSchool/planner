@@ -4,7 +4,7 @@
 >
 <html lang="en">
 <head>
-    <title>Teacher page</title>
+    <title>Teacher Profile</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,16 +30,10 @@
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
     <fieldset>
-        <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/update}" id="form">
+        <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
             <input type="hidden" th:field="*{id}"/>
-            <input type="hidden" th:field="*{change}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
-                    <div class="form-group">
-                        <label for="position">Officer position</label>
-                        <input class="form-control" type="text" placeholder="Officer position name"
-                               th:field="*{officer}" id="position">
-                    </div>
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
@@ -55,11 +49,16 @@
                         <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
                                th:field="*{patronymicName}" required>
                     </div>
+                    <div class="form-group">
+                        <label for="position">Officer position</label>
+                        <input class="form-control" type="text" placeholder="Officer position name"
+                               th:field="*{officer}" id="position">
+                    </div>
                     <div class="row">
                         <div class="form-group col-lg-6">
                             <label for="phone">Phone Number</label>
-                            <input class="form-control" type="tel" placeholder="Phone Number Format: (999)999-9999"
-                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Phone Number Format: (999)999-9999'
+                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                         <div class="form-group col-lg-6">
@@ -94,7 +93,7 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-4">
-                            <a href="/teacher/update" method="GET">
+                            <a href="/teacher/update">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>
@@ -107,6 +106,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div th:each="subject : ${teacher.schoolSubjects}">
+                <input type="text"
+                       th:value="${{subject}}"
+                       style="display:none;"/>
             </div>
         </form>
     </fieldset>
