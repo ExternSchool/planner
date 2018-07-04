@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.RoleRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,12 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public io.github.externschool.planner.entity.Role getRoleByName(String name) {
+    public io.github.externschool.planner.entity.Role getRoleByName(String name) throws RoleNotFoundException {
+
+        if (roleRepository.findByName(name) == null){
+            throw new RoleNotFoundException("Error");
+        }
+
         return roleRepository.findByName(name);
     }
 }
