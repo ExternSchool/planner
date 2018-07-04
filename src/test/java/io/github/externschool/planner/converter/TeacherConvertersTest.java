@@ -2,7 +2,6 @@ package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
 import org.junit.Test;
