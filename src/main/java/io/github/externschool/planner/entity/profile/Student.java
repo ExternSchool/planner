@@ -1,36 +1,34 @@
 package io.github.externschool.planner.entity.profile;
 
-import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.User;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "student")
 public class Student extends Person {
 
     @Column(name = "date_of_birth")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
     @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @Column(name = "address")
     private String address;
 
     @Column(name = "grade_level")
-    private int gradeLevel;
-
-    @ManyToMany
-    @Column(name = "school_subjects")
-    private Set<SchoolSubject> subjects = new HashSet();
+    @Enumerated
+    private GradeLevel gradeLevel;
 
     public Student(){
     }
@@ -45,14 +43,12 @@ public class Student extends Person {
                    final LocalDate dateOfBirth,
                    final Gender gender,
                    final String address,
-                   final int gradeLevel,
-                   final Set<SchoolSubject> subjects) {
+                   final GradeLevel gradeLevel) {
         super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
         this.gradeLevel = gradeLevel;
-        this.subjects = subjects;
     }
 
     public LocalDate getDateOfBirth() {
@@ -79,20 +75,12 @@ public class Student extends Person {
         this.address = address;
     }
 
-    public int getGradeLevel() {
+    public GradeLevel getGradeLevel() {
         return gradeLevel;
     }
 
-    public void setGradeLevel(int gradeLevel) {
+    public void setGradeLevel(GradeLevel gradeLevel) {
         this.gradeLevel = gradeLevel;
-    }
-
-    public Set<SchoolSubject> getSubjects() {
-        return subjects;
-    }
-
-    public void setSubjects(Set<SchoolSubject> subjects) {
-        this.subjects = subjects;
     }
 
     @Override
@@ -113,7 +101,7 @@ public class Student extends Person {
         result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
         result = 31 * result + (gender != null ? gender.hashCode() : 0);
         result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + gradeLevel;
+        result = 31 * result + gradeLevel.getValue();
         return result;
     }
 
@@ -124,7 +112,6 @@ public class Student extends Person {
                 ", gender=" + gender +
                 ", address='" + address + '\'' +
                 ", gradeLevel=" + gradeLevel +
-                ", subjects=" + subjects +
                 '}';
     }
 }
