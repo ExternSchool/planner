@@ -28,6 +28,10 @@ public class SchoolSubject {
     @Column(name = "teachers")
     private Set<Teacher> teachers = new HashSet<>();
 
+    @ManyToMany(mappedBy = "subjects")
+    @Column(name = "grades")
+    private Set<Grade> grades = new HashSet<>();
+
     public SchoolSubject() {
     }
 
