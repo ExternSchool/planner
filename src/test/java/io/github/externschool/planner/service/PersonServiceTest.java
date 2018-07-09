@@ -1,7 +1,7 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.repository.PersonRepository;
+import io.github.externschool.planner.repository.profiles.PersonRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,14 +43,14 @@ public class PersonServiceTest {
         personList.add(firstPerson);
         personList.add(secondPerson);
 
-        Mockito.when(personRepository.findAll())
+        Mockito.when(personRepository.findAllByOrderByLastNameAsc())
                 .thenReturn(personList);
     }
 
     @Test
     public void shouldReturnAllPerson_WhenFindAll(){
 
-        List<Person> expectedPersonList = personService.findAll();
+        List<Person> expectedPersonList = personService.findAllByOrderByNameAsc();
 
         assertThat(expectedPersonList).isNotNull();
         assertThat(expectedPersonList.contains(firstPerson)).isTrue();

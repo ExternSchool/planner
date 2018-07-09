@@ -3,14 +3,15 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.profile.Person;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PersonSevice {
+public interface PersonService {
 
     Person saveOrUpdatePerson(Person person);
 
-    Person findPersonById(Long id);
+    Optional<Person> findPersonById(Long id);
 
-    List<Person> findAll();
+    List<Person> findAllByOrderByNameAsc();
 
     void deletePerson(Long id);
 

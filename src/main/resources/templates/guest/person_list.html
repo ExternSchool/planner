@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<html lang="en">
+<head>
+    <title>Guest List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"
+          integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='guest')"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <form th:method="post" th:action="@{/guest/add}">
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success">Add New</button>
+    </form>
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guests</small></h4>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(guests)}">
+        <table class="col-lg-9 table table-hover">
+            <thead>
+            <tr>
+                <th>LastName</th>
+                <th>FirstName</th>
+                <th>Patronym</th>
+                <th>Phone</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person : ${persons}">
+                <td th:text="${person.getLastName()}">Surname</td>
+                <td th:text="${person.getFirstName()}">Name</td>
+                <td th:text="${person.getPatronymicName()}">Patronym</td>
+                <td th:text="${person.getPhoneNumber()}">Phone</td>
+                <td>
+                    <form th:method="post" th:action="@{/guest/{id}(id=${person.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn btn-outline-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <form th:method="delete" th:action="@{/person/{id}/delete(id=${person.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-outline-danger">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
+</body>
+</html>
