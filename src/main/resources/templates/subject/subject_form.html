@@ -23,7 +23,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='grade')"/>
+    <div th:replace="fragments/header :: header(activeTab='subject')"/>
 </header>
 
 <!-- Begin page content -->
@@ -110,7 +110,7 @@
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
                                     th:field="${grade.subjects}" size="13">
                                 <option th:each="subject : ${subjects}"
-                                        th:value="${{subject.id}}"
+                                        th:value="${subject.id}"
                                         th:text="${subject.name}">
                                     Subject
                                 </option>
