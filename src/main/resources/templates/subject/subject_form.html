@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<html lang="en">
+<head>
+    <title>Grade page</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='grade')"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Subjects and Grades</small></h4>
+    <fieldset>
+        <div class="form-row">
+            <div class=" col-lg-6">
+                <form class="form" th:action="@{/subject/add}" th:method="post">
+                    <div class="form-group row">
+                        <label class="col-lg-3 col-form-label form-control-label">New Subject</label>
+                        <div class="input-group col-lg-9">
+                            <input class="form-control" type="text" id="new_name"
+                                   placeholder="Name of study subject" th:name="new_name" >
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success" type="submit">Add New</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <form name="delete_form" action="#" th:action="@{/subject/delete}" th:object="${deleteSubj}"
+                      th:method="delete">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select class="form-control" name="deleteSubj" id="deleteSubj" size="13" th:field="*{id}">
+                                <option th:each="subject : ${subjects}"
+                                        th:value="${subject.id}"
+                                        th:text="${subject.name}">
+                                    Subject
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-4">
+                            <input class="btn btn-outline-danger btn-block" value="Delete" type="submit"/>
+                        </div>
+                        <div class="form-group col-lg-8">
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class=" col-lg-6">
+                <form class="form" action="#" th:object="${grade}" method="post" th:action="@{/subject/grade/update}"
+                      id="form">
+                    <input type="hidden" th:field="*{id}"/>
+                    <div class="form-group">
+                        <nav id="selector" aria-label="Grades navigation">
+                            <ul class="pagination justify-content-end">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">#</a>
+                                </li>
+                                <li th:class="*{id == 1}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/1">1</a></li>
+                                <li th:class="*{id == 2}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/2">2</a></li>
+                                <li th:class="*{id == 3}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/3">3</a></li>
+                                <li th:class="*{id == 4}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/4">4</a></li>
+                                <li th:class="*{id == 5}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/5">5</a></li>
+                                <li th:class="*{id == 6}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/6">6</a></li>
+                                <li th:class="*{id == 7}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/7">7</a></li>
+                                <li th:class="*{id == 8}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/8">8</a></li>
+                                <li th:class="*{id == 9}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/9">9</a></li>
+                                <li th:class="*{id == 10}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/10">10</a></li>
+                                <li th:class="*{id == 11}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/11">11</a></li>
+                                <li th:class="*{id == 12}? 'page-item active' : 'page-item'">
+                                    <a class="page-link" href="/subject/grade/12">12</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
+                                    th:field="${grade.subjects}" size="13">
+                                <option th:each="subject : ${subjects}"
+                                        th:value="${{subject.id}}"
+                                        th:text="${subject.name}">
+                                    Subject
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-4">
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="reset">
+                                Cancel
+                            </button>
+                        </div>
+                        <div class="col-lg-8">
+                            <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
+</body>
+</html>
