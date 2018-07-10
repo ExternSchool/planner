@@ -3,6 +3,8 @@ package io.github.externschool.planner.aop;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -24,31 +26,29 @@ public class LoggingAspect {
 
     @Before("allMethods()")
     public void log(final JoinPoint joinPoint) {
-        Object[] arguments = joinPoint.getArgs();
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        System.out.println("before" + className + "." + methodName + "() -----");
-        for (final Object argument : arguments) {
-            System.out.println(argument);
+        log.info("call {}, arguments:", joinPoint.getSignature().toShortString());
+        for (final Object argument : joinPoint.getArgs()) {
+            log.info("  {}", argument);
         }
     }
 
     @Around("allMethods()")
-    public Object logBusinessMethods(final ProceedingJoinPoint call) throws Throwable {
+    public Object logBusinessMethods(final ProceedingJoinPoint joinPoint) throws Throwable {
         if (!log.isDebugEnabled()) {
-            return call.proceed();
+
+            return joinPoint.proceed();
         } else {
-            Object[] args = call.getArgs();
-            String message = call.toShortString();
+            Object[] args = joinPoint.getArgs();
+            String message = joinPoint.toShortString();
             log.info("{} called with args '{}'!", message, Arrays.deepToString(args));
             Object result = null;
 
             try {
-                result = call.proceed();
+                result = joinPoint.proceed();
 
                 return result;
             } finally {
-                MethodSignature methodSignature = (MethodSignature) call.getSignature();
+                MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
                 if (methodSignature.getReturnType() == Void.TYPE) {
                     result = "void";
                 }
@@ -58,8 +58,20 @@ public class LoggingAspect {
         }
     }
 
-    @After("allMethods()")
-    public void logAfter(final JoinPoint joinPoint) {
-        log.info("after: "+joinPoint.getTarget().getClass().getSimpleName()+" "+joinPoint.getSignature().getName());
+    @Around("@annotation(LogExecutionTime)")
+    public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+        long start = System.currentTimeMillis();
+        Object proceed = joinPoint.proceed();
+        long executionTime = System.currentTimeMillis() - start;
+        log.info("{} executed in {} ms", joinPoint.getSignature().toShortString(), executionTime);
+
+        return proceed;
+    }
+
+    @AfterThrowing(pointcut = "allMethods()", throwing = "ex")
+    public void logAfter(final JoinPoint joinPoint, final Exception ex) {
+        log.error("thrown by {}: {}",
+                joinPoint.getSignature().toShortString(),
+                ex.getMessage());
     }
 }
