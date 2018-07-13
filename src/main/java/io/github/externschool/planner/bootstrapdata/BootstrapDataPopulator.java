@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.UserRepository;
@@ -11,7 +12,6 @@ import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
-import io.github.externschool.planner.service.UserServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @ExcludeFromTests
@@ -53,7 +52,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "Merrill",
                         "Carlsmith",
                         "(066)666-6666",
-                        UUID.randomUUID().toString()),
+                        new VerificationKey()),
                 "Psychologist",
                 Collections.singletonList("Cognitive dissonance theory"));
 
@@ -64,9 +63,9 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "Sutherland",
                         "Neill",
                         "(099)999-9999",
-                        UUID.randomUUID().toString()),
+                        new VerificationKey()),
                 "Principal",
-                Arrays.asList("Quantum Mechanics","Algebraic topology"));
+                Arrays.asList("Quantum Mechanics", "Algebraic topology"));
 
         createTeacher(new Person(
                         null,
@@ -75,9 +74,9 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "di ser Piero",
                         "da Vinci",
                         "(099)999-1111",
-                        UUID.randomUUID().toString()),
+                        new VerificationKey()),
                 "Teacher",
-                Arrays.asList("Anatomy and physiology","Rocket Science"));
+                Arrays.asList("Anatomy and physiology", "Rocket Science"));
     }
 
     private void createUser(String email, String password, String role) {

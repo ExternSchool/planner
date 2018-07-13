@@ -1,10 +1,12 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,8 +43,9 @@ public class Person {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @Column(name = "verification_key")
-    private String verificationKey;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "verification_key_id")
+    private VerificationKey verificationKey;
 
     public Person() {
     }
@@ -53,7 +56,7 @@ public class Person {
                   final String patronymicName,
                   final String lastName,
                   final String phoneNumber,
-                  final String verificationKey) {
+                  final VerificationKey verificationKey) {
         this.id = id;
         this.user = user;
         this.firstName = firstName;
@@ -111,11 +114,11 @@ public class Person {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getVerificationKey() {
+    public VerificationKey getVerificationKey() {
         return verificationKey;
     }
 
-    public void setVerificationKey(String verificationKey) {
+    public void setVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
     }
 

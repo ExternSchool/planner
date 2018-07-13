@@ -1,6 +1,7 @@
 package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -11,7 +12,7 @@ public class TeacherDTO {
 
     private Long id;
 
-    private String verificationKey;
+    private VerificationKey verificationKey;
 
     @NotNull
     private String firstName;
@@ -30,12 +31,11 @@ public class TeacherDTO {
 
     private Set<SchoolSubject> schoolSubjects = new HashSet<>();
 
-    public TeacherDTO(){
-
+    public TeacherDTO() {
     }
 
     public TeacherDTO(final Long id,
-                      final String verificationKey,
+                      final VerificationKey verificationKey,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
@@ -60,11 +60,11 @@ public class TeacherDTO {
         this.id = id;
     }
 
-    public String getVerificationKey() {
+    public VerificationKey getVerificationKey() {
         return verificationKey;
     }
 
-    public void setVerificationKey(String verificationKey) {
+    public void setVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
     }
 

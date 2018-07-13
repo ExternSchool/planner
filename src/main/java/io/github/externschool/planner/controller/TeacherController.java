@@ -1,6 +1,7 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -60,7 +60,7 @@ public class TeacherController {
 
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView save(@ModelAttribute("teacher") TeacherDTO teacherDTO, Model model) {
-        teacherService.saveOrUpdateTeacher(conversionService.convert(teacherDTO,Teacher.class));
+        teacherService.saveOrUpdateTeacher(conversionService.convert(teacherDTO, Teacher.class));
 
         return new ModelAndView("redirect:/teacher/");
     }
@@ -87,7 +87,7 @@ public class TeacherController {
     private TeacherDTO newKey(TeacherDTO teacherDTO) {
         //TODO add key change confirmation request
         //TODO move it to a key service
-        teacherDTO.setVerificationKey(UUID.randomUUID().toString());
+        teacherDTO.setVerificationKey(new VerificationKey());
 
         return teacherDTO;
     }

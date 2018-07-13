@@ -1,5 +1,6 @@
 package io.github.externschool.planner.dto;
 
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 
 import javax.validation.constraints.NotNull;
@@ -8,7 +9,7 @@ import java.util.Objects;
 
 public class StudentDTO {
     private Long id;
-    private String verificationKey;
+    private VerificationKey verificationKey;
     @NotNull
     private String firstName;
     @NotNull
@@ -30,7 +31,7 @@ public class StudentDTO {
     }
 
     public StudentDTO(final Long id,
-                      final String verificationKey,
+                      final VerificationKey verificationKey,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
@@ -59,11 +60,11 @@ public class StudentDTO {
         this.id = id;
     }
 
-    public String getVerificationKey() {
+    public VerificationKey getVerificationKey() {
         return verificationKey;
     }
 
-    public void setVerificationKey(String verificationKey) {
+    public void setVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
     }
 

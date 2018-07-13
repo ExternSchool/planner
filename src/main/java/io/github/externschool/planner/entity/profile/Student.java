@@ -2,6 +2,7 @@ package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +11,6 @@ import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "student")
@@ -32,7 +32,7 @@ public class Student extends Person {
     @Column(name = "school_subjects")
     private Set<SchoolSubject> subjects = new HashSet();
 
-    public Student(){
+    public Student() {
     }
 
     public Student(final Long id,
@@ -41,7 +41,7 @@ public class Student extends Person {
                    final String patronymicName,
                    final String lastName,
                    final String phoneNumber,
-                   final String verificationKey,
+                   final VerificationKey verificationKey,
                    final LocalDate dateOfBirth,
                    final Gender gender,
                    final String address,

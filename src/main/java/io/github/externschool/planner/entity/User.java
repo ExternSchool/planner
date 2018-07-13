@@ -49,6 +49,10 @@ public class User {
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "verification_key_id")
+    private VerificationKey verificationKey = new VerificationKey();
+
     public User() {
     }
 
@@ -108,6 +112,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public VerificationKey getVerificationKey() {
+        return verificationKey;
+    }
+
+    public void setVerificationKey(VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
     }
 
     public void addOwnEvent(ScheduleEvent event) {

@@ -2,6 +2,7 @@ package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class TeacherConvertersTest {
 
     @Before
     public void setUp() {
-        final String verificationKey = "0123456789qwertyuiopAJHGDKJADGKJD";
+        final VerificationKey verificationKey = new VerificationKey();
         final String firstName = "John";
         final String patronymicName = "Johnovich";
         final String lastName = "Doe";

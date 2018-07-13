@@ -2,6 +2,7 @@ package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,7 +41,7 @@ public class Teacher extends Person {
                    final String patronymicName,
                    final String lastName,
                    final String phoneNumber,
-                   final String verificationKey,
+                   final VerificationKey verificationKey,
                    final String officer,
                    final Set<SchoolSubject> subjects) {
         super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);

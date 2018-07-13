@@ -1,13 +1,14 @@
 package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 
 import javax.validation.constraints.NotNull;
 
 public class UserDTO {
 
-    private String verificationKey;
+    private VerificationKey verificationKey;
 
     @NotNull
     private String email;
@@ -21,18 +22,18 @@ public class UserDTO {
     public UserDTO() {
     }
 
-    public UserDTO(String verificationKey, String email, String phoneNumber, String password) {
+    public UserDTO(VerificationKey verificationKey, String email, String phoneNumber, String password) {
         this.verificationKey = verificationKey;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
-    public String getVerificationKey() {
+    public VerificationKey getVerificationKey() {
         return verificationKey;
     }
 
-    public void setVerificationKey(String verificationKey) {
+    public void setVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
     }
 
