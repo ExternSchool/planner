@@ -18,7 +18,10 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -52,7 +55,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
+    @WithMockUser(roles = "TEACHER")
     public void shouldReturnForbidden_wheRequestUnAuthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isForbidden());

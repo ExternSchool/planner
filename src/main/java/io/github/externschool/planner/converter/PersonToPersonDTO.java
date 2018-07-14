@@ -16,8 +16,8 @@ public class PersonToPersonDTO implements Converter<Person, PersonDTO> {
                 person.getFirstName(),
                 person.getPatronymicName(),
                 person.getLastName(),
-                person.getVerificationKey(),
-                person.getPhoneNumber()
+                person.getPhoneNumber(),
+                person.getVerificationKey()
         );
     }
 }

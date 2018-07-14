@@ -30,8 +30,9 @@ public class PersonConvertTest {
         final String firstName = "Philip";
         final String patronymicName = "K";
         final String lastName = "Dick";
-        final String verificationKey = "123456789";
         final String phoneNumber = "066-222-22-22";
+        final String verificationKey = "123456789";
+
 
         expectedPerson = new Person();
         expectedPerson.setId(id);
@@ -60,6 +61,8 @@ public class PersonConvertTest {
 
         assertThat(actualDTO.getFirstName())
                 .isEqualTo(personDTO.getFirstName());
+
+        assertThat(actualDTO).isEqualToComparingFieldByField(personDTO);
     }
 
     @Test

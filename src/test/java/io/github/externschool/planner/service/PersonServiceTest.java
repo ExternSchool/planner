@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -42,18 +43,42 @@ public class PersonServiceTest {
 
         personList.add(firstPerson);
         personList.add(secondPerson);
+    }
 
-        Mockito.when(personRepository.findAllByOrderByLastNameAsc())
-                .thenReturn(personList);
+    @Test
+    public void shouldSaveNewPerson_whenSaveOrUpdate(){
+        Mockito.when(personRepository.save(firstPerson))
+            .thenReturn(firstPerson);
+
+        Person actualPerson = personService.saveOrUpdatePerson(firstPerson);
+
+        assertThat(actualPerson).isNotNull()
+                .isEqualTo(firstPerson)
+                .isEqualToComparingFieldByField(firstPerson);
     }
 
     @Test
     public void shouldReturnAllPerson_WhenFindAll(){
-
+        Mockito.when(personRepository.findAllByOrderByLastNameAsc())
+                .thenReturn(personList);
         List<Person> expectedPersonList = personService.findAllByOrderByNameAsc();
 
         assertThat(expectedPersonList).isNotNull();
         assertThat(expectedPersonList.contains(firstPerson)).isTrue();
         assertThat(expectedPersonList.contains(secondPerson)).isTrue();
+    }
+
+    @Test
+    public void shouldReturnPerson_whenFindById(){
+        Mockito.when(personRepository.findById(1L))
+                .thenReturn(Optional.ofNullable(firstPerson));
+        Optional<Person> foundPerson = personService.findPersonById(1L);
+
+        assertThat(foundPerson.get()).isEqualTo(firstPerson);
+    }
+
+    @Test
+    public void shouldThrowNoException_whenDeleteById(){
+        personService.deletePerson(firstPerson.getId());
     }
 }
