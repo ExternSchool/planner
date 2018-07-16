@@ -26,7 +26,7 @@ public class LoggingAspect {
 
     @Before("allMethods()")
     public void log(final JoinPoint joinPoint) {
-        log.info("call {}, arguments:", joinPoint.getSignature().toShortString());
+        log.info("Called {} with arguments:", joinPoint.getSignature().toShortString());
         for (final Object argument : joinPoint.getArgs()) {
             log.info("  {}", argument);
         }
@@ -70,7 +70,7 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "allMethods()", throwing = "ex")
     public void logAfter(final JoinPoint joinPoint, final Exception ex) {
-        log.error("thrown by {}: {}",
+        log.error("Thrown by {}: {}",
                 joinPoint.getSignature().toShortString(),
                 ex.getMessage());
     }
