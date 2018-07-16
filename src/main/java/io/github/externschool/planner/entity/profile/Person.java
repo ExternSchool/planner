@@ -31,6 +31,9 @@ public class Person {
     @JoinColumn(name = "id")
     private User user;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private VerificationKey verificationKey;
+
     @Column(name = "first_name")
     private String firstName;
 
@@ -42,10 +45,6 @@ public class Person {
 
     @Column(name = "phone_number")
     private String phoneNumber;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "verification_key_id")
-    private VerificationKey verificationKey;
 
     public Person() {
     }

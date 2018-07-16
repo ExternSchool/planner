@@ -12,6 +12,7 @@ public class TeacherDTO {
 
     private Long id;
 
+    @NotNull
     private VerificationKey verificationKey;
 
     @NotNull

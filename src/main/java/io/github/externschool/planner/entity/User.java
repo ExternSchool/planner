@@ -49,9 +49,8 @@ public class User {
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "verification_key_id")
-    private VerificationKey verificationKey = new VerificationKey();
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private VerificationKey verificationKey;
 
     public User() {
     }
