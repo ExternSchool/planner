@@ -1,9 +1,11 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.exceptions.UserCannotCreateEventException;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         //TODO need case when event with this type is not found
         ScheduleEventType type = this.eventTypeRepo.findByName(eventReq.getEventType());
 
+        canUserCreateEventForType(user, type);
+
         ScheduleEvent newEvent = ScheduleEvent.builder()
                 .withTitle(eventReq.getTitle())
                 .withDescription(eventReq.getDescription())
@@ -44,5 +48,18 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .build();
 
         return this.eventRepo.save(newEvent);
+    }
+
+    private void canUserCreateEventForType(User user, ScheduleEventType type) {
+
+        for (Role role : user.getRoles()) {
+            if (type.getCreators().contains(role)) {
+                return;
+            }
+        }
+
+        throw new UserCannotCreateEventException(
+                String.format("The user %s is not allowed to create this type of event", user.getEmail())
+        );
     }
 }

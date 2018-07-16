@@ -3,6 +3,9 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.exceptions.UserCannotCreateEventException;
+import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
@@ -40,17 +43,20 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldCreateNewScheduleEvent() {
+    public void shouldCreateNewScheduleEventIfUserValidForThisEventType() {
+        ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
 
         User user = UserFactory.createUser();
-        ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
+        user.getRoles().add(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
 
         ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         expectedEvent.setId(null);
 
         Mockito.doAnswer(AdditionalAnswers.returnsFirstArg()).when(this.eventRepo).save(any(ScheduleEvent.class));
 
-        when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(ScheduleEventTypeFactory.createScheduleEventType());
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        eventType.getCreators().add(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
+        when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
         ScheduleEvent event = this.scheduleSrv.createEvent(user, eventReq);
 
@@ -58,5 +64,16 @@ public class ScheduleServiceTest {
                 .isNotNull()
                 .isEqualTo(expectedEvent);
 
+    }
+
+    @Test(expected = UserCannotCreateEventException.class)
+    public void shouldCreateNewScheduleEventIfUserInValidForThisEventType() {
+        User user = UserFactory.createUser();
+        ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
+
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
+
+        this.scheduleSrv.createEvent(user, eventReq);
     }
 }
