@@ -2,14 +2,17 @@ package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.entity.profile.Teacher;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -27,6 +30,10 @@ public class SchoolSubject {
     @ManyToMany
     @Column(name = "teachers")
     private Set<Teacher> teachers = new HashSet<>();
+
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "plans")
+    private Set<StudyPlan> studyPlans = new HashSet<>();
 
     public SchoolSubject() {
     }
@@ -47,20 +54,34 @@ public class SchoolSubject {
         this.name = name;
     }
 
+    public Set<StudyPlan> getStudyPlans() {
+        return studyPlans;
+    }
+
+    public void setStudyPlans(final Set<StudyPlan> studyPlans) {
+        this.studyPlans = studyPlans;
+    }
+
+    public void addStudyPlan(StudyPlan plan) {
+        studyPlans.add(plan);
+        plan.setSubject(this);
+    }
+
+    public void removeStudyPlan(StudyPlan plan) {
+        studyPlans.remove(plan);
+        plan.setSubject(null);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         final SchoolSubject subject = (SchoolSubject) o;
-
-        return id.equals(subject.id);
+        return Objects.equals(name, subject.name);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
+        return Objects.hash(name);
     }
 }

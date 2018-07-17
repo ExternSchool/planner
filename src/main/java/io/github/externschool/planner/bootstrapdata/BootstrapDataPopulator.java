@@ -1,8 +1,10 @@
 package io.github.externschool.planner.bootstrapdata;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
@@ -11,7 +13,6 @@ import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
-import io.github.externschool.planner.service.UserServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,12 @@ public class BootstrapDataPopulator implements InitializingBean {
         for (String subjectName : subjectsNames) {
             SchoolSubject subject = new SchoolSubject();
             subject.setName(subjectName);
+            StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
+            plan.setHoursPerSemesterOne(2);
+            plan.setHoursPerSemesterTwo(2);
+            plan.setTestPerSemesterOne(true);
+            plan.setTestPerSemesterTwo(true);
+            subject.addStudyPlan(plan);
             schoolSubjectService.saveOrUpdateSubject(subject);
             teacher.addSubject(subject);
         }
