@@ -78,7 +78,10 @@ public class PersonServiceTest {
     }
 
     @Test
-    public void shouldThrowNoException_whenDeleteById(){
+    public void shouldDeletePerson_whenDeleteById() {
+        Mockito.when(personRepository.findById(firstPerson.getId()))
+                .thenReturn(null);
+
         personService.deletePerson(firstPerson.getId());
     }
 }

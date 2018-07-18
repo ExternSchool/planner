@@ -2,7 +2,6 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.PersonServiceImpl;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
@@ -59,7 +58,7 @@ public class PersonController {
 
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView save(@ModelAttribute("person") PersonDTO personDTO) {
-        personService.saveOrUpdatePerson(conversionService.convert(personDTO,Teacher.class));
+        personService.saveOrUpdatePerson(conversionService.convert(personDTO,Person.class));
 
         return new ModelAndView("redirect:/guest/");
     }

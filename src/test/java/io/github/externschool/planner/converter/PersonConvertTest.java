@@ -59,9 +59,6 @@ public class PersonConvertTest {
 
         PersonDTO actualDTO = conversionService.convert(expectedPerson, PersonDTO.class);
 
-        assertThat(actualDTO.getFirstName())
-                .isEqualTo(personDTO.getFirstName());
-
         assertThat(actualDTO).isEqualToComparingFieldByField(personDTO);
     }
 
@@ -74,5 +71,4 @@ public class PersonConvertTest {
                 .isEqualTo(expectedPerson)
                 .isEqualToComparingFieldByFieldRecursively(expectedPerson);
     }
-
 }
