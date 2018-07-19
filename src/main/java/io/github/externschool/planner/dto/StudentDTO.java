@@ -9,7 +9,6 @@ import java.util.Objects;
 
 public class StudentDTO {
     private Long id;
-    @NotNull
     private VerificationKey verificationKey;
     @NotNull
     private String firstName;

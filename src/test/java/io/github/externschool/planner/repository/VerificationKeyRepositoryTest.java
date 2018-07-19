@@ -54,8 +54,8 @@ public class VerificationKeyRepositoryTest {
     }
 
     @Test
-    public void shouldReturnKey_WhenGetByName() {
-        VerificationKey actualKey = repository.getByName(key1.getName());
+    public void shouldReturnKey_WhenGetById() {
+        VerificationKey actualKey = repository.getById(key1.getId());
 
         assertThat(actualKey)
                 .isNotNull()
@@ -67,7 +67,7 @@ public class VerificationKeyRepositoryTest {
     public void shouldReturnKey_WhenSaveOrUpdateKey() {
         VerificationKey expectedKey = new VerificationKey();
         repository.save(expectedKey);
-        VerificationKey actualKey = repository.getByName(expectedKey.getName());
+        VerificationKey actualKey = repository.getById(expectedKey.getId());
 
         assertThat(actualKey)
                 .isNotNull()
@@ -78,7 +78,7 @@ public class VerificationKeyRepositoryTest {
     @Test
     public void getNull_whenFindDeletedTeacher() {
         repository.delete(key1);
-        VerificationKey actualKey = repository.getByName(key1.getName());
+        VerificationKey actualKey = repository.getById(key1.getId());
 
         assertThat(actualKey)
                 .isNull();

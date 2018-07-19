@@ -16,8 +16,8 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     }
 
     @Override
-    public VerificationKey findKeyByName(String name) {
-        return verificationKeyRepository.getByName(name);
+    public VerificationKey findKeyById(Long id) {
+        return verificationKeyRepository.getById(id);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     }
 
     @Override
-    public void deleteById(String name) {
-        verificationKeyRepository.deleteById(name);
+    public void deleteById(String id) {
+        verificationKeyRepository.deleteById(id);
     }
 }

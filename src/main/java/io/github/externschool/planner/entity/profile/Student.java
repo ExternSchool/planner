@@ -10,6 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -36,7 +37,6 @@ public class Student extends Person {
     }
 
     public Student(final Long id,
-                   final User user,
                    final String firstName,
                    final String patronymicName,
                    final String lastName,
@@ -47,7 +47,7 @@ public class Student extends Person {
                    final String address,
                    final int gradeLevel,
                    final Set<SchoolSubject> subjects) {
-        super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
+        super(id, firstName, patronymicName, lastName, phoneNumber, verificationKey);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
@@ -96,28 +96,6 @@ public class Student extends Person {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        Student student = (Student) o;
-
-        if (dateOfBirth != null ? !dateOfBirth.equals(student.dateOfBirth) : student.dateOfBirth != null) return false;
-        return gender == student.gender;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
-        result = 31 * result + (gender != null ? gender.hashCode() : 0);
-        result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + gradeLevel;
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "Student{" +
                 "dateOfBirth=" + dateOfBirth +
@@ -126,5 +104,24 @@ public class Student extends Person {
                 ", gradeLevel=" + gradeLevel +
                 ", subjects=" + subjects +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Student student = (Student) o;
+        return gradeLevel == student.gradeLevel &&
+                Objects.equals(dateOfBirth, student.dateOfBirth) &&
+                gender == student.gender &&
+                Objects.equals(address, student.address) &&
+                Objects.equals(subjects, student.subjects);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel, subjects);
     }
 }

@@ -51,7 +51,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnTeacherListTemplate_WhenGetRequestRootWithAdminRole() throws Exception {
         mockMvc.perform(get("/teacher/"))
                 .andExpect(status().isOk())
@@ -62,7 +62,7 @@ public class TeacherControllerIntegrationTest {
 
     //TODO Think about should a Teacher have access to /teacher/ folder when has no access to the link in the header
     @Test
-    @WithMockUser(roles="TEACHER")
+    @WithMockUser(roles = "TEACHER")
     public void shouldReturnTeacherListTemplate_WhenRequestWithTeacherRole() throws Exception {
         mockMvc.perform(get("/teacher/"))
                 .andExpect(status().isOk())
@@ -72,16 +72,17 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="GUEST")
+    @WithMockUser(roles = "GUEST")
     public void shouldReturnForbidden_WhenRequestUnauthorized() throws Exception {
         mockMvc.perform(get("/teacher/"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
-        TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
+        TeacherDTO teacherDTO = conversionService
+                .convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
         mockMvc.perform(post("/teacher/{id}", id))
@@ -93,7 +94,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenGetRequestTeacherAdd() throws Exception {
         mockMvc.perform(post("/teacher/add"))
                 .andExpect(status().isOk())
@@ -103,7 +104,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenPostRequestUpdateSave() throws Exception {
         mockMvc.perform(post("/teacher/update").param("action", "save"))
                 .andExpect(status().is3xxRedirection())
@@ -111,7 +112,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnNewKey_WhenPostRequestUpdateNewKey() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
 
@@ -126,7 +127,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
         mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
@@ -134,7 +135,7 @@ public class TeacherControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles="ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
         Integer sizeBefore = teachers.size();

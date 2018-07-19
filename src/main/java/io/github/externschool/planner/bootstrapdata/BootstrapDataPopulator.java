@@ -47,7 +47,6 @@ public class BootstrapDataPopulator implements InitializingBean {
 
         createTeacher(new Person(
                         null,
-                        null,
                         "James",
                         "Merrill",
                         "Carlsmith",
@@ -58,7 +57,6 @@ public class BootstrapDataPopulator implements InitializingBean {
 
         createTeacher(new Person(
                         null,
-                        null,
                         "Alexander",
                         "Sutherland",
                         "Neill",
@@ -68,7 +66,6 @@ public class BootstrapDataPopulator implements InitializingBean {
                 Arrays.asList("Quantum Mechanics", "Algebraic topology"));
 
         createTeacher(new Person(
-                        null,
                         null,
                         "Leonardo",
                         "di ser Piero",
@@ -90,7 +87,6 @@ public class BootstrapDataPopulator implements InitializingBean {
     private void createTeacher(Person person, String officerName, List<String> subjectsNames) {
         Teacher teacher = new Teacher(
                 person.getId(),
-                person.getUser(),
                 person.getFirstName(),
                 person.getPatronymicName(),
                 person.getLastName(),

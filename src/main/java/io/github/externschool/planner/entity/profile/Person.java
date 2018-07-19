@@ -1,6 +1,5 @@
 package io.github.externschool.planner.entity.profile;
 
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.persistence.CascadeType;
@@ -12,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.Objects;
@@ -27,11 +25,7 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id")
-    private User user;
-
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private VerificationKey verificationKey;
 
     @Column(name = "first_name")
@@ -50,14 +44,12 @@ public class Person {
     }
 
     public Person(final Long id,
-                  final User user,
                   final String firstName,
                   final String patronymicName,
                   final String lastName,
                   final String phoneNumber,
                   final VerificationKey verificationKey) {
         this.id = id;
-        this.user = user;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
@@ -71,14 +63,6 @@ public class Person {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getFirstName() {
@@ -117,14 +101,23 @@ public class Person {
         return verificationKey;
     }
 
-    public void setVerificationKey(VerificationKey verificationKey) {
+    public void addVerificationKey(VerificationKey verificationKey) {
+        //verificationKey.setPerson(this);
         this.verificationKey = verificationKey;
+    }
+
+    public void removeVerificationKey() {
+        if (verificationKey != null) {
+            verificationKey.setPerson(null);
+            this.verificationKey = null;
+        }
     }
 
     @Override
     public String toString() {
         return "Person{" +
                 "id=" + id +
+                ", verificationKey=" + verificationKey +
                 ", firstName='" + firstName + '\'' +
                 ", patronymicName='" + patronymicName + '\'' +
                 ", lastName='" + lastName + '\'' +
@@ -135,9 +128,10 @@ public class Person {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Person)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Person that = (Person) o;
         return Objects.equals(id, that.id) &&
+                Objects.equals(verificationKey, that.verificationKey) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
@@ -147,6 +141,6 @@ public class Person {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, firstName, patronymicName, lastName, phoneNumber);
+        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
     }
 }

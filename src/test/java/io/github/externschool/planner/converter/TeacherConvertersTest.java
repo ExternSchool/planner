@@ -45,7 +45,7 @@ public class TeacherConvertersTest {
         expectedTeacher.setPatronymicName(patronymicName);
         expectedTeacher.setLastName(lastName);
         expectedTeacher.setPhoneNumber(phoneNumber);
-        expectedTeacher.setVerificationKey(verificationKey);
+        expectedTeacher.addVerificationKey(verificationKey);
         expectedTeacher.setOfficer(officer);
         expectedTeacher.setSubjects(schoolSubjects);
 

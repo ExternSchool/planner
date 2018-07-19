@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface VerificationKeyService {
 
-    VerificationKey findKeyByName(String name);
+    VerificationKey findKeyById(Long id);
 
     List<VerificationKey> findAll();
 
     VerificationKey saveOrUpdateKey(VerificationKey verificationKey);
 
-    void deleteById(String name);
+    void deleteById(String id);
 
 }

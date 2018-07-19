@@ -4,6 +4,9 @@ import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -14,24 +17,36 @@ import java.util.UUID;
 @Table(name = "verificationKey")
 public class VerificationKey {
     @Id
-    @Column(name = "name")
-    private String name = UUID.randomUUID().toString();
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, nullable = false)
+    private Long id;
 
-    @OneToOne
+    @Column(name = "value")
+    private String value = UUID.randomUUID().toString();
+
+    @OneToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Person person;
 
     public VerificationKey() {
     }
 
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public User getUser() {
@@ -50,19 +65,4 @@ public class VerificationKey {
         this.person = person;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        VerificationKey that = (VerificationKey) o;
-        return Objects.equals(name, that.name) &&
-                Objects.equals(user, that.user) &&
-                Objects.equals(person, that.person);
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(name, user, person);
-    }
 }

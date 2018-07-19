@@ -38,7 +38,7 @@ public class StudentConvertersTest {
         final GradeLevel gradeLevel = GradeLevel.LEVEL_1;
 
         expectedStudent = new Student();
-        expectedStudent.setVerificationKey(verificationKey);
+        expectedStudent.addVerificationKey(verificationKey);
         expectedStudent.setFirstName(firstName);
         expectedStudent.setPatronymicName(patronymicName);
         expectedStudent.setLastName(lastName);

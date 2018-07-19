@@ -1,7 +1,6 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.persistence.Column;
@@ -12,6 +11,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -36,7 +36,6 @@ public class Teacher extends Person {
     }
 
     public Teacher(final Long id,
-                   final User user,
                    final String firstName,
                    final String patronymicName,
                    final String lastName,
@@ -44,7 +43,7 @@ public class Teacher extends Person {
                    final VerificationKey verificationKey,
                    final String officer,
                    final Set<SchoolSubject> subjects) {
-        super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
+        super(id, firstName, patronymicName, lastName, phoneNumber, verificationKey);
         this.officer = officer;
         this.subjects = subjects;
     }
@@ -74,6 +73,14 @@ public class Teacher extends Person {
     }
 
     @Override
+    public String toString() {
+        return "Teacher{" +
+                "officer='" + officer + '\'' +
+                ", subjects=" + subjects +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -89,13 +96,5 @@ public class Teacher extends Person {
         int result = super.hashCode();
         result = 31 * result + (officer != null ? officer.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Teacher{" +
-                "officer='" + officer + '\'' +
-                ", subjects=" + subjects +
-                '}';
     }
 }

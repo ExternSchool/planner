@@ -41,11 +41,11 @@ public class VerificationKeyServiceTest {
     }
 
     @Test
-    public void shouldReturnKey_whenFindKeyByName() {
-        Mockito.when(repository.getByName(expectedKey.getName()))
+    public void shouldReturnKey_whenFindKeyById() {
+        Mockito.when(repository.getById(expectedKey.getId()))
                 .thenReturn(expectedKey);
 
-        VerificationKey actualKey = service.findKeyByName(expectedKey.getName());
+        VerificationKey actualKey = service.findKeyById(expectedKey.getId());
 
         assertThat(actualKey)
                 .isNotNull()
@@ -89,7 +89,7 @@ public class VerificationKeyServiceTest {
     public void getNull_whenDeleteKey() {
         repository.save(expectedKey);
         repository.delete(expectedKey);
-        VerificationKey actualKey = repository.getByName(expectedKey.getName());
+        VerificationKey actualKey = repository.getById(expectedKey.getId());
 
         assertThat(actualKey)
                 .isNull();
