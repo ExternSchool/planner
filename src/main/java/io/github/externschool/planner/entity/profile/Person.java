@@ -25,7 +25,7 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private VerificationKey verificationKey;
 
     @Column(name = "first_name")
@@ -102,7 +102,7 @@ public class Person {
     }
 
     public void addVerificationKey(VerificationKey verificationKey) {
-        //verificationKey.setPerson(this);
+        verificationKey.setPerson(this);
         this.verificationKey = verificationKey;
     }
 
