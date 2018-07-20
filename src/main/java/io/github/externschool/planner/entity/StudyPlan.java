@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity(name = "Plan")
-@Table(name = "plans")
+@Table(name = "plan")
 public class StudyPlan {
     @Id
     @GeneratedValue
