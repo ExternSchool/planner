@@ -54,9 +54,6 @@ public class TeacherController {
     public ModelAndView add() {
         Teacher teacher = teacherService.saveOrUpdateTeacher(new Teacher());
         TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
-        if (teacherDTO.getVerificationKeyValue() == null) {
-            teacherDTO = newKey(teacherDTO);
-        }
 
         return show(teacherDTO);
     }
@@ -90,7 +87,7 @@ public class TeacherController {
     private TeacherDTO newKey(TeacherDTO teacherDTO) {
         //TODO add key change confirmation request
         //TODO move it to a key service
-        teacherDTO.setVerificationKeyValue(new VerificationKey().getValue());
+        teacherDTO.setVerificationKey(new VerificationKey());
 
         return teacherDTO;
     }

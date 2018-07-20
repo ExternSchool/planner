@@ -105,7 +105,9 @@ public class Person {
     }
 
     public void addVerificationKey(VerificationKey verificationKey) {
-        verificationKey.setPerson(this);
+        if (verificationKey != null) {
+            verificationKey.setPerson(this);
+        }
         this.verificationKey = verificationKey;
     }
 
