@@ -121,7 +121,7 @@ public class TeacherControllerIntegrationTest {
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
                         Matchers.hasProperty("verificationKey",
-                                Matchers.not(teacherDTO.getVerificationKey()))))
+                                Matchers.not(teacherDTO.getVerificationKeyValue()))))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
     }

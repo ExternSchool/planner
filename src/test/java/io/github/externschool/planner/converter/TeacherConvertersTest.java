@@ -50,7 +50,7 @@ public class TeacherConvertersTest {
         expectedTeacher.setSubjects(schoolSubjects);
 
         expectedDTO = new TeacherDTO();
-        expectedDTO.setVerificationKey(verificationKey);
+        expectedDTO.setVerificationKeyValue(verificationKey.getValue());
         expectedDTO.setFirstName(firstName);
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
@@ -73,7 +73,6 @@ public class TeacherConvertersTest {
         Teacher actualTeacher = conversionService.convert(expectedDTO, Teacher.class);
         assertThat(actualTeacher)
                 .isNotNull()
-                .isEqualTo(expectedTeacher)
                 .isEqualToComparingFieldByField(expectedTeacher);
     }
 }

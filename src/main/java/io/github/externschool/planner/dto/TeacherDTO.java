@@ -12,7 +12,7 @@ public class TeacherDTO {
 
     private Long id;
 
-    private VerificationKey verificationKey;
+    private String verificationKeyValue;
 
     @NotNull
     private String firstName;
@@ -35,7 +35,7 @@ public class TeacherDTO {
     }
 
     public TeacherDTO(final Long id,
-                      final VerificationKey verificationKey,
+                      final String verificationKeyValue,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
@@ -43,7 +43,7 @@ public class TeacherDTO {
                       final String officer,
                       final Set<SchoolSubject> schoolSubjects) {
         this.id = id;
-        this.verificationKey = verificationKey;
+        this.verificationKeyValue = verificationKeyValue;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
@@ -60,12 +60,12 @@ public class TeacherDTO {
         this.id = id;
     }
 
-    public VerificationKey getVerificationKey() {
-        return verificationKey;
+    public String getVerificationKeyValue() {
+        return verificationKeyValue;
     }
 
-    public void setVerificationKey(VerificationKey verificationKey) {
-        this.verificationKey = verificationKey;
+    public void setVerificationKeyValue(String verificationKeyValue) {
+        this.verificationKeyValue = verificationKeyValue;
     }
 
     public String getFirstName() {
@@ -122,7 +122,7 @@ public class TeacherDTO {
         if (!(o instanceof TeacherDTO)) return false;
         TeacherDTO that = (TeacherDTO) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(verificationKey, that.verificationKey) &&
+                Objects.equals(verificationKeyValue, that.verificationKeyValue) &&
                 Objects.equals(firstName, that.firstName) &&
                 Objects.equals(patronymicName, that.patronymicName) &&
                 Objects.equals(lastName, that.lastName) &&
@@ -133,6 +133,6 @@ public class TeacherDTO {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber, officer);
+        return Objects.hash(id, verificationKeyValue, firstName, patronymicName, lastName, phoneNumber, officer);
     }
 }

@@ -1,6 +1,8 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.VerificationKey;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,7 +28,8 @@ public class Person {
     private Long id;
 
     @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private VerificationKey verificationKey;
+    @LazyToOne( LazyToOneOption.NO_PROXY )
+    private VerificationKey verificationKey = new VerificationKey();
 
     @Column(name = "first_name")
     private String firstName;
