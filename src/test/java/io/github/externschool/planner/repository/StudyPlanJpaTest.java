@@ -2,7 +2,7 @@ package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.plan.StudyPlan;
+import io.github.externschool.planner.entity.StudyPlan;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

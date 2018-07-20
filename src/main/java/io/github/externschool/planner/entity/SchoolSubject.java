@@ -1,6 +1,6 @@
 package io.github.externschool.planner.entity;
 
-import io.github.externschool.planner.entity.plan.StudyPlan;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
 
 import javax.persistence.Column;

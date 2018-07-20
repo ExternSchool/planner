@@ -1,7 +1,4 @@
-package io.github.externschool.planner.entity.plan;
-
-import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.SchoolSubject;
+package io.github.externschool.planner.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
