@@ -1,4 +1,7 @@
-package io.github.externschool.planner.entity;
+package io.github.externschool.planner.entity.plan;
+
+import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.SchoolSubject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +16,7 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity(name = "Plan")
-@Table(name = "plan")
+@Table(name = "plans")
 public class StudyPlan {
     @Id
     @GeneratedValue
@@ -28,10 +31,16 @@ public class StudyPlan {
     @JoinColumn(name = "subject", foreignKey = @ForeignKey(name = "SUBJECT_FK"))
     private SchoolSubject subject;
 
+    private String name;
+
+    @Column(name = "hrs_s1")
     private Integer hoursPerSemesterOne;
+    @Column(name = "hrs_s2")
     private Integer hoursPerSemesterTwo;
-    private Boolean testPerSemesterOne;
-    private Boolean testPerSemesterTwo;
+    @Column(name = "exam_s1")
+    private Boolean examSemesterOne;
+    @Column(name = "exam_s2")
+    private Boolean examSemesterTwo;
 
     public StudyPlan() {
     }
@@ -39,6 +48,7 @@ public class StudyPlan {
     public StudyPlan(final GradeLevel gradeLevel, final SchoolSubject subject) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
+        this.name = subject.getName();
     }
 
     public Long getId() {
@@ -65,6 +75,14 @@ public class StudyPlan {
         this.subject = subject;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
     public Integer getHoursPerSemesterOne() {
         return hoursPerSemesterOne;
     }
@@ -81,20 +99,20 @@ public class StudyPlan {
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
     }
 
-    public Boolean getTestPerSemesterOne() {
-        return testPerSemesterOne;
+    public Boolean getExamSemesterOne() {
+        return examSemesterOne;
     }
 
-    public void setTestPerSemesterOne(final Boolean testPerSemesterOne) {
-        this.testPerSemesterOne = testPerSemesterOne;
+    public void setExamSemesterOne(final Boolean examSemesterOne) {
+        this.examSemesterOne = examSemesterOne;
     }
 
-    public Boolean getTestPerSemesterTwo() {
-        return testPerSemesterTwo;
+    public Boolean getExamSemesterTwo() {
+        return examSemesterTwo;
     }
 
-    public void setTestPerSemesterTwo(final Boolean testPerSemesterTwo) {
-        this.testPerSemesterTwo = testPerSemesterTwo;
+    public void setExamSemesterTwo(final Boolean examSemesterTwo) {
+        this.examSemesterTwo = examSemesterTwo;
     }
 
     @Override
@@ -105,8 +123,8 @@ public class StudyPlan {
         return gradeLevel == plan.gradeLevel &&
                 Objects.equals(hoursPerSemesterOne, plan.hoursPerSemesterOne) &&
                 Objects.equals(hoursPerSemesterTwo, plan.hoursPerSemesterTwo) &&
-                Objects.equals(testPerSemesterOne, plan.testPerSemesterOne) &&
-                Objects.equals(testPerSemesterTwo, plan.testPerSemesterTwo);
+                Objects.equals(examSemesterOne, plan.examSemesterOne) &&
+                Objects.equals(examSemesterTwo, plan.examSemesterTwo);
     }
 
     @Override
@@ -114,7 +132,21 @@ public class StudyPlan {
         return Objects.hash(gradeLevel,
                 hoursPerSemesterOne,
                 hoursPerSemesterTwo,
-                testPerSemesterOne,
-                testPerSemesterTwo);
+                examSemesterOne,
+                examSemesterTwo);
+    }
+
+    @Override
+    public String toString() {
+        return "StudyPlan{" +
+                "id=" + id +
+                ", name=" + name +
+                ", gradeLevel=" + gradeLevel +
+                ", subject=" + subject +
+                ", hrsOne=" + hoursPerSemesterOne +
+                ", hrsTwo=" + hoursPerSemesterTwo +
+                ", examOne=" + examSemesterOne +
+                ", examTwo=" + examSemesterTwo +
+                '}';
     }
 }

@@ -2,7 +2,7 @@ package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.StudyPlan;
+import io.github.externschool.planner.entity.plan.StudyPlan;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class StudyPlanJpaTest {
             subject.setName(name);
             for (GradeLevel level : Arrays.asList(GradeLevel.LEVEL_1, GradeLevel.LEVEL_3)) {
                 StudyPlan plan = new StudyPlan(level, subject);
-                subject.addStudyPlan(plan);
+                subject.addPlan(plan);
                 expectedStudyPlans.add(plan);
             }
 
@@ -50,7 +50,7 @@ public class StudyPlanJpaTest {
     @Test
     public void shouldReturnFourPlans_whenAddTwoPlansToEachOfTwoSubjects() {
         List<StudyPlan> actualStudyPlans = repository.findAll().stream()
-                .flatMap(o -> o.getStudyPlans().stream())
+                .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
 
         assertThat(actualStudyPlans)
@@ -62,7 +62,7 @@ public class StudyPlanJpaTest {
     public void shouldReturnTwoPlans_whenDeleteOneSubjectWhichContainsTwoPlans() {
         repository.delete(repository.findByName("Quantum Mechanics"));
         List<StudyPlan> actualStudyPlans = repository.findAll().stream()
-                .flatMap(o -> o.getStudyPlans().stream())
+                .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
 
         assertThat(actualStudyPlans)
@@ -75,11 +75,11 @@ public class StudyPlanJpaTest {
     @Test
     public void shouldReturnThreePlans_whenRemoveStudyPlanFromSubject() {
         SchoolSubject subject = repository.findByName("Quantum Mechanics");
-        subject.removeStudyPlan((StudyPlan) subject.getStudyPlans().toArray()[0]);
+        subject.removePlan((StudyPlan) subject.getPlans().toArray()[0]);
         entityManager.persist(subject);
 
         List<StudyPlan> actualStudyPlans = repository.findAll().stream()
-                .flatMap(o -> o.getStudyPlans().stream())
+                .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
 
         assertThat(actualStudyPlans)

@@ -4,7 +4,7 @@ import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.StudyPlan;
+import io.github.externschool.planner.entity.plan.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
@@ -28,8 +28,8 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
     private final TeacherService teacherService;
     private final SchoolSubjectService schoolSubjectService;
-    private UserRepository userRepository;
-    private RoleService roleService;
+    private final UserRepository userRepository;
+    private final RoleService roleService;
 
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
@@ -106,9 +106,9 @@ public class BootstrapDataPopulator implements InitializingBean {
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
             plan.setHoursPerSemesterOne(2);
             plan.setHoursPerSemesterTwo(2);
-            plan.setTestPerSemesterOne(true);
-            plan.setTestPerSemesterTwo(true);
-            subject.addStudyPlan(plan);
+            plan.setExamSemesterOne(true);
+            plan.setExamSemesterTwo(true);
+            subject.addPlan(plan);
             schoolSubjectService.saveOrUpdateSubject(subject);
             teacher.addSubject(subject);
         }

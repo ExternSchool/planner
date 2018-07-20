@@ -1,8 +1,8 @@
 package io.github.externschool.planner.entity;
 
+import io.github.externschool.planner.entity.plan.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,9 +31,9 @@ public class SchoolSubject {
     @Column(name = "teachers")
     private Set<Teacher> teachers = new HashSet<>();
 
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "subject")
     @Column(name = "plans")
-    private Set<StudyPlan> studyPlans = new HashSet<>();
+    private Set<StudyPlan> plans = new HashSet<>();
 
     public SchoolSubject() {
     }
@@ -54,21 +54,21 @@ public class SchoolSubject {
         this.name = name;
     }
 
-    public Set<StudyPlan> getStudyPlans() {
-        return studyPlans;
+    public Set<StudyPlan> getPlans() {
+        return plans;
     }
 
-    public void setStudyPlans(final Set<StudyPlan> studyPlans) {
-        this.studyPlans = studyPlans;
+    public void setPlans(final Set<StudyPlan> plans) {
+        this.plans = plans;
     }
 
-    public void addStudyPlan(StudyPlan plan) {
-        studyPlans.add(plan);
+    public void addPlan(StudyPlan plan) {
+        plans.add(plan);
         plan.setSubject(this);
     }
 
-    public void removeStudyPlan(StudyPlan plan) {
-        studyPlans.remove(plan);
+    public void removePlan(StudyPlan plan) {
+        plans.remove(plan);
         plan.setSubject(null);
     }
 
@@ -83,5 +83,13 @@ public class SchoolSubject {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "SchoolSubject{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
