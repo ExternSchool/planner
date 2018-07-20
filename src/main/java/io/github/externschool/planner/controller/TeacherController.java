@@ -7,7 +7,6 @@ import io.github.externschool.planner.service.TeacherService;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,7 +76,7 @@ public class TeacherController {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @DeleteMapping("/{id}/delete")
+    @GetMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id) {
         teacherService.deleteTeacher(id);
 
