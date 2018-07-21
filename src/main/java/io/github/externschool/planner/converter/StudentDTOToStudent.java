@@ -1,6 +1,7 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.StudentDTO;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.profile.Student;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class StudentDTOToStudent implements Converter<StudentDTO, Student> {
         student.setDateOfBirth(studentDTO.getDateOfBirth());
         student.setGender(studentDTO.getGender());
         student.setAddress(studentDTO.getAddress());
-        student.setGradeLevel(studentDTO.getGradeLevel());
+        student.setGradeLevel(GradeLevel.valueOf(studentDTO.getGradeLevel()));
 
         return student;
     }

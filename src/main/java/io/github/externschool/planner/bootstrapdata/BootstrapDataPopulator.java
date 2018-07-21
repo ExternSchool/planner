@@ -91,14 +91,9 @@ public class BootstrapDataPopulator implements InitializingBean {
 
     private void createTeacher(Person person, String officerName, List<String> subjectsNames) {
         Teacher teacher = new Teacher(
-                person.getId(),
-                person.getUser(),
-                person.getFirstName(),
-                person.getPatronymicName(),
-                person.getLastName(),
-                person.getPhoneNumber(),
-                person.getVerificationKey(),
+                person,
                 officerName,
+                new HashSet<>(),
                 new HashSet<>());
         for (String subjectName : subjectsNames) {
             SchoolSubject subject = new SchoolSubject();

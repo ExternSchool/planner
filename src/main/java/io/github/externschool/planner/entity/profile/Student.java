@@ -1,16 +1,14 @@
 package io.github.externschool.planner.entity.profile;
 
-import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.User;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Entity
 @Table(name = "student")
@@ -26,11 +24,8 @@ public class Student extends Person {
     private String address;
 
     @Column(name = "grade_level")
-    private int gradeLevel;
-
-    @ManyToMany
-    @Column(name = "school_subjects")
-    private Set<SchoolSubject> subjects = new HashSet();
+    @Enumerated
+    private GradeLevel gradeLevel;
 
     public Student(){
     }
@@ -45,14 +40,30 @@ public class Student extends Person {
                    final LocalDate dateOfBirth,
                    final Gender gender,
                    final String address,
-                   final int gradeLevel,
-                   final Set<SchoolSubject> subjects) {
+                   final GradeLevel gradeLevel) {
         super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
         this.gradeLevel = gradeLevel;
-        this.subjects = subjects;
+    }
+
+    public Student(final Person person,
+                   final LocalDate dateOfBirth,
+                   final Gender gender,
+                   final String address,
+                   final GradeLevel gradeLevel) {
+        this(person.getId(),
+                person.getUser(),
+                person.getFirstName(),
+                person.getPatronymicName(),
+                person.getLastName(),
+                person.getPhoneNumber(),
+                person.getVerificationKey(),
+                dateOfBirth,
+                gender,
+                address,
+                gradeLevel);
     }
 
     public LocalDate getDateOfBirth() {
@@ -79,42 +90,29 @@ public class Student extends Person {
         this.address = address;
     }
 
-    public int getGradeLevel() {
+    public GradeLevel getGradeLevel() {
         return gradeLevel;
     }
 
-    public void setGradeLevel(int gradeLevel) {
+    public void setGradeLevel(final GradeLevel gradeLevel) {
         this.gradeLevel = gradeLevel;
     }
 
-    public Set<SchoolSubject> getSubjects() {
-        return subjects;
-    }
-
-    public void setSubjects(Set<SchoolSubject> subjects) {
-        this.subjects = subjects;
-    }
-
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
-        Student student = (Student) o;
-
-        if (dateOfBirth != null ? !dateOfBirth.equals(student.dateOfBirth) : student.dateOfBirth != null) return false;
-        return gender == student.gender;
+        final Student student = (Student) o;
+        return Objects.equals(dateOfBirth, student.dateOfBirth) &&
+                gender == student.gender &&
+                Objects.equals(address, student.address) &&
+                gradeLevel == student.gradeLevel;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (dateOfBirth != null ? dateOfBirth.hashCode() : 0);
-        result = 31 * result + (gender != null ? gender.hashCode() : 0);
-        result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + gradeLevel;
-        return result;
+        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel);
     }
 
     @Override
@@ -124,7 +122,6 @@ public class Student extends Person {
                 ", gender=" + gender +
                 ", address='" + address + '\'' +
                 ", gradeLevel=" + gradeLevel +
-                ", subjects=" + subjects +
                 '}';
     }
 }

@@ -1,6 +1,7 @@
 package io.github.externschool.planner.repository.profiles;
 
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,17 +32,17 @@ public class TeacherRepositoryTest {
 
     @Before
     public void setUp() {
-        firstTeacher = new Teacher("principal", new HashSet<>());
+        firstTeacher = new Teacher(new Person(), "principal", new HashSet<>(), new HashSet<>());
         firstTeacher.setUser(new User("user@email.com", "password"));
         firstTeacher.setOfficer("Psychologist");
         firstTeacher.setLastName("C");
 
-        secondTeacher = new Teacher("", new HashSet<>());
+        secondTeacher = new Teacher(new Person(),"", new HashSet<>(), new HashSet<>());
         secondTeacher.setUser(new User("admin@email.com", "password"));
         secondTeacher.setOfficer("Principal");
         secondTeacher.setLastName("B");
 
-        thirdTeacher = new Teacher("chemist", new HashSet<>());
+        thirdTeacher = new Teacher(new Person(),"chemist", new HashSet<>(), new HashSet<>());
         thirdTeacher.setUser(new User("chemist@email.com", "password"));
         thirdTeacher.setOfficer("Chemist");
         thirdTeacher.setLastName("A");
@@ -49,7 +50,6 @@ public class TeacherRepositoryTest {
         entityManager.persist(firstTeacher);
         entityManager.persist(secondTeacher);
         entityManager.persist(thirdTeacher);
-
     }
 
     @Test
