@@ -21,7 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserServiceTest {
     @Autowired
     UserService userService;
@@ -57,7 +57,7 @@ public class UserServiceTest {
     }
 
     @Test(expected = EmailExistsException.class)
-    public void shouldReturnUser_WhenCreateNewUser(){
+    public void shouldReturnUserAndGetException_WhenCreateNewUser() {
         User actualUser = userService.createNewUser(userDTO);
 
         assertThat(actualUser)
@@ -73,7 +73,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnUser_WhenFindUserByEmail(){
+    public void shouldReturnUser_WhenFindUserByEmail() {
         User actualUser = userService.findUserByEmail(expectedUser.getEmail());
 
         assertThat(actualUser)

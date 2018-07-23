@@ -3,6 +3,7 @@ package io.github.externschool.planner.converter;
 import io.github.externschool.planner.PlannerApplication;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +29,8 @@ public class TeacherConvertersTest {
 
     @Before
     public void setUp() {
+        final VerificationKey verificationKey = new VerificationKey();
         final Long id = 1L;
-        final String verificationKey = "0123456789qwertyuiopAJHGDKJADGKJD";
         final String firstName = "John";
         final String patronymicName = "Johnovich";
         final String lastName = "Doe";
@@ -47,9 +48,9 @@ public class TeacherConvertersTest {
         expectedTeacher.setPatronymicName(patronymicName);
         expectedTeacher.setLastName(lastName);
         expectedTeacher.setPhoneNumber(phoneNumber);
-        expectedTeacher.setVerificationKey(verificationKey);
+        expectedTeacher.addVerificationKey(verificationKey);
         expectedTeacher.setOfficer(officer);
-        expectedTeacher.setSubjects(schoolSubjects);
+        schoolSubjects.forEach(s -> expectedTeacher.addSubject(s));
 
         expectedDTO = new TeacherDTO();
         expectedDTO.setId(id);
@@ -74,9 +75,8 @@ public class TeacherConvertersTest {
         Teacher actualTeacher = conversionService.convert(expectedDTO, Teacher.class);
         assertThat(actualTeacher)
                 .isNotNull()
-                .isEqualTo(expectedTeacher)
-                .isEqualToComparingFieldByField(expectedTeacher);
+                .isEqualToIgnoringGivenFields(expectedTeacher, "verificationKey");
+        assertThat(actualTeacher.getVerificationKey())
+                .isEqualToIgnoringGivenFields(expectedTeacher.getVerificationKey(), "person");
     }
 }
-
-
