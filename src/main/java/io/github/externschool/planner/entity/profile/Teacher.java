@@ -29,10 +29,10 @@ public class Teacher extends Person {
     @JoinTable(name = "teacher_subject",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
-    private Set<SchoolSubject> subjects = new HashSet();
+    private Set<SchoolSubject> subjects = new HashSet<>();
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @Cascade({CascadeType.SAVE_UPDATE, CascadeType.REMOVE})
     @Column(name = "courses")
     private Set<Course> courses = new HashSet<>();
 
