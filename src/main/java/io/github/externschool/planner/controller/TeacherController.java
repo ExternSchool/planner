@@ -89,7 +89,7 @@ public class TeacherController {
 
     @PostMapping(value = "/update", params = "action=newKey")
     public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO, Model model) {
-        teacherDTO = newKey(teacherDTO);
+        teacherDTO = setNewKey(teacherDTO);
 
         return show(teacherDTO);
     }
@@ -106,7 +106,7 @@ public class TeacherController {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    private TeacherDTO newKey(TeacherDTO teacherDTO) {
+    private TeacherDTO setNewKey(TeacherDTO teacherDTO) {
         //TODO add key change confirmation request
 
         return (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);

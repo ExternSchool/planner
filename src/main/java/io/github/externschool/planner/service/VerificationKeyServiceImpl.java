@@ -46,7 +46,6 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
             Person oldPerson = oldKey.getPerson();
             if (oldUser != null) {
                 oldUser.removeVerificationKey();
-                oldUser.addVerificationKey(newKey);
             }
             if (oldPerson != null) {
                 oldPerson.removeVerificationKey();
