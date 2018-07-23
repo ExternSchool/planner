@@ -3,6 +3,7 @@ package io.github.externschool.planner.dto;
 import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class PersonDTO {
     private Long id;
@@ -84,18 +85,19 @@ public class PersonDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof PersonDTO)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         PersonDTO personDTO = (PersonDTO) o;
         return Objects.equals(id, personDTO.id) &&
-                Objects.equals(user, personDTO.user) &&
+                Objects.equals(verificationKey, personDTO.verificationKey) &&
                 Objects.equals(firstName, personDTO.firstName) &&
                 Objects.equals(patronymicName, personDTO.patronymicName) &&
                 Objects.equals(lastName, personDTO.lastName) &&
-                Objects.equals(phoneNumber, personDTO.phoneNumber) ;
+                Objects.equals(phoneNumber, personDTO.phoneNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, user, firstName, patronymicName, lastName, phoneNumber);
+
+        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
     }
 }

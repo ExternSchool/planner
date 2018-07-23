@@ -12,12 +12,10 @@ public class PersonToPersonDTO implements Converter<Person, PersonDTO> {
     public PersonDTO convert(Person person) {
         return new PersonDTO(
                 person.getId(),
-                person.getUser(),
+                person.getVerificationKey(),
                 person.getFirstName(),
                 person.getPatronymicName(),
                 person.getLastName(),
-                person.getPhoneNumber(),
-                person.getVerificationKey()
-        );
+                person.getPhoneNumber());
     }
 }
