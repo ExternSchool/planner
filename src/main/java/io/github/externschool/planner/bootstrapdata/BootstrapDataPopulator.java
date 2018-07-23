@@ -7,13 +7,11 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
-import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

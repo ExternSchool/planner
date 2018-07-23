@@ -60,9 +60,10 @@ public class SchoolSubject {
 
     public Set<Teacher> getTeachers() {
         return teachers;
+    }
 
     public Set<StudyPlan> getPlans() {
-        return plans;
+            return plans;
     }
 
     public void setPlans(final Set<StudyPlan> plans) {
