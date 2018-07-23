@@ -8,7 +8,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.UUID;
@@ -24,11 +23,10 @@ public class VerificationKey {
     @Column(name = "value")
     private String value = UUID.randomUUID().toString();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.LAZY)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person")
+    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.LAZY)
     private Person person;
 
     public VerificationKey() {
@@ -66,4 +64,8 @@ public class VerificationKey {
         this.person = person;
     }
 
+    @Override
+    public String toString() {
+        return value;
+    }
 }

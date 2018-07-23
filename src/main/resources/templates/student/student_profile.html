@@ -31,6 +31,7 @@
     <h4 class="font-weight-normal" th:inline="text"><small>Student</small></h4>
     <fieldset>
         <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
+            <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
@@ -75,8 +76,6 @@
                         <div class="form-group col-lg-6">
                             <label for="grade">Grade</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}">
-                                <!--<option th:each="grade: ${T(io.github.externschool.planner.entity.enums.GradeLevel).values()}"-->
-                                        <!--th:value="${grade}" th:text="${grade}">-->
                                 <option th:each="grade: ${grades}"
                                         th:value="${grade.getLevel()}" th:text="${grade.getName()}">
                                     Grade
@@ -100,10 +99,12 @@
                     <div class="form-group">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}" readonly
+                            <input type="hidden" th:field="${student.verificationKey}"/>
+                            <input class="form-control" type="text" id="key" th:field="${student.verificationKey.value}" readonly
                                    placeholder="A key provided by the school to link the user with a real person data">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey">
+                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey"
+                                        th:disabled="${isNew}">
                                     Generate New Key
                                 </button>
                             </div>

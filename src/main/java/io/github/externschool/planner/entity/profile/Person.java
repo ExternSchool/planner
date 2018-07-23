@@ -1,10 +1,7 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.VerificationKey;
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,8 +10,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
@@ -27,9 +27,9 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(mappedBy = "person", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    @LazyToOne( LazyToOneOption.NO_PROXY )
-    private VerificationKey verificationKey = new VerificationKey();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "key_id")
+    private VerificationKey verificationKey;
 
     @Column(name = "first_name")
     private String firstName;
@@ -50,14 +50,12 @@ public class Person {
                   final String firstName,
                   final String patronymicName,
                   final String lastName,
-                  final String phoneNumber,
-                  final VerificationKey verificationKey) {
+                  final String phoneNumber) {
         this.id = id;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
-        this.verificationKey = verificationKey;
     }
 
     public Long getId() {
@@ -105,17 +103,17 @@ public class Person {
     }
 
     public void addVerificationKey(VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
         if (verificationKey != null) {
             verificationKey.setPerson(this);
         }
-        this.verificationKey = verificationKey;
     }
 
     public void removeVerificationKey() {
         if (verificationKey != null) {
             verificationKey.setPerson(null);
-            this.verificationKey = null;
         }
+        this.verificationKey = null;
     }
 
     @Override

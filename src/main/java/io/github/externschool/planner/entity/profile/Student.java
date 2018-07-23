@@ -41,13 +41,12 @@ public class Student extends Person {
                    final String patronymicName,
                    final String lastName,
                    final String phoneNumber,
-                   final VerificationKey verificationKey,
                    final LocalDate dateOfBirth,
                    final Gender gender,
                    final String address,
                    final int gradeLevel,
                    final Set<SchoolSubject> subjects) {
-        super(id, firstName, patronymicName, lastName, phoneNumber, verificationKey);
+        super(id, firstName, patronymicName, lastName, phoneNumber);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;

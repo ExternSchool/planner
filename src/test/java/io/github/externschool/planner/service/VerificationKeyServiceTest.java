@@ -3,9 +3,7 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,9 +26,6 @@ public class VerificationKeyServiceTest {
 
     @InjectMocks
     private VerificationKeyServiceImpl service;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private VerificationKey expectedKey;
 
@@ -94,6 +89,4 @@ public class VerificationKeyServiceTest {
         assertThat(actualKey)
                 .isNull();
     }
-
-
 }

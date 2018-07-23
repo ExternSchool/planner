@@ -15,16 +15,21 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "user")
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -45,6 +50,7 @@ public class User {
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
     public User() {
@@ -99,8 +105,18 @@ public class User {
         return verificationKey;
     }
 
-    public void setVerificationKey(VerificationKey verificationKey) {
+    public void addVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
+        if (verificationKey != null) {
+            verificationKey.setUser(this);
+        }
+    }
+
+    public void removeVerificationKey() {
+        if (verificationKey != null) {
+            verificationKey.setUser(null);
+        }
+        this.verificationKey = null;
     }
 
     public void addOwnEvent(ScheduleEvent event) {

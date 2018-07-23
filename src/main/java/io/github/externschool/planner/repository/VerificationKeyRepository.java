@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VerificationKeyRepository extends JpaRepository<VerificationKey, String> {
+public interface VerificationKeyRepository extends JpaRepository<VerificationKey, Long> {
 
     VerificationKey getById(Long id);
 }

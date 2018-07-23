@@ -47,7 +47,7 @@ public class TeacherConvertersTest {
         expectedTeacher.setPhoneNumber(phoneNumber);
         expectedTeacher.addVerificationKey(verificationKey);
         expectedTeacher.setOfficer(officer);
-        expectedTeacher.setSubjects(schoolSubjects);
+        schoolSubjects.forEach(s -> expectedTeacher.addSubject(s));
 
         expectedDTO = new TeacherDTO();
         expectedDTO.setVerificationKey(verificationKey);
