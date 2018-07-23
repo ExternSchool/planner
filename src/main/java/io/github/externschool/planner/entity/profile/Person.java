@@ -143,7 +143,6 @@ public class Person {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
     }
 }

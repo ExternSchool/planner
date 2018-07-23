@@ -80,4 +80,22 @@ public class PersonDTO {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PersonDTO)) return false;
+        PersonDTO personDTO = (PersonDTO) o;
+        return Objects.equals(id, personDTO.id) &&
+                Objects.equals(user, personDTO.user) &&
+                Objects.equals(firstName, personDTO.firstName) &&
+                Objects.equals(patronymicName, personDTO.patronymicName) &&
+                Objects.equals(lastName, personDTO.lastName) &&
+                Objects.equals(phoneNumber, personDTO.phoneNumber) ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, firstName, patronymicName, lastName, phoneNumber);
+    }
 }

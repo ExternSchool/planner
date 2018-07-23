@@ -3,7 +3,9 @@ package io.github.externschool.planner.converter;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TeacherToTeacherDTO implements Converter<Teacher, TeacherDTO> {
 
     @Override
