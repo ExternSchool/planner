@@ -4,7 +4,6 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,7 +37,6 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
 
 
     @Override
-    @Transactional
     public void deleteSubject(Long id) {
 
         List<Teacher> teachers = teacherService.findAllTeachers();

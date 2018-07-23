@@ -1,5 +1,8 @@
 package io.github.externschool.planner.entity;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -24,8 +27,9 @@ public class StudyPlan {
     @Enumerated
     private GradeLevel gradeLevel;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "subject", foreignKey = @ForeignKey(name = "SUBJECT_FK"))
+    @Cascade(CascadeType.SAVE_UPDATE)
     private SchoolSubject subject;
 
     private String name;

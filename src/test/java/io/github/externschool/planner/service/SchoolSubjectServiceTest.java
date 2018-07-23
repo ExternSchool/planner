@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
@@ -20,7 +21,7 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestPlannerApplication.class)
 public class SchoolSubjectServiceTest {
 
     @MockBean
@@ -126,10 +127,5 @@ public class SchoolSubjectServiceTest {
         List<SchoolSubject> sortedSubjects = schoolSubjectService.findAllByOrderByNameAsc();
 
         assertThat(sortedSubjects).isEqualTo(expectedList);
-    }
-
-    @After
-    public void tearDown(){
-        subjectRepository.deleteAll();
     }
 }

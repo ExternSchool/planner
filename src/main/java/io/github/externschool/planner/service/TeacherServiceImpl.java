@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<Teacher> findAllTeachers() {
         return teacherRepository.findAll();
+    }
+
+    @Override
+    public List<Teacher> findAllBySubject(SchoolSubject subject) {
+        return teacherRepository.findAllBySubjectsContains(subject);
     }
 
     @Override

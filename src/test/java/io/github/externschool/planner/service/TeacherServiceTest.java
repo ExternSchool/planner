@@ -1,5 +1,7 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.TestPlannerApplication;
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.junit.Before;
@@ -14,13 +16,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestPlannerApplication.class)
 public class TeacherServiceTest {
 
     @Mock
@@ -57,8 +59,7 @@ public class TeacherServiceTest {
 
     @Test
     public void shouldReturnList_whenFindAllTeachers() {
-        List<Teacher> expectedList = new ArrayList<>();
-        expectedList.add(expectedTeacher);
+        List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
 
         Mockito.when(teacherRepository.findAll())
                 .thenReturn(expectedList);
@@ -67,7 +68,26 @@ public class TeacherServiceTest {
 
         assertThat(actualList)
                 .isNotNull()
-                .isInstanceOf(ArrayList.class);
+                .isInstanceOf(List.class);
+        assertThat(actualList.get(0))
+                .isNotNull()
+                .isEqualTo(expectedList.get(0))
+                .isEqualToComparingFieldByField(expectedList.get(0));
+    }
+
+    @Test
+    public void shouldReturnList_whenFindAllBySubject() {
+        List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
+        SchoolSubject subject = new SchoolSubject();
+
+        Mockito.when(teacherRepository.findAllBySubjectsContains(subject))
+                .thenReturn(expectedList);
+
+        List<Teacher> actualList = teacherService.findAllBySubject(subject);
+
+        assertThat(actualList)
+                .isNotNull()
+                .isInstanceOf(List.class);
         assertThat(actualList.get(0))
                 .isNotNull()
                 .isEqualTo(expectedList.get(0))
@@ -76,8 +96,7 @@ public class TeacherServiceTest {
 
     @Test
     public void shouldReturnSortedList_whenFindAllByOrderByLastNameAsc() {
-        List<Teacher> expectedList = new ArrayList<>();
-        expectedList.add(expectedTeacher);
+        List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
 
         Mockito.when(teacherRepository.findAllByOrderByLastNameAsc())
                 .thenReturn(expectedList);
@@ -86,7 +105,7 @@ public class TeacherServiceTest {
 
         assertThat(actualList)
                 .isNotNull()
-                .isInstanceOf(ArrayList.class);
+                .isInstanceOf(List.class);
         assertThat(actualList.get(0))
                 .isNotNull()
                 .isEqualTo(expectedList.get(0))

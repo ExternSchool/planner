@@ -1,6 +1,8 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.course.Course;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -10,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,10 +31,10 @@ public class Teacher extends Person {
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<SchoolSubject> subjects = new HashSet();
 
-    public Teacher(String officer, Set<SchoolSubject> subjects) {
-        this.officer = officer;
-        this.subjects = subjects;
-    }
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @Column(name = "courses")
+    private Set<Course> courses = new HashSet<>();
 
     public Teacher() {
     }
@@ -41,11 +44,30 @@ public class Teacher extends Person {
                    final String patronymicName,
                    final String lastName,
                    final String phoneNumber,
+                   final VerificationKey verificationKey,
                    final String officer,
-                   final Set<SchoolSubject> subjects) {
+                   final Set<SchoolSubject> subjects,
+                   final Set<Course> courses) {
         super(id, firstName, patronymicName, lastName, phoneNumber);
+        this.addVerificationKey(verificationKey);
         this.officer = officer;
         this.subjects = subjects;
+        this.courses = courses;
+    }
+
+    public Teacher(final Person person,
+                   final String officer,
+                   final Set<SchoolSubject> subjects,
+                   final Set<Course> courses) {
+        this(person.getId(),
+                person.getFirstName(),
+                person.getPatronymicName(),
+                person.getLastName(),
+                person.getPhoneNumber(),
+                person.getVerificationKey(),
+                officer,
+                subjects,
+                courses);
     }
 
     public String getOfficer() {
@@ -74,12 +96,26 @@ public class Teacher extends Person {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Teacher{" +
-                "officer='" + officer + '\'' +
-                ", subjects=" + subjects +
-                '}';
+    public Set<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(final Set<Course> courses) {
+        this.courses = courses;
+    }
+
+    public void addCourse(Course course) {
+        if (course != null && !courses.contains(course)) {
+            courses.add(course);
+            course.setTeacher(this);
+        }
+    }
+
+    public void removeCourse(Course course) {
+        if (course != null && courses.contains(course)) {
+            courses.remove(course);
+            course.setTeacher(null);
+        }
     }
 
     @Override
@@ -98,5 +134,13 @@ public class Teacher extends Person {
         int result = super.hashCode();
         result = 31 * result + (officer != null ? officer.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+                "id='" + getId() + '\'' +
+                ", officer='" + officer + '\'' +
+                '}';
     }
 }

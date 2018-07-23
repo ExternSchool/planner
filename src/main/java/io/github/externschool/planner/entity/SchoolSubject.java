@@ -35,7 +35,7 @@ public class SchoolSubject {
     @Column(name = "teacher_id")
     private Set<Teacher> teachers = new HashSet<>();
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
     @Column(name = "plans")
     private Set<StudyPlan> plans = new HashSet<>();
 

@@ -36,7 +36,7 @@ public class PersonRepositoryTest {
 
         entityManager.persist(person1);
         entityManager.persist(person2);
-        List<Person> personList = (List<Person>) this.personRepository.findAll();
+        List<Person> personList = personRepository.findAll();
 
         assertThat(personList)
                 .isNotNull()

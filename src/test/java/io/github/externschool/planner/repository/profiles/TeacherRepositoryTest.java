@@ -1,6 +1,8 @@
 package io.github.externschool.planner.repository.profiles;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,22 +33,21 @@ public class TeacherRepositoryTest {
 
     @Before
     public void setUp() {
-        firstTeacher = new Teacher("principal", new HashSet<>());
+        firstTeacher = new Teacher(new Person(), "principal", new HashSet<>(), new HashSet<>());
         firstTeacher.setOfficer("Psychologist");
         firstTeacher.setLastName("C");
 
-        secondTeacher = new Teacher("", new HashSet<>());
+        secondTeacher = new Teacher(new Person(), "", new HashSet<>(), new HashSet<>());
         secondTeacher.setOfficer("Principal");
         secondTeacher.setLastName("B");
 
-        thirdTeacher = new Teacher("chemist", new HashSet<>());
+        thirdTeacher = new Teacher(new Person(), "chemist", new HashSet<>(), new HashSet<>());
         thirdTeacher.setOfficer("Chemist");
         thirdTeacher.setLastName("A");
 
         entityManager.persist(firstTeacher);
         entityManager.persist(secondTeacher);
         entityManager.persist(thirdTeacher);
-
     }
 
     @Test
@@ -79,4 +80,17 @@ public class TeacherRepositoryTest {
                 .containsSubsequence(thirdTeacher, secondTeacher, firstTeacher);
     }
 
+    @Test
+    public void shouldReturnListOfTeachers_whenFindAllBySubjectsContains() {
+        SchoolSubject subject =  new SchoolSubject();
+        entityManager.persist(subject);
+        firstTeacher.addSubject(subject);
+        secondTeacher.addSubject(subject);
+        List<Teacher> teachers = this.repository.findAllBySubjectsContains(subject);
+
+        assertThat(teachers)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactlyInAnyOrder(secondTeacher, firstTeacher);
+    }
 }
