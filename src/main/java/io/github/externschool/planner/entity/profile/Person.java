@@ -120,26 +120,17 @@ public class Person {
     }
 
     @Override
-    public String toString() {
-        return "Person{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", patronymicName='" + patronymicName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Person)) return false;
-        Person that = (Person) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(firstName, that.firstName) &&
-                Objects.equals(patronymicName, that.patronymicName) &&
-                Objects.equals(lastName, that.lastName) &&
-                Objects.equals(phoneNumber, that.phoneNumber);
+        Person person = (Person) o;
+        return Objects.equals(id, person.id) &&
+                Objects.equals(user, person.user) &&
+                Objects.equals(firstName, person.firstName) &&
+                Objects.equals(patronymicName, person.patronymicName) &&
+                Objects.equals(lastName, person.lastName) &&
+                Objects.equals(phoneNumber, person.phoneNumber) &&
+                Objects.equals(verificationKey, person.verificationKey);
     }
 
     @Override

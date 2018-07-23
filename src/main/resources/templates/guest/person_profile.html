@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+>
+<html lang="en">
+<head>
+    <title>Guest Profile</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='guest')"/>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guest Profile</small></h4>
+    <fieldset>
+        <form th:method="post" th:action="@{/guest/update}" th:object="${person}" class="form" id="form">
+            <input type="hidden" th:field="*{id}"/>
+            <div class="form-row">
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
+                               th:field="*{lastName}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstName">First name</label>
+                        <input class="form-control" type="text" placeholder="First name" id="firstName"
+                               th:field="*{firstName}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patronymicName">Patronymic Name</label>
+                        <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
+                               th:field="*{patronymicName}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="phone">Phone Number</label>
+                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
+                                   id="phone" th:field="*{phoneNumber}" required>
+                        </div>
+                        <div class="form-group col-lg-6">
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="key">Verification Key</label>
+                        <div class="input-group">
+                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}" readonly
+                                   placeholder="A key provided by the school to link the user with a real person data">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey">
+                                    Generate New Key
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-lg-4">
+                            <a href="/guest/update">
+                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                    Cancel
+                                </button>
+                            </a>
+                        </div>
+                        <div class="col-lg-8">
+                            <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+        <div th:replace="fragments/footer :: footer"/>
+        </span>
+    </div>
+</footer>
+
+</body>
+</html>
