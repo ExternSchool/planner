@@ -1,6 +1,7 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.service.UserService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -78,7 +79,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupSuccessful() throws Exception {
-        UserDTO user = new UserDTO("aJd4da65dH5d54Dj",
+        UserDTO user = new UserDTO(new VerificationKey(),
                 "user@x.com",
                 "(044)222-2222",
                 "!Qwert");
@@ -99,7 +100,7 @@ public class UserControllerTest {
 
     private MultiValueMap<String, String> mapUser(UserDTO user) {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("verificationKey",user.getVerificationKey());
+        //map.add("verificationKey",user.getVerificationKey());
         map.add("email",user.getEmail());
         map.add("phoneNumber", user.getPhoneNumber());
         map.add("password", user.getPassword());

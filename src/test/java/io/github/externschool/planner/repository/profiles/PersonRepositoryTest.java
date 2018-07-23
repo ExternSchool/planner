@@ -27,18 +27,16 @@ public class PersonRepositoryTest {
     public void shouldReturnListOfPersons(){
 
         Person person1 = new Person();
-        person1.setUser(new User("user@email.com", "password"));
         person1.setFirstName("Dmytro");
         person1.setLastName("Manzhula");
 
         Person person2 = new Person();
-        person2.setUser(new User("admin@email.com", "password"));
         person2.setFirstName("Vasia");
         person2.setLastName("Pupkin");
 
         entityManager.persist(person1);
         entityManager.persist(person2);
-        List<Person> personList = this.personRepository.findAll();
+        List<Person> personList = (List<Person>) this.personRepository.findAll();
 
         assertThat(personList)
                 .isNotNull()

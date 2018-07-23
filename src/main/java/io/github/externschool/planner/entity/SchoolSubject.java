@@ -2,9 +2,12 @@ package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,8 +30,9 @@ public class SchoolSubject {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany
-    @Column(name = "teachers")
+    @ManyToMany(mappedBy = "subjects", fetch = FetchType.EAGER)
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @Column(name = "teacher_id")
     private Set<Teacher> teachers = new HashSet<>();
 
     @OneToMany(mappedBy = "subject")
@@ -54,8 +58,12 @@ public class SchoolSubject {
         this.name = name;
     }
 
+    public Set<Teacher> getTeachers() {
+        return teachers;
+    }
+
     public Set<StudyPlan> getPlans() {
-        return plans;
+            return plans;
     }
 
     public void setPlans(final Set<StudyPlan> plans) {

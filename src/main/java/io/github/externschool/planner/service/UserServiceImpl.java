@@ -28,20 +28,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createNewUser(final UserDTO userDTO) throws EmailExistsException {
-        if (emailExists(userDTO)) {
+        return createUser(userDTO.getEmail(), userDTO.getPassword(), "ROLE_GUEST");
+    }
+
+    @Override
+    public User createUser(String email, String password, String role) throws EmailExistsException {
+        if (emailExists(email)) {
             throw new EmailExistsException("There is already a user with the email provided");
         }
         User user = new User();
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        if (user.getRoles().isEmpty()) {
-            user.getRoles().add(roleService.getRoleByName("ROLE_GUEST"));
-        } 
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.getRoles().add(roleService.getRoleByName(role));
 
+        return saveOrUpdate(user);
+    }
+
+    @Override
+    public User saveOrUpdate(User user) {
         return userRepository.save(user);
     }
 
-    private boolean emailExists(final UserDTO userDTO) {
-        return userRepository.findByEmail(userDTO.getEmail()) != null;
+    private boolean emailExists(final String email) {
+        return userRepository.findByEmail(email) != null;
     }
 }

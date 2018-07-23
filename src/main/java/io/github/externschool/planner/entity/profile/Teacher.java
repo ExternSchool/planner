@@ -1,7 +1,8 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.User;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,7 +22,8 @@ public class Teacher extends Person {
     private String officer;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "teacher_subjects",
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @JoinTable(name = "teacher_subject",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<SchoolSubject> subjects = new HashSet();
@@ -35,15 +37,13 @@ public class Teacher extends Person {
     }
 
     public Teacher(final Long id,
-                   final User user,
                    final String firstName,
                    final String patronymicName,
                    final String lastName,
                    final String phoneNumber,
-                   final String verificationKey,
                    final String officer,
                    final Set<SchoolSubject> subjects) {
-        super(id, user, firstName, patronymicName, lastName, phoneNumber, verificationKey);
+        super(id, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
         this.subjects = subjects;
     }
@@ -60,16 +60,26 @@ public class Teacher extends Person {
         return subjects;
     }
 
-    public void setSubjects(Set<SchoolSubject> subjects) {
-        this.subjects = subjects;
-    }
-
     public void addSubject(SchoolSubject subject) {
-        subjects.add(subject);
+        if (subject != null && !subjects.contains(subject)) {
+            subjects.add(subject);
+            subject.getTeachers().add(this);
+        }
     }
 
     public void removeSubject(SchoolSubject subject) {
-        subjects.remove(subject);
+        if (subject != null && subjects.contains(subject)) {
+            subjects.remove(subject);
+            subject.getTeachers().remove(this);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+                "officer='" + officer + '\'' +
+                ", subjects=" + subjects +
+                '}';
     }
 
     @Override
@@ -88,13 +98,5 @@ public class Teacher extends Person {
         int result = super.hashCode();
         result = 31 * result + (officer != null ? officer.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Teacher{" +
-                "officer='" + officer + '\'' +
-                ", subjects=" + subjects +
-                '}';
     }
 }

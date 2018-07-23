@@ -1,22 +1,13 @@
 package io.github.externschool.planner.dto;
 
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class StudentDTO {
-    private Long id;
-    private String verificationKey;
-    @NotNull
-    private String firstName;
-    @NotNull
-    private String patronymicName;
-    @NotNull
-    private String lastName;
-    @NotNull
-    private String phoneNumber;
+public class StudentDTO extends PersonDTO {
     @NotNull
     private LocalDate dateOfBirth;
     @NotNull
@@ -30,7 +21,7 @@ public class StudentDTO {
     }
 
     public StudentDTO(final Long id,
-                      final String verificationKey,
+                      final VerificationKey verificationKey,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
@@ -39,64 +30,11 @@ public class StudentDTO {
                       final Gender gender,
                       final String address,
                       final int gradeLevel) {
-        this.id = id;
-        this.verificationKey = verificationKey;
-        this.firstName = firstName;
-        this.patronymicName = patronymicName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
+        super(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
         this.gradeLevel = gradeLevel;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getVerificationKey() {
-        return verificationKey;
-    }
-
-    public void setVerificationKey(String verificationKey) {
-        this.verificationKey = verificationKey;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getPatronymicName() {
-        return patronymicName;
-    }
-
-    public void setPatronymicName(String patronymicName) {
-        this.patronymicName = patronymicName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 
     public LocalDate getDateOfBirth() {
@@ -137,12 +75,6 @@ public class StudentDTO {
         if (o == null || getClass() != o.getClass()) return false;
         StudentDTO that = (StudentDTO) o;
         return gradeLevel == that.gradeLevel &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(verificationKey, that.verificationKey) &&
-                Objects.equals(firstName, that.firstName) &&
-                Objects.equals(patronymicName, that.patronymicName) &&
-                Objects.equals(lastName, that.lastName) &&
-                Objects.equals(phoneNumber, that.phoneNumber) &&
                 Objects.equals(dateOfBirth, that.dateOfBirth) &&
                 gender == that.gender &&
                 Objects.equals(address, that.address);
@@ -151,6 +83,6 @@ public class StudentDTO {
     @Override
     public int hashCode() {
 
-        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber, dateOfBirth, gender, address, gradeLevel);
+        return Objects.hash(dateOfBirth, gender, address, gradeLevel);
     }
 }

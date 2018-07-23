@@ -1,6 +1,5 @@
 package io.github.externschool.planner.entity;
 
-import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 
 import javax.persistence.CascadeType;
@@ -16,26 +15,27 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
+import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
-public class User {
+@Table(name = "user")
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false, length = 60)
     private String password;
-
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
-    private Person person;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",
@@ -49,6 +49,10 @@ public class User {
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "key_id", unique = true)
+    private VerificationKey verificationKey;
+
     public User() {
     }
 
@@ -57,25 +61,12 @@ public class User {
         this.password = password;
     }
 
-    public User(Person person, String email, String password) {
-        this(email, password);
-        this.person = person;
-    }
-
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
     }
 
     public void addRole(Role role) {
@@ -110,6 +101,24 @@ public class User {
         this.password = password;
     }
 
+    public VerificationKey getVerificationKey() {
+        return verificationKey;
+    }
+
+    public void addVerificationKey(VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
+        if (verificationKey != null) {
+            verificationKey.setUser(this);
+        }
+    }
+
+    public void removeVerificationKey() {
+        if (verificationKey != null) {
+            verificationKey.setUser(null);
+        }
+        this.verificationKey = null;
+    }
+
     public void addOwnEvent(ScheduleEvent event) {
         this.ownEvents.add(event);
         event.setOwner(this);
@@ -130,16 +139,4 @@ public class User {
         event.getParticipants().remove(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User user = (User) o;
-        return Objects.equals(email, user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(email);
-    }
 }
