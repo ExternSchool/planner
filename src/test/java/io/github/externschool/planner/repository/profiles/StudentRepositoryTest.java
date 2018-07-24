@@ -75,8 +75,8 @@ public class StudentRepositoryTest {
     }
 
     @Test
-    public void shouldReturnSortedListOfStudent_whenFindAllByOrderByLastNameAsc() {
-        List<Student> students = this.repository.findAllByOrderByLastNameAsc();
+    public void shouldReturnSortedListOfStudent_whenFindAllByOrderByLastName() {
+        List<Student> students = this.repository.findAllByOrderByLastName();
 
         assertThat(students)
                 .isNotNull()
