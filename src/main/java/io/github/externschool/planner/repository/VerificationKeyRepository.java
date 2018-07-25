@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface VerificationKeyRepository extends JpaRepository<VerificationKey, Long> {
 
     VerificationKey getById(Long id);
+
+    VerificationKey getByValue(String value);
 }

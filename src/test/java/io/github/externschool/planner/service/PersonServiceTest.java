@@ -70,11 +70,11 @@ public class PersonServiceTest {
 
     @Test
     public void shouldReturnPerson_whenFindById(){
-        Mockito.when(personRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(firstPerson));
-        Optional<Person> foundPerson = personService.findPersonById(1L);
+        Mockito.when(personRepository.findPersonById(1L))
+                .thenReturn(firstPerson);
+        Person foundPerson = personService.findPersonById(1L);
 
-        assertThat(foundPerson.get()).isEqualTo(firstPerson);
+        assertThat(foundPerson).isEqualTo(firstPerson);
     }
 
     @Test

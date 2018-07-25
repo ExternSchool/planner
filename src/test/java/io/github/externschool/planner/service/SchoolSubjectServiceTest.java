@@ -4,7 +4,6 @@ import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

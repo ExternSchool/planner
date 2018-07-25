@@ -5,7 +5,6 @@ import io.github.externschool.planner.repository.profiles.PersonRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -22,8 +21,8 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Optional<Person> findPersonById(Long id) {
-        return personRepository.findById(id);
+    public Person findPersonById(Long id) {
+        return personRepository.findPersonById(id);
     }
 
     @Override

@@ -18,13 +18,18 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     }
 
     @Override
+    public void deleteById(Long id) {
+        keyRepository.deleteById(id);
+    }
+
+    @Override
     public VerificationKey findKeyById(Long id) {
         return keyRepository.getById(id);
     }
 
     @Override
-    public List<VerificationKey> findAll() {
-        return keyRepository.findAll();
+    public VerificationKey findKeyByValue(final String value) {
+        return keyRepository.getByValue(value);
     }
 
     @Override
@@ -33,8 +38,8 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        keyRepository.deleteById(id);
+    public List<VerificationKey> findAll() {
+        return keyRepository.findAll();
     }
 
     @Override

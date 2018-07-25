@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
+    Person findPersonById(Long id);
+
     List<Person> findAllByOrderByLastNameAsc();
 }

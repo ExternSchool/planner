@@ -74,10 +74,10 @@ public class TeacherController {
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 
-        Set<Long> selected = teacherDTO.getSchoolSubjects().stream()
-                .map(SchoolSubject::getId)
-                .collect(Collectors.toSet());
         if (allSubjects != null && !allSubjects.isEmpty()) {
+            Set<Long> selected = teacherDTO.getSchoolSubjects().stream()
+                    .map(SchoolSubject::getId)
+                    .collect(Collectors.toSet());
             Set<SchoolSubject> subjects = allSubjects.stream()
                     .filter(s -> selected.contains(s.getId()))
                     .collect(Collectors.toSet());
@@ -88,7 +88,7 @@ public class TeacherController {
     }
 
     @PostMapping(value = "/update", params = "action=newKey")
-    public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO, Model model) {
+    public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
         teacherDTO = setNewKey(teacherDTO);
 
         return show(teacherDTO);
@@ -113,13 +113,15 @@ public class TeacherController {
     }
 
     private ModelAndView show(TeacherDTO teacherDTO) {
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile");
-        modelAndView.addObject("isNew",
-                teacherService.findTeacherById(teacherDTO.getId()) == null);
-        modelAndView.addObject("teacher", teacherDTO);
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
+        modelAndView.addObject("isNew", isNew(teacherDTO));
         allSubjects = subjectService.findAllByOrderByNameAsc();
         modelAndView.addObject("allSubjects", allSubjects);
 
         return modelAndView;
+    }
+
+    private Boolean isNew(TeacherDTO teacherDTO) {
+        return teacherService.findTeacherById(teacherDTO.getId()) == null;
     }
 }
