@@ -6,12 +6,13 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
-import io.github.externschool.planner.service.UserServiceImpl;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
@@ -27,24 +28,31 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
     private final TeacherService teacherService;
     private final SchoolSubjectService schoolSubjectService;
-    private UserRepository userRepository;
-    private RoleService roleService;
+    private final UserRepository userRepository;
+    private final RoleService roleService;
+
+    private final ScheduleEventTypeRepository eventTypeRepository;
 
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
                                   final UserRepository userRepository,
-                                  final RoleService roleService) {
+                                  final RoleService roleService,
+                                  final ScheduleEventTypeRepository eventTypeRepository
+    ) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.eventTypeRepository = eventTypeRepository;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         createUser("q@q", "q", "ROLE_ADMIN");
+
+        createScheduleEventType();
 
         createTeacher(new Person(
                         null,
@@ -66,7 +74,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(099)999-9999",
                         UUID.randomUUID().toString()),
                 "Principal",
-                Arrays.asList("Quantum Mechanics","Algebraic topology"));
+                Arrays.asList("Quantum Mechanics", "Algebraic topology"));
 
         createTeacher(new Person(
                         null,
@@ -77,7 +85,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(099)999-1111",
                         UUID.randomUUID().toString()),
                 "Teacher",
-                Arrays.asList("Anatomy and physiology","Rocket Science"));
+                Arrays.asList("Anatomy and physiology", "Rocket Science"));
     }
 
     private void createUser(String email, String password, String role) {
@@ -106,6 +114,12 @@ public class BootstrapDataPopulator implements InitializingBean {
             teacher.addSubject(subject);
         }
         teacherService.saveOrUpdateTeacher(teacher);
+    }
+
+    private void createScheduleEventType() {
+        ScheduleEventType eventType = new ScheduleEventType("TestEvent", 1);
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType = this.eventTypeRepository.save(eventType);
     }
 
     //TODO Move to User Service

@@ -1,5 +1,8 @@
 package io.github.externschool.planner.dto;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 /**
@@ -7,11 +10,19 @@ import java.time.LocalDateTime;
  */
 public class ScheduleEventReq {
 
+    @NotBlank
     private String title;
+    @NotBlank
     private String description;
+    @NotBlank
     private String eventType;
+    @NotBlank
     private String location;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startOfEvent;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime endOfEvent;
 
     public ScheduleEventReq() {}
