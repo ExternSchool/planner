@@ -33,7 +33,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
-                                  final ScheduleEventTypeRepository eventTypeRepository
+                                  final ScheduleEventTypeRepository eventTypeRepository,
                                   final VerificationKeyService verificationKeyService) {                                  
         this.userService = userService;
         this.teacherService = teacherService;
