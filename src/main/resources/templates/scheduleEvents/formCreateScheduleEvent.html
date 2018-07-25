@@ -23,61 +23,67 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='teacher')"/>
+    <div th:replace="fragments/header :: header(activeTab='events')"/>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text">
-        <small>Teacher</small>
+        <small>New Event</small>
     </h4>
     <fieldset>
         <form th:method="post" th:action="@{/schedule-events/new}" th:object="${newEvent}" class="form" id="form">
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input class="form-control" type="text" placeholder="Title" id="title"
-                       th:field="*{title}" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input class="form-control" type="text" placeholder="Description" id="description"
-                       th:field="*{description}" required>
-            </div>
-            <div class="form-group">
-                <label for="location">Location</label>
-                <input class="form-control" type="text" placeholder="Location" id="location"
-                       th:field="*{location}" required>
-            </div>
+            <div class="form-row">
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input class="form-control" type="text" placeholder="Title" id="title"
+                               th:field="*{title}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input class="form-control" type="text" placeholder="Description" id="description"
+                               th:field="*{description}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input class="form-control" type="text" placeholder="Location" id="location"
+                               th:field="*{location}" required>
+                    </div>
 
-            <div class="form-group">
-                <label for="startOfEvent">Start Date/Time Of Event</label>
-                <input class="form-control" type="text" placeholder="start of event" id="startOfEvent"
-                       th:field="*{startOfEvent}" required>
-            </div>
+                    <div class="form-group">
+                        <label for="startOfEvent">Start Date/Time Of Event</label>
+                        <input class="form-control" type="datetime-local" placeholder="start of event" id="startOfEvent"
+                               th:field="*{startOfEvent}" required>
+                    </div>
 
-            <div class="form-group">
-                <label for="endOfEvent">End Date/Time Of Event</label>
-                <input class="form-control" type="text" placeholder="end of event" id="endOfEvent"
-                       th:field="*{endOfEvent}" required>
-            </div>
-            <div class="form-group">
-                <label for="eventType">Select Event Type</label>
-                <div class="input-group">
-                    <select multiple class="form-control" name="eventType" id="eventType"
-                            th:field="*{eventType}" size="10">
-                        <option th:each="type : ${eventTypes}"
-                                th:value="${type.name}"
-                                th:text="${type.name}">
-                            Subject
-                        </option>
-                    </select>
+                    <div class="form-group">
+                        <label for="endOfEvent">End Date/Time Of Event</label>
+                        <input class="form-control" type="datetime-local" placeholder="end of event" id="endOfEvent"
+                               th:field="*{endOfEvent}" required>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="col-lg-8">
-                    <button class="btn btn-primary btn-block" name="action" value="save" type="submit">
-                        Save Changes
-                    </button>
+                <div class=" col-lg-6">
+                    <div class="form-group">
+                        <label for="eventType">Select Event Type</label>
+                        <div class="input-group">
+                            <select multiple class="form-control" name="eventType" id="eventType"
+                                    th:field="*{eventType}" size="10">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Event Type
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-12">
+                            <button class="btn btn-primary btn-block" name="action" value="save" type="submit">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
