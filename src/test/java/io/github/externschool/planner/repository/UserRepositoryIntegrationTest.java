@@ -33,8 +33,8 @@ public class UserRepositoryIntegrationTest {
     private User expectedUser;
 
     @Before
-    public void setUp(){
-        expectedUser = new User(new Person(), email, "password");
+    public void setUp() {
+        expectedUser = new User(email, "password");
     }
 
     @Test
@@ -44,11 +44,9 @@ public class UserRepositoryIntegrationTest {
 
         assertThat(actualUser)
                 .isNotNull()
-                .hasFieldOrProperty("person")
                 .hasFieldOrProperty("email")
                 .hasFieldOrProperty("roles")
                 .hasFieldOrProperty("password")
-                .hasNoNullFieldsOrProperties()
                 .isEqualTo(expectedUser);
     }
 
@@ -72,8 +70,7 @@ public class UserRepositoryIntegrationTest {
         User actualUser = findWithEntityManager(expectedUser);
 
         assertThat(actualUser)
-                .isNotNull()
-                .hasNoNullFieldsOrProperties();
+                .isNotNull();
         assertThat(actualUser.getPassword()).isEqualTo(encryptedPassword);
     }
 
@@ -81,8 +78,6 @@ public class UserRepositoryIntegrationTest {
     public void shouldReturnExpectedFields_WhenReadUserFields() {
         User actualUser = findWithEntityManager(expectedUser);
 
-        assertThat(actualUser.getPerson())
-                .isEqualTo(expectedUser.getPerson());
         assertThat(actualUser.getEmail())
                 .isEqualTo(email);
         assertThat(actualUser.getPassword())

@@ -29,7 +29,6 @@ public class BootstrapDataPopulatorTest {
 
         assertThat(actualUser)
                 .isNotNull()
-                .hasFieldOrProperty("person")
                 .hasFieldOrProperty("email")
                 .hasFieldOrProperty("roles")
                 .hasFieldOrProperty("password")

@@ -31,6 +31,7 @@
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
     <fieldset>
         <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
+            <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
@@ -69,10 +70,12 @@
                     <div class="form-group">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}" readonly
+                            <input type="hidden" th:field="${teacher.verificationKey}"/>
+                            <input class="form-control" type="text" id="key" th:field="${teacher.verificationKey.value}" readonly
                                    placeholder="A key provided by the school to link the user with a real person data">
                             <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey">
+                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey"
+                                        th:disabled="${isNew}">
                                     Generate New Key
                                 </button>
                             </div>

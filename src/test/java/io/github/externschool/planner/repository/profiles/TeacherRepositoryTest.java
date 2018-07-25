@@ -32,17 +32,14 @@ public class TeacherRepositoryTest {
     @Before
     public void setUp() {
         firstTeacher = new Teacher("principal", new HashSet<>());
-        firstTeacher.setUser(new User("user@email.com", "password"));
         firstTeacher.setOfficer("Psychologist");
         firstTeacher.setLastName("C");
 
         secondTeacher = new Teacher("", new HashSet<>());
-        secondTeacher.setUser(new User("admin@email.com", "password"));
         secondTeacher.setOfficer("Principal");
         secondTeacher.setLastName("B");
 
         thirdTeacher = new Teacher("chemist", new HashSet<>());
-        thirdTeacher.setUser(new User("chemist@email.com", "password"));
         thirdTeacher.setOfficer("Chemist");
         thirdTeacher.setLastName("A");
 

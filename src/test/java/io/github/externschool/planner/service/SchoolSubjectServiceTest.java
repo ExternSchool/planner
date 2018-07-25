@@ -39,8 +39,8 @@ public class SchoolSubjectServiceTest {
     private SchoolSubject schoolSubject1;
     private SchoolSubject schoolSubject2;
 
-    List<Teacher> teachers = new ArrayList<>();
-    List<SchoolSubject> subjects = new ArrayList<>();
+    private List<Teacher> teachers = new ArrayList<>();
+    private List<SchoolSubject> subjects = new ArrayList<>();
 
     @Before
     public void setup(){

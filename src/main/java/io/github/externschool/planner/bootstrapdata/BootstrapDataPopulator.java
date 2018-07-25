@@ -1,18 +1,18 @@
 package io.github.externschool.planner.bootstrapdata;
 
-import io.github.externschool.planner.dto.UserDTO;
-import io.github.externschool.planner.entity.Role;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
-import io.github.externschool.planner.entity.schedule.ScheduleEventType;
-import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
-import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @ExcludeFromTests
@@ -28,105 +27,97 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
     private final TeacherService teacherService;
     private final SchoolSubjectService schoolSubjectService;
-    private final UserRepository userRepository;
-    private final RoleService roleService;
-
     private final ScheduleEventTypeRepository eventTypeRepository;
+    private final VerificationKeyService verificationKeyService;
 
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
-                                  final UserRepository userRepository,
-                                  final RoleService roleService,
                                   final ScheduleEventTypeRepository eventTypeRepository
-    ) {
+                                  final VerificationKeyService verificationKeyService) {                                  
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
-        this.userRepository = userRepository;
-        this.roleService = roleService;
+        this.verificationKeyService = verificationKeyService;
         this.eventTypeRepository = eventTypeRepository;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        createUser("q@q", "q", "ROLE_ADMIN");
-
         createScheduleEventType();
+      
+        VerificationKey key = new VerificationKey();
+        verificationKeyService.saveOrUpdateKey(key);
+        User user = userService.createUser("q@q", "q", "ROLE_ADMIN");
+        user.addVerificationKey(key);
+        userService.saveOrUpdate(user);
 
-        createTeacher(new Person(
-                        null,
+        Teacher teacher = createTeacher(new Person(
                         null,
                         "James",
                         "Merrill",
                         "Carlsmith",
-                        "(066)666-6666",
-                        UUID.randomUUID().toString()),
+                        "(066)666-6666"),
                 "Psychologist",
                 Collections.singletonList("Cognitive dissonance theory"));
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
 
-        createTeacher(new Person(
-                        null,
+        teacher = createTeacher(new Person(
                         null,
                         "Alexander",
                         "Sutherland",
                         "Neill",
-                        "(099)999-9999",
-                        UUID.randomUUID().toString()),
+                        "(099)999-9999"),
                 "Principal",
                 Arrays.asList("Quantum Mechanics", "Algebraic topology"));
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
 
-        createTeacher(new Person(
-                        null,
+        teacher = createTeacher(new Person(
                         null,
                         "Leonardo",
                         "di ser Piero",
                         "da Vinci",
-                        "(099)999-1111",
-                        UUID.randomUUID().toString()),
+                        "(099)999-1111"),
                 "Teacher",
                 Arrays.asList("Anatomy and physiology", "Rocket Science"));
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
     }
 
-    private void createUser(String email, String password, String role) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setEmail(email);
-        userDTO.setPassword(password);
-        User user = userService.createNewUser(userDTO);
-        user = addUserNewRoleByName(user, role);
-    }
-
-    private void createTeacher(Person person, String officerName, List<String> subjectsNames) {
+    private Teacher createTeacher(Person person, String officerName, List<String> subjectsNames) {
         Teacher teacher = new Teacher(
                 person.getId(),
-                person.getUser(),
                 person.getFirstName(),
                 person.getPatronymicName(),
                 person.getLastName(),
                 person.getPhoneNumber(),
-                person.getVerificationKey(),
                 officerName,
                 new HashSet<>());
+        teacherService.saveOrUpdateTeacher(teacher);
+
         for (String subjectName : subjectsNames) {
             SchoolSubject subject = new SchoolSubject();
             subject.setName(subjectName);
+            StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
+            plan.setHoursPerSemesterOne(2);
+            plan.setHoursPerSemesterTwo(2);
+            plan.setExamSemesterOne(true);
+            plan.setExamSemesterTwo(true);
+            subject.addPlan(plan);
             schoolSubjectService.saveOrUpdateSubject(subject);
             teacher.addSubject(subject);
         }
-        teacherService.saveOrUpdateTeacher(teacher);
-    }
 
+        return teacher;
+    }
+    
     private void createScheduleEventType() {
         ScheduleEventType eventType = new ScheduleEventType("TestEvent", 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
         eventType = this.eventTypeRepository.save(eventType);
-    }
-
-    //TODO Move to User Service
-    private User addUserNewRoleByName(User user, String name) {
-        Role role = roleService.getRoleByName(name);
-        user.addRole(role);
-
-        return userRepository.save(user);
     }
 }
