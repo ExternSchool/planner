@@ -7,7 +7,9 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
@@ -29,17 +31,20 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final SchoolSubjectService schoolSubjectService;
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final VerificationKeyService verificationKeyService;
+    private final RoleService roleService;
 
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
                                   final ScheduleEventTypeRepository eventTypeRepository,
-                                  final VerificationKeyService verificationKeyService) {                                  
+                                  final VerificationKeyService verificationKeyService,
+                                  final RoleService roleService) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
         this.verificationKeyService = verificationKeyService;
         this.eventTypeRepository = eventTypeRepository;
+        this.roleService = roleService;
     }
 
     @Override
