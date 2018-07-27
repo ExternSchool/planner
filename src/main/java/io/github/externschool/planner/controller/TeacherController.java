@@ -1,7 +1,6 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.TeacherDTO;
-import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.SchoolSubjectService;
@@ -17,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -28,8 +25,6 @@ public class TeacherController {
     private final SchoolSubjectService subjectService;
     private final ConversionService conversionService;
     private final VerificationKeyService keyService;
-
-    private List<SchoolSubject> allSubjects;
 
     public TeacherController(final TeacherService teacherService,
                              final SchoolSubjectService subjectService,
@@ -46,7 +41,7 @@ public class TeacherController {
         return new ModelAndView(
                 "teacher/teacher_list",
                 "teachers",
-                teacherService.findAllByOrderByLastNameAsc().stream()
+                teacherService.findAllByOrderByLastName().stream()
                         .map(t -> conversionService.convert(t, TeacherDTO.class))
                         .collect(Collectors.toList()));
     }
@@ -60,6 +55,7 @@ public class TeacherController {
 
     @PostMapping("/add")
     public ModelAndView add() {
+
         return show(new TeacherDTO());
     }
 
@@ -73,16 +69,6 @@ public class TeacherController {
         }
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
-
-        if (allSubjects != null && !allSubjects.isEmpty()) {
-            Set<Long> selected = teacherDTO.getSchoolSubjects().stream()
-                    .map(SchoolSubject::getId)
-                    .collect(Collectors.toSet());
-            Set<SchoolSubject> subjects = allSubjects.stream()
-                    .filter(s -> selected.contains(s.getId()))
-                    .collect(Collectors.toSet());
-            subjects.forEach(teacher::addSubject);
-        }
 
         return new ModelAndView("redirect:/teacher/");
     }
@@ -115,8 +101,7 @@ public class TeacherController {
     private ModelAndView show(TeacherDTO teacherDTO) {
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
-        allSubjects = subjectService.findAllByOrderByNameAsc();
-        modelAndView.addObject("allSubjects", allSubjects);
+        modelAndView.addObject("allSubjects", subjectService.findAllByOrderByName());
 
         return modelAndView;
     }

@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public class PersonServiceImpl implements PersonService {
 
-   private PersonRepository personRepository;
+    private PersonRepository personRepository;
 
     public PersonServiceImpl(PersonRepository personRepository) {
         this.personRepository = personRepository;

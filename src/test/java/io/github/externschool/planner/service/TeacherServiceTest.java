@@ -12,14 +12,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestPlannerApplication.class)
@@ -40,8 +39,6 @@ public class TeacherServiceTest {
     public void setUp() {
         expectedTeacher = new Teacher();
         expectedTeacher.setLastName("LastName");
-
-        MockitoAnnotations.initMocks(this);
     }
 
     @Test
@@ -98,10 +95,10 @@ public class TeacherServiceTest {
     public void shouldReturnSortedList_whenFindAllByOrderByLastNameAsc() {
         List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
 
-        Mockito.when(teacherRepository.findAllByOrderByLastNameAsc())
+        Mockito.when(teacherRepository.findAllByOrderByLastName())
                 .thenReturn(expectedList);
 
-        List<Teacher> actualList = teacherService.findAllByOrderByLastNameAsc();
+        List<Teacher> actualList = teacherService.findAllByOrderByLastName();
 
         assertThat(actualList)
                 .isNotNull()
@@ -111,7 +108,6 @@ public class TeacherServiceTest {
                 .isEqualTo(expectedList.get(0))
                 .isEqualToComparingFieldByField(expectedList.get(0));
     }
-
 
     @Test
     public void shouldReturnTeacher_whenSaveOrUpdateTeacher() {
@@ -131,5 +127,4 @@ public class TeacherServiceTest {
 
         teacherService.deleteTeacher(expectedTeacher.getId());
     }
-
 }

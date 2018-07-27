@@ -33,16 +33,11 @@ public class TeacherRepositoryTest {
 
     @Before
     public void setUp() {
-        firstTeacher = new Teacher(new Person(), "principal", new HashSet<>(), new HashSet<>());
-        firstTeacher.setOfficer("Psychologist");
+        firstTeacher = new Teacher(new Person(), "Psychologist", new HashSet<>(), new HashSet<>());
         firstTeacher.setLastName("C");
-
-        secondTeacher = new Teacher(new Person(), "", new HashSet<>(), new HashSet<>());
-        secondTeacher.setOfficer("Principal");
+        secondTeacher = new Teacher(new Person(), "Principal", new HashSet<>(), new HashSet<>());
         secondTeacher.setLastName("B");
-
-        thirdTeacher = new Teacher(new Person(), "chemist", new HashSet<>(), new HashSet<>());
-        thirdTeacher.setOfficer("Chemist");
+        thirdTeacher = new Teacher(new Person(), "Chemist", new HashSet<>(), new HashSet<>());
         thirdTeacher.setLastName("A");
 
         entityManager.persist(firstTeacher);
@@ -72,7 +67,7 @@ public class TeacherRepositoryTest {
 
     @Test
     public void shouldReturnSortedListOfTeacher() {
-        List<Teacher> teachers = this.repository.findAllByOrderByLastNameAsc();
+        List<Teacher> teachers = this.repository.findAllByOrderByLastName();
 
         assertThat(teachers)
                 .isNotNull()

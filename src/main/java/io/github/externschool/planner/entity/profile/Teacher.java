@@ -14,6 +14,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class Teacher extends Person {
     private Set<SchoolSubject> subjects = new HashSet<>();
 
     @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
-    @Cascade({CascadeType.SAVE_UPDATE, CascadeType.REMOVE})
+    @Cascade(CascadeType.SAVE_UPDATE)
     @Column(name = "courses")
     private Set<Course> courses = new HashSet<>();
 
@@ -79,7 +80,11 @@ public class Teacher extends Person {
     }
 
     public Set<SchoolSubject> getSubjects() {
-        return subjects;
+        return Collections.unmodifiableSet(subjects);
+    }
+
+    public void setSubjects(final Set<SchoolSubject> subjects) {
+        this.subjects = subjects;
     }
 
     public void addSubject(SchoolSubject subject) {
@@ -97,11 +102,7 @@ public class Teacher extends Person {
     }
 
     public Set<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(final Set<Course> courses) {
-        this.courses = courses;
+        return Collections.unmodifiableSet(courses);
     }
 
     public void addCourse(Course course) {

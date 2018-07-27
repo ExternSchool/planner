@@ -1,7 +1,6 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.TeacherDTO;
-import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.TeacherService;
 import org.hamcrest.Matchers;
@@ -18,15 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.net.ssl.SSLContext;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -86,14 +80,14 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
-        TeacherDTO teacherDTO = conversionService
-                .convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
+        TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
         mockMvc.perform(post("/teacher/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
-                .andExpect(model().attribute("teacher", teacherDTO))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeHasNoErrors("teacher"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
     }

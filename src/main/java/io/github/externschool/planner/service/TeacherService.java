@@ -7,15 +7,15 @@ import java.util.List;
 
 public interface TeacherService {
 
-    void deleteTeacher(Long id);
-
     Teacher findTeacherById(Long id);
-
-    Teacher saveOrUpdateTeacher(Teacher teacher);
 
     List<Teacher> findAllTeachers();
 
     List<Teacher> findAllBySubject(SchoolSubject subject);
 
-    List<Teacher> findAllByOrderByLastNameAsc();
+    List<Teacher> findAllByOrderByLastName();
+
+    Teacher saveOrUpdateTeacher(Teacher teacher);
+
+    void deleteTeacher(Long id);
 }

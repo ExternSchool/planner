@@ -1,6 +1,5 @@
 package io.github.externschool.planner.entity;
 
-import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -14,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -36,7 +37,8 @@ public class SchoolSubject {
     private Set<Teacher> teachers = new HashSet<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
-    @Column(name = "plans")
+    @Cascade(CascadeType.ALL)
+    @Column(name = "plan_id")
     private Set<StudyPlan> plans = new HashSet<>();
 
     public SchoolSubject() {
@@ -63,11 +65,7 @@ public class SchoolSubject {
     }
 
     public Set<StudyPlan> getPlans() {
-            return plans;
-    }
-
-    public void setPlans(final Set<StudyPlan> plans) {
-        this.plans = plans;
+        return Collections.unmodifiableSet(plans);
     }
 
     public void addPlan(StudyPlan plan) {
@@ -85,19 +83,18 @@ public class SchoolSubject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final SchoolSubject subject = (SchoolSubject) o;
-        return Objects.equals(name, subject.name);
+        return Objects.equals(id, subject.id) &&
+                Objects.equals(name, subject.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name);
+        return Objects.hash(id, name);
     }
 
     @Override
     public String toString() {
-        return "SchoolSubject{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        //Please do not change - parsing with SchoolSubjectFormatter
+        return id != null ? id.toString() + (name != null ? " " + name.toString() : ""): "";
     }
 }

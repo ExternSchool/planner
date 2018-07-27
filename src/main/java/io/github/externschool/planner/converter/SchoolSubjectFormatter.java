@@ -1,6 +1,8 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.service.SchoolSubjectService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.Formatter;
 import org.springframework.stereotype.Service;
 
@@ -9,18 +11,14 @@ import java.util.Locale;
 
 @Service
 public class SchoolSubjectFormatter implements Formatter<SchoolSubject> {
+    @Autowired
+    private SchoolSubjectService subjectService;
 
     @Override
     public SchoolSubject parse(final String s, final Locale locale) throws ParseException {
-        SchoolSubject subject = new SchoolSubject();
-        try {
-            Long id = Long.parseLong(s);
-            subject.setId(id);
-        } catch (NumberFormatException e) {
-            throw new ParseException(e.getMessage(), 1);
-        }
+        Long id = Long.parseLong(s);
 
-        return subject;
+        return subjectService.findSubjectById(id);
     }
 
     @Override

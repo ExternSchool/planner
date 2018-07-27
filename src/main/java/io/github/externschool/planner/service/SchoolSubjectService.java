@@ -8,10 +8,13 @@ public interface SchoolSubjectService {
 
     SchoolSubject findSubjectById(Long id);
 
-    List<SchoolSubject> findAllByOrderByNameAsc();
+    SchoolSubject findSubjectByName(final String name);
+
+    List<SchoolSubject> findAllByOrderByName();
+
+    List<SchoolSubject> findAllById(List<Long> indices);
 
     SchoolSubject saveOrUpdateSubject(SchoolSubject schoolSubject);
 
     void deleteSubject(Long id);
-
 }
