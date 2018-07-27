@@ -31,9 +31,10 @@
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guest Profile</small></h4>
     <fieldset>
         <form th:method="post" th:action="@{/guest/update}" th:object="${person}" class="form" id="form">
+            <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
             <div class="form-row">
-                <div class=" col-lg-6">
+                <div class="col-lg-6 mx-auto">
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
@@ -49,29 +50,18 @@
                         <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
                                th:field="*{patronymicName}" required>
                     </div>
-
-                    <div class="row">
-                        <div class="form-group col-lg-6">
-                            <label for="phone">Phone Number</label>
-                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
-                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
-                                   id="phone" th:field="*{phoneNumber}" required>
-                        </div>
-                        <div class="form-group col-lg-6">
-                        </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
+                               pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
+                               id="phone" th:field="*{phoneNumber}" required>
                     </div>
-                </div>
-                <div class=" col-lg-6">
                     <div class="form-group">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}" readonly
+                            <input class="form-control" type="text" id="key" th:field="*{verificationKey.value}"
+                                   th:readonly="${isNew}"
                                    placeholder="A key provided by the school to link the user with a real person data">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey">
-                                    Generate New Key
-                                </button>
-                            </div>
                         </div>
                     </div>
                     <div class="form-group row">

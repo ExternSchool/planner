@@ -5,6 +5,8 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+
 @Component
 public class TeacherToTeacherDTO implements Converter<Teacher, TeacherDTO> {
 
@@ -18,7 +20,7 @@ public class TeacherToTeacherDTO implements Converter<Teacher, TeacherDTO> {
         teacherDTO.setLastName(teacher.getLastName());
         teacherDTO.setPhoneNumber(teacher.getPhoneNumber());
         teacherDTO.setOfficer(teacher.getOfficer());
-        teacherDTO.setSchoolSubjects(teacher.getSubjects());
+        teacherDTO.setSchoolSubjects(new HashSet<>(teacher.getSubjects()));
 
         return teacherDTO;
     }

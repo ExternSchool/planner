@@ -46,7 +46,7 @@ public class StudentConvertersTest {
         expectedStudent.setDateOfBirth(dateOfBirth);
         expectedStudent.setGender(gender);
         expectedStudent.setAddress(address);
-        expectedStudent.setGradeLevel(gradeLevel.ordinal());
+        expectedStudent.setGradeLevel(gradeLevel);
 
         expectedDTO = new StudentDTO();
         expectedDTO.setVerificationKey(verificationKey);

@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StudentServiceTest {
 
@@ -74,10 +74,10 @@ public class StudentServiceTest {
         List<Student> expectedList = new ArrayList<>();
         expectedList.add(expectedStudent);
 
-        Mockito.when(studentRepository.findAllByOrderByLastNameAsc())
+        Mockito.when(studentRepository.findAllByOrderByLastName())
                 .thenReturn(expectedList);
 
-        List<Student> actualList = studentService.findAllByOrderByLastNameAsc();
+        List<Student> actualList = studentService.findAllByOrderByLastName();
 
         assertThat(actualList)
                 .isNotNull()

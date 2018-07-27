@@ -13,9 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -59,9 +58,9 @@ public class PersonServiceTest {
 
     @Test
     public void shouldReturnAllPerson_WhenFindAll(){
-        Mockito.when(personRepository.findAllByOrderByLastNameAsc())
+        Mockito.when(personRepository.findAllByOrderByLastName())
                 .thenReturn(personList);
-        List<Person> expectedPersonList = personService.findAllByOrderByNameAsc();
+        List<Person> expectedPersonList = personService.findAllByOrderByName();
 
         assertThat(expectedPersonList).isNotNull();
         assertThat(expectedPersonList.contains(firstPerson)).isTrue();
@@ -70,11 +69,11 @@ public class PersonServiceTest {
 
     @Test
     public void shouldReturnPerson_whenFindById(){
-        Mockito.when(personRepository.findById(1L))
-                .thenReturn(Optional.ofNullable(firstPerson));
-        Optional<Person> foundPerson = personService.findPersonById(1L);
+        Mockito.when(personRepository.findPersonById(1L))
+                .thenReturn(firstPerson);
+        Person foundPerson = personService.findPersonById(1L);
 
-        assertThat(foundPerson.get()).isEqualTo(firstPerson);
+        assertThat(foundPerson).isEqualTo(firstPerson);
     }
 
     @Test

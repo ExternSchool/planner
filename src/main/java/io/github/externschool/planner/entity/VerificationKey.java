@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -21,12 +22,12 @@ public class VerificationKey {
     private Long id;
 
     @Column(name = "value")
-    private String value = UUID.randomUUID().toString();
+    private final String value = UUID.randomUUID().toString();
 
-    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.EAGER)
     private User user;
 
-    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.EAGER)
     private Person person;
 
     public VerificationKey() {
@@ -42,10 +43,6 @@ public class VerificationKey {
 
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 
     public User getUser() {
@@ -65,7 +62,21 @@ public class VerificationKey {
     }
 
     @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final VerificationKey key = (VerificationKey) o;
+        return Objects.equals(id, key.id) &&
+                Objects.equals(value, key.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, value);
+    }
+
+    @Override
     public String toString() {
-        return value;
+        return value != null ? value : "";
     }
 }

@@ -20,7 +20,7 @@ public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
         studentDTO.setDateOfBirth(student.getDateOfBirth());
         studentDTO.setGender(student.getGender());
         studentDTO.setAddress(student.getAddress());
-        studentDTO.setGradeLevel(student.getGradeLevel());
+        studentDTO.setGradeLevel(student.getGradeLevel().getValue());
 
         return studentDTO;
     }

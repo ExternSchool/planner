@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 
 import java.util.List;
@@ -10,10 +11,11 @@ public interface TeacherService {
 
     List<Teacher> findAllTeachers();
 
-    List<Teacher> findAllByOrderByLastNameAsc();
+    List<Teacher> findAllBySubject(SchoolSubject subject);
+
+    List<Teacher> findAllByOrderByLastName();
 
     Teacher saveOrUpdateTeacher(Teacher teacher);
 
     void deleteTeacher(Long id);
-
 }

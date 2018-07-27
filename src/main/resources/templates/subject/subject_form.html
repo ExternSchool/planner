@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
->
+      xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Grade page</title>
@@ -45,8 +44,7 @@
                     </div>
                 </form>
 
-                <form name="delete_form" action="#" th:action="@{/subject/delete}" th:object="${deleteSubj}"
-                      th:method="delete">
+                <form name="delete_form" action="#" th:action="@{/subject/delete}" th:object="${deleteSubj}" th:method="get">
                     <div class="form-group">
                         <div class="input-group">
                             <select class="form-control" name="deleteSubj" id="deleteSubj" size="13" th:field="*{id}">

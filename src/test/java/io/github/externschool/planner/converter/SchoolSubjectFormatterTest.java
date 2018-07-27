@@ -1,6 +1,7 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.service.SchoolSubjectService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,18 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class SchoolSubjectFormatterTest {
     @Autowired
     private SchoolSubjectFormatter formatter;
+    @Autowired
+    private SchoolSubjectService subjectService;
 
     @Test
     public void shouldReturnSameSubjectById_whenRunnedParsePrint() throws ParseException {
         SchoolSubject expectedSubject = new SchoolSubject();
-        Long id = 100L;
-        expectedSubject.setId(id);
+        subjectService.saveOrUpdateSubject(expectedSubject);
+        Long id = expectedSubject.getId();
         Locale locale = new Locale("ru");
 
-        SchoolSubject actualSubject = formatter.parse(formatter.print(expectedSubject, locale), locale);
+        String printed = formatter.print(expectedSubject, locale);
+        SchoolSubject actualSubject = formatter.parse(printed, locale);
 
         assertThat(actualSubject)
                 .isNotNull()

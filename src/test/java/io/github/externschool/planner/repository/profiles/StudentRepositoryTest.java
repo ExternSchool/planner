@@ -1,5 +1,6 @@
 package io.github.externschool.planner.repository.profiles;
 
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -33,17 +34,17 @@ public class StudentRepositoryTest {
     public void setUp() {
         student1 = new Student();
         student1.setGender(Gender.FEMALE);
-        student1.setGradeLevel(1);
+        student1.setGradeLevel(GradeLevel.LEVEL_1);
         student1.setLastName("C");
 
         student2 = new Student();
         student2.setGender(Gender.MALE);
-        student2.setGradeLevel(2);
+        student2.setGradeLevel(GradeLevel.LEVEL_2);
         student2.setLastName("B");
 
         student3 = new Student();
         student3.setGender(Gender.MALE);
-        student3.setGradeLevel(1);
+        student3.setGradeLevel(GradeLevel.LEVEL_3);
         student3.setLastName("A");
 
         entityManager.persist(student1);
@@ -74,14 +75,13 @@ public class StudentRepositoryTest {
     }
 
     @Test
-    public void shouldReturnSortedListOfStudent_whenFindAllByOrderByLastNameAsc() {
-        List<Student> students = this.repository.findAllByOrderByLastNameAsc();
+    public void shouldReturnSortedListOfStudent_whenFindAllByOrderByLastName() {
+        List<Student> students = this.repository.findAllByOrderByLastName();
 
         assertThat(students)
                 .isNotNull()
                 .hasSize(3)
                 .containsSubsequence(student3, student2, student1);
     }
-
 }
 
