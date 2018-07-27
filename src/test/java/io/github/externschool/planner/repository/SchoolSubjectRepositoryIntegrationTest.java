@@ -1,7 +1,10 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import org.junit.After;
+import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import io.github.externschool.planner.service.SchoolSubjectService;
+import io.github.externschool.planner.service.SchoolSubjectServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,40 +24,90 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 public class SchoolSubjectRepositoryIntegrationTest {
     @Autowired
-    private SchoolSubjectRepository repository;
+    private SchoolSubjectRepository subjectRepository;
+
+    @Autowired
+    private TeacherRepository teacherRepository;
 
     @Autowired
     private EntityManager entityManager;
 
+    private static final List<String> NAMES = Arrays.asList("History", "English", "Geometry");
+    private static final List<String> JOBS = Arrays.asList("Historian", "Linguist", "Mathematician");
+    private HashMap<SchoolSubject, Teacher> expectedSubjectTeacher;
+    private HashMap<Teacher, SchoolSubject> expectedTeacherSubject;
+
     @Before
     public void setUp() {
-        List<String> names = new ArrayList<>(Arrays.asList("Mathematics", "English", "Geometry"));
-        for (String name : names) {
+        expectedSubjectTeacher = new HashMap<>();
+        expectedTeacherSubject = new HashMap<>();
+        for (int i = 0; i < NAMES.size(); i++) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setName(NAMES.get(i));
             entityManager.persist(subject);
+
+            Teacher teacher = new Teacher();
+            teacher.setOfficer(JOBS.get(i));
+            teacher.addSubject(subject);
+            entityManager.persist(teacher);
+
+            expectedSubjectTeacher.put(subject, teacher);
+            expectedTeacherSubject.put(teacher, subject);
         }
     }
 
     @Test
-    public void shouldReturnPresetSubjects_WhenFindAll() {
-        List<String> names = new ArrayList<>(Arrays.asList("Mathematics", "English", "Geometry"));
-        List<SchoolSubject> subjects = readSubjects();
+    public void shouldReturnThreeSubjects_WhenFindAll() {
+        List<SchoolSubject> subjects = subjectRepository.findAll();
 
         assertThat(subjects)
                 .isNotEmpty()
                 .size().isEqualTo(3);
-        for (SchoolSubject subject: subjects) {
-            assertThat(names).contains(subject.getName());
-        }
+
+        subjects.forEach(subject -> assertThat(subject.getName())
+                .isIn(NAMES));
+    }
+
+    @Test
+    public void shouldCorrespondSubjectsToTeachers_WhenFindAll() {
+        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
+        List<Teacher> actualTeachers = teacherRepository.findAll();
+
+        assertThat(actualTeachers)
+                .isNotEmpty()
+                .size()
+                .isEqualTo(3)
+                .isEqualTo(actualSubjects.size());
+    }
+
+    @Test
+    public void shouldContainTeachers_WhenFindAllSubjects() {
+        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
+
+        actualSubjects.forEach(subject -> {
+            assertThat(subject.getTeachers())
+                    .hasSize(1)
+                    .containsExactly(expectedSubjectTeacher.get(subject));
+        });
+    }
+
+    @Test
+    public void shouldContainSubjects_WhenFindAllTeachers() {
+        List<Teacher> actualTeachers = teacherRepository.findAll();
+
+        actualTeachers.forEach(teacher -> {
+            assertThat(teacher.getSubjects())
+                    .hasSize(1)
+                    .containsExactly(expectedTeacherSubject.get(teacher));
+        });
     }
 
     @Test
     public void shouldAddOneSubject_WhenSaveNew() {
         SchoolSubject subject = new SchoolSubject();
         subject.setName("Algebra");
-        repository.save(subject);
-        List<SchoolSubject> subjects = readSubjects();
+        subjectRepository.save(subject);
+        List<SchoolSubject> subjects = subjectRepository.findAll();
 
         assertThat(subjects)
                 .contains(subject)
@@ -64,21 +118,12 @@ public class SchoolSubjectRepositoryIntegrationTest {
     public void shouldSubtractOneSubject_WhenDelete() {
         SchoolSubject subject = new SchoolSubject();
         subject.setName("Chemistry");
-        repository.save(subject);
-        repository.delete(subject);
-        List<SchoolSubject> subjects = readSubjects();
+        subjectRepository.save(subject);
+        subjectRepository.delete(subject);
+        List<SchoolSubject> subjects = subjectRepository.findAll();
 
         assertThat(subjects)
                 .doesNotContain(subject)
                 .size().isEqualTo(3);
-    }
-
-    @After
-    public void tearDown() {
-        repository.deleteAll();
-    }
-
-    private List<SchoolSubject> readSubjects() {
-        return new ArrayList<>(repository.findAll());
     }
 }

@@ -6,9 +6,15 @@ import io.github.externschool.planner.entity.VerificationKey;
 import java.util.List;
 
 public interface VerificationKeyService {
-    VerificationKey findKeyById(Long id);
-    List<VerificationKey> findAll();
-    VerificationKey saveOrUpdateKey(VerificationKey verificationKey);
     void deleteById(Long id);
+
+    VerificationKey findKeyById(Long id);
+
+    VerificationKey findKeyByValue(String value);
+
+    VerificationKey saveOrUpdateKey(VerificationKey verificationKey);
+
+    List<VerificationKey> findAll();
+
     PersonDTO setNewKeyToDTO(PersonDTO personDTO);
 }

@@ -69,28 +69,20 @@ public class ScheduleEventType {
         this.name = name;
     }
 
-    public Set<Role> getCreators() {
-        return creators;
-    }
-
-    public void setCreators(Set<Role> creators) {
-        this.creators = creators;
-    }
-
-    public Set<Role> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(Set<Role> participants) {
-        this.participants = participants;
-    }
-
     public Integer getCountOfParticipant() {
         return countOfParticipant;
     }
 
     public void setCountOfParticipant(Integer countOfParticipant) {
         this.countOfParticipant = countOfParticipant;
+    }
+
+    public Set<Role> getCreators() {
+        return creators;
+    }
+
+    public Set<Role> getParticipants() {
+        return participants;
     }
 
     @Override

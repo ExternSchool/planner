@@ -1,5 +1,6 @@
 package io.github.externschool.planner.factories.schedule;
 
+import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static io.github.externschool.planner.factories.UserFactory.createUser;
+import static io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory.SCHEDULE_EVENT_TYPE_NAME;
 import static io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory.createScheduleEventType;
 
 /**
@@ -40,5 +42,16 @@ public final class ScheduleEventFactory {
                 .withStartDateTime(LocalDateTime.of(EVENT_DATE, EVENT_START_TIME))
                 .withEndDateTime(LocalDateTime.of(EVENT_DATE, EVENT_END_TIME))
                 .build();
+    }
+
+    public static ScheduleEventReq createScheduleEventReq() {
+        return new ScheduleEventReq(
+                EVENT_TITLE,
+                EVENT_DESCRIPTION,
+                EVENT_LOCATION,
+                LocalDateTime.of(EVENT_DATE, EVENT_START_TIME),
+                LocalDateTime.of(EVENT_DATE, EVENT_END_TIME),
+                SCHEDULE_EVENT_TYPE_NAME
+        );
     }
 }

@@ -7,6 +7,8 @@ import io.github.externschool.planner.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
         return createUser(userDTO.getEmail(), userDTO.getPassword(), "ROLE_GUEST");
     }
 
+    @Transactional
     @Override
     public User createUser(String email, String password, String role) throws EmailExistsException {
         if (emailExists(email)) {

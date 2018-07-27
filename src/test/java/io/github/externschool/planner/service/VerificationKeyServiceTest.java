@@ -1,44 +1,47 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestPlannerApplication.class)
 public class VerificationKeyServiceTest {
 
-    @Mock
+    @MockBean
     private VerificationKeyRepository repository;
 
-    @InjectMocks
-    private VerificationKeyServiceImpl service;
+    @Autowired
+    private VerificationKeyService service;
 
     private VerificationKey expectedKey;
 
     @Before
     public void setUp() {
         expectedKey = new VerificationKey();
-        MockitoAnnotations.initMocks(this);
+        expectedKey.setId(1L);
     }
 
     @Test
     public void shouldReturnKey_whenFindKeyById() {
-        Mockito.when(repository.getById(expectedKey.getId()))
-                .thenReturn(expectedKey);
+        Mockito.when(repository.findById(expectedKey.getId()))
+                .thenReturn(Optional.of(expectedKey));
 
         VerificationKey actualKey = service.findKeyById(expectedKey.getId());
 
@@ -81,12 +84,14 @@ public class VerificationKeyServiceTest {
     }
 
     @Test
-    public void getNull_whenDeleteKey() {
-        repository.save(expectedKey);
-        repository.delete(expectedKey);
-        VerificationKey actualKey = repository.getById(expectedKey.getId());
+    public void shouldInvokeOnce_whenDeleteKey() {
+        Optional<VerificationKey> optional = Optional.of(expectedKey);
+        Mockito.when(repository.findById(expectedKey.getId()))
+                .thenReturn(optional)
+                .thenReturn(null);
 
-        assertThat(actualKey)
-                .isNull();
+        service.deleteById(expectedKey.getId());
+
+        verify(repository, times(1)).delete(expectedKey);
     }
 }

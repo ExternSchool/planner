@@ -10,13 +10,23 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepository;
 
-    public StudentServiceImpl(StudentRepository studentRepository) {
+    public StudentServiceImpl(final StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
     @Override
-    public Student findStudentById(Long id) {
+    public void deleteStudent(final Long id) {
+        studentRepository.deleteById(id);
+    }
+
+    @Override
+    public Student findStudentById(final Long id) {
         return studentRepository.findStudentById(id);
+    }
+
+    @Override
+    public Student saveOrUpdateStudent(final Student student) {
+        return studentRepository.save(student);
     }
 
     @Override
@@ -25,17 +35,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Student> findAllByOrderByLastNameAsc() {
-        return studentRepository.findAllByOrderByLastNameAsc();
-    }
-
-    @Override
-    public Student saveOrUpdateStudent(Student student) {
-        return studentRepository.save(student);
-    }
-
-    @Override
-    public void deleteStudent(Long id) {
-        studentRepository.deleteById(id);
+    public List<Student> findAllByOrderByLastName() {
+        return studentRepository.findAllByOrderByLastName();
     }
 }

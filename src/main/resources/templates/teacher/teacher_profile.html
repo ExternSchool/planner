@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
->
+      xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Teacher Profile</title>
@@ -87,7 +86,7 @@
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
                                     th:field="*{schoolSubjects}" size="10">
                                 <option th:each="subject : ${allSubjects}"
-                                        th:value="${subject.id}"
+                                        th:value="${{subject}}"
                                         th:text="${subject.name}">
                                     Subject
                                 </option>

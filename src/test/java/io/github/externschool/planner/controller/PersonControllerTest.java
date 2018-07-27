@@ -1,5 +1,6 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.service.PersonService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -8,7 +9,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,6 +19,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -32,13 +33,16 @@ public class PersonControllerTest {
     private WebApplicationContext webApplicationContext;
     @Autowired
     private PersonService personService;
-    @Autowired
-    private ConversionService conversionService;
 
     private MockMvc mockMvc;
 
+    private Person person;
+
     @Before
     public void setup(){
+        person = new Person();
+        person.setFirstName("SuchAStrangeLongName");
+        personService.saveOrUpdatePerson(person);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -51,7 +55,12 @@ public class PersonControllerTest {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")));
+                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(model().attributeExists("persons"))
+                .andExpect(model().attribute("persons",
+                        Matchers.hasItem(
+                                Matchers.<Person> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase("SuchAStrangeLongName")))));
     }
 
     @Test
