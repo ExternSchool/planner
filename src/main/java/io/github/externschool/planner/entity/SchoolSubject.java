@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -95,6 +94,6 @@ public class SchoolSubject {
     @Override
     public String toString() {
         //Please do not change - parsing with SchoolSubjectFormatter
-        return id != null ? id.toString() + (name != null ? " " + name.toString() : ""): "";
+        return id != null ? id.toString() + (name != null ? " " + name : ""): "";
     }
 }

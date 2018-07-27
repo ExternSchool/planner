@@ -66,7 +66,6 @@ public class CourseRepositoryTest {
             expectedCourses.add(course);
 
             teacher.addSubject(subject);
-//            entityManager.persist(teacher);
             teacher.addCourse(course);
         }
     }
