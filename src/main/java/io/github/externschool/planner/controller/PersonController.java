@@ -58,7 +58,6 @@ public class PersonController {
 
     @PostMapping("/add")
     public ModelAndView add(final Principal principal){
-
         final User user = userService.findUserByEmail(principal.getName());
 
         return show(new PersonDTO());
@@ -73,6 +72,8 @@ public class PersonController {
 
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView save(@ModelAttribute("person") PersonDTO personDTO) {
+        //TODO Fix this to save changed fields
+        //TODO Refactor this spaghetti style logic
         if (personDTO.getId() == null || personService.findPersonById(personDTO.getId()) == null) {
             personDTO.setVerificationKey(keyService.saveOrUpdateKey(personDTO.getVerificationKey()));
         } else {
@@ -98,12 +99,11 @@ public class PersonController {
         if (newKey != null) {
             VerificationKey foundKey = keyService.findKeyByValue(newKey.getValue());
             if (foundKey != null && !foundKey.getPerson().getClass().equals(Person.class)) {
-                //TODO make some magic binding this user to a new person
+                //TODO make some magic with binding this user to a new person
                 System.out.println("\n\nA New Profile for This User Found!!!\n\n");
             } else {
                 personDTO.setVerificationKey(
-                        personService.findPersonById(personDTO.getId())
-                                .getVerificationKey());
+                        personService.findPersonById(personDTO.getId()).getVerificationKey());
             }
         }
 
