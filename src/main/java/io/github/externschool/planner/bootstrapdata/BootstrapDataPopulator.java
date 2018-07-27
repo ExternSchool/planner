@@ -6,11 +6,11 @@ import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
-import io.github.externschool.planner.entity.course.CourseId;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.repository.CourseDetailsRepository;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import io.github.externschool.planner.service.SchoolSubjectService;
@@ -111,7 +111,7 @@ public class BootstrapDataPopulator implements InitializingBean {
 
         List<StudyPlan> plans = planRepository.findAllByGradeLevelOrderBySubject(student.getGradeLevel());
         for (StudyPlan plan : plans) {
-            Course course = new Course(new CourseId(student, plan));
+            Course course = new Course(student.getId(), plan.getId());
             courseRepository.save(course);
             SchoolSubject subj = plan.getSubject();
             Teacher t = teacherService.findAllBySubject(subj).get(0);

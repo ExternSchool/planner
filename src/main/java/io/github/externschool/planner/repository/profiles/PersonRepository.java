@@ -11,5 +11,5 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
     Person findPersonById(Long id);
 
-    List<Person> findAllByOrderByLastNameAsc();
+    List<Person> findAllByOrderByLastName();
 }

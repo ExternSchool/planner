@@ -58,9 +58,9 @@ public class PersonServiceTest {
 
     @Test
     public void shouldReturnAllPerson_WhenFindAll(){
-        Mockito.when(personRepository.findAllByOrderByLastNameAsc())
+        Mockito.when(personRepository.findAllByOrderByLastName())
                 .thenReturn(personList);
-        List<Person> expectedPersonList = personService.findAllByOrderByNameAsc();
+        List<Person> expectedPersonList = personService.findAllByOrderByName();
 
         assertThat(expectedPersonList).isNotNull();
         assertThat(expectedPersonList.contains(firstPerson)).isTrue();

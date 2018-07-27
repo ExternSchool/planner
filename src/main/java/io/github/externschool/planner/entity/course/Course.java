@@ -3,20 +3,23 @@ package io.github.externschool.planner.entity.course;
 import io.github.externschool.planner.entity.profile.Teacher;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Objects;
 
-@Entity(name = "Course")
+@Entity
 @Table(name = "course")
-public class Course {
+public class Course implements Serializable {
 
     @EmbeddedId
-    private CourseId courseId;
+    private CoursePK id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "teacher_id")
@@ -36,12 +39,16 @@ public class Course {
     private Course() {
     }
 
-    public Course(final CourseId courseId) {
-        this.courseId = courseId;
+    public Course(@NotNull final Long studentId, final Long planId) {
+        this.id = new CoursePK(studentId, planId);
     }
 
-    public CourseId getCourseId() {
-        return courseId;
+    public Long getStudentId() {
+        return id.getStudentId();
+    }
+
+    public Long getPlanId() {
+        return id.getPlanId();
     }
 
     public Teacher getTeacher() {
@@ -57,20 +64,71 @@ public class Course {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Course course = (Course) o;
-        return Objects.equals(courseId, course.courseId);
+        return Objects.equals(id, course.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(courseId);
+
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "Course{" +
-                "student=" + courseId.getStudentId() +
-                ", plan=" + courseId.getPlanId() +
+                "id=" + id +
                 ", teacher=" + teacher +
                 '}';
+    }
+
+    @Embeddable
+//    @SequenceGenerator(name = "SEQ_ID",  initialValue=1, allocationSize=100)
+    public static class CoursePK implements Serializable {
+
+        @NotNull
+        @Column(name = "student_id")
+        private Long studentId;
+
+        @NotNull
+        @Column(name = "plan_id")
+        private Long planId;
+
+        private CoursePK() {
+        }
+
+        CoursePK(@NotNull final Long studentId, @NotNull final Long planId) {
+            this.studentId = studentId;
+            this.planId = planId;
+        }
+
+        Long getStudentId() {
+            return studentId;
+        }
+
+        Long getPlanId() {
+            return planId;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final CoursePK coursePK = (CoursePK) o;
+            return Objects.equals(studentId, coursePK.studentId) &&
+                    Objects.equals(planId, coursePK.planId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(studentId, planId);
+        }
+
+        @Override
+        public String toString() {
+            return "CoursePK{" +
+                    "studentId=" + studentId +
+                    ", planId=" + planId +
+                    '}';
+        }
     }
 }

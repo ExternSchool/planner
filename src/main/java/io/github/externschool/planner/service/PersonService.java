@@ -10,7 +10,7 @@ public interface PersonService {
 
     Person findPersonById(Long id);
 
-    List<Person> findAllByOrderByNameAsc();
+    List<Person> findAllByOrderByName();
 
     void deletePerson(Long id);
 

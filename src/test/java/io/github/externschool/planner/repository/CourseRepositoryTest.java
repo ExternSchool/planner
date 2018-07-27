@@ -3,7 +3,6 @@ package io.github.externschool.planner.repository;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.course.Course;
-import io.github.externschool.planner.entity.course.CourseId;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
@@ -62,12 +61,12 @@ public class CourseRepositoryTest {
             entityManager.persist(plan);
             plans.add(plan);
 
-            Course course = new Course(new CourseId(student, plan));
+            Course course = new Course(student.getId(), plan.getId());
             entityManager.persist(course);
             expectedCourses.add(course);
 
             teacher.addSubject(subject);
-            entityManager.persist(teacher);
+//            entityManager.persist(teacher);
             teacher.addCourse(course);
         }
     }
@@ -84,8 +83,10 @@ public class CourseRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTwoCourses_whenFindByCourseId_PlanIdAndDeleteThisCourse() {
-        repository.delete(repository.findByCourseId_PlanId(expectedCourses.get(0).getCourseId().getPlanId()));
+    public void shouldReturnTwoCourses_whenFindByStudentIdAndPlanId_thenDeleteThisCourse() {
+        repository.delete(repository.findById_StudentIdAndId_PlanId(
+                expectedCourses.get(0).getStudentId(),
+                expectedCourses.get(0).getPlanId()));
         List<Course> actualCourses = repository.findAll();
 
         assertThat(actualCourses)
@@ -96,25 +97,23 @@ public class CourseRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTwoCourses_whenFindByCourseIdAndDeleteThisCourse() {
-        repository.delete(repository.findByCourseId(expectedCourses.get(0).getCourseId()));
+    public void shouldReturnEmptyList_whenFindAllByStudentId_thenDeleteTheseCourses() {
+        repository.deleteAll(repository.findAllById_StudentId(expectedCourses.get(0).getStudentId()));
         List<Course> actualCourses = repository.findAll();
 
         assertThat(actualCourses)
-                .containsAnyElementsOf(expectedCourses)
-                .size()
-                .isNotEqualTo(expectedCourses.size())
-                .isEqualTo(2);
+                .doesNotContainAnyElementsOf(expectedCourses)
+                .isEmpty();
     }
 
     @Test
-    public void shouldReturnThreeCourses_whenFindAllByCourseId_StudentId() {
-        List<Course> actualCourses = repository.findAllByCourseId_StudentId(student.getId());
+    public void shouldReturnCourse_whenFindAllByPlanId() {
+        List<Course> actualCourses = repository.findAllById_PlanId(plans.get(0).getId());
 
         assertThat(actualCourses)
                 .containsAnyElementsOf(expectedCourses)
                 .size()
-                .isEqualTo(3);
+                .isEqualTo(1);
     }
 
     @Test

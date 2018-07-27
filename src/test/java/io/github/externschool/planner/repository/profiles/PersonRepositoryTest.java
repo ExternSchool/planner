@@ -1,7 +1,7 @@
 package io.github.externschool.planner.repository.profiles;
 
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -23,24 +25,36 @@ public class PersonRepositoryTest {
     @Autowired
     TestEntityManager entityManager;
 
+    private List<Person> expectedPersons;
+
+    @Before
+    public void setUp() {
+        expectedPersons = new ArrayList<>();
+        List<String> names = Arrays.asList("A", "B", "C");
+        for (String name : names) {
+            Person person = new Person();
+            person.setLastName(name);
+            entityManager.persist(person);
+            expectedPersons.add(person);
+        }
+    }
+
     @Test
-    public void shouldReturnListOfPersons(){
+    public void shouldReturnOrderedListOfThreePersons_whenFindAllByOrderByLastName(){
+        List<Person> actualPersons = personRepository.findAll();
 
-        Person person1 = new Person();
-        person1.setFirstName("Dmytro");
-        person1.setLastName("Manzhula");
-
-        Person person2 = new Person();
-        person2.setFirstName("Vasia");
-        person2.setLastName("Pupkin");
-
-        entityManager.persist(person1);
-        entityManager.persist(person2);
-        List<Person> personList = personRepository.findAll();
-
-        assertThat(personList)
+        assertThat(actualPersons)
                 .isNotNull()
-                .hasSize(2)
-                .containsSubsequence(person1, person2);
+                .hasSize(3)
+                .containsSubsequence(expectedPersons);
+    }
+
+    @Test
+    public void shouldReturnPerson_whenFindPersonById() {
+        Person actualPerson = personRepository.findPersonById(expectedPersons.get(0).getId());
+
+        assertThat(actualPerson)
+                .isNotNull()
+                .isEqualTo(expectedPersons.get(0));
     }
 }

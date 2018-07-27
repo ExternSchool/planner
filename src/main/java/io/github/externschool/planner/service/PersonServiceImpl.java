@@ -26,8 +26,8 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<Person> findAllByOrderByNameAsc() {
-        return personRepository.findAllByOrderByLastNameAsc();
+    public List<Person> findAllByOrderByName() {
+        return personRepository.findAllByOrderByLastName();
     }
 
     @Override
