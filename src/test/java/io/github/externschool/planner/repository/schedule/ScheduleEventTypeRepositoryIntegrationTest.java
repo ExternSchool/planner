@@ -33,4 +33,16 @@ public class ScheduleEventTypeRepositoryIntegrationTest {
                 .isNotNull()
                 .containsExactlyInAnyOrder(ScheduleEventTypeFactory.createScheduleEventType());
     }
+
+    @Test
+    @Sql("/datasets/scheduleEventType/oneType.sql")
+    public void shouldReturnEventTypeByName() {
+        final ScheduleEventType eventType = this.repo.findByName(ScheduleEventTypeFactory.SCHEDULE_EVENT_TYPE_NAME);
+
+        final ScheduleEventType expectedType = ScheduleEventTypeFactory.createScheduleEventType();
+
+        assertThat(eventType)
+                .isNotNull()
+                .isEqualTo(expectedType);
+    }
 }
