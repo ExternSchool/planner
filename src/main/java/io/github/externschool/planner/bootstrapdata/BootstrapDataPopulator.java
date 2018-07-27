@@ -10,14 +10,17 @@ import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
-import io.github.externschool.planner.repository.CourseDetailsRepository;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
     private final TeacherService teacherService;
     private final SchoolSubjectService schoolSubjectService;
+    private final ScheduleEventTypeRepository eventTypeRepository;
     private final VerificationKeyService verificationKeyService;
     @Autowired
     private StudyPlanRepository planRepository;
@@ -42,21 +46,28 @@ public class BootstrapDataPopulator implements InitializingBean {
     @Autowired
     private CourseRepository courseRepository;
 
+    private final RoleService roleService;
+
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
-                                  final VerificationKeyService verificationKeyService) {
+                                  final ScheduleEventTypeRepository eventTypeRepository,
+                                  final VerificationKeyService verificationKeyService,
+                                  final RoleService roleService) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
         this.verificationKeyService = verificationKeyService;
+        this.eventTypeRepository = eventTypeRepository;
+        this.roleService = roleService;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        createScheduleEventType();
+      
         VerificationKey key = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(key);
-
         User user = userService.createUser("q@q", "q", "ROLE_ADMIN");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
@@ -151,5 +162,11 @@ public class BootstrapDataPopulator implements InitializingBean {
         }
 
         return teacher;
+    }
+    
+    private void createScheduleEventType() {
+        ScheduleEventType eventType = new ScheduleEventType("TestEvent", 1);
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType = this.eventTypeRepository.save(eventType);
     }
 }
