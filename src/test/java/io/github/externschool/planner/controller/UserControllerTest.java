@@ -79,9 +79,8 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupSuccessful() throws Exception {
-        UserDTO user = new UserDTO(new VerificationKey(),
+        UserDTO user = new UserDTO(1L, new VerificationKey(),
                 "user@x.com",
-                "(044)222-2222",
                 "!Qwert");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(mapUser(user)))
@@ -102,7 +101,6 @@ public class UserControllerTest {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         //map.add("verificationKey",user.getVerificationKey());
         map.add("email",user.getEmail());
-        map.add("phoneNumber", user.getPhoneNumber());
         map.add("password", user.getPassword());
 
         return map;
