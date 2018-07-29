@@ -63,7 +63,7 @@ public class PersonController {
         return show(new PersonDTO());
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id){
         personService.deletePerson(id);
 

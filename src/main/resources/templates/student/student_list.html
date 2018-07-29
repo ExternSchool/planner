@@ -59,9 +59,9 @@
                     </a>
                 </td>
                 <td>
-                    <a th:href="@{/student/{id}/delete(id=${student.id})}" class="btn btn-outline-danger">
+                    <form class="btn btn-outline-danger" th:action="@{/student/{id}/delete(id=${student.id})}" th:method="post">
                         <i class="fa fa-trash" aria-hidden="true"></i>
-                    </a>
+                    </form>
                 </td>
             </tr>
             </tbody>

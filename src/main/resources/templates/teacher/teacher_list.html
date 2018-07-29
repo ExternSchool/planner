@@ -61,7 +61,7 @@
                     </form>
                 </td>
                 <td>
-                    <form th:method="get" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
+                    <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-outline-danger">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>

@@ -53,9 +53,10 @@
             <tr th:each="subject : ${subjects}">
                 <td class="text-left col-lg-10" th:text="${subject.getName()}">Name</td>
                 <td>
-                    <a width="col-lg-2" th:href="@{/subject/{id}/delete(id=${subject.id})}" class="btn btn-outline-danger">
+                    <form class="btn btn-outline-danger" width="col-lg-2"
+                          th:action="@{/subject/{id}/delete(id=${subject.id})}" th:method="post">
                         <i class="fa fa-trash" aria-hidden="true"></i>
-                    </a>
+                    </form>
                 </td>
             </tr>
             </tbody>

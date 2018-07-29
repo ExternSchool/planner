@@ -85,7 +85,7 @@ public class TeacherController {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id) {
         teacherService.deleteTeacher(id);
 
