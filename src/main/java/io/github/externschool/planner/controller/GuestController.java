@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/guest")
-public class PersonController {
+public class GuestController {
 
     private final PersonServiceImpl personService;
     private final ConversionService conversionService;
     private final VerificationKeyService keyService;
     private final UserService userService;
 
-    public PersonController(final PersonServiceImpl personService,
-                            final ConversionService conversionService,
-                            final VerificationKeyService keyService,
-                            final UserService userService) {
+    public GuestController(final PersonServiceImpl personService,
+                           final ConversionService conversionService,
+                           final VerificationKeyService keyService,
+                           final UserService userService) {
         this.personService = personService;
         this.conversionService = conversionService;
         this.keyService = keyService;

@@ -25,6 +25,7 @@
     <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post">
         <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Log In</a>
         <h3 class="h3 mb-3 font-weight-normal">Please Sign Up</h3>
+        <!--<input type="hidden" th:field="*{id}"/>-->
         <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
                th:unless="${#httpServletRequest.getParameter('error') == null}">
             Show some error msg
