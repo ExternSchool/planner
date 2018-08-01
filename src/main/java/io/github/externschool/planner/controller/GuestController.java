@@ -89,7 +89,7 @@ public class GuestController {
         return new ModelAndView("redirect:/guest/");
     }
 
-    @GetMapping(value = "/update")
+    @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/guest/");
     }

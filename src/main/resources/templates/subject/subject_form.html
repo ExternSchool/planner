@@ -22,7 +22,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='subject')"/>
+    <div th:replace="fragments/header :: header(activeTab='subject')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -137,9 +137,7 @@
 <!--Footer content here-->
 <footer class="footer">
     <div class="container">
-        <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
-        </span>
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 

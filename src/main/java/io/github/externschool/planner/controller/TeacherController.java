@@ -80,7 +80,7 @@ public class TeacherController {
         return show(teacherDTO);
     }
 
-    @GetMapping(value = "/update")
+    @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/teacher/");
     }
