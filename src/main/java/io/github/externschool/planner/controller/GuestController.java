@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/guest")
-public class PersonController {
+public class GuestController {
 
     private final PersonServiceImpl personService;
     private final ConversionService conversionService;
     private final VerificationKeyService keyService;
     private final UserService userService;
 
-    public PersonController(final PersonServiceImpl personService,
-                            final ConversionService conversionService,
-                            final VerificationKeyService keyService,
-                            final UserService userService) {
+    public GuestController(final PersonServiceImpl personService,
+                           final ConversionService conversionService,
+                           final VerificationKeyService keyService,
+                           final UserService userService) {
         this.personService = personService;
         this.conversionService = conversionService;
         this.keyService = keyService;
@@ -63,7 +63,7 @@ public class PersonController {
         return show(new PersonDTO());
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id){
         personService.deletePerson(id);
 
@@ -89,7 +89,7 @@ public class PersonController {
         return new ModelAndView("redirect:/guest/");
     }
 
-    @GetMapping(value = "/update")
+    @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/guest/");
     }

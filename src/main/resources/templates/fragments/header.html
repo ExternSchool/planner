@@ -16,7 +16,7 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
-                    <a th:class="${activeTab == 'greeting'}? 'nav-link active' : 'nav-link'"
+                    <a th:class="${activeTab == 'main'}? 'nav-link active' : 'nav-link'"
                        href="/">Home</a>
                 </li>
 
@@ -24,6 +24,24 @@
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
                            href="/guest/">Guests</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                        <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/profile">My Guest Profile</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="/student/profile">My Student Profile</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/profile">My Teacher Profile</a>
                     </div>
                 </li>
                 <li class="nav-item">

@@ -80,12 +80,12 @@ public class TeacherController {
         return show(teacherDTO);
     }
 
-    @GetMapping(value = "/update")
+    @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id) {
         teacherService.deleteTeacher(id);
 

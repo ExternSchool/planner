@@ -17,7 +17,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='signup')"/>
+    <div th:replace="fragments/header :: header(activeTab='signup')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -25,6 +25,7 @@
     <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post">
         <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Log In</a>
         <h3 class="h3 mb-3 font-weight-normal">Please Sign Up</h3>
+        <!--<input type="hidden" th:field="*{id}"/>-->
         <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
                th:unless="${#httpServletRequest.getParameter('error') == null}">
             Show some error msg
@@ -64,9 +65,7 @@
 <!--Footer content here-->
 <footer class="footer">
     <div class="container">
-        <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
-        </span>
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 
