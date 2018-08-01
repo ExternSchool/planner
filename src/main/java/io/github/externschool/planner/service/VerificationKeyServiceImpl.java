@@ -18,13 +18,10 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         this.repository = verificationKeyRepository;
     }
 
-    @Override
     @Transactional
+    @Override
     public void deleteById(Long id) {
-        VerificationKey key = repository.findById(id).orElse(null);
-        if (key != null) {
-            repository.delete(key);
-        }
+        repository.findById(id).ifPresent(repository::delete);
     }
 
     @Override
@@ -47,8 +44,8 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.findAll();
     }
 
-    @Override
     @Transactional
+    @Override
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
         VerificationKey newKey = repository.save(new VerificationKey());
         VerificationKey oldKey = personDTO.getVerificationKey();

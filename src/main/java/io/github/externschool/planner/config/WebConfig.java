@@ -8,6 +8,8 @@ import io.github.externschool.planner.converter.StudentDTOToStudent;
 import io.github.externschool.planner.converter.StudentToStudentDTO;
 import io.github.externschool.planner.converter.TeacherDTOToTeacher;
 import io.github.externschool.planner.converter.TeacherToTeacherDTO;
+import io.github.externschool.planner.converter.UserDTOToUser;
+import io.github.externschool.planner.converter.UserToUserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
@@ -15,10 +17,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Autowired
-    private SchoolSubjectFormatter subjectFormatter;
-    @Autowired
-    private LocalDateFormatter localDateFormatter;
+    @Autowired private SchoolSubjectFormatter subjectFormatter;
+    @Autowired private LocalDateFormatter localDateFormatter;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -26,9 +26,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new TeacherDTOToTeacher());
         registry.addConverter(new PersonToPersonDTO());
         registry.addConverter(new PersonDTOToPerson());
-
         registry.addConverter(new StudentDTOToStudent());
         registry.addConverter(new StudentToStudentDTO());
+        registry.addConverter(new UserDTOToUser());
+        registry.addConverter(new UserToUserDTO());
 
         registry.addFormatter(subjectFormatter);
         registry.addFormatter(localDateFormatter);

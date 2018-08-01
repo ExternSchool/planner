@@ -97,7 +97,18 @@ public class PersonDTO {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "PersonDTO{" +
+                "id=" + id != null ? id.toString() : "" +
+                ", verificationKey=" + verificationKey != null ? verificationKey.toString() : "" +
+                ", firstName='" + firstName + '\'' +
+                ", patronymicName='" + patronymicName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }

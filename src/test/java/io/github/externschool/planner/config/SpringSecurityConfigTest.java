@@ -1,27 +1,21 @@
 package io.github.externschool.planner.config;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Collections;
-import java.util.HashSet;
-
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @AutoConfigureMockMvc
@@ -31,45 +25,28 @@ public class SpringSecurityConfigTest {
     @Autowired
     MockMvc mockMvc;
 
-    private UserDetails guestUserDetails;
-
-    @Before
-    public void setUp() {
-        guestUserDetails = new org.springframework.security.core.userdetails.User(
-                "guest@x.com",
-                "!Qwert",
-                true,
-                true,
-                true,
-                true,
-                new HashSet<GrantedAuthority>(Collections.singletonList(new SimpleGrantedAuthority("GUEST"))));
-    }
-
     @Test
-    public void shouldReturnAuthenticatedOk_WhenRequestAuthenticatedAndUserAuthorized() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/success")
-                .with(user(guestUserDetails));
-
-        mockMvc.perform(requestBuilder)
+    @WithMockUser(username="guest@x.com",roles={"GUEST"})
+    public void shouldReturnRedirection_WhenRequestAuthenticatedAndUserAuthorized() throws Exception {
+        mockMvc.perform(get("/guest/update"))
                 .andExpect(authenticated())
-                .andExpect(status().isOk());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
     }
 
     @Test
-    public void shouldReturnAuthenticatedForbidden_WhenRequestAuthenticatedAndUserUnauthorized() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/admin/**")
-                .with(user(guestUserDetails));
-
-        mockMvc.perform(requestBuilder)
+    @WithUserDetails(value="q@q", userDetailsServiceBeanName="userDetailsService")
+    public void shouldReturnRedirection_WhenRequestWithUserDetailsService() throws Exception {
+        mockMvc.perform(get("/guest/update"))
                 .andExpect(authenticated())
-                .andExpect(status().isForbidden());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
     }
 
     @Test
+    @WithAnonymousUser
     public void shouldRedirectToLogin_WhenGetRequestUnauthenticated() throws Exception {
-        mockMvc.perform(get("/success"))
+        mockMvc.perform(get("/guest/"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
     }

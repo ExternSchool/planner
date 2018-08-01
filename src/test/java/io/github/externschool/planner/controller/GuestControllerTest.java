@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class PersonControllerTest {
+public class GuestControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -64,7 +64,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "TEACHER")
+    @WithMockUser(roles = "GUEST")
     public void shouldReturnForbidden_wheRequestUnAuthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isForbidden());

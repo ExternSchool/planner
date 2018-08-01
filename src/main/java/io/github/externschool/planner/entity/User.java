@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
@@ -107,6 +108,10 @@ public class User implements Serializable {
         return verificationKey;
     }
 
+    public void setVerificationKey(final VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
+    }
+
     public void addVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
         if (verificationKey != null) {
@@ -152,5 +157,16 @@ public class User implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", version=" + version +
+                ", email='" + email + '\'' +
+                ", roles=" + roles.stream().map(Role::getName).collect(Collectors.joining(",")) +
+                ", verificationKey=" + (verificationKey != null ? verificationKey.getValue() : "") +
+                '}';
     }
 }

@@ -22,10 +22,10 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post">
+    <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post" id="form">
         <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Log In</a>
         <h3 class="h3 mb-3 font-weight-normal">Please Sign Up</h3>
-        <!--<input type="hidden" th:field="*{id}"/>-->
+        <input type="hidden" th:field="*{id}"/>
         <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
                th:unless="${#httpServletRequest.getParameter('error') == null}">
             Show some error msg
@@ -48,7 +48,7 @@
                 <input class="form-control" type="password" id="confirm_password" placeholder="Confirm Password" required>
             </div>
             <div class="form-group">
-                <input class="form-control" type="text" id="key" th:field="*{verificationKey}"
+                <input class="form-control" type="text" id="key" th:field="*{verificationKeyValue}"
                        placeholder="Verification Key" value="" title="Provided by the school to verify users">
             </div>
             <div class="checkbox mb-3">

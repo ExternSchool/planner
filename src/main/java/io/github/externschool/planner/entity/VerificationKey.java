@@ -77,6 +77,6 @@ public class VerificationKey {
 
     @Override
     public String toString() {
-        return value != null ? value : "";
+        return value;
     }
 }
