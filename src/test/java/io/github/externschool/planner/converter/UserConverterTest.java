@@ -50,17 +50,16 @@ public class UserConverterTest {
      public void shouldReturnUserDTO(){
           UserDTO actualDTO = conversionService.convert(expectedUser, UserDTO.class);
 
-          assertThat(actualDTO.getEmail().equals(userDTO.getEmail()));
-          assertThat(actualDTO.getVerificationKey().equals(userDTO.getVerificationKey()));
+          assertThat(actualDTO.getEmail()).isEqualTo(expectedUser.getEmail());
+          assertThat(actualDTO.getVerificationKey()).isEqualTo(expectedUser.getVerificationKey());
      }
 
      @Test
      public void shouldReturnExpectedUser(){
           User actualUser = conversionService.convert(userDTO, User.class);
 
-          assertThat(actualUser.getEmail().equals(userDTO.getPassword()));
-          assertThat(actualUser.getVerificationKey().equals(userDTO.getVerificationKey()));
-
+          assertThat(actualUser.getEmail()).isEqualTo(userDTO.getEmail());
+          assertThat(actualUser.getVerificationKey()).isEqualTo(userDTO.getVerificationKey());
           }
      }
 

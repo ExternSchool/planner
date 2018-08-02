@@ -61,7 +61,7 @@ public class PersonConvertersTest {
         Person actualPerson = conversionService.convert(personDTO, Person.class);
 
         assertThat(actualPerson).isNotNull()
-                .isEqualTo(actualPerson)
+                .isEqualTo(expectedPerson)
                 .isEqualToComparingFieldByFieldRecursively(expectedPerson);
     }
 }

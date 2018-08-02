@@ -17,8 +17,8 @@ public class UserDTOToUser implements Converter<UserDTO, User> {
     public User convert(UserDTO userDTO) {
         User user = new User();
         user.setId(userDTO.getId());
-        VerificationKey key = new VerificationKey();
 
+        VerificationKey key = userDTO.getVerificationKey();
         user.addVerificationKey(key);
         if(key != null && key.getPerson() != null){
             key.getPerson().addVerificationKey(key);
