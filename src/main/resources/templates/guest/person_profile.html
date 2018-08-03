@@ -59,20 +59,18 @@
                     <div class="form-group" th:if="${!isNew}">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="key" th:field="*{verificationKeyValue}"
+                            <input class="form-control" type="text" id="key" th:field="*{verificationKey.value}"
                                    placeholder="A key provided by the school to link the user with a real person data">
                         </div>
                     </div>
                     <div class="form-group" th:if="${isNew}">
-                        <input type="hidden" th:field="*{verificationKeyValue}"/>
+                        <input type="hidden" th:field="*{verificationKey.value}"/>
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-4" th:if="${!isNew}">
-                            <a href="/guest/update">
-                                <button class="btn btn-secondary btn-block" type="button">
-                                    Cancel
-                                </button>
-                            </a>
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
+                                Cancel
+                            </button>
                         </div>
                         <div class="col-lg-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">

@@ -14,7 +14,7 @@ public class TeacherToTeacherDTO implements Converter<Teacher, TeacherDTO> {
     public TeacherDTO convert(Teacher teacher) {
         TeacherDTO teacherDTO = new TeacherDTO();
         teacherDTO.setId(teacher.getId());
-        teacherDTO.setVerificationKeyValue(teacher.getVerificationKey().getValue());
+        teacherDTO.setVerificationKey(teacher.getVerificationKey());
         teacherDTO.setFirstName(teacher.getFirstName());
         teacherDTO.setPatronymicName(teacher.getPatronymicName());
         teacherDTO.setLastName(teacher.getLastName());

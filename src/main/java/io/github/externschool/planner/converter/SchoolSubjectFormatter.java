@@ -11,7 +11,8 @@ import java.util.Locale;
 
 @Service
 public class SchoolSubjectFormatter implements Formatter<SchoolSubject> {
-    @Autowired private SchoolSubjectService subjectService;
+    @Autowired
+    private SchoolSubjectService subjectService;
 
     @Override
     public SchoolSubject parse(final String s, final Locale locale) throws ParseException {
@@ -22,6 +23,6 @@ public class SchoolSubjectFormatter implements Formatter<SchoolSubject> {
 
     @Override
     public String print(final SchoolSubject subject, final Locale locale) {
-        return subject.getId() != null ? subject.getId().toString() : "";
+        return subject != null ? subject.getId().toString() : "";
     }
 }

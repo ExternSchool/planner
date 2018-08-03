@@ -1,6 +1,7 @@
 package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
@@ -17,14 +18,14 @@ public class TeacherDTO extends PersonDTO {
     }
 
     public TeacherDTO(final Long id,
-                      final String verificationKeyValue,
+                      final VerificationKey verificationKey,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
                       final String phoneNumber,
                       final String officer,
                       final Set<SchoolSubject> schoolSubjects) {
-        super(id, verificationKeyValue, firstName, patronymicName, lastName, phoneNumber);
+        super(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
         this.schoolSubjects = schoolSubjects;
     }

@@ -4,7 +4,6 @@ import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +18,13 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         this.repository = verificationKeyRepository;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteById(Long id) {
-        repository.findById(id).ifPresent(repository::delete);
+        VerificationKey key = repository.findById(id).orElse(null);
+        if (key != null) {
+            repository.delete(key);
+        }
     }
 
     @Override
@@ -35,12 +37,8 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.findByValue(value);
     }
 
-    @Transactional
     @Override
-    public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) throws KeyNotValidException {
-        if (verificationKey == null) {
-            throw new KeyNotValidException("An attempt to save NULL key");
-        }
+    public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) {
         return repository.save(verificationKey);
     }
 
@@ -49,11 +47,11 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.findAll();
     }
 
-    @Transactional
     @Override
+    @Transactional
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
         VerificationKey newKey = repository.save(new VerificationKey());
-        VerificationKey oldKey = findKeyByValue(personDTO.getVerificationKeyValue());
+        VerificationKey oldKey = personDTO.getVerificationKey();
         if (oldKey != null) {
             User oldUser = oldKey.getUser();
             Person oldPerson = oldKey.getPerson();
@@ -66,7 +64,7 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
             }
             deleteById(oldKey.getId());
         }
-        personDTO.setVerificationKeyValue(newKey.getValue());
+        personDTO.setVerificationKey(newKey);
 
         return personDTO;
     }

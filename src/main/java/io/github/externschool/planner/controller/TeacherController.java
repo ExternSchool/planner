@@ -8,6 +8,7 @@ import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,7 @@ public class TeacherController {
     }
 
     @GetMapping("/")
-    public ModelAndView displayTeacherList() {
+    public ModelAndView findAll() {
         return new ModelAndView(
                 "teacher/teacher_list",
                 "teachers",
@@ -46,26 +47,26 @@ public class TeacherController {
     }
 
     @PostMapping("/{id}")
-    public ModelAndView displayEditFormTeacherProfile(@PathVariable("id") Long id) {
+    public ModelAndView edit(@PathVariable("id") Long id) {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-        return showFormTeacherProfile(teacherDTO, false);
+        return show(teacherDTO);
     }
 
     @PostMapping("/add")
-    public ModelAndView displayAddFormTeacherProfile() {
-        return showFormTeacherProfile(new TeacherDTO(), true);
+    public ModelAndView add() {
+
+        return show(new TeacherDTO());
     }
 
     @PostMapping(value = "/update", params = "action=save")
-    public ModelAndView processSaveFormTeacherProfile(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
+    public ModelAndView save(@ModelAttribute("teacher") TeacherDTO teacherDTO, Model model) {
         if (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null) {
-//            if (teacherDTO.getVerificationKey() == null) {
-//                teacherDTO.setVerificationKey(new VerificationKey());
-//            }
-//            keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
+            if (teacherDTO.getVerificationKey() == null) {
+                teacherDTO.setVerificationKey(new VerificationKey());
+            }
+            keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
         }
-        //TODO Refactor this like in the Guest Controller
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 
@@ -73,19 +74,19 @@ public class TeacherController {
     }
 
     @PostMapping(value = "/update", params = "action=newKey")
-    public ModelAndView processNewKeyFormTeacherProfile(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
+    public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
         teacherDTO = setNewKey(teacherDTO);
 
-        return showFormTeacherProfile(teacherDTO, false);
+        return show(teacherDTO);
     }
 
-    @GetMapping(value = "/update")
-    public ModelAndView processCancelFormTeacherProfile() {
+    @PostMapping(value = "/update", params = "action=cancel")
+    public ModelAndView cancel() {
         return new ModelAndView("redirect:/teacher/");
     }
 
     @PostMapping("/{id}/delete")
-    public ModelAndView deleteTeacherProfile(@PathVariable("id") Long id) {
+    public ModelAndView delete(@PathVariable("id") Long id) {
         teacherService.deleteTeacher(id);
 
         return new ModelAndView("redirect:/teacher/");
@@ -97,12 +98,15 @@ public class TeacherController {
         return (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);
     }
 
-    private ModelAndView showFormTeacherProfile(TeacherDTO teacherDTO, Boolean isNew) {
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile",
-                "teacher", teacherDTO);
-        modelAndView.addObject("isNew", isNew);
+    private ModelAndView show(TeacherDTO teacherDTO) {
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
+        modelAndView.addObject("isNew", isNew(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByName());
 
         return modelAndView;
+    }
+
+    private Boolean isNew(TeacherDTO teacherDTO) {
+        return teacherService.findTeacherById(teacherDTO.getId()) == null;
     }
 }

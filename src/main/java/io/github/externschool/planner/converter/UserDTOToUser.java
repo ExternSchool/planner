@@ -12,10 +12,6 @@ public class UserDTOToUser implements Converter<UserDTO, User> {
     @Override
     public User convert(final UserDTO userDTO) {
         User user = new User();
-        user.setId(userDTO.getId());
-        user.addVerificationKey(keyService.findKeyByValue(userDTO.getVerificationKeyValue()));
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
 
         return user;
     }

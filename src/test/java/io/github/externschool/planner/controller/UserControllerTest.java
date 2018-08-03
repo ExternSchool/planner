@@ -1,7 +1,7 @@
 package io.github.externschool.planner.controller;
 
-import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.service.PersonService;
+import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.service.UserService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,10 +19,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -32,26 +31,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
-    @Autowired private WebApplicationContext wac;
+
+    @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
     @Before
     public void setup() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
+                .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
                 .build();
     }
 
+    //TODO /success is used as only secured access page available for now
+    //TODO refactor this to test authorization using another page when present, please
     @Test
-    @WithMockUser(roles = "ADMIN")
     public void shouldReturnsSuccessTemplate_WhenGetRequestAuthorized() throws Exception {
         mockMvc
-                .perform(get("/guest/"))
+                .perform(get("/success").with(
+                        user("admin@x.com").password("Admin1").roles("ADMIN")))
                 .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_list"))
+                .andExpect(view().name("success"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Guest List")));
+                .andExpect(content().string(Matchers.containsString("Successful Log in")));
     }
 
     @Test
@@ -71,18 +78,15 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldRedirectToLogin_WhenPostSignupParams() throws Exception {
-        User expectedUser = new User("user@x.com", "!Qwert");
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("email",expectedUser.getEmail());
-        map.add("password", expectedUser.getPassword());
+    public void shouldRedirectToLogin_WhenPostSignupSuccessful() throws Exception {
+        UserDTO user = new UserDTO(new VerificationKey(),
+                "user@x.com",
+                "(044)222-2222",
+                "!Qwert");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
+        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(mapUser(user)))
                 .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/login"))
-                .andExpect(view().name("redirect:/login"))
-                .andExpect(flash().attributeExists("email"))
-                .andExpect(flash().attribute("email", Matchers.equalTo(expectedUser.getEmail())));
+                .andExpect(redirectedUrl("/login"));
     }
 
     @Test
@@ -92,5 +96,15 @@ public class UserControllerTest {
                 .andExpect(view().name("login"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Login Form")));
+    }
+
+    private MultiValueMap<String, String> mapUser(UserDTO user) {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        //map.add("verificationKey",user.getVerificationKey());
+        map.add("email",user.getEmail());
+        map.add("phoneNumber", user.getPhoneNumber());
+        map.add("password", user.getPassword());
+
+        return map;
     }
 }

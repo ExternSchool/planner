@@ -12,7 +12,7 @@ public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
     public StudentDTO convert(final Student student) {
         StudentDTO studentDTO = new StudentDTO();
         studentDTO.setId(student.getId());
-        studentDTO.setVerificationKeyValue(student.getVerificationKey().getValue());
+        studentDTO.setVerificationKey(student.getVerificationKey());
         studentDTO.setFirstName(student.getFirstName());
         studentDTO.setPatronymicName(student.getPatronymicName());
         studentDTO.setLastName(student.getLastName());
