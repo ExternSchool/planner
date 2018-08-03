@@ -36,11 +36,13 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
+    @Transactional
     @Override
     public User createNewUser(final UserDTO userDTO) throws EmailExistsException {
         return createUser(userDTO.getEmail(), userDTO.getPassword(), "ROLE_GUEST");
     }
 
+    @Transactional
     @Override
     public User createUser(String email, String password, String role) throws EmailExistsException {
         if (emailExists(email)) {
