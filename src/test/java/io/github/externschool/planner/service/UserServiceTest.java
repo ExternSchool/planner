@@ -1,6 +1,5 @@
 package io.github.externschool.planner.service;
 
-import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -11,36 +10,38 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class UserServiceTest {
-    @Autowired
-    UserService userService;
+    @Mock private UserRepository userRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private RoleService roleService;
+    @InjectMocks private UserService userService = new UserServiceImpl(userRepository, roleService, passwordEncoder);
 
-    @MockBean
-    UserRepository userRepository;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @Rule public ExpectedException thrown = ExpectedException.none();
 
     private User expectedUser;
     private UserDTO userDTO;
+    private final String email = "dmytro@gmail.com";
+    private final Role role = new Role("ROLE_GUEST");
+    private final String password = "pass";
 
     @Before
     public void setUp() {
-        String email = "dmytro@gmail.com";
-        Role role = new Role("ROLE_GUEST");
-        String password = "OY&D3e45pieD%JN!F45KSidufh";
-
         userDTO = new UserDTO();
         userDTO.setEmail(email);
         userDTO.setPassword(password);
@@ -50,10 +51,8 @@ public class UserServiceTest {
         expectedUser.setPassword(password);
         expectedUser.addRole(role);
 
-        Mockito.when(userRepository.findByEmail(expectedUser.getEmail()))
-                .thenReturn(expectedUser);
-        Mockito.when(userRepository.save(expectedUser))
-                .thenReturn(expectedUser);
+        Mockito.when(userRepository.findByEmail(expectedUser.getEmail())).thenReturn(expectedUser);
+        Mockito.when(userRepository.save(expectedUser)).thenReturn(expectedUser);
     }
 
     @Test(expected = EmailExistsException.class)
@@ -62,19 +61,14 @@ public class UserServiceTest {
 
         assertThat(actualUser)
                 .isNotNull()
-                .hasFieldOrProperty("email")
-                .hasFieldOrProperty("password");
-        assertThat(actualUser.getEmail())
-                .isEqualTo(userDTO.getEmail());
-        assertThat(actualUser.getPassword())
-                .isEqualTo(userDTO.getPassword());
-        assertTrue(actualUser.getRoles()
-                .contains(new Role("ROLE_GUEST")));
+                .hasFieldOrPropertyWithValue("email", email)
+                .hasFieldOrPropertyWithValue("password", passwordEncoder.encode(password))
+                .hasFieldOrPropertyWithValue("roles", Collections.singleton(role));
     }
 
     @Test
     public void shouldReturnUser_WhenFindUserByEmail() {
-        User actualUser = userService.findUserByEmail(expectedUser.getEmail());
+        User actualUser = userService.findUserByEmail(email);
 
         assertThat(actualUser)
                 .isNotNull()

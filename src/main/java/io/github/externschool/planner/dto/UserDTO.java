@@ -1,10 +1,9 @@
 package io.github.externschool.planner.dto;
 
-import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -12,16 +11,9 @@ public class UserDTO implements Serializable {
     private Long id;
     @NotNull @NotEmpty private String email;
     @NotNull @NotEmpty String password;
-    @Pattern(regexp="(^$|.{36,36})", message="Key length should be 36 symbols") private String verificationKeyValue;
+    private VerificationKey verificationKey;
 
     public UserDTO() {
-    }
-
-    public UserDTO(User user) {
-        this.id = user.getId();
-        this.email = user.getEmail();
-        this.password = user.getPassword();
-        this.verificationKeyValue = user.getVerificationKey().getValue();
     }
 
     public Long getId() {
@@ -48,12 +40,12 @@ public class UserDTO implements Serializable {
         this.password = password;
     }
 
-    public String getVerificationKeyValue() {
-        return verificationKeyValue;
+    public VerificationKey getVerificationKey() {
+        return verificationKey;
     }
 
-    public void setVerificationKeyValue(final String verificationKeyValue) {
-        this.verificationKeyValue = verificationKeyValue;
+    public void setVerificationKey(final VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
     }
 
     @Override
@@ -63,13 +55,12 @@ public class UserDTO implements Serializable {
         final UserDTO userDTO = (UserDTO) o;
         return Objects.equals(id, userDTO.id) &&
                 Objects.equals(email, userDTO.email) &&
-                Objects.equals(password, userDTO.password) &&
-                Objects.equals(verificationKeyValue, userDTO.verificationKeyValue);
+                Objects.equals(password, userDTO.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, password, verificationKeyValue);
+        return Objects.hash(id, email, password);
     }
 
     @Override
@@ -78,7 +69,7 @@ public class UserDTO implements Serializable {
                 "id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", verificationKeyValue='" + verificationKeyValue + '\'' +
+                ", verificationKeyValue='" + (verificationKey == null ? "" : verificationKey.getValue()) + '\'' +
                 '}';
     }
 }

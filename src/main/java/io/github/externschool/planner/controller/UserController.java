@@ -65,8 +65,8 @@ public class UserController {
                                 .collect(Collectors.joining(", ")));
             }
             user = userService.createNewUser(userDTO);
-            if (userDTO.getVerificationKeyValue() != null && !userDTO.getVerificationKeyValue().isEmpty()) {
-                VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKeyValue());
+            if (userDTO.getVerificationKey() != null) {
+                VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
                 if (key == null) {
                     throw new KeyNotValidException("Entered key is not valid");
                 }
