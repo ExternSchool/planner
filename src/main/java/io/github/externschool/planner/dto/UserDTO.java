@@ -10,7 +10,7 @@ import java.util.Objects;
 public class UserDTO implements Serializable {
     private Long id;
     @NotNull @NotEmpty private String email;
-    @NotNull @NotEmpty String password;
+    @NotNull @NotEmpty private String password;
     private VerificationKey verificationKey;
 
     public UserDTO() {

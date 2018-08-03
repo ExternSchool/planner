@@ -40,4 +40,9 @@ public class Role {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "Role{" + name + '\'' + '}';
+    }
 }
