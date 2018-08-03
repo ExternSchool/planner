@@ -65,7 +65,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         createScheduleEventType();
-      
+
         VerificationKey key = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(key);
         User user = userService.createUser("q@q", "q", "ROLE_ADMIN");
