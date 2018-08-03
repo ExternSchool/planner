@@ -32,20 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
-
-    @Autowired
+    @Autowired private WebApplicationContext wac;
     private MockMvc mockMvc;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PersonService personService;
-    @Autowired
-    private WebApplicationContext webApplicationContext;
 
     @Before
     public void setup() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
+                .webAppContextSetup(wac)
                 .apply(springSecurity())
                 .build();
     }
@@ -88,11 +81,8 @@ public class UserControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(view().name("redirect:/login"))
-                .andExpect(flash().attributeExists("user"))
-                .andExpect(flash().attribute("user",
-                        Matchers.hasProperty("email", Matchers.equalTo(expectedUser.getEmail()))))
-                .andExpect(flash().attribute("user",
-                        Matchers.hasProperty("password", Matchers.equalTo(expectedUser.getPassword()))));
+                .andExpect(flash().attributeExists("email"))
+                .andExpect(flash().attribute("email", Matchers.equalTo(expectedUser.getEmail())));
     }
 
     @Test

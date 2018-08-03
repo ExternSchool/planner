@@ -1,5 +1,6 @@
 package io.github.externschool.planner.config;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -21,26 +28,40 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 public class SpringSecurityConfigTest {
+    @Autowired private WebApplicationContext wac;
+    private MockMvc mockMvc;
 
-    @Autowired
-    MockMvc mockMvc;
-
-    @Test
-    @WithMockUser(username="guest@x.com",roles={"GUEST"})
-    public void shouldReturnRedirection_WhenRequestAuthenticatedAndUserAuthorized() throws Exception {
-        mockMvc.perform(get("/guest/update"))
-                .andExpect(authenticated())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/guest/"));
+    @Before
+    public void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac)
+                .apply(springSecurity())
+                .build();
     }
 
     @Test
-    @WithUserDetails(value="q@q", userDetailsServiceBeanName="userDetailsService")
-    public void shouldReturnRedirection_WhenRequestWithUserDetailsService() throws Exception {
-        mockMvc.perform(get("/guest/update"))
+    @WithMockUser(username="admin@com",roles={"ADMIN"})
+    public void shouldReturnRedirection_WhenRequestAuthenticatedAndUserAuthorized() throws Exception {
+        mockMvc.perform(get("/guest/"))
+                .andExpect(authenticated())
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/person_list"))
+                .andExpect(model().attributeExists("persons"));
+    }
+
+    @Test
+    public void shouldReturnRedirection_WhenFormLogin() throws Exception {
+        mockMvc.perform(formLogin("/login").user("q@q").password("q"))
                 .andExpect(authenticated())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/guest/"));
+                .andExpect(redirectedUrl("/init"));
+    }
+
+    @Test
+    public void shouldReturnRedirection_WhenFormLogout() throws Exception {
+        mockMvc.perform(logout())
+                .andExpect(unauthenticated())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login?logout"));
     }
 
     @Test

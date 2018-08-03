@@ -20,8 +20,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class StudentConvertersTest {
-    @Autowired
-    ConversionService conversionService;
+    @Autowired private ConversionService conversionService;
+
     private Student expectedStudent;
     private StudentDTO expectedDTO;
 
@@ -49,7 +49,7 @@ public class StudentConvertersTest {
         expectedStudent.setGradeLevel(gradeLevel);
 
         expectedDTO = new StudentDTO();
-        expectedDTO.setVerificationKey(verificationKey);
+        expectedDTO.setVerificationKeyValue(verificationKey.getValue());
         expectedDTO.setFirstName(firstName);
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
@@ -58,7 +58,6 @@ public class StudentConvertersTest {
         expectedDTO.setGender(gender);
         expectedDTO.setAddress(address);
         expectedDTO.setGradeLevel(gradeLevel.ordinal());
-
     }
 
     @Test
@@ -78,6 +77,4 @@ public class StudentConvertersTest {
                 .isEqualTo(expectedStudent)
                 .isEqualToComparingFieldByField(expectedStudent);
     }
-
-
 }

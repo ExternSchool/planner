@@ -1,33 +1,28 @@
 package io.github.externschool.planner.dto;
 
-import io.github.externschool.planner.entity.VerificationKey;
-
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class PersonDTO {
     private Long id;
-    private VerificationKey verificationKey;
-    @NotNull
-    private String firstName;
-    @NotNull
-    private String patronymicName;
-    @NotNull
-    private String lastName;
-    @NotNull
-    private String phoneNumber;
+    private String verificationKeyValue;
+    @NotNull @NotEmpty private String firstName;
+    @NotNull @NotEmpty private String patronymicName;
+    @NotNull @NotEmpty private String lastName;
+    @NotNull @NotEmpty private String phoneNumber;
 
     public PersonDTO() {
     }
 
     public PersonDTO(final Long id,
-                     final VerificationKey verificationKey,
+                     final String verificationKeyValue,
                      final String firstName,
                      final String patronymicName,
                      final String lastName,
                      final String phoneNumber) {
         this.id = id;
-        this.verificationKey = verificationKey;
+        this.verificationKeyValue = verificationKeyValue;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
@@ -42,12 +37,12 @@ public class PersonDTO {
         this.id = id;
     }
 
-    public VerificationKey getVerificationKey() {
-        return verificationKey;
+    public String getVerificationKeyValue() {
+        return verificationKeyValue;
     }
 
-    public void setVerificationKey(VerificationKey verificationKey) {
-        this.verificationKey = verificationKey;
+    public void setVerificationKeyValue(final String verificationKeyValue) {
+        this.verificationKeyValue = verificationKeyValue;
     }
 
     public String getFirstName() {
@@ -88,7 +83,7 @@ public class PersonDTO {
         if (o == null || getClass() != o.getClass()) return false;
         PersonDTO personDTO = (PersonDTO) o;
         return Objects.equals(id, personDTO.id) &&
-                Objects.equals(verificationKey, personDTO.verificationKey) &&
+                Objects.equals(verificationKeyValue, personDTO.verificationKeyValue) &&
                 Objects.equals(firstName, personDTO.firstName) &&
                 Objects.equals(patronymicName, personDTO.patronymicName) &&
                 Objects.equals(lastName, personDTO.lastName) &&
@@ -97,14 +92,14 @@ public class PersonDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+        return Objects.hash(id, verificationKeyValue, firstName, patronymicName, lastName, phoneNumber);
     }
 
     @Override
     public String toString() {
         return "PersonDTO{" +
-                "id=" + id != null ? id.toString() : "" +
-                ", verificationKey=" + verificationKey != null ? verificationKey.toString() : "" +
+                "id=" + (id != null ? id.toString() : "") +
+                ", verificationKeyValue=" + verificationKeyValue +
                 ", firstName='" + firstName + '\'' +
                 ", patronymicName='" + patronymicName + '\'' +
                 ", lastName='" + lastName + '\'' +

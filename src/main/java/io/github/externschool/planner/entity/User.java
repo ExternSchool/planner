@@ -30,8 +30,8 @@ public class User implements Serializable {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @Version
-    private Long version;
+//    @Version
+//    private Long version;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -163,7 +163,7 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", version=" + version +
+//                ", version=" + version +
                 ", email='" + email + '\'' +
                 ", roles=" + roles.stream().map(Role::getName).collect(Collectors.joining(",")) +
                 ", verificationKey=" + (verificationKey != null ? verificationKey.getValue() : "") +

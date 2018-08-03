@@ -7,7 +7,7 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
-import io.github.externschool.planner.exceptions.KeyIsNotValidException;
+import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.UserService;
@@ -18,8 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -44,7 +43,7 @@ public class UserController {
         this.conversionService = conversionService;
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.GET)
+    @GetMapping(value = "/signup")
     public String displaySignUpForm(Model model) {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new UserDTO());
@@ -53,7 +52,7 @@ public class UserController {
         return "signup";
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
+    @PostMapping(value = "/signup")
     public ModelAndView processSignUpForm(@Valid UserDTO userDTO,
                                           BindingResult bindingResult,
                                           RedirectAttributes redirectAttributes) {
@@ -66,10 +65,10 @@ public class UserController {
                                 .collect(Collectors.joining(", ")));
             }
             user = userService.createNewUser(userDTO);
-            if (!userDTO.getVerificationKeyValue().isEmpty()) {
+            if (userDTO.getVerificationKeyValue() != null && !userDTO.getVerificationKeyValue().isEmpty()) {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKeyValue());
                 if (key == null) {
-                    throw new KeyIsNotValidException("Entered key is not valid");
+                    throw new KeyNotValidException("Entered key is not valid");
                 }
                 Person person = key.getPerson();
                 if (person != null && person.getClass() != Person.class) {
@@ -78,7 +77,7 @@ public class UserController {
                     userService.assignNewRolesByKey(user, key);
                 }
             }
-        } catch (BindingResultException | EmailExistsException | KeyIsNotValidException | RoleNotFoundException e) {
+        } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
             ModelAndView modelAndView = new ModelAndView("redirect:/signup");
             modelAndView.addObject("error", e.getMessage());
             redirectAttributes.addFlashAttribute("user", userDTO);
@@ -86,6 +85,7 @@ public class UserController {
             return modelAndView;
         }
         userService.saveOrUpdate(user);
+        redirectAttributes.addFlashAttribute("email", userDTO.getEmail());
 
         return new ModelAndView("redirect:/login");
     }

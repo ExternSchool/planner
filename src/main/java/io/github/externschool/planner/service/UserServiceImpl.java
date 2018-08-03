@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private RoleService roleService;
     private PasswordEncoder passwordEncoder;
-    private VerificationKeyService keyService;
 
     public UserServiceImpl(UserRepository userRepository,
                            RoleService roleService,
@@ -111,7 +110,15 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Transactional
+    @Override
+    public void deleteUser(final User user) {
+        user.removeVerificationKey();
+        userRepository.delete(user);
+    }
+
     private boolean emailExists(final String email) {
+        User user = userRepository.findByEmail(email);
         return userRepository.findByEmail(email) != null;
     }
 }

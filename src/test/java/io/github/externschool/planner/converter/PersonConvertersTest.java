@@ -17,9 +17,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = PlannerApplication.class)
 public class PersonConvertersTest {
+    @Autowired private ConversionService conversionService;
 
-    @Autowired
-    ConversionService conversionService;
     private Person expectedPerson;
     private PersonDTO personDTO;
 
@@ -46,7 +45,7 @@ public class PersonConvertersTest {
         personDTO.setPatronymicName(patronymicName);
         personDTO.setLastName(lastName);
         personDTO.setPhoneNumber(phoneNumber);
-        personDTO.setVerificationKey(verificationKey);
+        personDTO.setVerificationKeyValue(verificationKey.getValue());
     }
 
     @Test

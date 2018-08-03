@@ -13,4 +13,5 @@ public interface UserService {
     User saveOrUpdate(User user);
     User assignNewRole(User user, String role) throws RoleNotFoundException;
     User assignNewRolesByKey(User user, VerificationKey key) throws RoleNotFoundException;
+    void deleteUser(User user);
 }

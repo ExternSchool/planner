@@ -60,11 +60,12 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processSaveFormTeacherProfile(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
         if (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null) {
-            if (teacherDTO.getVerificationKey() == null) {
-                teacherDTO.setVerificationKey(new VerificationKey());
-            }
-            keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
+//            if (teacherDTO.getVerificationKey() == null) {
+//                teacherDTO.setVerificationKey(new VerificationKey());
+//            }
+//            keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
         }
+        //TODO Refactor this like in the Guest Controller
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 

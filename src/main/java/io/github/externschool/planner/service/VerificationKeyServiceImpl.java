@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +35,12 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.findByValue(value);
     }
 
+    @Transactional
     @Override
-    public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) {
+    public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) throws KeyNotValidException {
+        if (verificationKey == null) {
+            throw new KeyNotValidException("An attempt to save NULL key");
+        }
         return repository.save(verificationKey);
     }
 
@@ -48,7 +53,7 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     @Override
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
         VerificationKey newKey = repository.save(new VerificationKey());
-        VerificationKey oldKey = personDTO.getVerificationKey();
+        VerificationKey oldKey = findKeyByValue(personDTO.getVerificationKeyValue());
         if (oldKey != null) {
             User oldUser = oldKey.getUser();
             Person oldPerson = oldKey.getPerson();
@@ -61,7 +66,7 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
             }
             deleteById(oldKey.getId());
         }
-        personDTO.setVerificationKey(newKey);
+        personDTO.setVerificationKeyValue(newKey.getValue());
 
         return personDTO;
     }

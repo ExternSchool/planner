@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TeacherControllerIntegrationTest {
+public class TeacherControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
     @Autowired
@@ -59,7 +59,6 @@ public class TeacherControllerIntegrationTest {
                 .andExpect(content().string(Matchers.containsString("Teachers List")));
     }
 
-    //TODO Think about should a Teacher have access to /teacher/ folder when has no access to the link in the header
     @Test
     @WithMockUser(roles = "TEACHER")
     public void shouldReturnTeacherListTemplate_WhenRequestWithTeacherRole() throws Exception {
@@ -122,7 +121,7 @@ public class TeacherControllerIntegrationTest {
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
                         Matchers.hasProperty("verificationKey",
-                                Matchers.not(teacherDTO.getVerificationKey()))))
+                                Matchers.not(teacherDTO.getVerificationKeyValue()))))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
     }
@@ -130,8 +129,7 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
-        mockMvc.perform(post("/teacher/update")
-                .param("action", "cancel"))
+        mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }
