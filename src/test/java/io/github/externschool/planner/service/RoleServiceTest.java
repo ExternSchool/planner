@@ -1,40 +1,37 @@
 package io.github.externschool.planner.service;
 
-import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.RoleRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 public class RoleServiceTest {
+    @Mock private RoleRepository roleRepository;
+    private RoleService roleService;
 
-    @Autowired
-    private RoleServiceImpl roleService;
-
-    @MockBean
-    private RoleRepository roleRepository;
+    @Rule public ExpectedException thrown = ExpectedException.none();
 
     private Role role;
 
     @Before
     public void setup(){
+        roleService = new RoleServiceImpl(roleRepository);
         role = new Role("new_admin");
     }
 
     @Test
     public void getRoleByNameTest(){
-        Mockito.when(roleRepository.findByName("new_admin"))
-                .thenReturn(role);
-
+        Mockito.when(roleRepository.findByName("new_admin")).thenReturn(role);
         String roleName = "new_admin";
 
         Role expectedRole = roleService.getRoleByName("new_admin");
@@ -44,10 +41,12 @@ public class RoleServiceTest {
 
     @Test(expected = RoleNotFoundException.class)
     public void throwException_whenRoleDoesNotExist(){
-
         Mockito.when(roleRepository.findByName("fake_admin"))
                 .thenThrow(RoleNotFoundException.class);
 
         roleService.getRoleByName("fake_admin");
+
+        thrown.expect(RoleNotFoundException.class);
+        thrown.expectMessage("");
     }
 }

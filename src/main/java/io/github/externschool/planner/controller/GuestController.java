@@ -65,7 +65,7 @@ public class GuestController {
 
     @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id){
-        personService.deletePerson(id);
+        personService.deletePerson(personService.findPersonById(id));
 
         return new ModelAndView("redirect:/guest/");
     }

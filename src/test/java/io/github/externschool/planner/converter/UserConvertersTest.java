@@ -43,8 +43,10 @@ public class UserConvertersTest {
         expectedDTO = new UserDTO();
         expectedDTO.setId(1L);
         expectedDTO.setEmail(expectedUser.getEmail());
-        expectedDTO.setPassword(expectedUser.getPassword());
+        expectedDTO.setPassword("pass");
         expectedDTO.setVerificationKey(key);
+
+        expectedUser.setPassword(encoder.encode("pass"));
     }
 
     @Test
@@ -62,6 +64,6 @@ public class UserConvertersTest {
 
         assertThat(actualUser)
                 .isNotNull()
-                .isEqualToComparingFieldByField(expectedUser);
+                .isEqualToIgnoringGivenFields(expectedUser, "password");
     }
 }
