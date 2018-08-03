@@ -71,6 +71,7 @@ public class PersonServiceTest {
     public void shouldReturnPerson_whenFindById(){
         Mockito.when(personRepository.findPersonById(1L))
                 .thenReturn(firstPerson);
+
         Person foundPerson = personService.findPersonById(1L);
 
         assertThat(foundPerson).isEqualTo(firstPerson);
