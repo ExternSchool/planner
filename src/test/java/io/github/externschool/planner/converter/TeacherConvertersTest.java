@@ -67,8 +67,10 @@ public class TeacherConvertersTest {
     @Test
     public void shouldReturnExpectedDTO() {
         TeacherDTO actualDTO = conversionService.convert(expectedTeacher, TeacherDTO.class);
-        assertThat(actualDTO.getFirstName())
-                .isEqualTo(expectedDTO.getFirstName());
+        assertThat(actualDTO)
+                .isNotNull()
+                .isEqualTo(expectedDTO)
+                .isEqualToComparingFieldByField(expectedDTO);
     }
 
     @Test

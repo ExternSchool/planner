@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VerificationKeyRepository extends JpaRepository<VerificationKey, Long> {
 
-    VerificationKey getById(Long id);
+    VerificationKey findByValue(String value);
 }

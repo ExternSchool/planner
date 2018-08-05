@@ -1,8 +1,10 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,8 +27,13 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> findAllByOrderByLastNameAsc() {
-        return teacherRepository.findAllByOrderByLastNameAsc();
+    public List<Teacher> findAllBySubject(SchoolSubject subject) {
+        return teacherRepository.findAllBySubjectsContains(subject);
+    }
+
+    @Override
+    public List<Teacher> findAllByOrderByLastName() {
+        return teacherRepository.findAllByOrderByLastName();
     }
 
     @Override
@@ -34,9 +41,14 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.save(teacher);
     }
 
+    @Transactional
     @Override
     public void deleteTeacher(Long id) {
+        Teacher teacher = teacherRepository.getOne(id);
+        if (teacher != null) {
+            teacher.getSubjects().forEach(teacher::removeSubject);
+            teacher.getCourses().forEach(teacher::removeCourse);
+        }
         teacherRepository.deleteById(id);
     }
-
 }

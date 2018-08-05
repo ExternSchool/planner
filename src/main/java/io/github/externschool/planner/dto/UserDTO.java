@@ -2,52 +2,33 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.VerificationKey;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Objects;
 
-public class UserDTO {
-
+public class UserDTO implements Serializable {
     private Long id;
-
+    @NotNull @NotEmpty private String email;
+    @NotNull @NotEmpty private String password;
     private VerificationKey verificationKey;
 
-    @NotNull
-    private String email;
-
-    @NotNull
-    private String password;
-
     public UserDTO() {
-    }
-
-    public UserDTO(Long id, VerificationKey verificationKey,
-                   @NotNull String email, @NotNull String password) {
-        this.id = id;
-        this.verificationKey = verificationKey;
-        this.email = email;
-        this.password = password;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
-    }
-
-    public VerificationKey getVerificationKey() {
-        return verificationKey;
-    }
-
-    public void setVerificationKey(VerificationKey verificationKey) {
-        this.verificationKey = verificationKey;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -55,34 +36,40 @@ public class UserDTO {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "verificationKey='" + verificationKey + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+    public VerificationKey getVerificationKey() {
+        return verificationKey;
     }
 
+    public void setVerificationKey(final VerificationKey verificationKey) {
+        this.verificationKey = verificationKey;
+    }
+    
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        UserDTO userDTO = (UserDTO) o;
-
-        if (!email.equals(userDTO.email)) return false;
-        return password.equals(userDTO.password);
+        final UserDTO userDTO = (UserDTO) o;
+        return Objects.equals(id, userDTO.id) &&
+                Objects.equals(email, userDTO.email) &&
+                Objects.equals(password, userDTO.password);
     }
 
     @Override
     public int hashCode() {
-        int result = email.hashCode();
-        result = 31 * result + password.hashCode();
-        return result;
+        return Objects.hash(id, email, password);
+    }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", verificationKeyValue='" + (verificationKey == null ? "" : verificationKey.getValue()) + '\'' +
+                '}';
     }
 }

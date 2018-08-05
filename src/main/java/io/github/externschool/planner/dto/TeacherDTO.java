@@ -47,16 +47,25 @@ public class TeacherDTO extends PersonDTO {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TeacherDTO that = (TeacherDTO) o;
+        if (!super.equals(o)) return false;
+        final TeacherDTO that = (TeacherDTO) o;
         return Objects.equals(officer, that.officer) &&
                 Objects.equals(schoolSubjects, that.schoolSubjects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(officer, schoolSubjects);
+        return Objects.hash(super.hashCode(), officer, schoolSubjects);
+    }
+
+    @Override
+    public String toString() {
+        return "TeacherDTO{" +
+                "officer='" + officer + '\'' +
+                ", schoolSubjects=" + schoolSubjects.toString() +
+                '}';
     }
 }

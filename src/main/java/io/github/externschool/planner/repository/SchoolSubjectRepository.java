@@ -11,6 +11,5 @@ public interface SchoolSubjectRepository extends JpaRepository<SchoolSubject, Lo
 
     SchoolSubject findByName(String name);
 
-    List<SchoolSubject> findAllByOrderByNameAsc();
-
+    List<SchoolSubject> findAllByOrderByName();
 }

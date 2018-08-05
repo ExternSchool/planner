@@ -23,7 +23,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='subject')"/>
+    <div th:replace="fragments/header :: header(activeTab='subject')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -53,9 +53,10 @@
             <tr th:each="subject : ${subjects}">
                 <td class="text-left col-lg-10" th:text="${subject.getName()}">Name</td>
                 <td>
-                    <a width="col-lg-2" th:href="@{/subject/{id}/delete(id=${subject.id})}" class="btn btn-outline-danger">
+                    <form class="btn btn-outline-danger" width="col-lg-2"
+                          th:action="@{/subject/{id}/delete(id=${subject.id})}" th:method="post">
                         <i class="fa fa-trash" aria-hidden="true"></i>
-                    </a>
+                    </form>
                 </td>
             </tr>
             </tbody>
@@ -66,9 +67,7 @@
 <!--Footer content here-->
 <footer class="footer">
     <div class="container">
-        <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
-        </span>
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 

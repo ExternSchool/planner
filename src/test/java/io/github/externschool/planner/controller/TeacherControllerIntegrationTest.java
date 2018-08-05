@@ -78,14 +78,14 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
-        TeacherDTO teacherDTO = conversionService
-                .convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
+        TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
         mockMvc.perform(post("/teacher/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
-                .andExpect(model().attribute("teacher", teacherDTO))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeHasNoErrors("teacher"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
     }
@@ -128,7 +128,8 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
-        mockMvc.perform(get("/teacher/update"))
+        mockMvc.perform(post("/teacher/update")
+                .param("action", "cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }
@@ -141,7 +142,7 @@ public class TeacherControllerIntegrationTest {
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
-        mockMvc.perform(get("/teacher/{id}/delete", id))
+        mockMvc.perform(post("/teacher/{id}/delete", id))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
 

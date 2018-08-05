@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
->
+      xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Grade page</title>
@@ -23,12 +22,12 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='subject')"/>
+    <div th:replace="fragments/header :: header(activeTab='subject')"></div>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Subjects and Grades</small></h4>
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Correspondence of Subjects to Study Plans</small></h4>
     <fieldset>
         <div class="form-row">
             <div class=" col-lg-6">
@@ -45,8 +44,7 @@
                     </div>
                 </form>
 
-                <form name="delete_form" action="#" th:action="@{/subject/delete}" th:object="${deleteSubj}"
-                      th:method="delete">
+                <form name="delete_form" action="#" th:action="@{/subject/delete}" th:object="${deleteSubj}" th:method="post">
                     <div class="form-group">
                         <div class="input-group">
                             <select class="form-control" name="deleteSubj" id="deleteSubj" size="13" th:field="*{id}">
@@ -74,9 +72,9 @@
                     <input type="hidden" th:field="*{id}"/>
                     <div class="form-group">
                         <nav id="selector" aria-label="Grades navigation">
-                            <ul class="pagination justify-content-end">
+                            <ul class="pagination justify-content-end" style="vertical-align: middle;">
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#">#</a>
+                                    <a class="page-link" href="#">Grade</a>
                                 </li>
                                 <li th:class="*{id == 1}? 'page-item active' : 'page-item'">
                                     <a class="page-link" href="/subject/grade/1">1</a></li>
@@ -100,17 +98,18 @@
                                     <a class="page-link" href="/subject/grade/10">10</a></li>
                                 <li th:class="*{id == 11}? 'page-item active' : 'page-item'">
                                     <a class="page-link" href="/subject/grade/11">11</a></li>
-                                <li th:class="*{id == 12}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/subject/grade/12">12</a></li>
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">12</a></li>
                             </ul>
                         </nav>
                     </div>
+
                     <div class="form-group">
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
                                     th:field="${grade.subjects}" size="13">
                                 <option th:each="subject : ${subjects}"
-                                        th:value="${subject.id}"
+                                        th:value="${{subject}}"
                                         th:text="${subject.name}">
                                     Subject
                                 </option>
@@ -138,9 +137,7 @@
 <!--Footer content here-->
 <footer class="footer">
     <div class="container">
-        <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
-        </span>
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 

@@ -46,7 +46,7 @@ public class StudentConvertersTest {
         expectedStudent.setDateOfBirth(dateOfBirth);
         expectedStudent.setGender(gender);
         expectedStudent.setAddress(address);
-        expectedStudent.setGradeLevel(gradeLevel.ordinal());
+        expectedStudent.setGradeLevel(gradeLevel);
 
         expectedDTO = new StudentDTO();
         expectedDTO.setVerificationKey(verificationKey);
@@ -58,7 +58,6 @@ public class StudentConvertersTest {
         expectedDTO.setGender(gender);
         expectedDTO.setAddress(address);
         expectedDTO.setGradeLevel(gradeLevel.ordinal());
-
     }
 
     @Test
@@ -78,6 +77,4 @@ public class StudentConvertersTest {
                 .isEqualTo(expectedStudent)
                 .isEqualToComparingFieldByField(expectedStudent);
     }
-
-
 }

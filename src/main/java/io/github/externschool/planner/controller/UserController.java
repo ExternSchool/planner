@@ -1,32 +1,50 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
-import io.github.externschool.planner.service.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.github.externschool.planner.exceptions.KeyNotValidException;
+import io.github.externschool.planner.exceptions.RoleNotFoundException;
+import io.github.externschool.planner.service.PersonService;
+import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.stream.Collectors;
+
 @Controller
 public class UserController {
-    @Autowired
-    UserServiceImpl userService;
+    private final UserService userService;
+    private final VerificationKeyService keyService;
+    private final PersonService personService;
+    private final ConversionService conversionService;
 
-    //TODO remove this method when any page that requires authorisation is available, please
-    //TODO "success" form is now accessible with mapping only in test purpose
-    @RequestMapping("/success")
-    public String homeUser(Model model) {
-        model.addAttribute("user", new UserDTO());
-
-        return "success";
+    public UserController(final UserService userService,
+                          final VerificationKeyService keyService,
+                          final PersonService personService,
+                          final ConversionService conversionService) {
+        this.userService = userService;
+        this.keyService = keyService;
+        this.personService = personService;
+        this.conversionService = conversionService;
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.GET)
-    public String newUser(Model model) {
+    @GetMapping(value = "/signup")
+    public String displaySignUpForm(Model model) {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new UserDTO());
         }
@@ -34,16 +52,61 @@ public class UserController {
         return "signup";
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public ModelAndView saveOrUpdate(UserDTO userDTO, RedirectAttributes redirectAttributes) {
-        ModelAndView modelAndView = new ModelAndView();
-        redirectAttributes.addFlashAttribute("user", userDTO);
+    @PostMapping(value = "/signup")
+    public ModelAndView processSignUpForm(@Valid UserDTO userDTO,
+                                          BindingResult bindingResult,
+                                          RedirectAttributes redirectAttributes) {
+        User user = new User();
         try {
-            userService.createNewUser(userDTO);
-            modelAndView.setViewName("redirect:/login");
-        } catch (EmailExistsException e) {
+            if (bindingResult.hasErrors()) {
+                throw new BindingResultException(
+                        bindingResult.getAllErrors().stream()
+                                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                .collect(Collectors.joining(", ")));
+            }
+            user = userService.createNewUser(userDTO);
+            if (userDTO.getVerificationKey() != null) {
+                VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
+                if (key == null) {
+                    throw new KeyNotValidException("Entered key is not valid");
+                }
+                Person person = key.getPerson();
+                if (person != null && person.getClass() != Person.class) {
+                    userService.saveOrUpdate(user);
+                    user.addVerificationKey(key);
+                    userService.assignNewRolesByKey(user, key);
+                }
+            }
+        } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
+            ModelAndView modelAndView = new ModelAndView("redirect:/signup");
             modelAndView.addObject("error", e.getMessage());
-            modelAndView.setViewName("redirect:/signup");
+            redirectAttributes.addFlashAttribute("user", userDTO);
+
+            return modelAndView;
+        }
+        userService.saveOrUpdate(user);
+        redirectAttributes.addFlashAttribute("email", userDTO.getEmail());
+
+        return new ModelAndView("redirect:/login");
+    }
+
+    @GetMapping("/init")
+    public ModelAndView setUserProfile(final Principal principal) {
+        ModelAndView modelAndView = new ModelAndView();
+        User currentUser = userService.findUserByEmail(principal.getName());
+        if (currentUser.getVerificationKey() != null && currentUser.getVerificationKey().getPerson() != null) {
+            modelAndView.setViewName("redirect:/");
+        } else {
+            VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+            Person person = new Person();
+            person.addVerificationKey(key);
+            personService.saveOrUpdatePerson(person);
+            currentUser.addVerificationKey(key);
+            userService.saveOrUpdate(currentUser);
+
+            modelAndView.setViewName("/guest/person_profile");
+            modelAndView.addObject("person", conversionService.convert(person, PersonDTO.class));
+            modelAndView.addObject("isNew", true);
         }
 
         return modelAndView;

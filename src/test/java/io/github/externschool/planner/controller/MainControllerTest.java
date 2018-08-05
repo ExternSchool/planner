@@ -25,7 +25,7 @@ public class MainControllerTest {
     public void shouldReturnsGreetingViewStatusOk_whenRootPageRequested() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("greeting"))
+                .andExpect(view().name("main"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Extern School")));
     }

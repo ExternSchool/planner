@@ -6,47 +6,57 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class VerificationKeyServiceImpl implements VerificationKeyService {
-    private VerificationKeyRepository keyRepository;
+    private VerificationKeyRepository repository;
 
     public VerificationKeyServiceImpl(VerificationKeyRepository verificationKeyRepository) {
-        this.keyRepository = verificationKeyRepository;
+        this.repository = verificationKeyRepository;
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        VerificationKey key = repository.findById(id).orElse(null);
+        if (key != null) {
+            repository.delete(key);
+        }
     }
 
     @Override
     public VerificationKey findKeyById(Long id) {
-        return keyRepository.getById(id);
+        return repository.findById(id).orElse(null);
     }
 
     @Override
-    public List<VerificationKey> findAll() {
-        return keyRepository.findAll();
+    public VerificationKey findKeyByValue(final String value) {
+        return repository.findByValue(value);
     }
 
     @Override
     public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) {
-        return keyRepository.save(verificationKey);
+        return repository.save(verificationKey);
     }
 
     @Override
-    public void deleteById(Long id) {
-        keyRepository.deleteById(id);
+    public List<VerificationKey> findAll() {
+        return repository.findAll();
     }
 
     @Override
+    @Transactional
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
-        VerificationKey newKey = keyRepository.save(new VerificationKey());
+        VerificationKey newKey = repository.save(new VerificationKey());
         VerificationKey oldKey = personDTO.getVerificationKey();
         if (oldKey != null) {
             User oldUser = oldKey.getUser();
             Person oldPerson = oldKey.getPerson();
             if (oldUser != null) {
                 oldUser.removeVerificationKey();
-                oldUser.addVerificationKey(newKey);
             }
             if (oldPerson != null) {
                 oldPerson.removeVerificationKey();

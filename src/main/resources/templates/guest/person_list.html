@@ -25,7 +25,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='guest')"/>
+    <div th:replace="fragments/header :: header(activeTab='guest')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -34,7 +34,7 @@
         <button type="submit" name="add" value="add" class="float-right btn btn-outline-success">Add New</button>
     </form>
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guests</small></h4>
-    <div class="table-responsive" th:if="${not #lists.isEmpty(guests)}">
+    <div class="table-responsive" th:if="${not #lists.isEmpty(persons)}">
         <table class="col-lg-9 table table-hover">
             <thead>
             <tr>
@@ -60,7 +60,7 @@
                     </form>
                 </td>
                 <td>
-                    <form th:method="get" th:action="@{/person/{id}/delete(id=${person.id})}">
+                    <form th:method="post" th:action="@{/guest/{id}/delete(id=${person.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-outline-danger">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
@@ -73,11 +73,10 @@
 </main>
 
 <!--Footer content here-->
+<!--Footer content here-->
 <footer class="footer">
     <div class="container">
-        <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
-        </span>
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 

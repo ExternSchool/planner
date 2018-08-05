@@ -13,6 +13,6 @@ public interface StudentRepository extends CrudRepository<Student, Long> {
 
     Student findStudentById(Long id);
 
-    List<Student> findAllByOrderByLastNameAsc();
+    List<Student> findAllByOrderByLastName();
 
 }

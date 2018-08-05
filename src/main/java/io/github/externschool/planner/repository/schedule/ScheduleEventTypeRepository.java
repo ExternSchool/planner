@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ScheduleEventTypeRepository extends JpaRepository<ScheduleEventType, Long> {
+    ScheduleEventType findByName(String name);
 }
