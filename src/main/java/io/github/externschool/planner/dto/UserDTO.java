@@ -47,7 +47,7 @@ public class UserDTO implements Serializable {
     public void setVerificationKey(final VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
     }
-
+    
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
