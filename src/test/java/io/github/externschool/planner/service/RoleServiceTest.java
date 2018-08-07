@@ -31,7 +31,8 @@ public class RoleServiceTest {
 
     @Test
     public void getRoleByNameTest(){
-        Mockito.when(roleRepository.findByName("new_admin")).thenReturn(role);
+        Mockito.when(roleRepository.findByName("new_admin"))
+                .thenReturn(role);
         String roleName = "new_admin";
 
         Role expectedRole = roleService.getRoleByName("new_admin");

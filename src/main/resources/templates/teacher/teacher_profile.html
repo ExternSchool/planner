@@ -28,6 +28,9 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Show some error msg
+    </small>
     <fieldset>
         <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
             <input type="hidden" th:field="${isNew}"/>
@@ -95,11 +98,9 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-4">
-                            <a href="/teacher/update">
-                                <button class="btn btn-secondary btn-block" type="button">
-                                    Cancel
-                                </button>
-                            </a>
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
+                                Cancel
+                            </button>
                         </div>
                         <div class="col-lg-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">

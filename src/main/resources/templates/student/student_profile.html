@@ -28,6 +28,9 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="font-weight-normal" th:inline="text"><small>Student</small></h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Show some error msg
+    </small>
     <fieldset>
         <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
             <input type="hidden" th:field="${isNew}"/>
