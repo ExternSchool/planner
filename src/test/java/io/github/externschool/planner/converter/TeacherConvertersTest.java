@@ -24,6 +24,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class TeacherConvertersTest {
     @Autowired
     ConversionService conversionService;
+
     private Teacher expectedTeacher;
     private TeacherDTO expectedDTO;
 

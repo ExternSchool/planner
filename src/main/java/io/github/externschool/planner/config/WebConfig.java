@@ -32,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new StudentToStudentDTO());
         registry.addConverter(new UserDTOToUser());
         registry.addConverter(new UserToUserDTO());
-
+        
         registry.addFormatter(keyFormatter);
         registry.addFormatter(subjectFormatter);
         registry.addFormatter(localDateFormatter);
