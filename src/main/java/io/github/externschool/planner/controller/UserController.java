@@ -12,7 +12,6 @@ import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
@@ -59,15 +57,16 @@ public class UserController {
         User user = new User();
         try {
             if (bindingResult.hasErrors()) {
-                throw new BindingResultException(
-                        bindingResult.getAllErrors().stream()
-                                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                                .collect(Collectors.joining(", ")));
+                if((bindingResult.getFieldErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
+                    throw new KeyNotValidException("Entered key is not valid");
+                }
+                throw new BindingResultException("There are errors in form validation");
             }
             user = userService.createNewUser(userDTO);
             if (userDTO.getVerificationKey() != null) {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
-                if (key == null) {
+                if (key == null || key.getUser() != null) {
+                    userDTO.setVerificationKey(null);
                     throw new KeyNotValidException("Entered key is not valid");
                 }
                 Person person = key.getPerson();
@@ -91,7 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/init")
-    public ModelAndView setUserProfile(final Principal principal) {
+    public ModelAndView setNewUserInitialProfile(final Principal principal) {
         ModelAndView modelAndView = new ModelAndView();
         User currentUser = userService.findUserByEmail(principal.getName());
         if (currentUser.getVerificationKey() != null && currentUser.getVerificationKey().getPerson() != null) {

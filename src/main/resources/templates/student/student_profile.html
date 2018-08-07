@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
->
+      xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Teacher page</title>
@@ -29,6 +28,9 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="font-weight-normal" th:inline="text"><small>Student</small></h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Show some error msg
+    </small>
     <fieldset>
         <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
             <input type="hidden" th:field="${isNew}"/>
@@ -124,7 +126,7 @@
                     </div>
                     <div class="form-group row" style="padding: 8px 0;">
                         <div class="col-lg-4">
-                            <a href="/student/update" method="GET">
+                            <a href="/student/update">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>

@@ -29,16 +29,16 @@
             <div class="form-group">
                 <label for="username" class="sr-only">Email address</label>
                 <input type="email" name="username" id="username" class="form-control" th:value="${email}"
-                       placeholder="Email address" required autofocus>
+                       placeholder="Email address" required th:autofocus="${email == null}">
             </div>
             <div class="form-group">
                 <label for="password" class="sr-only">Password</label>
                 <input type="password" name="password" id="password" class="form-control"
-                       placeholder="Password" required>
+                       placeholder="Password" required th:autofocus="${email != null}">
             </div>
             <div class="checkbox mb-3">
                 <label>
-                    <input type="checkbox" value="remember-me"> Remember me
+                    <input type="checkbox" value="remember-me" disabled> Remember me
                 </label>
             </div>
             <button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>

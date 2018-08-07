@@ -14,6 +14,7 @@ import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
@@ -39,12 +40,10 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final SchoolSubjectService schoolSubjectService;
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final VerificationKeyService verificationKeyService;
-    @Autowired
-    private StudyPlanRepository planRepository;
-    @Autowired
-    private StudentService studentService;
-    @Autowired
-    private CourseRepository courseRepository;
+    @Autowired private StudyPlanRepository planRepository;
+    @Autowired private StudentService studentService;
+    @Autowired private CourseRepository courseRepository;
+    @Autowired private PersonService personService;
 
     private final RoleService roleService;
 
@@ -66,12 +65,23 @@ public class BootstrapDataPopulator implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         createScheduleEventType();
 
+        User admin = userService.createUser("q@q", "q", "ROLE_ADMIN");
+        admin = userService.saveOrUpdate(admin);
+        Person adminPerson = new Person();
+        adminPerson.setLastName("Admin");
+        adminPerson.setFirstName("Admin");
+        adminPerson.setPatronymicName("Admin");
+        adminPerson.setPhoneNumber("(099)999-9999");
+        personService.saveOrUpdatePerson(adminPerson);
         VerificationKey key = new VerificationKey();
+        adminPerson.addVerificationKey(key);
+        admin.addVerificationKey(key);
         verificationKeyService.saveOrUpdateKey(key);
-        User user = userService.createUser("q@q", "q", "ROLE_ADMIN");
-        user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        personService.saveOrUpdatePerson(adminPerson);
+        userService.saveOrUpdate(admin);
 
+        key = new VerificationKey();
+        verificationKeyService.saveOrUpdateKey(key);
         Teacher teacher = createTeacher(new Person(
                         null,
                         "James",

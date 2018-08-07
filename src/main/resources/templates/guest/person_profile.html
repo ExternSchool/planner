@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
->
+      xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Guest Profile</title>
@@ -29,6 +28,9 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guest Profile</small></h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Show some error msg
+    </small>
     <fieldset>
         <form th:method="post" th:action="@{/guest/update}" th:object="${person}" class="form" id="form">
             <input type="hidden" th:field="${isNew}"/>
@@ -59,12 +61,12 @@
                     <div class="form-group" th:if="${!isNew}">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="key" th:field="*{verificationKey.value}"
+                            <input class="form-control" type="text" id="key" th:field="*{verificationKey}"
                                    placeholder="A key provided by the school to link the user with a real person data">
                         </div>
                     </div>
                     <div class="form-group" th:if="${isNew}">
-                        <input type="hidden" th:field="*{verificationKey.value}"/>
+                        <input type="hidden" th:field="*{verificationKey}"/>
                     </div>
                     <div class="form-group row">
                         <div class="col-lg-4" th:if="${!isNew}">

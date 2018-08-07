@@ -13,11 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -32,12 +30,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
 public class UserServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private RoleService roleService;
     @Autowired private PasswordEncoder passwordEncoder;
-    @InjectMocks private UserService userService = new UserServiceImpl(userRepository, roleService, passwordEncoder);
+    private UserService userService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -49,6 +46,8 @@ public class UserServiceTest {
 
     @Before
     public void setUp() {
+        userService = new UserServiceImpl(userRepository, roleService, passwordEncoder);
+
         userDTO = new UserDTO();
         userDTO.setEmail(email);
         userDTO.setPassword(password);
