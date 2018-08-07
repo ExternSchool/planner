@@ -49,7 +49,7 @@ public class SpringSecurityConfigTest {
     }
 
     @Test
-    @WithMockUser(username="q@q", password = "q")
+    @WithMockUser(username="q@q", password = "q", roles={"ADMIN"})
     public void shouldReturnRedirection_WhenFormLogin() throws Exception {
         mockMvc.perform(formLogin("/login").user("q@q").password("q"))
                 .andExpect(authenticated())
