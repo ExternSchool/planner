@@ -2,20 +2,17 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.VerificationKey;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 public class PersonDTO {
     private Long id;
     private VerificationKey verificationKey;
-    @NotNull
-    private String firstName;
-    @NotNull
-    private String patronymicName;
-    @NotNull
-    private String lastName;
-    @NotNull
-    private String phoneNumber;
+    @NotNull @NotEmpty private String firstName;
+    @NotNull @NotEmpty private String patronymicName;
+    @NotNull @NotEmpty private String lastName;
+    @NotNull @NotEmpty private String phoneNumber;
 
     public PersonDTO() {
     }
@@ -97,7 +94,18 @@ public class PersonDTO {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "PersonDTO{" +
+                "id=" + id +
+                ", verificationKey=" + (verificationKey != null ? verificationKey : "") +
+                ", firstName='" + firstName + '\'' +
+                ", patronymicName='" + patronymicName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }
