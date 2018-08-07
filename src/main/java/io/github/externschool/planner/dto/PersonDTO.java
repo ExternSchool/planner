@@ -9,8 +9,7 @@ import java.util.Objects;
 public class PersonDTO {
     private Long id;
     private VerificationKey verificationKey;
-    @NotNull @NotEmpty
-    private String firstName;
+    @NotNull @NotEmpty private String firstName;
     @NotNull @NotEmpty private String patronymicName;
     @NotNull @NotEmpty private String lastName;
     @NotNull @NotEmpty private String phoneNumber;

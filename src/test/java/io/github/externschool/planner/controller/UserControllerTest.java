@@ -22,6 +22,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -31,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerTest {
     @Autowired private WebApplicationContext wac;
+
     private MockMvc mockMvc;
 
     @Before
@@ -61,16 +63,24 @@ public class UserControllerTest {
 
     @Test
     public void shouldReturnUserSignupForm_WhenGetSignupRequest() throws Exception {
-//        mockMvc.perform(MockMvcRequestBuilders.get("/signup"))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("signup"))
-//                .andExpect(content().contentType("text/html;charset=UTF-8"))
-//                .andExpect(content().string(Matchers.containsString("Signup Form")));
-        //TODO fix this temporary disabled test
+        mockMvc.perform(MockMvcRequestBuilders.get("/signup"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("signup"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Signup Form")));
     }
 
     @Test
-    public void shouldRedirectToLogin_WhenPostSignupParams() throws Exception {
+    public void shouldReturnLoginForm_WhenGetLoginRequest() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Login Form")));
+    }
+
+    @Test
+    public void shouldRedirectToLogin_WhenPostSignupParamsOk() throws Exception {
         User expectedUser = new User("user@x.com", "!Qwert");
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("email",expectedUser.getEmail());
@@ -85,11 +95,28 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldReturnLoginForm_WhenGetLoginRequest() throws Exception {
-        mockMvc.perform(get("/login"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Login Form")));
+    public void shouldRedirectToSignupWithError_WhenInvalidKey() throws Exception {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "email@email.com");
+        map.add("password", "!Qwert");
+        map.add("verificationKey", "123");
+
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/signup"))
+                .andExpect(model().attribute("error", "Entered key is not valid"));
+    }
+
+    @Test
+    public void shouldRedirectToSignupWithError_WhenBindingResultHasErrors() throws Exception {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("email", "");
+        map.add("password", "!Qwert");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/signup"))
+                .andExpect(model().attribute("error", "There are errors in form validation"));
     }
 }

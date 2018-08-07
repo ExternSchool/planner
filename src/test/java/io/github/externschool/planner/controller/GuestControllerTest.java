@@ -1,19 +1,33 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.PersonDTO;
+import io.github.externschool.planner.entity.Role;
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.service.PersonService;
+import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,21 +42,49 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GuestControllerTest {
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-    @Autowired
-    private PersonService personService;
+    @Autowired private WebApplicationContext webApplicationContext;
+    @Autowired private PersonService personService;
+    @Autowired private UserService userService;
+    @Autowired private VerificationKeyService keyService;
+    @Autowired private ConversionService conversionService;
+    @Autowired private RoleService roleService;
+    private GuestController controller;
 
     private MockMvc mockMvc;
-
     private Person person;
+    private User user;
+    private final String userName = "some@email.com";
+    private final String personName = "SuchAStrangeLongName";
+    private MultiValueMap<String, String> map;
 
     @Before
     public void setup(){
+        controller = new GuestController(personService, conversionService, keyService, roleService, userService);
+
+        VerificationKey key = new VerificationKey();
+        keyService.saveOrUpdateKey(key);
+
         person = new Person();
-        person.setFirstName("SuchAStrangeLongName");
+        person.setFirstName(personName);
+        person.setLastName("A");
+        person.setPatronymicName("B");
+        person.setPhoneNumber("(000)000-0000");
+        person.addVerificationKey(key);
         personService.saveOrUpdatePerson(person);
+
+        PersonDTO personDTO = conversionService.convert(person, PersonDTO.class);
+        map = new LinkedMultiValueMap<>();
+        map.add("id", personDTO.getId().toString());
+        map.add("verificationKey", personDTO.getVerificationKey().getValue());
+        map.add("firstName", personDTO.getFirstName());
+        map.add("patronymicName", personDTO.getPatronymicName());
+        map.add("lastName", personDTO.getLastName());
+        map.add("phoneNumber", personDTO.getPhoneNumber());
+
+        user = userService.createUser(userName,"pass", "ROLE_GUEST");
+        user.addVerificationKey(key);
+        userService.saveOrUpdate(user);
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -51,7 +93,7 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnGuestListTemplate_whenGetRequestRootWithAdminRole() throws Exception {
+    public void shouldReturnGuestListTemplate_whenGetGuestWithAdminRole() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_list"))
@@ -60,22 +102,136 @@ public class GuestControllerTest {
                 .andExpect(model().attribute("persons",
                         Matchers.hasItem(
                                 Matchers.<Person> hasProperty("firstName",
-                                        Matchers.equalToIgnoringCase("SuchAStrangeLongName")))));
+                                        Matchers.equalToIgnoringCase(personName)))));
     }
 
     @Test
-    @WithMockUser(roles = "TEACHER")
-    public void shouldReturnForbidden_wheRequestUnAuthorized() throws Exception {
+    @WithMockUser(roles = "GUEST")
+    public void shouldReturnForbidden_whenGetUnauthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnOk_whenGetFormPersonProfile() throws Exception {
+        mockMvc.perform(get("/guest/profile"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/person_profile"))
+                .andExpect(content().string(Matchers.containsString("Guest Profile")))
+                .andExpect(model().attributeExists("isNew", "person"))
+                .andExpect(model().attribute("person",
+                        Matchers.hasProperty("firstName",
+                                Matchers.equalToIgnoringCase(personName))));
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnModelAndView_whenRequestPersonAdd() throws Exception {
+    public void shouldReturnModelAndView_whenPostId() throws Exception {
+        mockMvc.perform(post("/guest/" + person.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/person_profile"))
+                .andExpect(content().string(Matchers.containsString("Guest Profile")))
+                .andExpect(model().attributeExists("isNew", "person"))
+                .andExpect(model().attribute("person",
+                        Matchers.hasProperty("firstName",
+                                Matchers.equalToIgnoringCase(personName))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndView_whenPostPersonAdd() throws Exception {
         mockMvc.perform(post("/guest/add"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
                 .andExpect(content().string(Matchers.containsString("Guest Profile")));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldRedirect_whenPostDelete() throws Exception {
+        mockMvc.perform(post("/guest/" + person.getId() + "/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldRedirect_whenPostUpdateActionSaveGuest() throws Exception {
+        mockMvc.perform(post("/guest/update")
+                .param("action", "save")
+                .params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
+        user.setRoles(roles);
+        userService.saveOrUpdate(user);
+
+        mockMvc.perform(post("/guest/update")
+                .param("action", "save")
+                .params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnFormBack_whenPostUpdateActionSaveInvalidKey() throws Exception {
+        map.remove("verificationKey");
+        map.add("verificationKey", "123");
+        mockMvc.perform(post("/guest/update")
+                .param("action", "save")
+                .params(map))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/person_profile"))
+                .andExpect(model().attribute("error", "Entered key is not valid"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnFormBack_whenPostUpdateActionSaveEmptyField() throws Exception {
+        map.remove("firstName");
+        map.add("firstName", "");
+        mockMvc.perform(post("/guest/update")
+                .param("action", "save")
+                .params(map))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/person_profile"))
+                .andExpect(model().attribute("error", "There are errors in form validation"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldRedirect_whenPostUpdateActionCancelAdmin() throws Exception {
+        Set<Role> roles = new HashSet<>();
+        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
+        user.setRoles(roles);
+        userService.saveOrUpdate(user);
+
+        mockMvc.perform(post("/guest/update")
+                .param("action", "cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldRedirect_whenPostUpdateActionCancelGuest() throws Exception {
+        mockMvc.perform(post("/guest/update")
+                .param("action", "cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/"));
+    }
+
+    @After
+    public void tearDown() {
+        personService.deletePerson(person);
+        userService.deleteUser(user);
     }
 }
