@@ -25,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@AutoConfigureMockMvc
 @SpringBootTest
+@AutoConfigureMockMvc
 public class SpringSecurityConfigTest {
     @Autowired private WebApplicationContext wac;
     private MockMvc mockMvc;
@@ -39,7 +39,7 @@ public class SpringSecurityConfigTest {
     }
 
     @Test
-    @WithMockUser(username="admin@com",roles={"ADMIN"})
+    @WithMockUser(username="admin@com", roles={"ADMIN"})
     public void shouldReturnRedirection_WhenRequestAuthenticatedAndUserAuthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(authenticated())
@@ -49,6 +49,7 @@ public class SpringSecurityConfigTest {
     }
 
     @Test
+    @WithMockUser(username="q@q", password = "q")
     public void shouldReturnRedirection_WhenFormLogin() throws Exception {
         mockMvc.perform(formLogin("/login").user("q@q").password("q"))
                 .andExpect(authenticated())
