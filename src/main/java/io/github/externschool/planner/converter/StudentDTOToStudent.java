@@ -14,13 +14,12 @@ public class StudentDTOToStudent implements Converter<StudentDTO, Student> {
     @Override
     public Student convert(final StudentDTO studentDTO) {
         Student student = new Student();
-        BeanUtils.copyProperties(studentDTO, student, "verificationKey", "email", "gradeLevel");
+        BeanUtils.copyProperties(studentDTO, student, "verificationKey", "email");
         VerificationKey key = studentDTO.getVerificationKey();
         student.addVerificationKey(key);
         if (key != null && key.getUser() != null) {
             key.getUser().addVerificationKey(key);
         }
-        student.setGradeLevel(GradeLevel.valueOf(studentDTO.getGradeLevel()));
 
         return student;
     }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
-
     @Override
     public StudentDTO convert(final Student student) {
         StudentDTO studentDTO = new StudentDTO();
@@ -18,7 +17,6 @@ public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
         } else {
             studentDTO.setEmail("");
         }
-        studentDTO.setGradeLevel(student.getGradeLevel().getValue());
 
         return studentDTO;
     }

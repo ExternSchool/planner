@@ -56,12 +56,18 @@
                         <div class="form-group col-lg-6">
                             <label for="gender">Gender</label>
                             <select class="form-control" name="gender" id="gender" th:field="*{gender}">
-                                <option th:each="gender : ${T(io.github.externschool.planner.entity.enums.Gender).values()}"
-                                        th:value="${gender}"
-                                        th:text="${gender}">
+                                <option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">
                                     Gender
                                 </option>
                             </select>
+                            <!--<div th:each="gender : ${genders}" class="radio">-->
+                                <!--<input type="radio" th:value="${gender}" th:field="*{gender}" />-->
+                                <!--<label th:for="${#ids.prev('gender')}" th:text="${gender.toString()}">Male</label>-->
+                            <!--</div>-->
+                            <!--<div th:remove="all" class="radio">-->
+                                <!--<input type="radio" />-->
+                                <!--<label>Female</label>-->
+                            <!--</div>-->
                         </div>
                         <div class="form-group col-lg-6">
                             <label for="dateOfBirth">Birth Date</label>
@@ -78,8 +84,8 @@
                         <div class="form-group col-lg-6">
                             <label for="grade">Grade</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}">
-                                <option th:each="grade: ${grades}"
-                                        th:value="${grade.getLevel()}" th:text="${grade.getName()}">
+                                <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
+                                        th:text="${grade.getValue()}">
                                     Grade
                                 </option>
                             </select>
@@ -113,24 +119,22 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="gradeLevel">Subjects List</label>
+                        <label for="cources">Courses (Subjects for now) List</label>
                         <div class="input-group">
-                            <select multiple class="form-control" name="gradeLevel" id="gradeLevel" size="14" disabled>
+                            <select multiple class="form-control" name="cources" id="cources" size="14" disabled>
                                 <option th:each="subject : ${subjects}"
                                         th:value="${subject.id}"
                                         th:text="${subject.getName()}">
-                                    Subject
+                                    Course (Subject) Data
                                 </option>
                         </select>
                         </div>
                     </div>
                     <div class="form-group row" style="padding: 8px 0;">
                         <div class="col-md-4">
-                            <a href="/student/update">
-                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
-                                    Cancel
-                                </button>
-                            </a>
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
+                                Cancel
+                            </button>
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">

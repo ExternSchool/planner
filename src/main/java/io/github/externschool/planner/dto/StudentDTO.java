@@ -1,37 +1,20 @@
 package io.github.externschool.planner.dto;
 
-import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.profile.Gender;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class StudentDTO extends PersonDTO {
-    @NotBlank private LocalDate dateOfBirth;
-    @NotBlank private Gender gender;
+    @NotNull private LocalDate dateOfBirth;
+    @NotNull private Gender gender;
     @NotBlank private String address;
-    @NotBlank private int gradeLevel;
+    @NotNull private GradeLevel gradeLevel;
 
     public StudentDTO() {
-    }
-
-    public StudentDTO(final Long id,
-                      final VerificationKey verificationKey,
-                      final String email,
-                      final String firstName,
-                      final String patronymicName,
-                      final String lastName,
-                      final String phoneNumber,
-                      final LocalDate dateOfBirth,
-                      final Gender gender,
-                      final String address,
-                      final int gradeLevel) {
-        super(id, verificationKey, email, firstName, patronymicName, lastName, phoneNumber);
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.address = address;
-        this.gradeLevel = gradeLevel;
     }
 
     public LocalDate getDateOfBirth() {
@@ -58,11 +41,11 @@ public class StudentDTO extends PersonDTO {
         this.address = address;
     }
 
-    public int getGradeLevel() {
+    public GradeLevel getGradeLevel() {
         return gradeLevel;
     }
 
-    public void setGradeLevel(int gradeLevel) {
+    public void setGradeLevel(final GradeLevel gradeLevel) {
         this.gradeLevel = gradeLevel;
     }
 

@@ -2,7 +2,15 @@ package io.github.externschool.planner.entity.profile;
 
 public enum Gender {
 
-    MALE(1), FEMALE(2); //for saving value in data base
+    MALE(1) {
+        public String toString() {
+            return "чол.ст.";
+        }
+    }, FEMALE(2) {
+        public String toString() {
+            return "жін.ст.";
+        }
+    };
 
     private int genderValue;
 

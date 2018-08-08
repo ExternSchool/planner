@@ -50,13 +50,20 @@ public class TeacherController {
     public ModelAndView edit(@PathVariable("id") Long id) {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-        return show(teacherDTO);
+        return showTeacherProfile(teacherDTO);
     }
 
     @PostMapping("/add")
     public ModelAndView add() {
 
-        return show(new TeacherDTO());
+        return showTeacherProfile(new TeacherDTO());
+    }
+
+    @PostMapping("/{id}/delete")
+    public ModelAndView delete(@PathVariable("id") Long id) {
+        teacherService.deleteTeacher(id);
+
+        return new ModelAndView("redirect:/teacher/");
     }
 
     @PostMapping(value = "/update", params = "action=save")
@@ -73,32 +80,20 @@ public class TeacherController {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @PostMapping(value = "/update", params = "action=newKey")
-    public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
-        teacherDTO = setNewKey(teacherDTO);
-
-        return show(teacherDTO);
-    }
-
     @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @PostMapping("/{id}/delete")
-    public ModelAndView delete(@PathVariable("id") Long id) {
-        teacherService.deleteTeacher(id);
-
-        return new ModelAndView("redirect:/teacher/");
-    }
-
-    private TeacherDTO setNewKey(TeacherDTO teacherDTO) {
+    @PostMapping(value = "/update", params = "action=newKey")
+    public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
         //TODO add key change confirmation request
+        teacherDTO = (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);
 
-        return (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);
+        return showTeacherProfile(teacherDTO);
     }
 
-    private ModelAndView show(TeacherDTO teacherDTO) {
+    private ModelAndView showTeacherProfile(TeacherDTO teacherDTO) {
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByName());

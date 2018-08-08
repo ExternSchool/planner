@@ -2,9 +2,11 @@ package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.VerificationKey;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import java.time.LocalDate;
@@ -15,16 +17,18 @@ import java.util.Objects;
 public class Student extends Person {
 
     @Column(name = "date_of_birth")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
     @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @Column(name = "address")
     private String address;
 
     @Column(name = "grade_level")
-    @Enumerated
+    @Enumerated(EnumType.ORDINAL)
     private GradeLevel gradeLevel;
 
     public Student() {
