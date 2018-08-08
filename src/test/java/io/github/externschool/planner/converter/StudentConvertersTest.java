@@ -2,6 +2,7 @@ package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
@@ -27,15 +28,17 @@ public class StudentConvertersTest {
 
     @Before
     public void setUp() {
-        final VerificationKey verificationKey = new VerificationKey();
-        final String firstName = "John";
-        final String patronymicName = "Johnovich";
-        final String lastName = "Doe";
-        final String phoneNumber = "(099)999-9999";
-        final LocalDate dateOfBirth = LocalDate.of(2018, 7, 9);
-        final Gender gender = Gender.MALE;
-        final String address = "Khreschatyk St, 1, Kyiv, Ukraine, 02000";
-        final GradeLevel gradeLevel = GradeLevel.LEVEL_1;
+        VerificationKey verificationKey = new VerificationKey();
+        User user = new User("some@email.com", "pass");
+        user.addVerificationKey(verificationKey);
+        String firstName = "John";
+        String patronymicName = "Johnovich";
+        String lastName = "Doe";
+        String phoneNumber = "(099)999-9999";
+        LocalDate dateOfBirth = LocalDate.of(2010, 7, 9);
+        Gender gender = Gender.MALE;
+        String address = "Khreschatyk St, 1, Kyiv, Ukraine, 02000";
+        GradeLevel gradeLevel = GradeLevel.LEVEL_1;
 
         expectedStudent = new Student();
         expectedStudent.addVerificationKey(verificationKey);
@@ -50,6 +53,7 @@ public class StudentConvertersTest {
 
         expectedDTO = new StudentDTO();
         expectedDTO.setVerificationKey(verificationKey);
+        expectedDTO.setEmail(verificationKey.getUser().getEmail());
         expectedDTO.setFirstName(firstName);
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
@@ -63,18 +67,30 @@ public class StudentConvertersTest {
     @Test
     public void shouldReturnExpectedDTO() {
         StudentDTO actualDTO = conversionService.convert(expectedStudent, StudentDTO.class);
+
         assertThat(actualDTO)
                 .isNotNull()
-                .isEqualTo(expectedDTO)
                 .isEqualToComparingFieldByField(expectedDTO);
+    }
+
+    @Test
+    public void shouldReturnEmptyEmailStudentDTO_whenStudentsKeyHasNoUser() {
+        expectedStudent.getVerificationKey().getUser().removeVerificationKey();
+
+        StudentDTO actualDTO = conversionService.convert(expectedStudent, StudentDTO.class);
+
+        assertThat(actualDTO)
+                .isNotNull()
+                .isEqualToIgnoringGivenFields(expectedDTO, "email")
+                .hasFieldOrPropertyWithValue("email", "");
     }
 
     @Test
     public void shouldReturnExpectedStudent() {
         Student actualStudent = conversionService.convert(expectedDTO, Student.class);
+
         assertThat(actualStudent)
                 .isNotNull()
-                .isEqualTo(expectedStudent)
                 .isEqualToComparingFieldByField(expectedStudent);
     }
 }

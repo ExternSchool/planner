@@ -2,29 +2,31 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.VerificationKey;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 public class PersonDTO {
     private Long id;
     private VerificationKey verificationKey;
-    @NotNull @NotEmpty private String firstName;
-    @NotNull @NotEmpty private String patronymicName;
-    @NotNull @NotEmpty private String lastName;
-    @NotNull @NotEmpty private String phoneNumber;
+    private String email;
+    @NotBlank private String firstName;
+    @NotBlank private String patronymicName;
+    @NotBlank private String lastName;
+    @NotBlank private String phoneNumber;
 
     public PersonDTO() {
     }
 
     public PersonDTO(final Long id,
                      final VerificationKey verificationKey,
+                     final String email,
                      final String firstName,
                      final String patronymicName,
                      final String lastName,
                      final String phoneNumber) {
         this.id = id;
         this.verificationKey = verificationKey;
+        this.email = email;
         this.firstName = firstName;
         this.patronymicName = patronymicName;
         this.lastName = lastName;
@@ -45,6 +47,14 @@ public class PersonDTO {
 
     public void setVerificationKey(VerificationKey verificationKey) {
         this.verificationKey = verificationKey;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(final String email) {
+        this.email = email;
     }
 
     public String getFirstName() {

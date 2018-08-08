@@ -3,6 +3,7 @@ package io.github.externschool.planner.converter;
 import io.github.externschool.planner.PlannerApplication;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
@@ -16,32 +17,37 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = PlannerApplication.class)
 public class TeacherConvertersTest {
-    @Autowired
-    ConversionService conversionService;
+    @Autowired ConversionService conversionService;
 
     private Teacher expectedTeacher;
     private TeacherDTO expectedDTO;
 
     @Before
     public void setUp() {
-        final VerificationKey verificationKey = new VerificationKey();
-        final Long id = 1L;
-        final String firstName = "John";
-        final String patronymicName = "Johnovich";
-        final String lastName = "Doe";
-        final String phoneNumber = "(099)999-9999";
-        final String officer = "Principal";
-        SchoolSubject firstSubject = new SchoolSubject();
-        firstSubject.setName("Quantum Mechanics");
-        SchoolSubject secondSubject = new SchoolSubject();
-        secondSubject.setName("Algebraic topology");
-        final Set<SchoolSubject> schoolSubjects = new HashSet<>(Arrays.asList(firstSubject, secondSubject));
+        VerificationKey verificationKey = new VerificationKey();
+        User user = new User("some@email.com", "pass");
+        user.addVerificationKey(verificationKey);
+        Long id = 1L;
+        String firstName = "John";
+        String patronymicName = "Johnovich";
+        String lastName = "Doe";
+        String phoneNumber = "(099)999-9999";
+        String officer = "Principal";
+        Set<SchoolSubject> schoolSubjects = Stream.of("Quantum Mechanics", "Algebraic topology")
+                .map(s -> {
+                    SchoolSubject subject = new SchoolSubject();
+                    subject.setName(s);
+                    return subject;
+                })
+                .collect(Collectors.toSet());
 
         expectedTeacher = new Teacher();
         expectedTeacher.setId(id);
@@ -51,15 +57,16 @@ public class TeacherConvertersTest {
         expectedTeacher.setPhoneNumber(phoneNumber);
         expectedTeacher.addVerificationKey(verificationKey);
         expectedTeacher.setOfficer(officer);
-        schoolSubjects.forEach(s -> expectedTeacher.addSubject(s));
+        schoolSubjects.forEach(expectedTeacher::addSubject);
 
         expectedDTO = new TeacherDTO();
         expectedDTO.setId(id);
+        expectedDTO.setVerificationKey(verificationKey);
+        expectedDTO.setEmail(verificationKey.getUser().getEmail());
         expectedDTO.setFirstName(firstName);
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
         expectedDTO.setPhoneNumber(phoneNumber);
-        expectedDTO.setVerificationKey(verificationKey);
         expectedDTO.setOfficer(officer);
         expectedDTO.setSchoolSubjects(schoolSubjects);
     }
@@ -67,6 +74,7 @@ public class TeacherConvertersTest {
     @Test
     public void shouldReturnExpectedDTO() {
         TeacherDTO actualDTO = conversionService.convert(expectedTeacher, TeacherDTO.class);
+
         assertThat(actualDTO)
                 .isNotNull()
                 .isEqualTo(expectedDTO)
@@ -74,8 +82,21 @@ public class TeacherConvertersTest {
     }
 
     @Test
+    public void shouldReturnEmptyEmailPersonDTO_whenPersonsKeyHasNoUser() {
+        expectedTeacher.getVerificationKey().getUser().removeVerificationKey();
+
+        TeacherDTO actualDTO = conversionService.convert(expectedTeacher, TeacherDTO.class);
+
+        assertThat(actualDTO)
+                .isNotNull()
+                .isEqualToIgnoringGivenFields(expectedDTO, "email")
+                .hasFieldOrPropertyWithValue("email", "");
+    }
+
+    @Test
     public void shouldReturnExpectedTeacher() {
         Teacher actualTeacher = conversionService.convert(expectedDTO, Teacher.class);
+
         assertThat(actualTeacher)
                 .isNotNull()
                 .isEqualToIgnoringGivenFields(expectedTeacher, "verificationKey");

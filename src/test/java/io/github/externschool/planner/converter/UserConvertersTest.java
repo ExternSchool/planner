@@ -21,12 +21,10 @@ public class UserConvertersTest {
 
     private User expectedUser;
     private UserDTO expectedDTO;
-    private VerificationKey key;
+    private VerificationKey key = new VerificationKey();
 
     @Before
     public void setup() {
-        key = new VerificationKey();
-
         expectedUser = new User("user@email.com", "pass");
         expectedUser.setId(1L);
         expectedUser.addVerificationKey(key);

@@ -17,9 +17,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "course")
 public class Course implements Serializable {
-
-    @EmbeddedId
-    private CoursePK id;
+    @EmbeddedId private CoursePK id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "teacher_id")
@@ -39,7 +37,7 @@ public class Course implements Serializable {
     private Course() {
     }
 
-    public Course(@NotNull final Long studentId, final Long planId) {
+    public Course(@NotNull final Long studentId, @NotNull final Long planId) {
         this.id = new CoursePK(studentId, planId);
     }
 
@@ -82,9 +80,7 @@ public class Course implements Serializable {
     }
 
     @Embeddable
-//    @SequenceGenerator(name = "SEQ_ID",  initialValue=1, allocationSize=100)
     public static class CoursePK implements Serializable {
-
         @NotNull
         @Column(name = "student_id")
         private Long studentId;

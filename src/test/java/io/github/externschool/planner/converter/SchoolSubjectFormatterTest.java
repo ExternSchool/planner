@@ -1,9 +1,13 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.repository.SchoolSubjectRepository;
 import io.github.externschool.planner.service.SchoolSubjectService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,25 +20,32 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SchoolSubjectFormatterTest {
-    @Autowired
+    @Mock private SchoolSubjectRepository repository;
     private SchoolSubjectFormatter formatter;
-    @Autowired
-    private SchoolSubjectService subjectService;
+
+    private SchoolSubject subject = new SchoolSubject();
+
+    @Before
+    public void setup() {
+        formatter = new SchoolSubjectFormatter(repository);
+
+        subject.setId(1L);
+
+        Mockito.when(repository.findById(subject.getId()))
+                .thenReturn(java.util.Optional.ofNullable(subject));
+    }
 
     @Test
     public void shouldReturnSameSubjectById_whenRunnedParsePrint() throws ParseException {
-        SchoolSubject expectedSubject = new SchoolSubject();
-        subjectService.saveOrUpdateSubject(expectedSubject);
-        Long id = expectedSubject.getId();
-        Locale locale = new Locale("ru");
+        Locale locale = new Locale("uk");
 
-        String printed = formatter.print(expectedSubject, locale);
+        String printed = formatter.print(subject, locale);
         SchoolSubject actualSubject = formatter.parse(printed, locale);
 
         assertThat(actualSubject)
                 .isNotNull()
-                .isEqualTo(expectedSubject)
-                .hasFieldOrPropertyWithValue("id", id);
+                .isEqualTo(subject)
+                .isEqualToComparingFieldByField(subject);
     }
 }
 

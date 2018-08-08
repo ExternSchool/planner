@@ -34,7 +34,7 @@
     </form>
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teachers</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
-        <table class="col-lg-9 table table-hover">
+        <table class="col-lg-9 table table-sm table-hover">
             <thead>
             <tr>
                 <th>Lastname</th>
@@ -55,14 +55,14 @@
                 <td th:text="${teacher.getPhoneNumber()}">Phone</td>
                 <td>
                     <form th:method="post" th:action="@{/teacher/{id}(id=${teacher.id})}">
-                        <button type="submit" name="edit" value="edit" class="btn btn-outline-primary">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
                             <i class="far fa-edit" aria-hidden="true"></i>
                         </button>
                     </form>
                 </td>
                 <td>
                     <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
-                        <button type="submit" name="delete" value="delete" class="btn btn-outline-danger">
+                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
                             <i class="fa fa-trash" aria-hidden="true"></i>
                         </button>
                     </form>

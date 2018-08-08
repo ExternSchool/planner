@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text"><small>Student</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Student [[${student.getEmail()}]]</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>
@@ -125,14 +125,14 @@
                         </div>
                     </div>
                     <div class="form-group row" style="padding: 8px 0;">
-                        <div class="col-lg-4">
+                        <div class="col-md-4">
                             <a href="/student/update">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>
                             </a>
                         </div>
-                        <div class="col-lg-8">
+                        <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
                                 Save Changes
                             </button>
