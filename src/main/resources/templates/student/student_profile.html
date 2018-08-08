@@ -85,7 +85,7 @@
                             <label for="grade">Grade</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}">
                                 <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
-                                        th:text="${grade.getValue()}">
+                                        th:text="${grade.toString()}">
                                     Grade
                                 </option>
                             </select>

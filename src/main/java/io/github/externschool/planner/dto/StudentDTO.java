@@ -12,7 +12,7 @@ public class StudentDTO extends PersonDTO {
     @NotNull private LocalDate dateOfBirth;
     @NotNull private Gender gender;
     @NotBlank private String address;
-    @NotNull private GradeLevel gradeLevel;
+    @NotNull private int gradeLevel;
 
     public StudentDTO() {
     }
@@ -41,11 +41,11 @@ public class StudentDTO extends PersonDTO {
         this.address = address;
     }
 
-    public GradeLevel getGradeLevel() {
+    public int getGradeLevel() {
         return gradeLevel;
     }
 
-    public void setGradeLevel(final GradeLevel gradeLevel) {
+    public void setGradeLevel(final int gradeLevel) {
         this.gradeLevel = gradeLevel;
     }
 

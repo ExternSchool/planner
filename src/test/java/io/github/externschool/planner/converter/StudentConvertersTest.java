@@ -61,7 +61,7 @@ public class StudentConvertersTest {
         expectedDTO.setDateOfBirth(dateOfBirth);
         expectedDTO.setGender(gender);
         expectedDTO.setAddress(address);
-        expectedDTO.setGradeLevel(gradeLevel);
+        expectedDTO.setGradeLevel(gradeLevel.ordinal());
     }
 
     @Test

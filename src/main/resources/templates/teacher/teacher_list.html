@@ -30,7 +30,7 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <form th:method="post" th:action="@{/teacher/add}">
-        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success">Add New</button>
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm">Add New</button>
     </form>
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teachers</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
