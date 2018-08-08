@@ -11,7 +11,12 @@ import java.util.Locale;
 
 @Service
 public class VerificationKeyFormatter implements Formatter<VerificationKey> {
-    @Autowired private VerificationKeyRepository repository;
+    private final VerificationKeyRepository repository;
+
+    @Autowired
+    public VerificationKeyFormatter(final VerificationKeyRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public VerificationKey parse(final String s, final Locale locale) throws ParseException {

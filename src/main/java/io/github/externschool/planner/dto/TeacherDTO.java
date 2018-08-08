@@ -2,30 +2,30 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.course.Course;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class TeacherDTO extends PersonDTO {
-    @NotNull
     private String officer;
-
     private Set<SchoolSubject> schoolSubjects = new HashSet<>();
+    private Set<Course> courses = new HashSet<>();
 
     public TeacherDTO() {
     }
 
     public TeacherDTO(final Long id,
                       final VerificationKey verificationKey,
+                      final String email,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
                       final String phoneNumber,
                       final String officer,
                       final Set<SchoolSubject> schoolSubjects) {
-        super(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+        super(id, verificationKey, email, firstName, patronymicName, lastName, phoneNumber);
         this.officer = officer;
         this.schoolSubjects = schoolSubjects;
     }
@@ -44,6 +44,14 @@ public class TeacherDTO extends PersonDTO {
 
     public void setSchoolSubjects(Set<SchoolSubject> schoolSubjects) {
         this.schoolSubjects = schoolSubjects;
+    }
+
+    public Set<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(final Set<Course> courses) {
+        this.courses = courses;
     }
 
     @Override

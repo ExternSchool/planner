@@ -3,25 +3,22 @@ package io.github.externschool.planner.dto;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class StudentDTO extends PersonDTO {
-    @NotNull
-    private LocalDate dateOfBirth;
-    @NotNull
-    private Gender gender;
-    @NotNull
-    private String address;
-    @NotNull
-    private int gradeLevel;
+    @NotBlank private LocalDate dateOfBirth;
+    @NotBlank private Gender gender;
+    @NotBlank private String address;
+    @NotBlank private int gradeLevel;
 
     public StudentDTO() {
     }
 
     public StudentDTO(final Long id,
                       final VerificationKey verificationKey,
+                      final String email,
                       final String firstName,
                       final String patronymicName,
                       final String lastName,
@@ -30,7 +27,7 @@ public class StudentDTO extends PersonDTO {
                       final Gender gender,
                       final String address,
                       final int gradeLevel) {
-        super(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+        super(id, verificationKey, email, firstName, patronymicName, lastName, phoneNumber);
         this.dateOfBirth = dateOfBirth;
         this.gender = gender;
         this.address = address;
