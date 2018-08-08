@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher</small></h4>
+    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Teacher [[${teacher.getEmail()}]]</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>
@@ -35,6 +35,7 @@
         <form th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" class="form" id="form">
             <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{courses}"/>
             <div class="form-row">
                 <div class=" col-lg-6">
                     <div class="form-group">
@@ -97,12 +98,12 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-lg-4">
+                        <div class="col-md-4">
                             <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
                                 Cancel
                             </button>
                         </div>
-                        <div class="col-lg-8">
+                        <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
                                 Save Changes
                             </button>

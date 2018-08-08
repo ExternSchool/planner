@@ -32,7 +32,7 @@
     <a th:href="@{/student/add}" class="float-right btn btn-outline-success">Add New</a>
     <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Students</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(students)}">
-        <table class="col-lg-9 table table-hover">
+        <table class="col-lg-9 table table-sm table-hover">
             <thead>
             <tr>
                 <th>Lastname</th>
@@ -54,13 +54,17 @@
                 <td th:text="${student.getGradeLevel()}">Grade</td>
                 <td th:text="${student.getPhoneNumber()}">Phone</td>
                 <td>
-                    <a th:href="@{/student/{id}(id=${student.id})}" class="btn btn-outline-primary">
-                        <i class="far fa-edit" aria-hidden="true"></i>
-                    </a>
+                    <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
                 </td>
                 <td>
-                    <form class="btn btn-outline-danger" th:action="@{/student/{id}/delete(id=${student.id})}" th:method="post">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    <form th:method="post" th:action="@{/student/{id}/delete(id=${studentid})}">
+                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
                     </form>
                 </td>
             </tr>

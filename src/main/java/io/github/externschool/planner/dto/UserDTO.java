@@ -2,15 +2,14 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.VerificationKey;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class UserDTO implements Serializable {
     private Long id;
-    @NotNull @NotEmpty private String email;
-    @NotNull @NotEmpty private String password;
+    @NotBlank private String email;
+    @NotBlank private String password;
     private VerificationKey verificationKey;
 
     public UserDTO() {

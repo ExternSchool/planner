@@ -58,8 +58,8 @@ public class GuestController {
         List<PersonDTO> persons = personService.findAllByOrderByName().stream()
                 .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
                 .filter(Objects::nonNull)
-                .filter(p -> (p.getVerificationKey() != null &&
-                        !keyService.findKeyByValue(p.getVerificationKey().getValue())
+                .filter(p -> (p.getVerificationKey() != null
+                        && !keyService.findKeyByValue(p.getVerificationKey().getValue())
                                 .getUser().getRoles().contains(roleAdmin)))
                 .collect(Collectors.toList());
 
@@ -82,12 +82,6 @@ public class GuestController {
         PersonDTO personDTO = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
         return showPersonProfileForm(personDTO, false);
-    }
-
-    @Secured("ROLE_ADMIN")
-    @PostMapping("/add")
-    public ModelAndView displayAddFormPersonProfile(){
-        return showPersonProfileForm(new PersonDTO(), true);
     }
 
     @Secured("ROLE_ADMIN")
@@ -126,6 +120,12 @@ public class GuestController {
                         user.addVerificationKey(newKey);
                         userService.assignNewRolesByKey(user, newKey);
                         userService.saveOrUpdate(user);
+
+                        if (userService.findUserByEmail(principal.getName())
+                                .getRoles()
+                                .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+                            return new ModelAndView("redirect:/guest/");
+                        }
 
                         return new ModelAndView("redirect:/logout");
                     }

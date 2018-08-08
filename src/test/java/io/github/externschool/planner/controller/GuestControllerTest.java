@@ -140,15 +140,6 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnModelAndView_whenPostPersonAdd() throws Exception {
-        mockMvc.perform(post("/guest/add"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_profile"))
-                .andExpect(content().string(Matchers.containsString("Guest Profile")));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
         mockMvc.perform(post("/guest/" + person.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
