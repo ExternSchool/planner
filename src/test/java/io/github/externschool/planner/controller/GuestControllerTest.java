@@ -29,6 +29,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.HashSet;
 import java.util.Set;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,17 +51,21 @@ public class GuestControllerTest {
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
     private GuestController controller;
-
     private MockMvc mockMvc;
+
     private Person person;
     private User user;
     private final String userName = "some@email.com";
-    private final String personName = "SuchAStrangeLongName";
+    private final String personName = "FirstName";
     private MultiValueMap<String, String> map;
 
     @Before
     public void setup(){
         controller = new GuestController(personService, conversionService, keyService, roleService, userService);
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .build();
 
         VerificationKey key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -84,11 +90,6 @@ public class GuestControllerTest {
         user = userService.createUser(userName,"pass", "ROLE_GUEST");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
-
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .apply(springSecurity())
-                .build();
     }
 
     @Test
@@ -181,7 +182,7 @@ public class GuestControllerTest {
                 .params(map))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
-                .andExpect(model().attribute("error", "Entered key is not valid"));
+                .andExpect(model().attribute("error", UK_FORM_INVALID_KEY_MESSAGE));
     }
 
     @Test
@@ -194,7 +195,7 @@ public class GuestControllerTest {
                 .params(map))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
-                .andExpect(model().attribute("error", "There are errors in form validation"));
+                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
     }
 
     @Test

@@ -61,7 +61,8 @@ public class TeacherController {
 
     @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id) {
-        teacherService.deleteTeacher(id);
+        //TODO Add deletion confirmation
+        teacherService.deleteTeacherById(id);
 
         return new ModelAndView("redirect:/teacher/");
     }
@@ -87,7 +88,7 @@ public class TeacherController {
 
     @PostMapping(value = "/update", params = "action=newKey")
     public ModelAndView newKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
-        //TODO add key change confirmation request
+        //TODO Add key change confirmation request
         teacherDTO = (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);
 
         return showTeacherProfile(teacherDTO);

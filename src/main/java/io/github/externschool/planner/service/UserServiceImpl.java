@@ -115,12 +115,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(final User user) {
-        user.removeVerificationKey();
-        userRepository.delete(user);
+        if (user != null) {
+            if (user.getVerificationKey() != null) {
+                user.removeVerificationKey();
+            }
+            userRepository.delete(user);
+        }
     }
 
     private boolean emailExists(final String email) {
-        User user = userRepository.findByEmail(email);
         return userRepository.findByEmail(email) != null;
     }
 }

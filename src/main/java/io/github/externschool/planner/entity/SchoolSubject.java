@@ -36,7 +36,7 @@ public class SchoolSubject {
     private Set<Teacher> teachers = new HashSet<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @Column(name = "plan_id")
     private Set<StudyPlan> plans = new HashSet<>();
 
@@ -94,6 +94,6 @@ public class SchoolSubject {
     @Override
     public String toString() {
         //Please do not change - parsing with SchoolSubjectFormatter
-        return id != null ? id.toString() + (name != null ? " " + name : ""): "";
+        return id != null ? id.toString() : "" + (name != null ? " " + name : "");
     }
 }

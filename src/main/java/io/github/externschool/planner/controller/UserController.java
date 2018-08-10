@@ -24,6 +24,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.security.Principal;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+
 @Controller
 public class UserController {
     private final UserService userService;
@@ -58,16 +61,16 @@ public class UserController {
         try {
             if (bindingResult.hasErrors()) {
                 if((bindingResult.getFieldErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
-                    throw new KeyNotValidException("Entered key is not valid");
+                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
-                throw new BindingResultException("There are errors in form validation");
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
             user = userService.createNewUser(userDTO);
             if (userDTO.getVerificationKey() != null) {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
                 if (key == null || key.getUser() != null) {
                     userDTO.setVerificationKey(null);
-                    throw new KeyNotValidException("Entered key is not valid");
+                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
                 Person person = key.getPerson();
                 if (person != null && person.getClass() != Person.class) {

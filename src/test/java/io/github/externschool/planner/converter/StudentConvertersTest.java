@@ -65,7 +65,7 @@ public class StudentConvertersTest {
     }
 
     @Test
-    public void shouldReturnExpectedDTO() {
+    public void shouldReturnExpectedDTO_whenOk() {
         StudentDTO actualDTO = conversionService.convert(expectedStudent, StudentDTO.class);
 
         assertThat(actualDTO)
@@ -86,11 +86,35 @@ public class StudentConvertersTest {
     }
 
     @Test
-    public void shouldReturnExpectedStudent() {
+    public void shouldReturnExpectedStudent_whenOk() {
         Student actualStudent = conversionService.convert(expectedDTO, Student.class);
 
         assertThat(actualStudent)
                 .isNotNull()
                 .isEqualToComparingFieldByField(expectedStudent);
+    }
+
+    @Test
+    public void shouldReturnZeroGradeLevelStudentDTO_whenStudentsGradeLevelNull() {
+        expectedStudent.setGradeLevel(null);
+
+        StudentDTO actualDTO = conversionService.convert(expectedStudent, StudentDTO.class);
+
+        assertThat(actualDTO)
+                .isNotNull()
+                .isEqualToIgnoringGivenFields(expectedDTO, "gradeLevel")
+                .hasFieldOrPropertyWithValue("gradeLevel", 0);
+    }
+
+    @Test
+    public void shouldReturnLevelNotDefinedStudent_whenStudentDTOHasInvalidGradeLevel() {
+        expectedDTO.setGradeLevel(13);
+
+        Student actualStudent = conversionService.convert(expectedDTO, Student.class);
+
+        assertThat(actualStudent)
+                .isNotNull()
+                .isEqualToIgnoringGivenFields(expectedStudent, "gradeLevel")
+                .hasFieldOrPropertyWithValue("gradeLevel", GradeLevel.LEVEL_NOT_DEFINED);
     }
 }

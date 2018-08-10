@@ -15,13 +15,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class LocalDateFormatterTest {
-    @Autowired
-    private LocalDateFormatter formatter;
+    @Autowired private LocalDateFormatter formatter;
 
     @Test
     public void shouldReturnSameDate_whenRunnedParsePrint() throws ParseException {
         LocalDate expectedDate = LocalDate.of(2018, 07, 04);
-        Locale locale = new Locale("ru");
+        Locale locale = new Locale("uk");
 
         LocalDate actualDate = formatter.parse(formatter.print(expectedDate, locale), locale);
 

@@ -1,6 +1,8 @@
 package io.github.externschool.planner.entity.course;
 
 import io.github.externschool.planner.entity.profile.Teacher;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -20,6 +22,7 @@ public class Course implements Serializable {
     @EmbeddedId private CoursePK id;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
@@ -67,7 +70,6 @@ public class Course implements Serializable {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id);
     }
 

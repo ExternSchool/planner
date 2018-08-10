@@ -123,7 +123,7 @@ public class SchoolSubjectServiceTest {
         Mockito.when(repository.findById(deleted.getId()))
                 .thenReturn(optional);
 
-        service.deleteSubject(deleted.getId());
+        service.deleteSubjectById(deleted.getId());
 
         verify(repository, times(1)).delete(deleted);
     }

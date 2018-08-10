@@ -16,5 +16,5 @@ public interface SchoolSubjectService {
 
     SchoolSubject saveOrUpdateSubject(SchoolSubject schoolSubject);
 
-    void deleteSubject(Long id);
+    void deleteSubjectById(Long id);
 }

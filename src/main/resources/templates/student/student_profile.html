@@ -3,7 +3,7 @@
       xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
-    <title>Teacher page</title>
+    <title>Student Profile</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -121,7 +121,7 @@
                     <div class="form-group">
                         <label for="cources">Courses (Subjects for now) List</label>
                         <div class="input-group">
-                            <select multiple class="form-control" name="cources" id="cources" size="14" disabled>
+                            <select multiple class="form-control" name="courses" id="courses" size="14" disabled>
                                 <option th:each="subject : ${subjects}"
                                         th:value="${subject.id}"
                                         th:text="${subject.getName()}">

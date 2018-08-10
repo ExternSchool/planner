@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+
 @Controller
 @RequestMapping("/guest")
 public class GuestController {
@@ -100,9 +103,9 @@ public class GuestController {
         try {
             if (bindingResult.hasErrors()) {
                 if((bindingResult.getAllErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
-                    throw new KeyNotValidException("Entered key is not valid");
+                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
-                throw new BindingResultException("There are errors in form validation");
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
 
             Person persistedPerson = personService.findPersonById(personDTO.getId());
@@ -111,7 +114,7 @@ public class GuestController {
             VerificationKey newKey = personDTO.getVerificationKey();
             if (newKey != null && newKey != persistedKey) {
                 if (newKey.getUser() != null) {
-                    throw new KeyNotValidException("Entered key is not valid");
+                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
                 Person newPerson = newKey.getPerson();
                 if (user != null && newPerson != null && newPerson.getClass() != Person.class) {
