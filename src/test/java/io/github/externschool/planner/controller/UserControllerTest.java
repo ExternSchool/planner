@@ -2,6 +2,8 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.service.PersonService;
+import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
@@ -42,12 +44,20 @@ public class UserControllerTest {
     @Autowired private VerificationKeyService keyService;
     @Autowired private PersonService personService;
     @Autowired private ConversionService conversionService;
+    @Autowired private RoleService roleService;
+    @Autowired private StudentService studentService;
     private UserController controller;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
-        controller = new UserController(userService, keyService, personService, conversionService);
+        controller = new UserController(
+                userService,
+                keyService,
+                personService,
+                conversionService,
+                roleService,
+                studentService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(springSecurity())
@@ -129,5 +139,15 @@ public class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
+    }
+
+    @Test
+    public void shouldRedirectToRoot_WhenUserProfileLoadingInitiated() {
+        //TODO Complete this
+    }
+
+    @Test
+    public void shouldCallStudentProfileLoading_WhenStudentProfileLoadingInitiated() {
+        //TODO Complete this
     }
 }
