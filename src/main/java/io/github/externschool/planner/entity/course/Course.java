@@ -30,6 +30,10 @@ public class Course implements Serializable {
     private Integer interviewSemesterOneScore;
     @Column(name = "interview_s2_score")
     private Integer interviewSemesterTwoScore;
+    @Column(name = "approval_s1")
+    private Boolean approvalSemesterOne;
+    @Column(name = "approval_s2")
+    private Boolean approvalSemesterTwo;
     @Column(name = "exam_s1_score")
     private Integer examSemesterOneScore;
     @Column(name = "exam_s2_score")

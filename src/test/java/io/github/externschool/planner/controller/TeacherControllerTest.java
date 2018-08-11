@@ -129,8 +129,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
-        mockMvc.perform(post("/teacher/update")
-                .param("action", "cancel"))
+        mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }

@@ -19,12 +19,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class StudentRepositoryTest {
-
-    @Autowired
-    private StudentRepository repository;
-
-    @Autowired
-    TestEntityManager entityManager;
+    @Autowired private StudentRepository repository;
+    @Autowired TestEntityManager entityManager;
 
     private Student student1;
     private Student student2;
@@ -39,7 +35,7 @@ public class StudentRepositoryTest {
 
         student2 = new Student();
         student2.setGender(Gender.MALE);
-        student2.setGradeLevel(GradeLevel.LEVEL_2);
+        student2.setGradeLevel(GradeLevel.LEVEL_3);
         student2.setLastName("B");
 
         student3 = new Student();
@@ -50,28 +46,26 @@ public class StudentRepositoryTest {
         entityManager.persist(student1);
         entityManager.persist(student2);
         entityManager.persist(student3);
-
     }
 
     @Test
-    public void shouldReturnListOfStudents() {
-
-        List<Student> studentList = this.repository.findAll();
-
-        assertThat(studentList)
-                .isNotNull()
-                .hasSize(3)
-                .containsSubsequence(student1, student2, student3);
-    }
-
-    @Test
-    public void shouldReturnStudentById() {
+    public void shouldReturnStudent_whenFindById() {
         Student expectedStudent = this.repository.findStudentById(student2.getId());
 
         AssertionsForClassTypes.assertThat(expectedStudent)
                 .isNotNull()
                 .isEqualTo(expectedStudent)
                 .isEqualToComparingFieldByField(expectedStudent);
+    }
+
+    @Test
+    public void shouldReturnListOfStudents_whenFindAll() {
+        List<Student> studentList = this.repository.findAll();
+
+        assertThat(studentList)
+                .isNotNull()
+                .hasSize(3)
+                .containsSubsequence(student1, student2, student3);
     }
 
     @Test
@@ -82,6 +76,16 @@ public class StudentRepositoryTest {
                 .isNotNull()
                 .hasSize(3)
                 .containsSubsequence(student3, student2, student1);
+    }
+
+    @Test
+    public void shouldReturnSortedListOfStudent_whenFindAllByGradeLevel() {
+        List<Student> students = this.repository.findAllByGradeLevel(GradeLevel.LEVEL_3);
+
+        assertThat(students)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactlyInAnyOrder(student3, student2);
     }
 }
 

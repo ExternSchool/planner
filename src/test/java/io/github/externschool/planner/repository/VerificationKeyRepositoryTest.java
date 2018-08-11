@@ -18,15 +18,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class VerificationKeyRepositoryTest {
+    @Autowired private VerificationKeyRepository repository;
+    @Autowired TestEntityManager entityManager;
 
-    @Autowired
-    private VerificationKeyRepository repository;
-
-    @Autowired
-    TestEntityManager entityManager;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @Rule public ExpectedException thrown = ExpectedException.none();
 
     private VerificationKey key1;
     private VerificationKey key2;

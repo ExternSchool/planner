@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <html lang="en">
 <head>
     <title>Teacher Profile</title>
@@ -11,11 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/css/main.css">
 </head>
 
 <body class="text-center">
@@ -43,15 +43,17 @@
                         <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
                                th:field="*{lastName}" required>
                     </div>
-                    <div class="form-group">
-                        <label for="firstName">First name</label>
-                        <input class="form-control" type="text" placeholder="First name" id="firstName"
-                               th:field="*{firstName}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="patronymicName">Patronymic Name</label>
-                        <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
-                               th:field="*{patronymicName}" required>
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="firstName">First name</label>
+                            <input class="form-control" type="text" placeholder="First name" id="firstName"
+                                   th:field="*{firstName}" required>
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="patronymicName">Patronymic Name</label>
+                            <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
+                                   th:field="*{patronymicName}" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="position">Officer position</label>
@@ -68,8 +70,6 @@
                         <div class="form-group col-lg-6">
                         </div>
                     </div>
-                </div>
-                <div class=" col-lg-6">
                     <div class="form-group">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
@@ -84,11 +84,13 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class=" col-lg-6">
                     <div class="form-group">
                         <label for="schoolSubjects">Select Subjects</label>
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
-                                    th:field="*{schoolSubjects}" size="10">
+                                    th:field="*{schoolSubjects}" size="14">
                                 <option th:each="subject : ${allSubjects}"
                                         th:value="${{subject}}"
                                         th:text="${subject.name}">
@@ -97,11 +99,13 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group row">
+                    <div class="form-group row" style="padding: 5px 0;">
                         <div class="col-md-4">
-                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
-                                Cancel
-                            </button>
+                            <a href="/teacher/update">
+                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                    Cancel
+                                </button>
+                            </a>
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
@@ -112,9 +116,7 @@
                 </div>
             </div>
             <div th:each="subject : ${teacher.schoolSubjects}">
-                <input type="text"
-                       th:value="${{subject}}"
-                       style="display:none;"/>
+                <input type="text" th:value="${{subject}}" style="display:none;">
             </div>
         </form>
     </fieldset>
@@ -124,7 +126,7 @@
 <footer class="footer">
     <div class="container">
         <span class="text-muted">
-        <div th:replace="fragments/footer :: footer"/>
+            <div th:replace="fragments/footer :: footer"></div>
         </span>
     </div>
 </footer>

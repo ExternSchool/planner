@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -33,6 +34,11 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findAllByOrderByLastName() {
         return studentRepository.findAllByOrderByLastName();
+    }
+
+    @Override
+    public List<Student> findAllByGradeLevel(final GradeLevel gradeLevel) {
+        return studentRepository.findAllByGradeLevel(gradeLevel);
     }
 
     @Override

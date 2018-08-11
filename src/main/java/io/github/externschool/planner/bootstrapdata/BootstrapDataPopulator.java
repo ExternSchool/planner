@@ -80,6 +80,23 @@ public class BootstrapDataPopulator implements InitializingBean {
         personService.saveOrUpdatePerson(adminPerson);
         userService.saveOrUpdate(admin);
 
+        User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
+//        presetStudent = userService.saveOrUpdate(presetStudent);
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Student presetStudentProfile = new Student(new Person(73L,
+                "Student",
+                "To",
+                "Test",
+                "(044)000-2222"),
+                LocalDate.of(2001, 12, 12),
+                Gender.MALE,
+                "Homeless",
+                GradeLevel.LEVEL_11);
+        presetStudentProfile.addVerificationKey(key);
+        presetStudent.setVerificationKey(key);
+        studentService.saveOrUpdateStudent(presetStudentProfile);
+        userService.saveOrUpdate(presetStudent);
+
         key = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(key);
         Teacher teacher = createTeacher(new Person(

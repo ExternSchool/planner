@@ -147,7 +147,7 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @PostMapping(value = "/update", params = "action=cancel")
+    @GetMapping(value = "/update")
     public ModelAndView processFormPersonProfileActionCancel(Principal principal) {
 
         return redirectByRole(userService.findUserByEmail(principal.getName()));

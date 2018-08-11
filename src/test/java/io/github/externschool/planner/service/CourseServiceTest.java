@@ -6,6 +6,8 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.CourseRepository;
+import io.github.externschool.planner.repository.StudyPlanRepository;
+import io.github.externschool.planner.repository.profiles.StudentRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,8 +28,10 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CourseServiceTest {
-    @Mock private CourseRepository repository;
-    @Mock private CourseService courseService;
+    @Mock private CourseRepository courseRepository;
+    @Mock private StudentRepository studentRepository;
+    @Mock private StudyPlanRepository planRepository;
+    private CourseService courseService;
 
     private Course expectedCourse;
     private Course anotherCourse;
@@ -37,7 +41,7 @@ public class CourseServiceTest {
 
     @Before
     public void setUp() {
-        courseService = new CourseServiceImpl(repository);
+        courseService = new CourseServiceImpl(courseRepository, studentRepository, planRepository);
 
         expectedStudent = new Student();
         expectedStudent.setId(1L);
@@ -57,7 +61,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnExpectedCourse_whenFindCourseByStudentIdAndPlanId() {
-        Mockito.when(repository.findById_StudentIdAndId_PlanId(expectedStudent.getId(), expectedPlan.getId()))
+        Mockito.when(courseRepository.findById_StudentIdAndId_PlanId(expectedStudent.getId(), expectedPlan.getId()))
                 .thenReturn(expectedCourse);
 
         Course actualCourse = courseService
@@ -74,7 +78,7 @@ public class CourseServiceTest {
     @Test
     public void shouldReturnExpectedList_whenFindAll() {
         List<Course> expectedList = Arrays.asList(expectedCourse, anotherCourse);
-        Mockito.when(repository.findAll())
+        Mockito.when(courseRepository.findAll())
                 .thenReturn(expectedList);
 
         List<Course> actualCourses = courseService.findAll();
@@ -86,7 +90,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByStudentId() {
-        Mockito.when(repository.findAllById_StudentId(expectedStudent.getId()))
+        Mockito.when(courseRepository.findAllById_StudentId(expectedStudent.getId()))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByStudentId(expectedStudent.getId());
@@ -99,7 +103,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByPlanId() {
-        Mockito.when(repository.findAllById_PlanId(expectedPlan.getId()))
+        Mockito.when(courseRepository.findAllById_PlanId(expectedPlan.getId()))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByPlanId(expectedPlan.getId());
@@ -112,7 +116,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByTeacher() {
-        Mockito.when(repository.findAllByTeacher(teacher))
+        Mockito.when(courseRepository.findAllByTeacher(teacher))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByTeacher(teacher);
@@ -125,7 +129,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnCourse_whenSaveOrUpdateCourse() {
-        Mockito.when(repository.save(expectedCourse))
+        Mockito.when(courseRepository.save(expectedCourse))
                 .thenReturn(expectedCourse);
 
         Course actualCourse = courseService.saveOrUpdateCourse(expectedCourse);
@@ -138,17 +142,22 @@ public class CourseServiceTest {
 
     @Test
     public void shouldRemoveCourseFromTeacher_whenDeleteCourse() {
-        Mockito.when(repository.findById_StudentIdAndId_PlanId(
+        Mockito.when(courseRepository.findById_StudentIdAndId_PlanId(
                 expectedCourse.getStudentId(),
                 expectedCourse.getPlanId()))
                 .thenReturn(expectedCourse);
 
         courseService.deleteCourse(expectedCourse);
 
-        verify(repository, times(1)).delete(expectedCourse);
+        verify(courseRepository, times(1)).delete(expectedCourse);
         assertThat(teacher)
                 .isNotNull()
                 .hasFieldOrProperty("courses")
                 .matches(t -> t.getCourses().isEmpty());
+    }
+
+    @Test
+    public void shouldCreateCoursesForStudent_whenInitStudentCourses() {
+        //TODO implement
     }
 }

@@ -81,7 +81,7 @@ public class TeacherController {
         return new ModelAndView("redirect:/teacher/");
     }
 
-    @PostMapping(value = "/update", params = "action=cancel")
+    @GetMapping(value = "/update")
     public ModelAndView cancel() {
         return new ModelAndView("redirect:/teacher/");
     }

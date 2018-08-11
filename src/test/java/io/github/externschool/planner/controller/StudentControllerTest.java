@@ -7,6 +7,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
+import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
@@ -55,6 +56,7 @@ public class StudentControllerTest {
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
+    @Autowired private CourseService courseService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -73,7 +75,8 @@ public class StudentControllerTest {
                 subjectService,
                 keyService, 
                 conversionService, 
-                roleService);
+                roleService,
+                courseService);
 
         VerificationKey key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -126,6 +129,12 @@ public class StudentControllerTest {
                         Matchers.hasItem(
                                 Matchers.<Student> hasProperty("firstName",
                                         Matchers.equalToIgnoringCase(firstName)))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnStudentListTemplate_whenGetStudentListByGrade() {
+        //TODO
     }
 
     @Test
@@ -232,27 +241,35 @@ public class StudentControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
-    public void shouldRedirect_whenPostUpdateActionCancelAdmin() throws Exception {
+    public void shouldRedirect_whenGetUpdateCancelAdmin() throws Exception {
         Set<Role> roles = new HashSet<>();
         roles.add(roleService.getRoleByName("ROLE_ADMIN"));
         user.setRoles(roles);
         userService.saveOrUpdate(user);
 
-        mockMvc.perform(post("/student/update")
-                .param("action", "cancel")
-                .params(map))
+        mockMvc.perform(get("/student/update/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
     }
 
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
-    public void shouldRedirect_whenPostUpdateActionCancelStudent() throws Exception {
-        mockMvc.perform(post("/student/update")
-                .param("action", "cancel")
-                .params(map))
+    public void shouldRedirect_whenGetUpdateCancelStudent() throws Exception {
+        mockMvc.perform(get("/student/update/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldSetNewRolesToUser_whenPostUpdateActionNewKey() {
+        //TODO
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() {
+        //TODO
     }
 
     @After

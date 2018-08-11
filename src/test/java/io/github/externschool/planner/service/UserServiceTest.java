@@ -195,4 +195,9 @@ public class UserServiceTest {
                 .hasFieldOrPropertyWithValue("roles",
                         Stream.of("ROLE_TEACHER", "ROLE_OFFICER").map(Role::new).collect(Collectors.toSet()));
     }
+
+    @Test
+    public void shouldAssignGuestRole_whenKeyBelongsToNobody() {
+        //TODO
+    }
 }

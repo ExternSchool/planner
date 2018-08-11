@@ -21,7 +21,7 @@ public class MainControllerTest {
     @Autowired private MockMvc mockMvc;
 
     @Test
-    public void shouldReturnsGreetingViewStatusOk_whenRootPageRequested() throws Exception {
+    public void shouldReturnMainViewStatusOk_whenRootPageRequested() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))

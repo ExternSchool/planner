@@ -86,6 +86,16 @@ public class StudentConvertersTest {
     }
 
     @Test
+    public void shouldReturnEmailStudentDTO_whenStudentsKeyHasUser() {
+        StudentDTO actualDTO = conversionService.convert(expectedStudent, StudentDTO.class);
+
+        assertThat(actualDTO)
+                .isNotNull()
+                .isEqualToIgnoringGivenFields(expectedDTO, "email")
+                .hasFieldOrPropertyWithValue("email", expectedDTO.getEmail());
+    }
+
+    @Test
     public void shouldReturnExpectedStudent_whenOk() {
         Student actualStudent = conversionService.convert(expectedDTO, Student.class);
 

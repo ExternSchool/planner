@@ -7,12 +7,15 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.exceptions.BindingResultException;
+import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
+import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -22,11 +25,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -42,14 +48,18 @@ public class StudentController {
     private final VerificationKeyService keyService;
     private final ConversionService conversionService;
     private final RoleService roleService;
+    private final CourseService courseService;
+    @Autowired private TeacherService teacherService;
 
+    @Autowired
     public StudentController(final StudentService studentService,
                              final PersonService personService,
                              final UserService userService,
                              final SchoolSubjectService subjectService,
                              final VerificationKeyService keyService,
                              final ConversionService conversionService,
-                             final RoleService roleService) {
+                             final RoleService roleService,
+                             final CourseService courseService) {
         this.studentService = studentService;
         this.personService = personService;
         this.userService = userService;
@@ -57,16 +67,36 @@ public class StudentController {
         this.keyService = keyService;
         this.conversionService = conversionService;
         this.roleService = roleService;
+        this.courseService = courseService;
     }
 
     @Secured("ROLE_ADMIN")
     @GetMapping({"/"})
     public ModelAndView displayStudentList() {
-        return new ModelAndView(
+        ModelAndView modelAndView = new ModelAndView(
                 "student/student_list",
-                "students", studentService.findAllByOrderByLastName().stream()
+                "students", Optional.ofNullable(studentService.findAllByOrderByLastName().stream()
                 .map(s -> conversionService.convert(s, StudentDTO.class))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList()));
+        modelAndView.addObject("level", 0);
+
+        return modelAndView;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping({"/grade/{level}"})
+    public ModelAndView displayStudentListByGrade(@PathVariable("level") Integer level) {
+        List<StudentDTO> list = Optional.ofNullable(studentService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream()
+                .map(s -> conversionService.convert(s, StudentDTO.class))
+                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+        ModelAndView modelAndView = new ModelAndView(
+                "student/student_list",
+                "students", list);
+        modelAndView.addObject("level", level);
+
+        return modelAndView;
     }
 
     @Secured("ROLE_STUDENT")
@@ -126,13 +156,14 @@ public class StudentController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
-    @PostMapping(value = "/update", params = "action=cancel")
-    public ModelAndView processFormStudentProfileActionCancel(@ModelAttribute("student") StudentDTO studentDTO,
+    @GetMapping(value = "/update/{id}")
+    public ModelAndView processFormStudentProfileActionCancel(@PathVariable("id") Long keyId,
                                                               Principal principal) {
-        VerificationKey key = studentDTO.getVerificationKey();
-        if (key.getPerson() == null
+        VerificationKey key = keyService.findKeyById(keyId);
+        if (key != null
+                && (key.getPerson() == null
                 || key.getPerson().getId() == null
-                || personService.findPersonById(key.getPerson().getId()) == null) {
+                || personService.findPersonById(key.getPerson().getId()) == null)) {
             keyService.deleteById(key.getId());
         }
 
@@ -143,7 +174,17 @@ public class StudentController {
     @PostMapping(value = "/update", params = "action=newKey")
     public ModelAndView processFormStudentProfileActionNewKey(@ModelAttribute("student") StudentDTO studentDTO) {
         //TODO Add key change confirmation
+        /*
+        When key change confirmed:
+        DTO Receives NEW KEY which is instantly assigned, it CAN'T BE CANCELLED even if Cancel button pressed.
+        An old key is removed from user (if present), user receives role of Guest
+         */
         studentDTO = (StudentDTO)keyService.setNewKeyToDTO(studentDTO);
+        Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
+                .ifPresent(user -> {
+                    userService.assignNewRolesByKey(user, user.getVerificationKey());
+                    userService.saveOrUpdate(user);
+                });
 
         return showStudentProfileForm(studentDTO, true);
     }
@@ -166,6 +207,9 @@ public class StudentController {
         modelAndView.addObject("grades", Arrays.asList(GradeLevel.values()));
         modelAndView.addObject("genders", Arrays.asList(Gender.values()));
         modelAndView.addObject("isNew", isNew);
+
+        //TODO select teachers by subjects
+        modelAndView.addObject("teachers", teacherService.findAllTeachers());
 
         return modelAndView;
     }
