@@ -6,6 +6,8 @@ import io.github.externschool.planner.converter.PersonToPersonDTO;
 import io.github.externschool.planner.converter.SchoolSubjectFormatter;
 import io.github.externschool.planner.converter.StudentDTOToStudent;
 import io.github.externschool.planner.converter.StudentToStudentDTO;
+import io.github.externschool.planner.converter.StudyPlanDTOToStudyPlan;
+import io.github.externschool.planner.converter.StudyPlanToStudyPlanDTO;
 import io.github.externschool.planner.converter.TeacherDTOToTeacher;
 import io.github.externschool.planner.converter.TeacherToTeacherDTO;
 import io.github.externschool.planner.converter.UserDTOToUser;
@@ -32,6 +34,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new StudentToStudentDTO());
         registry.addConverter(new UserDTOToUser());
         registry.addConverter(new UserToUserDTO());
+        registry.addConverter(new StudyPlanDTOToStudyPlan());
+        registry.addConverter(new StudyPlanToStudyPlanDTO());
         
         registry.addFormatter(keyFormatter);
         registry.addFormatter(subjectFormatter);
