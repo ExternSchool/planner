@@ -22,5 +22,4 @@ public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
 
         return studentDTO;
     }
-
 }
