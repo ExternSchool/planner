@@ -15,7 +15,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
 </head>
 
 <body class="text-center">
@@ -27,31 +27,54 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Subjects</small></h4>
-    <form class="form" th:action="@{/subject/add}" method="post">
-        <div class="form-group row">
-            <label class="col-lg-3 col-form-label form-control-label">New Subject</label>
-            <div class="input-group col-lg-9">
-                <input class="form-control form-control-sm" type="text" id="new_name"
-                       placeholder="Name of study subject" th:name="new_name" >
-                <div class="input-group-append">
-                    <button class="btn btn-outline-success btn-sm" type="submit">Add New</button>
-                </div>
+    <h4 class="h3 font-weight-normal" th:inline="text"><small>Subjects</small></h4>
+    <form th:action="@{/subject/add}" method="post">
+        <div class="input-group input-group-sm mb-1">
+            <div class="input-group-prepend">
+                <span class="input-group-text">New Subject</span>
+            </div>
+            <input class="form-control form-control-sm" type="text" id="new_title"
+                   placeholder="Title of study subject" th:name="new_title" >
+            <div class="input-group-append">
+                <button class="btn btn-outline-success btn-sm" type="submit">Add New</button>
             </div>
         </div>
     </form>
     <div class="table-responsive" th:if="${not #lists.isEmpty(subjects)}">
-        <table class="col-lg-9 table table-sm table-hover">
+        <table class="col-lg-12 table table-sm table-hover">
             <thead class="">
             <tr>
-                <th class="text-left col-lg-10">Name</th>
-                <th width="col-lg-2">Delete</th>
+                <th class="text-left">Title</th>
+                <th class="text-right" style="width: 10%">Edit</th>
+                <th class="text-right" style="width: 10%">Delete</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="subject : ${subjects}">
-                <td class="text-left col-lg-10" th:text="${subject.getName()}">Name</td>
-                <td>
+                <td class="text-left">
+                    <span th:if="${subject.id != editId}" th:text="${subject.title}">
+                        Title
+                    </span>
+                    <form class="form-inline" th:method="post" th:if="${subject.id == editId}"
+                          th:action="@{/subject/{id}/edit(id=${subject.id})}">
+                        <input type="hidden" th:field="${editId}"/>
+                        <div class="input-group col-lg-10">
+                            <input class="form-control form-control-sm align-content-start" type="text" id="new_title"
+                                   th:value="${subject.title}" th:name="new_title" >
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success btn-sm" type="submit">Edit</button>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+                <td class="text-right">
+                    <form th:method="post" th:action="@{/subject/{id}(id=${subject.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="text-right">
                     <form th:method="post" th:action="@{/subject/{id}/delete(id=${subject.id})}">
                         <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
                             <i class="fa fa-trash" aria-hidden="true"></i>
