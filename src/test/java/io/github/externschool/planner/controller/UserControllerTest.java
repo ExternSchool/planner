@@ -1,6 +1,11 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.service.PersonService;
+import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.StudentService;
+import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,6 +23,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -32,11 +40,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class UserControllerTest {
     @Autowired private WebApplicationContext wac;
-
+    @Autowired private UserService userService;
+    @Autowired private VerificationKeyService keyService;
+    @Autowired private PersonService personService;
+    @Autowired private ConversionService conversionService;
+    @Autowired private RoleService roleService;
+    @Autowired private StudentService studentService;
+    private UserController controller;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
+        controller = new UserController(
+                userService,
+                keyService,
+                personService,
+                conversionService,
+                roleService,
+                studentService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(springSecurity())
@@ -105,7 +126,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
-                .andExpect(model().attribute("error", "Entered key is not valid"));
+                .andExpect(model().attribute("error", UK_FORM_INVALID_KEY_MESSAGE));
     }
 
     @Test
@@ -117,6 +138,6 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
-                .andExpect(model().attribute("error", "There are errors in form validation"));
+                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
     }
 }

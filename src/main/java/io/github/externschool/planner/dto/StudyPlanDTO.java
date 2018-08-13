@@ -6,25 +6,30 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import java.util.Objects;
 
 public class StudyPlanDTO {
-
     private Long id;
     private GradeLevel gradeLevel;
     private SchoolSubject subject;
-    private String name;
+    private String title;
     private Integer hoursPerSemesterOne;
     private Integer hoursPerSemesterTwo;
     private Boolean examSemesterOne;
     private Boolean examSemesterTwo;
+
     public StudyPlanDTO(){
     }
 
-    public StudyPlanDTO(Long id, GradeLevel gradeLevel, SchoolSubject subject,
-                        String name, Integer hoursPerSemesterOne, Integer hoursPerSemesterTwo,
-                        Boolean examSemesterOne, Boolean examSemesterTwo) {
+    public StudyPlanDTO(Long id,
+                        GradeLevel gradeLevel,
+                        SchoolSubject subject,
+                        String title,
+                        Integer hoursPerSemesterOne,
+                        Integer hoursPerSemesterTwo,
+                        Boolean examSemesterOne,
+                        Boolean examSemesterTwo) {
         this.id = id;
         this.gradeLevel = gradeLevel;
         this.subject = subject;
-        this.name = name;
+        this.title = title;
         this.hoursPerSemesterOne = hoursPerSemesterOne;
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
         this.examSemesterOne = examSemesterOne;
@@ -55,12 +60,12 @@ public class StudyPlanDTO {
         this.subject = subject;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Integer getHoursPerSemesterOne() {
@@ -103,7 +108,7 @@ public class StudyPlanDTO {
         return Objects.equals(id, that.id) &&
                 gradeLevel == that.gradeLevel &&
                 Objects.equals(subject, that.subject) &&
-                Objects.equals(name, that.name) &&
+                Objects.equals(title, that.title) &&
                 Objects.equals(hoursPerSemesterOne, that.hoursPerSemesterOne) &&
                 Objects.equals(hoursPerSemesterTwo, that.hoursPerSemesterTwo) &&
                 Objects.equals(examSemesterOne, that.examSemesterOne) &&
@@ -112,8 +117,7 @@ public class StudyPlanDTO {
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id, gradeLevel, subject, name, hoursPerSemesterOne,
+        return Objects.hash(id, gradeLevel, subject, title, hoursPerSemesterOne,
                 hoursPerSemesterTwo, examSemesterOne, examSemesterTwo);
     }
 }

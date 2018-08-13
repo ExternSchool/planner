@@ -54,7 +54,7 @@ public class CourseRepositoryTest {
 
         for (String name : Arrays.asList("Quantum Mechanics", "Algebraic topology", "Rocket Science")) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setTitle(name);
             entityManager.persist(subject);
 
             StudyPlan plan = new StudyPlan(student.getGradeLevel(), subject);

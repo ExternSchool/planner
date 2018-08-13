@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.logout;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -28,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class SpringSecurityConfigTest {
     @Autowired private WebApplicationContext wac;
-
     private MockMvc mockMvc;
 
     @Before
@@ -63,5 +63,14 @@ public class SpringSecurityConfigTest {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("http://localhost/login"));
+    }
+
+    @Test
+    @WithMockUser(username="q@q", password = "q", roles={"ADMIN"})
+    public void shouldReturnRedirection_WhenFormLogin() throws Exception {
+        mockMvc.perform(formLogin("/login").user("q@q").password("q"))
+                .andExpect(authenticated())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/init"));
     }
 }

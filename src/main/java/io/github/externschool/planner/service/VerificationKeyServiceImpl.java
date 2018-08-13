@@ -19,12 +19,6 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         this.repository = verificationKeyRepository;
     }
 
-    @Transactional
-    @Override
-    public void deleteById(Long id) {
-        repository.findById(id).ifPresent(repository::delete);
-    }
-
     @Override
     public VerificationKey findKeyById(Long id) {
         return repository.findById(id).orElse(null);
@@ -33,6 +27,11 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     @Override
     public VerificationKey findKeyByValue(final String value) {
         return repository.findByValue(value);
+    }
+
+    @Override
+    public List<VerificationKey> findAll() {
+        return repository.findAll();
     }
 
     @Transactional
@@ -44,9 +43,10 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.save(verificationKey);
     }
 
+    @Transactional
     @Override
-    public List<VerificationKey> findAll() {
-        return repository.findAll();
+    public void deleteById(Long id) {
+        repository.findById(id).ifPresent(repository::delete);
     }
 
     @Transactional

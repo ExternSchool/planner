@@ -32,7 +32,7 @@ public class StudyPlan {
     @Cascade(CascadeType.SAVE_UPDATE)
     private SchoolSubject subject;
 
-    private String name;
+    private String title;
 
     @Column(name = "hrs_s1")
     private Integer hoursPerSemesterOne;
@@ -49,14 +49,14 @@ public class StudyPlan {
     public StudyPlan(final GradeLevel gradeLevel, final SchoolSubject subject) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
-        this.name = subject.getName();
+        this.title = subject.getTitle();
     }
 
-    public StudyPlan(GradeLevel gradeLevel, SchoolSubject subject, String name, Integer hoursPerSemesterOne,
+    public StudyPlan(GradeLevel gradeLevel, SchoolSubject subject, String title, Integer hoursPerSemesterOne,
                      Integer hoursPerSemesterTwo, Boolean examSemesterOne, Boolean examSemesterTwo) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
-        this.name = name;
+        this.title = title;
         this.hoursPerSemesterOne = hoursPerSemesterOne;
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
         this.examSemesterOne = examSemesterOne;
@@ -87,12 +87,12 @@ public class StudyPlan {
         this.subject = subject;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    public void setTitle(final String title) {
+        this.title = title;
     }
 
     public Integer getHoursPerSemesterOne() {
@@ -152,7 +152,7 @@ public class StudyPlan {
     public String toString() {
         return "StudyPlan{" +
                 "id=" + id +
-                ", name=" + name +
+                ", name=" + title +
                 ", gradeLevel=" + gradeLevel +
                 ", subject=" + subject +
                 ", hrsOne=" + hoursPerSemesterOne +

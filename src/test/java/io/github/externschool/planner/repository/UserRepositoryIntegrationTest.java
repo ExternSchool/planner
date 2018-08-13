@@ -2,7 +2,7 @@ package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.entity.VerificationKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,14 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class UserRepositoryIntegrationTest {
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RoleRepository roleRepository;
+    @Autowired private VerificationKeyRepository keyRepository;
+    @Autowired private TestEntityManager entityManager;
 
     private final String email = "user@email.com";
     private User expectedUser;
@@ -72,6 +68,21 @@ public class UserRepositoryIntegrationTest {
         assertThat(actualUser)
                 .isNotNull();
         assertThat(actualUser.getPassword()).isEqualTo(encryptedPassword);
+    }
+
+    @Test
+    public void shouldReturnUserWithNewKey_WhenSaveUserTwice() {
+        VerificationKey key1 = new VerificationKey();
+        expectedUser.setVerificationKey(keyRepository.save(key1));
+        userRepository.save(expectedUser);
+        VerificationKey key2 = new VerificationKey();
+        expectedUser.setVerificationKey(keyRepository.save(key2));
+        userRepository.save(expectedUser);
+
+        User actualUser = userRepository.findByEmail(expectedUser.getEmail());
+
+        assertThat(actualUser.getVerificationKey())
+                .isEqualTo(key2);
     }
 
     @Test

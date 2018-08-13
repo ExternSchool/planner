@@ -27,8 +27,8 @@ public class SchoolSubject {
     @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "title")
+    private String title;
 
     @ManyToMany(mappedBy = "subjects", fetch = FetchType.EAGER)
     @Cascade(CascadeType.SAVE_UPDATE)
@@ -36,7 +36,7 @@ public class SchoolSubject {
     private Set<Teacher> teachers = new HashSet<>();
 
     @OneToMany(mappedBy = "subject", fetch = FetchType.EAGER)
-    @Cascade(CascadeType.ALL)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @Column(name = "plan_id")
     private Set<StudyPlan> plans = new HashSet<>();
 
@@ -51,12 +51,12 @@ public class SchoolSubject {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Set<Teacher> getTeachers() {
@@ -83,17 +83,17 @@ public class SchoolSubject {
         if (o == null || getClass() != o.getClass()) return false;
         final SchoolSubject subject = (SchoolSubject) o;
         return Objects.equals(id, subject.id) &&
-                Objects.equals(name, subject.name);
+                Objects.equals(title, subject.title);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, title);
     }
 
     @Override
     public String toString() {
         //Please do not change - parsing with SchoolSubjectFormatter
-        return id != null ? id.toString() + (name != null ? " " + name : ""): "";
+        return id != null ? id.toString() : "" + (title != null ? " " + title : "");
     }
 }

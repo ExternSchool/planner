@@ -88,6 +88,12 @@ public class Person {
         this.lastName = lastName;
     }
 
+    public String getShortName() {
+        return lastName + " " +
+                firstName.substring(0,1) + "." +
+                patronymicName.substring(0,1) + ".";
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }

@@ -3,8 +3,6 @@ package io.github.externschool.planner.repository;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
-import io.github.externschool.planner.service.SchoolSubjectService;
-import io.github.externschool.planner.service.SchoolSubjectServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +40,7 @@ public class SchoolSubjectRepositoryIntegrationTest {
         expectedTeacherSubject = new HashMap<>();
         for (int i = 0; i < NAMES.size(); i++) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(NAMES.get(i));
+            subject.setTitle(NAMES.get(i));
             entityManager.persist(subject);
 
             Teacher teacher = new Teacher();
@@ -64,7 +61,7 @@ public class SchoolSubjectRepositoryIntegrationTest {
                 .isNotEmpty()
                 .size().isEqualTo(3);
 
-        subjects.forEach(subject -> assertThat(subject.getName())
+        subjects.forEach(subject -> assertThat(subject.getTitle())
                 .isIn(NAMES));
     }
 
@@ -105,7 +102,7 @@ public class SchoolSubjectRepositoryIntegrationTest {
     @Test
     public void shouldAddOneSubject_WhenSaveNew() {
         SchoolSubject subject = new SchoolSubject();
-        subject.setName("Algebra");
+        subject.setTitle("Algebra");
         subjectRepository.save(subject);
         List<SchoolSubject> subjects = subjectRepository.findAll();
 
@@ -117,7 +114,7 @@ public class SchoolSubjectRepositoryIntegrationTest {
     @Test
     public void shouldSubtractOneSubject_WhenDelete() {
         SchoolSubject subject = new SchoolSubject();
-        subject.setName("Chemistry");
+        subject.setTitle("Chemistry");
         subjectRepository.save(subject);
         subjectRepository.delete(subject);
         List<SchoolSubject> subjects = subjectRepository.findAll();

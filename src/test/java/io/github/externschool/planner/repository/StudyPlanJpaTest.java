@@ -36,7 +36,7 @@ public class StudyPlanJpaTest {
         expectedStudyPlans = new ArrayList<>();
         for (String name : Arrays.asList("Quantum Mechanics","Algebraic topology")) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setTitle(name);
             for (GradeLevel level : Arrays.asList(GradeLevel.LEVEL_1, GradeLevel.LEVEL_3)) {
                 StudyPlan plan = new StudyPlan(level, subject);
                 subject.addPlan(plan);
@@ -60,7 +60,7 @@ public class StudyPlanJpaTest {
 
     @Test
     public void shouldReturnTwoPlans_whenDeleteOneSubjectWhichContainsTwoPlans() {
-        repository.delete(repository.findByName("Quantum Mechanics"));
+        repository.delete(repository.findByTitle("Quantum Mechanics"));
         List<StudyPlan> actualStudyPlans = repository.findAll().stream()
                 .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
@@ -74,7 +74,7 @@ public class StudyPlanJpaTest {
 
     @Test
     public void shouldReturnThreePlans_whenRemoveStudyPlanFromSubject() {
-        SchoolSubject subject = repository.findByName("Quantum Mechanics");
+        SchoolSubject subject = repository.findByTitle("Quantum Mechanics");
         subject.removePlan((StudyPlan) subject.getPlans().toArray()[0]);
         entityManager.persist(subject);
 

@@ -40,7 +40,7 @@ public class SchoolSubjectServiceTest {
         for (long i = 0L; i < 4L; i++) {
             SchoolSubject subject = new SchoolSubject();
             subject.setId(i);
-            subject.setName(Long.toString(i));
+            subject.setTitle(Long.toString(i));
             subjects.add(subject);
         }
         optional = Optional.of(subjects.get(0));
@@ -63,10 +63,10 @@ public class SchoolSubjectServiceTest {
     @Test
     public void shouldReturnSubject_whenFindSubjectByName() {
         SchoolSubject expected = subjects.get(0);
-        Mockito.when(repository.findByName(expected.getName()))
+        Mockito.when(repository.findByTitle(expected.getTitle()))
                 .thenReturn(expected);
 
-        SchoolSubject actual = service.findSubjectByName(expected.getName());
+        SchoolSubject actual = service.findSubjectByName(expected.getTitle());
 
         assertThat(actual)
                 .isNotNull()
@@ -77,7 +77,7 @@ public class SchoolSubjectServiceTest {
 
     @Test
     public void shouldReturnFourSubjects_whenFindAllByOrderByName() {
-        Mockito.when(repository.findAllByOrderByName())
+        Mockito.when(repository.findAllByOrderByTitle())
                 .thenReturn(subjects);
         List<SchoolSubject> actual = service.findAllByOrderByName();
 
@@ -123,7 +123,7 @@ public class SchoolSubjectServiceTest {
         Mockito.when(repository.findById(deleted.getId()))
                 .thenReturn(optional);
 
-        service.deleteSubject(deleted.getId());
+        service.deleteSubjectById(deleted.getId());
 
         verify(repository, times(1)).delete(deleted);
     }

@@ -2,13 +2,11 @@ package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
-import io.github.externschool.planner.service.SchoolSubjectService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 

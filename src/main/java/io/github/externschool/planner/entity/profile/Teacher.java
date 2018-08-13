@@ -21,7 +21,6 @@ import java.util.Set;
 @Entity
 @Table(name = "teacher")
 public class Teacher extends Person {
-
     @Column(name = "officer")
     private String officer;
 

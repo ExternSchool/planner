@@ -20,7 +20,8 @@ public class StudentDTOToStudent implements Converter<StudentDTO, Student> {
         if (key != null && key.getUser() != null) {
             key.getUser().addVerificationKey(key);
         }
-        student.setGradeLevel(GradeLevel.valueOf(studentDTO.getGradeLevel()));
+        int level = studentDTO.getGradeLevel();
+        student.setGradeLevel((level > 0 && level <= 12) ? GradeLevel.valueOf(level) : GradeLevel.LEVEL_NOT_DEFINED);
 
         return student;
     }
