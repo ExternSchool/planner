@@ -30,8 +30,8 @@ public class StudyPlanConverterTest {
         final long id = 1L;
         final GradeLevel gradeLevel = GradeLevel.valueOf(1);
         final SchoolSubject schoolSubject = new SchoolSubject();
-        schoolSubject.setName("Math");
-        final String name = "Study plan";
+        schoolSubject.setTitle("Math");
+        final String title = "Study plan";
         final Integer hoursPerSemesterOne = 30;
         final Integer hoursPerSemesterTwo = 40;
         final Boolean examSemesterOne = true;
@@ -41,7 +41,7 @@ public class StudyPlanConverterTest {
         studyPlan.setId(id);
         studyPlan.setGradeLevel(gradeLevel);
         studyPlan.setSubject(schoolSubject);
-        studyPlan.setName(name);
+        studyPlan.setTitle(title);
         studyPlan.setHoursPerSemesterOne(hoursPerSemesterOne);
         studyPlan.setHoursPerSemesterTwo(hoursPerSemesterTwo);
         studyPlan.setExamSemesterOne(examSemesterOne);
@@ -51,7 +51,7 @@ public class StudyPlanConverterTest {
         studyPlanDTO.setId(id);
         studyPlanDTO.setGradeLevel(gradeLevel);
         studyPlanDTO.setSubject(schoolSubject);
-        studyPlanDTO.setName(name);
+        studyPlanDTO.setTitle(title);
         studyPlanDTO.setHoursPerSemesterOne(hoursPerSemesterOne);
         studyPlanDTO.setHoursPerSemesterTwo(hoursPerSemesterTwo);
         studyPlanDTO.setExamSemesterOne(examSemesterOne);

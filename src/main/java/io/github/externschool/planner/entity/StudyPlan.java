@@ -52,11 +52,11 @@ public class StudyPlan {
         this.title = subject.getTitle();
     }
 
-    public StudyPlan(GradeLevel gradeLevel, SchoolSubject subject, String name, Integer hoursPerSemesterOne,
+    public StudyPlan(GradeLevel gradeLevel, SchoolSubject subject, String title, Integer hoursPerSemesterOne,
                      Integer hoursPerSemesterTwo, Boolean examSemesterOne, Boolean examSemesterTwo) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
-        this.name = name;
+        this.title = title;
         this.hoursPerSemesterOne = hoursPerSemesterOne;
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
         this.examSemesterOne = examSemesterOne;
