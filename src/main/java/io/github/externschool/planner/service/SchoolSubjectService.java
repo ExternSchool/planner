@@ -8,9 +8,9 @@ public interface SchoolSubjectService {
 
     SchoolSubject findSubjectById(Long id);
 
-    SchoolSubject findSubjectByName(final String name);
+    SchoolSubject findSubjectByTitle(final String title);
 
-    List<SchoolSubject> findAllByOrderByName();
+    List<SchoolSubject> findAllByOrderByTitle();
 
     List<SchoolSubject> findAllById(List<Long> indices);
 
