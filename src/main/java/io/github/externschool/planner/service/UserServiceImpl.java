@@ -61,7 +61,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
     @Override
     public User assignNewRole(final User user, final String role) throws RoleNotFoundException {
         if (roleService.getRoleByName(role) == null) {
@@ -94,15 +93,16 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Transactional
     @Override
     public User assignNewRolesByKey(User user, final VerificationKey key) throws RoleNotFoundException {
-        if (key != null && key.getPerson() != null) {
+        if (key == null || key.getPerson() == null) {
+            user = assignNewRole(user, "ROLE_GUEST");
+        } else {
             if (key.getPerson().getClass() == Student.class) {
                 user = assignNewRole(user, "ROLE_STUDENT");
             } else {
                 user = assignNewRole(user, "ROLE_TEACHER");
-                Teacher teacher = (Teacher)key.getPerson();
+                Teacher teacher = (Teacher) key.getPerson();
                 if (!teacher.getOfficer().isEmpty()) {
                     user = assignNewRole(user, "ROLE_OFFICER");
                 }
@@ -115,12 +115,15 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(final User user) {
-        user.removeVerificationKey();
-        userRepository.delete(user);
+        if (user != null) {
+            if (user.getVerificationKey() != null) {
+                user.removeVerificationKey();
+            }
+            userRepository.delete(user);
+        }
     }
 
     private boolean emailExists(final String email) {
-        User user = userRepository.findByEmail(email);
         return userRepository.findByEmail(email) != null;
     }
 }

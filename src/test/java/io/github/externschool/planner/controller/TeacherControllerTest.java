@@ -3,7 +3,9 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.PlannerApplication;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
+import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,20 +29,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = PlannerApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
-public class TeacherControllerIntegrationTest {
-    @Autowired
-    private WebApplicationContext webApplicationContext;
-    @Autowired
-    private TeacherService teacherService;
-    @Autowired
-    private ConversionService conversionService;
-
+public class TeacherControllerTest {
+    @Autowired private WebApplicationContext webApplicationContext;
+    @Autowired private TeacherService teacherService;
+    @Autowired private SchoolSubjectService subjectService;
+    @Autowired private ConversionService conversionService;
+    @Autowired private VerificationKeyService keyService;
+    private TeacherController controller;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
+        controller = new TeacherController(teacherService, subjectService, conversionService, keyService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -57,7 +59,6 @@ public class TeacherControllerIntegrationTest {
                 .andExpect(content().string(Matchers.containsString("Teachers List")));
     }
 
-    //TODO Think about should a Teacher have access to /teacher/ folder when has no access to the link in the header
     @Test
     @WithMockUser(roles = "TEACHER")
     public void shouldReturnTeacherListTemplate_WhenRequestWithTeacherRole() throws Exception {
@@ -128,8 +129,7 @@ public class TeacherControllerIntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenGetRequestCancelUpdate() throws Exception {
-        mockMvc.perform(post("/teacher/update")
-                .param("action", "cancel"))
+        mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }

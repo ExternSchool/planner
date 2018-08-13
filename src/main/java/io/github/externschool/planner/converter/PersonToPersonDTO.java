@@ -6,17 +6,18 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 public class PersonToPersonDTO implements Converter<Person, PersonDTO> {
     @Override
     public PersonDTO convert(Person person) {
         PersonDTO personDTO = new PersonDTO();
         BeanUtils.copyProperties(person, personDTO);
-        if (person.getVerificationKey().getUser() != null) {
-            personDTO.setEmail(person.getVerificationKey().getUser().getEmail());
-        } else {
-            personDTO.setEmail("");
-        }
+        personDTO.setEmail("");
+        Optional.ofNullable(person.getVerificationKey())
+                .ifPresent(key -> Optional.ofNullable(key.getUser())
+                        .ifPresent(user -> personDTO.setEmail(user.getEmail())));
 
         return personDTO;
     }

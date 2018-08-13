@@ -195,4 +195,17 @@ public class UserServiceTest {
                 .hasFieldOrPropertyWithValue("roles",
                         Stream.of("ROLE_TEACHER", "ROLE_OFFICER").map(Role::new).collect(Collectors.toSet()));
     }
+
+    @Test
+    public void shouldAssignGuestRole_whenKeyIsNotOwnedByAnyPerson() {
+        User actualUser = new User();
+        VerificationKey key = new VerificationKey();
+        actualUser.addVerificationKey(key);
+
+        userService.assignNewRolesByKey(actualUser, key);
+
+        assertThat(actualUser)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("roles", Collections.singleton(new Role("ROLE_GUEST")));
+    }
 }

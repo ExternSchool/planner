@@ -8,8 +8,7 @@ import java.util.List;
 
 @Repository
 public interface SchoolSubjectRepository extends JpaRepository<SchoolSubject, Long> {
+    SchoolSubject findByTitle(String title);
 
-    SchoolSubject findByName(String name);
-
-    List<SchoolSubject> findAllByOrderByName();
+    List<SchoolSubject> findAllByOrderByTitle();
 }

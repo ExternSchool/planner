@@ -80,6 +80,23 @@ public class BootstrapDataPopulator implements InitializingBean {
         personService.saveOrUpdatePerson(adminPerson);
         userService.saveOrUpdate(admin);
 
+        User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
+//        presetStudent = userService.saveOrUpdate(presetStudent);
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Student presetStudentProfile = new Student(new Person(73L,
+                "Student",
+                "To",
+                "Test",
+                "(044)000-2222"),
+                LocalDate.of(2001, 12, 12),
+                Gender.MALE,
+                "Homeless",
+                GradeLevel.LEVEL_11);
+        presetStudentProfile.addVerificationKey(key);
+        presetStudent.setVerificationKey(key);
+        studentService.saveOrUpdateStudent(presetStudentProfile);
+        userService.saveOrUpdate(presetStudent);
+
         key = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(key);
         Teacher teacher = createTeacher(new Person(
@@ -118,11 +135,12 @@ public class BootstrapDataPopulator implements InitializingBean {
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
-        Student student = new Student(new Person(77L,
+        Person person = personService.saveOrUpdatePerson(new Person(null,
                 "Jonh",
                 "Johnovich",
                 "Doe",
-                "(044)222-2222"),
+                "(044)222-2222"));
+        Student student = new Student(person,
                 LocalDate.of(2006, 02, 22),
                 Gender.MALE,
                 "Khreshchatyk str., 11, ap.11, Kyiv 01001",
@@ -156,7 +174,7 @@ public class BootstrapDataPopulator implements InitializingBean {
 
         for (String subjectName : subjectsNames) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(subjectName);
+            subject.setTitle(subjectName);
             schoolSubjectService.saveOrUpdateSubject(subject);
 
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
@@ -164,7 +182,7 @@ public class BootstrapDataPopulator implements InitializingBean {
             plan.setHoursPerSemesterTwo(2);
             plan.setExamSemesterOne(true);
             plan.setExamSemesterTwo(true);
-            plan.setName("Introduction to " + plan.getName());
+            plan.setTitle("Introduction to " + plan.getTitle());
             planRepository.save(plan);
 
             teacher.addSubject(subject);

@@ -1,22 +1,29 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
-    private TeacherRepository teacherRepository;
+    private final TeacherRepository teacherRepository;
+    private final VerificationKeyRepository keyRepository;
 
-    public TeacherServiceImpl(TeacherRepository teacherRepository) {
+    @Autowired
+    public TeacherServiceImpl(final TeacherRepository teacherRepository,
+                              final VerificationKeyRepository keyRepository) {
         this.teacherRepository = teacherRepository;
+        this.keyRepository = keyRepository;
     }
 
     @Override
@@ -46,8 +53,8 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Transactional
     @Override
-    public void deleteTeacher(Long id) {
-        Teacher teacher = teacherRepository.findById(id).orElse(null);
+    public void deleteTeacherById(Long id) {
+        Teacher teacher = teacherRepository.findTeacherById(id);
         if (teacher != null) {
             for (SchoolSubject subject : new HashSet<>(teacher.getSubjects())) {
                 teacher.removeSubject(subject);
@@ -55,7 +62,15 @@ public class TeacherServiceImpl implements TeacherService {
             for (Course course : new HashSet<>(teacher.getCourses())) {
                 teacher.removeCourse(course);
             }
+            VerificationKey key = teacher.getVerificationKey();
+            if (key != null) {
+                User user = key.getUser();
+                if (user != null) {
+                    user.removeVerificationKey();
+                }
+                keyRepository.delete(key);
+            }
+            teacherRepository.deleteById(id);
         }
-        teacherRepository.deleteById(id);
     }
 }

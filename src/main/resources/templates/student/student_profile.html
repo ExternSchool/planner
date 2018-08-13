@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk">
 <head>
-    <title>Teacher page</title>
+    <title>Student Profile</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -35,30 +35,38 @@
         <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
             <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{email}"/>
             <div class="form-row">
-                <div class=" col-lg-6">
+                <div class="col-lg-2">
+
+                </div>
+                <div class="col-lg-8 ">
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
-                               th:field="*{lastName}" required>
+                               th:field="*{lastName}" required
+                               th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                     </div>
-                    <div class="form-group">
-                        <label for="firstName">First name</label>
-                        <input class="form-control" type="text" placeholder="First name" id="firstName"
-                               th:field="*{firstName}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="patronymicName">Patronymic Name</label>
-                        <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
-                               th:field="*{patronymicName}" required>
+                    <div class="row">
+                        <div class="form-group col-lg-6">
+                            <label for="firstName">First name</label>
+                            <input class="form-control" type="text" placeholder="First name" id="firstName"
+                                   th:field="*{firstName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        </div>
+                        <div class="form-group col-lg-6">
+                            <label for="patronymicName">Patronymic Name</label>
+                            <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
+                                   th:field="*{patronymicName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6">
                             <label for="gender">Gender</label>
-                            <select class="form-control" name="gender" id="gender" th:field="*{gender}">
-                                <option th:each="gender : ${T(io.github.externschool.planner.entity.enums.Gender).values()}"
-                                        th:value="${gender}"
-                                        th:text="${gender}">
+                            <select class="form-control" name="gender" id="gender" th:field="*{gender}"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">
                                     Gender
                                 </option>
                             </select>
@@ -67,7 +75,8 @@
                             <label for="dateOfBirth">Birth Date</label>
                             <div class="input-group">
                                 <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
-                                       th:field="*{dateOfBirth}" id="dateOfBirth" required>
+                                       th:field="*{dateOfBirth}" id="dateOfBirth" required
+                                       th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <div class="input-group-addon">
 
                                 </div>
@@ -77,9 +86,10 @@
                     <div class="row">
                         <div class="form-group col-lg-6">
                             <label for="grade">Grade</label>
-                            <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}">
-                                <option th:each="grade: ${grades}"
-                                        th:value="${grade.getLevel()}" th:text="${grade.getName()}">
+                            <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
+                                        th:text="${grade.toString()}">
                                     Grade
                                 </option>
                             </select>
@@ -96,9 +106,9 @@
                         <input class="form-control" type="text" placeholder="Home address"
                                th:field="*{address}" id="address">
                     </div>
-                </div>
-                <div class=" col-lg-6">
-                    <div class="form-group">
+                    <input type="hidden" th:field="${student.verificationKey}"
+                           th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         <label for="key">Verification Key</label>
                         <div class="input-group">
                             <input type="hidden" th:field="${student.verificationKey}"/>
@@ -112,21 +122,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="gradeLevel">Subjects List</label>
-                        <div class="input-group">
-                            <select multiple class="form-control" name="gradeLevel" id="gradeLevel" size="14" disabled>
-                                <option th:each="subject : ${subjects}"
-                                        th:value="${subject.id}"
-                                        th:text="${subject.getName()}">
-                                    Subject
-                                </option>
-                        </select>
-                        </div>
-                    </div>
-                    <div class="form-group row" style="padding: 8px 0;">
+                    <div class="form-group row col-md-8 mx-auto">
                         <div class="col-md-4">
-                            <a href="/student/update">
+                            <a th:href="@{/student/update/cancel/{id}(id=${student.verificationKey.id})}">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Cancel
                                 </button>
@@ -138,6 +136,9 @@
                             </button>
                         </div>
                     </div>
+                </div>
+                <div class="col-lg-2">
+
                 </div>
             </div>
         </form>

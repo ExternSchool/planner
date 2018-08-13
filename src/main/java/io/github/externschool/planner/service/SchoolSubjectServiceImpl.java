@@ -3,6 +3,7 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,33 +11,35 @@ import java.util.List;
 
 @Service
 public class SchoolSubjectServiceImpl implements SchoolSubjectService {
-    private SchoolSubjectRepository subjectRepository;
+    private final SchoolSubjectRepository subjectRepository;
+    private final StudyPlanService planService;
 
-    public SchoolSubjectServiceImpl(final SchoolSubjectRepository subjectRepository) {
+    @Autowired
+    public SchoolSubjectServiceImpl(final SchoolSubjectRepository subjectRepository, final StudyPlanService planService) {
         this.subjectRepository = subjectRepository;
+        this.planService = planService;
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public SchoolSubject findSubjectById(Long id) {
         return subjectRepository.findById(id).orElse(null);
     }
 
-
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public SchoolSubject findSubjectByName(final String name) {
-        return subjectRepository.findByName(name);
+        return subjectRepository.findByTitle(name);
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<SchoolSubject> findAllByOrderByName() {
-        return subjectRepository.findAllByOrderByName();
+        return subjectRepository.findAllByOrderByTitle();
     }
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public List<SchoolSubject> findAllById(final List<Long> indices) {
         return subjectRepository.findAllById(indices);
     }
@@ -46,18 +49,21 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
         return subjectRepository.save(schoolSubject);
     }
 
-    @Override
     @Transactional
-    public void deleteSubject(Long id) {
+    @Override
+    public void deleteSubjectById(Long id) {
         SchoolSubject subject = subjectRepository.findById(id).orElse(null);
         if (subject != null) {
+            if (subject.getPlans() != null) {
+                subject.getPlans().forEach(plan -> {
+                    subject.removePlan(plan);
+                    planService.deletePlan(plan);
+                });
+            }
             if (subject.getTeachers() != null) {
                 for (Teacher teacher : subject.getTeachers()) {
                     teacher.removeSubject(subject);
                 }
-            }
-            if (subject.getPlans() != null) {
-                subject.getPlans().forEach(subject::removePlan);
             }
 
             subjectRepository.delete(subject);
