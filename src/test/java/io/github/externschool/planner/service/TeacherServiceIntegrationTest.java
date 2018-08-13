@@ -67,11 +67,11 @@ public class TeacherServiceIntegrationTest {
 
     @Test
     public void shouldReturnAllSubjects_whenFindAllSubjects() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByName())
+        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
                 .orElse(Collections.emptyList()).size();
         subjects.forEach(subjectService::saveOrUpdateSubject);
 
-        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByName();
+        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
 
         assertThat(actualSubjects)
                 .isNotEmpty()
@@ -81,7 +81,7 @@ public class TeacherServiceIntegrationTest {
 
     @Test
     public void shouldRemoveFromTeachers_whenDeleteSubject() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByName())
+        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
                 .orElse(Collections.emptyList()).size();
         subjects.forEach(subjectService::saveOrUpdateSubject);
         teachers.forEach(teacherService::saveOrUpdateTeacher);
@@ -89,7 +89,7 @@ public class TeacherServiceIntegrationTest {
         subjects.remove(subjectToRemove);
 
         subjectService.deleteSubjectById(subjectToRemove.getId());
-        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByName();
+        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
         List<Teacher> actualTeachers = teacherService.findAllTeachers();
 
         assertThat(actualSubjects)
@@ -112,7 +112,7 @@ public class TeacherServiceIntegrationTest {
 
         teacherService.deleteTeacherById(teacher.getId());
         List<Teacher> actualTeachers = teacherService.findAllTeachers();
-        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByName();
+        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
 
         assertThat(actualTeachers)
                 .isNotEmpty()
@@ -126,7 +126,7 @@ public class TeacherServiceIntegrationTest {
 
     @Test
     public void shouldRemovePlans_whenDeleteSubject() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByName())
+        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
                 .orElse(Collections.emptyList()).size();
         subjects.forEach(subjectService::saveOrUpdateSubject);
         plans.forEach(planService::saveOrUpdatePlan);
@@ -134,7 +134,7 @@ public class TeacherServiceIntegrationTest {
         subjects.remove(subjectToRemove);
 
         subjectService.deleteSubjectById(subjectToRemove.getId());
-        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByName();
+        List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
         List<StudyPlan> actualPlans = planService.findAllByOrderByGradeLevel();
 
         assertThat(actualSubjects)

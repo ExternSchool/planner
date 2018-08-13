@@ -97,7 +97,7 @@ public class TeacherController {
     private ModelAndView showTeacherProfile(TeacherDTO teacherDTO) {
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
-        modelAndView.addObject("allSubjects", subjectService.findAllByOrderByName());
+        modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
         return modelAndView;
     }
