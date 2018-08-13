@@ -28,35 +28,35 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Guests</small></h4>
+    <h4 class="h3 font-weight-normal" th:inline="text"><small>Guests</small></h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(persons)}">
-        <table class="col-lg-9 table table-sm table-hover">
+        <table class="col-lg-12 table table-sm table-hover">
             <thead>
             <tr>
-                <th>LastName</th>
-                <th>FirstName</th>
-                <th>Patronym</th>
+                <th class="text-left">LastName</th>
+                <th class="text-left">FirstName</th>
+                <th class="text-left">Patronym</th>
                 <th>Phone</th>
                 <th>Email</th>
-                <th>Edit</th>
-                <th>Delete</th>
+                <th class="text-right" style="width: 10%">Edit</th>
+                <th class="text-right" style="width: 10%">Delete</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="person : ${persons}">
-                <td th:text="${person.getLastName()}">Surname</td>
-                <td th:text="${person.getFirstName()}">Name</td>
-                <td th:text="${person.getPatronymicName()}">Patronym</td>
+                <td class="text-left" th:text="${person.getLastName()}">Surname</td>
+                <td class="text-left" th:text="${person.getFirstName()}">Name</td>
+                <td class="text-left" th:text="${person.getPatronymicName()}">Patronym</td>
                 <td th:text="${person.getPhoneNumber()}">Phone</td>
                 <td th:text="${person.getEmail()}">Email</td>
-                <td>
+                <td class="text-right">
                     <form th:method="post" th:action="@{/guest/{id}(id=${person.id})}">
                         <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
                             <i class="far fa-edit" aria-hidden="true"></i>
                         </button>
                     </form>
                 </td>
-                <td>
+                <td class="text-right">
                     <form th:method="post" th:action="@{/guest/{id}/delete(id=${person.id})}">
                         <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
                             <i class="fa fa-trash" aria-hidden="true"></i>

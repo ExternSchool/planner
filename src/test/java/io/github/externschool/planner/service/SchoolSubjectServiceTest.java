@@ -66,7 +66,7 @@ public class SchoolSubjectServiceTest {
         Mockito.when(repository.findByTitle(expected.getTitle()))
                 .thenReturn(expected);
 
-        SchoolSubject actual = service.findSubjectByName(expected.getTitle());
+        SchoolSubject actual = service.findSubjectByTitle(expected.getTitle());
 
         assertThat(actual)
                 .isNotNull()
@@ -79,7 +79,7 @@ public class SchoolSubjectServiceTest {
     public void shouldReturnFourSubjects_whenFindAllByOrderByName() {
         Mockito.when(repository.findAllByOrderByTitle())
                 .thenReturn(subjects);
-        List<SchoolSubject> actual = service.findAllByOrderByName();
+        List<SchoolSubject> actual = service.findAllByOrderByTitle();
 
         assertThat(actual)
                 .isNotNull()
