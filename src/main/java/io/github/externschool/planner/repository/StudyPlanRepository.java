@@ -10,8 +10,9 @@ import java.util.List;
 
 @Repository
 public interface StudyPlanRepository extends JpaRepository<StudyPlan, Long> {
+    StudyPlan findStudyPlanById(Long id);
 
-    StudyPlan findBySubjectAndGradeLevel(SchoolSubject subject, GradeLevel gradeLevel);
+    StudyPlan findByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
 
     List<StudyPlan> findAllBySubjectOrderByGradeLevel(SchoolSubject subject);
 

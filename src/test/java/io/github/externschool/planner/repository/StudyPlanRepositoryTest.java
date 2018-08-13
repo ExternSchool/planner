@@ -36,7 +36,7 @@ public class StudyPlanRepositoryTest {
         subjects = new ArrayList<>();
         for (String name : Arrays.asList("Quantum Mechanics","Algebraic topology")) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setTitle(name);
             subjects.add(subject);
             entityManager.persist(subject);
 
@@ -61,7 +61,7 @@ public class StudyPlanRepositoryTest {
 
     @Test
     public void shouldReturnThreePlans_whenFindBySubjectIdAndGradeLevelAndDeleteThisPlan() {
-        repository.delete(repository.findBySubjectAndGradeLevel(subjects.get(0), GradeLevel.LEVEL_1));
+        repository.delete(repository.findByGradeLevelAndSubject(GradeLevel.LEVEL_1, subjects.get(0)));
         List<StudyPlan> actualStudyPlans = repository.findAll();
 
         assertThat(actualStudyPlans)

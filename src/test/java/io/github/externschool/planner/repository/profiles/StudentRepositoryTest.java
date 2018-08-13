@@ -80,7 +80,7 @@ public class StudentRepositoryTest {
 
     @Test
     public void shouldReturnSortedListOfStudent_whenFindAllByGradeLevel() {
-        List<Student> students = this.repository.findAllByGradeLevel(GradeLevel.LEVEL_3);
+        List<Student> students = this.repository.findAllByGradeLevelOrderByLastName(GradeLevel.LEVEL_3);
 
         assertThat(students)
                 .isNotNull()

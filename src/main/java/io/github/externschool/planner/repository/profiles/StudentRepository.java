@@ -15,5 +15,5 @@ public interface StudentRepository extends CrudRepository<Student, Long> {
 
     List<Student> findAllByOrderByLastName();
 
-    List<Student> findAllByGradeLevel(GradeLevel gradeLevel);
+    List<Student> findAllByGradeLevelOrderByLastName(GradeLevel gradeLevel);
 }

@@ -21,8 +21,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class StudentConvertersTest {
-    @Autowired
-    ConversionService conversionService;
+    @Autowired private ConversionService conversionService;
     private Student expectedStudent;
     private StudentDTO expectedDTO;
 

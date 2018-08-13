@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Gender;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
@@ -62,6 +63,7 @@ public class StudentControllerTest {
     private MockMvc mockMvc;
     private Student student;
     private User user;
+    private VerificationKey key;
     private final String userName = "some@email.com";
     private final String firstName = "StudentsName";
     private MultiValueMap<String, String> map;
@@ -78,7 +80,7 @@ public class StudentControllerTest {
                 roleService,
                 courseService);
 
-        VerificationKey key = new VerificationKey();
+        key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
 
         student = new Student();
@@ -105,7 +107,6 @@ public class StudentControllerTest {
         map.add("phoneNumber", studentDTO.getPhoneNumber());
         map.add("address", studentDTO.getAddress());
         map.add("verificationKey", studentDTO.getVerificationKey().getValue());
-        map.add("courses", "");
 
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
@@ -133,8 +134,16 @@ public class StudentControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnStudentListTemplate_whenGetStudentListByGrade() {
-        //TODO
+    public void shouldReturnStudentListTemplate_whenGetStudentListByGrade() throws Exception {
+        mockMvc.perform(get("/student/grade/3"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("gradeLevel",
+                                        Matchers.equalTo(3)))));
     }
 
     @Test
@@ -247,7 +256,7 @@ public class StudentControllerTest {
         user.setRoles(roles);
         userService.saveOrUpdate(user);
 
-        mockMvc.perform(get("/student/update/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/update/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
     }
@@ -255,26 +264,44 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
     public void shouldRedirect_whenGetUpdateCancelStudent() throws Exception {
-        mockMvc.perform(get("/student/update/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/update/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
 
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
-    public void shouldSetNewRolesToUser_whenPostUpdateActionNewKey() {
-        //TODO
+    public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
+        mockMvc.perform(post("/student/update")
+                .param("action", "newKey")
+                .params(map))
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_profile"))
+                .andExpect(model().attribute("student",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.not(user)))));
     }
 
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
-    public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() {
-        //TODO
+    public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
+        mockMvc.perform(post("/student/update")
+                .param("action", "newKey")
+                .params(map))
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_profile"))
+                .andExpect(model().attribute("student",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.not(key))));
     }
 
     @After
     public void tearDown() {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);
+        keyService.deleteById(key.getId());
     }
 }

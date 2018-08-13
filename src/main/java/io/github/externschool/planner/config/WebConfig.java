@@ -1,5 +1,7 @@
 package io.github.externschool.planner.config;
 
+import io.github.externschool.planner.converter.CourseDTOToCourse;
+import io.github.externschool.planner.converter.CourseToCourseDTO;
 import io.github.externschool.planner.converter.GenderEnumFormatter;
 import io.github.externschool.planner.converter.LocalDateFormatter;
 import io.github.externschool.planner.converter.PersonDTOToPerson;
@@ -34,6 +36,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new StudentToStudentDTO());
         registry.addConverter(new UserDTOToUser());
         registry.addConverter(new UserToUserDTO());
+        registry.addConverter(new CourseDTOToCourse());
+        registry.addConverter(new CourseToCourseDTO());
         
         registry.addFormatter(keyFormatter);
         registry.addFormatter(subjectFormatter);

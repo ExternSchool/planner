@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,9 +49,14 @@ public class CourseServiceTest {
         expectedStudent.setId(1L);
         expectedPlan = new StudyPlan();
         expectedPlan.setId(2L);
+        expectedPlan.setTitle("Plan 2L");
         expectedCourse = new Course(expectedStudent.getId(), expectedPlan.getId());
 
         teacher =  new Teacher(new Person(), "Teacher", new HashSet<>(), new HashSet<>());
+        teacher.setId(7L);
+        teacher.setLastName("Teacher");
+        teacher.setFirstName("John");
+        teacher.setPatronymicName("Jacob");
         teacher.addCourse(expectedCourse);
 
         Student student = new Student();
@@ -157,7 +164,68 @@ public class CourseServiceTest {
     }
 
     @Test
-    public void shouldCreateCoursesForStudent_whenInitStudentCourses() {
-        //TODO implement
+    public void shouldReturnString_whenGetCourseTitleByCourse() {
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        String title = courseService.getCourseTitleByCourse(expectedCourse);
+
+        assertThat(title)
+                .isNotBlank()
+                .contains("Plan 2L - Teacher J.J.");
+    }
+
+    @Test
+    public void shouldReturnStringNoTitle_whenGetCourseTitleNoTitle() {
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        expectedPlan.setTitle("");
+        String title = courseService.getCourseTitleByCourse(expectedCourse);
+
+        assertThat(title)
+                .isNotBlank()
+                .contains(UK_COURSE_NO_TITLE + " - Teacher J.J.");
+    }
+
+    @Test
+    public void shouldReturnStringNoTeacher_whenGetCourseTitleNoTeacher() {
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        expectedCourse.getTeacher().removeCourse(expectedCourse);
+        String title = courseService.getCourseTitleByCourse(expectedCourse);
+
+        assertThat(title)
+                .isNotBlank()
+                .contains("Plan 2L - " + UK_COURSE_NO_TEACHER);
+    }
+
+    @Test
+    public void shouldReturnStringNoTitleNoTeacher_whenGetCourseTitleNoTitleNoTeacher() {
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        expectedCourse.getTeacher().removeCourse(expectedCourse);
+        expectedPlan.setTitle(null);
+        String title = courseService.getCourseTitleByCourse(expectedCourse);
+
+        assertThat(title)
+                .isNotBlank()
+                .contains(UK_COURSE_NO_TITLE + " - " + UK_COURSE_NO_TEACHER);
+    }
+
+    @Test
+    public void shouldCreateCoursesForStudent_whenCreateCoursesForStudent() {
+        StudyPlan newPlan = new StudyPlan();
+        newPlan.setId(11L);
+        Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
+        expectedCourse.getTeacher().removeCourse(expectedCourse);
+        Mockito.when(planRepository.findAllByGradeLevelOrderBySubject(expectedStudent.getGradeLevel()))
+                .thenReturn(Arrays.asList(expectedPlan, newPlan));
+        List<Course> expectedCourses = Arrays.asList(expectedCourse, newCourse);
+
+        List<Course> actualCourses = courseService.createCoursesForStudent(expectedStudent);
+
+        assertThat(actualCourses)
+                .isNotEmpty()
+                .containsExactlyInAnyOrder(expectedCourse, newCourse)
+                .containsExactlyInAnyOrderElementsOf(expectedCourses);
     }
 }

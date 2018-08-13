@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -75,11 +78,29 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public void createCoursesForStudent(final Student student) {
+    public String getCourseTitleByCourse(Course course) {
+        return Optional.of(planRepository.findStudyPlanById(course.getPlanId()))
+                .filter(Objects::nonNull)
+                .map(StudyPlan::getTitle)
+                .filter(t -> t != null && !t.equals(""))
+                .orElse(UK_COURSE_NO_TITLE)
+                + " - "
+                + Optional.ofNullable(course.getTeacher())
+                .filter(Objects::nonNull)
+                .map(Teacher::getShortName)
+                .orElse(UK_COURSE_NO_TEACHER);
+    }
+
+    @Transactional
+    @Override
+    public List<Course> createCoursesForStudent(final Student student) {
         List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderBySubject(student.getGradeLevel());
-        Set<Course> coursesToTake = new HashSet<>();
+        List<Course> coursesToTake = new ArrayList<>();
         plansToFulfill.forEach(plan -> coursesToTake.add(new Course(student.getId(), plan.getId())));
         coursesToTake.forEach(this::saveOrUpdateCourse);
+
+        return coursesToTake;
     }
 }

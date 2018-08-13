@@ -110,11 +110,7 @@ public class UserController {
         User currentUser = userService.findUserByEmail(principal.getName());
         if (currentUser.getVerificationKey() != null && currentUser.getVerificationKey().getPerson() != null) {
             modelAndView.setViewName("redirect:/");
-            //TODO Initiate User Profile Loading
             Set<Role> currentRoles = userService.findUserByEmail(principal.getName()).getRoles();
-            if (currentRoles.contains(roleService.getRoleByName("ROLE_STUDENT"))) {
-                //TODO Call StudentService init method
-            }
         } else {
             VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
             Person person = new Person();

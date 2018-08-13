@@ -140,14 +140,4 @@ public class UserControllerTest {
                 .andExpect(view().name("redirect:/signup"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
     }
-
-    @Test
-    public void shouldRedirectToRoot_WhenUserProfileLoadingInitiated() {
-        //TODO Complete this
-    }
-
-    @Test
-    public void shouldCallStudentProfileLoading_WhenStudentProfileLoadingInitiated() {
-        //TODO Complete this
-    }
 }

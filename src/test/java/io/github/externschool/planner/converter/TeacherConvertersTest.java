@@ -14,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -44,7 +42,7 @@ public class TeacherConvertersTest {
         Set<SchoolSubject> schoolSubjects = Stream.of("Quantum Mechanics", "Algebraic topology")
                 .map(s -> {
                     SchoolSubject subject = new SchoolSubject();
-                    subject.setName(s);
+                    subject.setTitle(s);
                     return subject;
                 })
                 .collect(Collectors.toSet());

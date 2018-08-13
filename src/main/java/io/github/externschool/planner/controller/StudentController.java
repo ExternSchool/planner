@@ -1,9 +1,11 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.exceptions.BindingResultException;
@@ -12,6 +14,7 @@ import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
+import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
@@ -25,7 +28,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -33,7 +35,9 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
@@ -50,6 +54,7 @@ public class StudentController {
     private final RoleService roleService;
     private final CourseService courseService;
     @Autowired private TeacherService teacherService;
+    @Autowired private StudyPlanService planService;
 
     @Autowired
     public StudentController(final StudentService studentService,
@@ -156,7 +161,7 @@ public class StudentController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
-    @GetMapping(value = "/update/{id}")
+    @GetMapping(value = "/update/cancel/{id}")
     public ModelAndView processFormStudentProfileActionCancel(@PathVariable("id") Long keyId,
                                                               Principal principal) {
         VerificationKey key = keyService.findKeyById(keyId);
@@ -203,13 +208,9 @@ public class StudentController {
     private ModelAndView showStudentProfileForm(StudentDTO studentDTO, Boolean isNew) {
         ModelAndView modelAndView = new ModelAndView("student/student_profile");
         modelAndView.addObject("student", studentDTO);
-        modelAndView.addObject("subjects", subjectService.findAllByOrderByName());
         modelAndView.addObject("grades", Arrays.asList(GradeLevel.values()));
         modelAndView.addObject("genders", Arrays.asList(Gender.values()));
         modelAndView.addObject("isNew", isNew);
-
-        //TODO select teachers by subjects
-        modelAndView.addObject("teachers", teacherService.findAllTeachers());
 
         return modelAndView;
     }

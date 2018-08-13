@@ -40,7 +40,7 @@ public class TeacherServiceIntegrationTest {
             Teacher teacher = new Teacher();
             teacher.setOfficer("Teacher of " + name);
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setTitle(name);
             teacher.addSubject(subject);
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_3, subject);
             subject.addPlan(plan);

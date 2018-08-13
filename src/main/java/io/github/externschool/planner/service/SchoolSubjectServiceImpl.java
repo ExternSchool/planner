@@ -29,13 +29,13 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     @Transactional(readOnly = true)
     @Override
     public SchoolSubject findSubjectByName(final String name) {
-        return subjectRepository.findByName(name);
+        return subjectRepository.findByTitle(name);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<SchoolSubject> findAllByOrderByName() {
-        return subjectRepository.findAllByOrderByName();
+        return subjectRepository.findAllByOrderByTitle();
     }
 
     @Transactional(readOnly = true)

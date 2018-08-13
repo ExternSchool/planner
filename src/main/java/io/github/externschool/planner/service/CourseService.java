@@ -21,5 +21,7 @@ public interface CourseService {
 
     void deleteCourse(Course course);
 
-    void createCoursesForStudent(Student student);
+    String getCourseTitleByCourse(Course course);
+
+    List<Course> createCoursesForStudent(Student student);
 }

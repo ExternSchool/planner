@@ -1,24 +1,32 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Student;
+import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-    private StudentRepository studentRepository;
-    private VerificationKeyRepository keyRepository;
+    private final StudentRepository studentRepository;
+    private final VerificationKeyRepository keyRepository;
+    private final CourseRepository courseRepository;
 
+    @Autowired
     public StudentServiceImpl(final StudentRepository studentRepository,
-                              final VerificationKeyRepository keyRepository) {
+                              final VerificationKeyRepository keyRepository,
+                              final CourseRepository courseRepository) {
         this.studentRepository = studentRepository;
         this.keyRepository = keyRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Override
@@ -38,7 +46,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findAllByGradeLevel(final GradeLevel gradeLevel) {
-        return studentRepository.findAllByGradeLevel(gradeLevel);
+        return studentRepository.findAllByGradeLevelOrderByLastName(gradeLevel);
     }
 
     @Override
@@ -49,18 +57,21 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     @Override
     public void deleteStudentById(final Long id) {
-        Student student = findStudentById(id);
-        if (student != null) {
-            //TODO Clean all fields
-
-            VerificationKey key = student.getVerificationKey();
-            if (key != null) {
-                if (key.getUser() != null) {
-                    key.getUser().removeVerificationKey();
-                }
-                keyRepository.delete(key);
-            }
-            studentRepository.deleteById(id);
-        }
+        Optional.ofNullable(findStudentById(id))
+                .ifPresent(student -> {
+                    courseRepository.findAllById_StudentId(id).stream()
+                            .filter(Objects::nonNull)
+                            .forEach(course -> {
+                                course.getTeacher().removeCourse(course);
+                                courseRepository.delete(course);
+                            });
+                    Optional.ofNullable(student.getVerificationKey())
+                            .ifPresent(key -> {
+                                Optional.ofNullable(key.getUser())
+                                        .ifPresent(User::removeVerificationKey);
+                                keyRepository.delete(key);
+                            });
+                    studentRepository.deleteById(id);
+                });
     }
 }

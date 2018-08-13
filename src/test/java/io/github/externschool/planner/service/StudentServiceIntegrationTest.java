@@ -70,7 +70,7 @@ public class StudentServiceIntegrationTest {
 
         for (String name : Arrays.asList("Quantum Mechanics", "Algebraic topology", "Rocket Science")) {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(name);
+            subject.setTitle(name);
             subjects.add(subject);
             subjectService.saveOrUpdateSubject(subject);
 

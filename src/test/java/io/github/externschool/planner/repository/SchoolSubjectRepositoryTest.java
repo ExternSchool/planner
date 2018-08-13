@@ -1,7 +1,6 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.repository.SchoolSubjectRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +33,7 @@ public class SchoolSubjectRepositoryTest {
         expectedSubjects = new ArrayList<>();
         Arrays.asList("biology", "geometry", "history", "math").forEach(n -> {
             SchoolSubject subject = new SchoolSubject();
-            subject.setName(n);
+            subject.setTitle(n);
             expectedSubjects.add(subject);
             entityManager.persist(subject);
         });
@@ -43,18 +42,18 @@ public class SchoolSubjectRepositoryTest {
     @Test
     public void shouldReturnSchoolSubject_whenFindByName() {
         SchoolSubject expectedSubject = expectedSubjects.get(0);
-        String name = expectedSubject.getName();
+        String title = expectedSubject.getTitle();
 
-        SchoolSubject actualSubject = repository.findByName(name);
+        SchoolSubject actualSubject = repository.findByTitle(title);
 
         assertThat(actualSubject)
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("name", name);
+                .hasFieldOrPropertyWithValue("title", title);
     }
 
     @Test
     public void shouldReturnOrderedList_whenFindAllByOrderByNameAsc(){
-        List<SchoolSubject> actualSubjects = repository.findAllByOrderByName();
+        List<SchoolSubject> actualSubjects = repository.findAllByOrderByTitle();
 
         assertThat(actualSubjects)
                 .isNotNull()

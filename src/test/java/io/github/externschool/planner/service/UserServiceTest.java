@@ -197,7 +197,15 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldAssignGuestRole_whenKeyBelongsToNobody() {
-        //TODO
+    public void shouldAssignGuestRole_whenKeyIsNotOwnedByAnyPerson() {
+        User actualUser = new User();
+        VerificationKey key = new VerificationKey();
+        actualUser.addVerificationKey(key);
+
+        userService.assignNewRolesByKey(actualUser, key);
+
+        assertThat(actualUser)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("roles", Collections.singleton(new Role("ROLE_GUEST")));
     }
 }
