@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text"><small>Student [[${student.getEmail()}]]</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Персональні дані екстерна [[${student.getEmail()}]]</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>
@@ -40,85 +40,96 @@
                 <div class="col-lg-2">
 
                 </div>
-                <div class="col-lg-8 ">
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input class="form-control" type="text" placeholder="Last Name" id = "lastName"
-                               th:field="*{lastName}" required
-                               th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="form-group col-lg-12 mb-0">
+                            <label for="lastName" class="col-form-label float-left mb-0">Прізвище</label>
+                            <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                                   th:field="*{lastName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-lg-6">
-                            <label for="firstName">First name</label>
-                            <input class="form-control" type="text" placeholder="First name" id="firstName"
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="firstName" class="col-form-label float-left">Ім'я</label>
+                            <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
                                    th:field="*{firstName}" required
                                    th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
-                        <div class="form-group col-lg-6">
-                            <label for="patronymicName">Patronymic Name</label>
-                            <input class="form-control" type="text" placeholder="Patronymic Name" id="patronymicName"
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="patronymicName" class="col-form-label float-left">По-батькові</label>
+                            <input class="form-control" type="text" placeholder="По-батькові" id="patronymicName"
                                    th:field="*{patronymicName}" required
                                    th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-lg-6">
-                            <label for="gender">Gender</label>
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="gender" class="col-form-label float-left">Стать</label>
                             <select class="form-control" name="gender" id="gender" th:field="*{gender}"
                                     th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">
-                                    Gender
+                                    Стать
                                 </option>
                             </select>
+                            <input type="hidden" th:field="*{gender}"
+                                   th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
                         </div>
-                        <div class="form-group col-lg-6">
-                            <label for="dateOfBirth">Birth Date</label>
-                            <div class="input-group">
-                                <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
-                                       th:field="*{dateOfBirth}" id="dateOfBirth" required
-                                       th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                                <div class="input-group-addon">
-
-                                </div>
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="dateOfBirth" class="col-form-label float-left">Дата народження</label>
+                            <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
+                                   th:field="*{dateOfBirth}" id="dateOfBirth" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            <div class="input-group-addon">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="form-group col-lg-6">
-                            <label for="grade">Grade</label>
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="grade" class="col-form-label float-left">Клас</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
                                     th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
                                         th:text="${grade.toString()}">
-                                    Grade
+                                    Клас
                                 </option>
                             </select>
+                            <input type="hidden" th:field="*{gradeLevel}"
+                                   th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
                         </div>
-                        <div class="form-group col-lg-6">
-                            <label for="phone">Phone Number</label>
-                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
-                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="phone" class="col-form-label float-left">Номер телефона</label>
+                            <input class="form-control" type="tel" placeholder="Формат: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Формат: (999)999-9999'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <input class="form-control" type="text" placeholder="Home address"
-                               th:field="*{address}" id="address">
+                    <div class="row">
+                        <div class="form-group col-lg-12 mb-3">
+                            <label for="address" class="col-form-label float-left">Адреса</label>
+                            <input class="form-control" type="text" placeholder="Домашня адреса"
+                                   th:field="*{address}" id="address">
+                        </div>
                     </div>
-                    <input type="hidden" th:field="${student.verificationKey}"
-                           th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                    <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                        <label for="key">Verification Key</label>
-                        <div class="input-group">
-                            <input type="hidden" th:field="${student.verificationKey}"/>
-                            <input class="form-control" type="text" id="key" th:field="${student.verificationKey.value}" readonly
-                                   placeholder="A key provided by the school to link the user with a real person data">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey"
-                                        th:disabled="${isNew}">
-                                    Generate New Key
-                                </button>
+                    <div class="row">
+                        <div class="form-group col-lg-12 mb-0">
+                            <input type="hidden" th:field="${student.verificationKey}"
+                                   th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text" id="key-label">Ключ підтвердження</span>
+                                    </div>
+                                    <input type="hidden" th:field="${student.verificationKey}"/>
+                                    <input class="form-control" type="text" id="key" th:field="${student.verificationKey.value}" readonly
+                                           placeholder="для автентифікації облікового запису">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey"
+                                                th:disabled="${isNew}">
+                                            Згенерувати новий ключ
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -126,13 +137,13 @@
                         <div class="col-md-4">
                             <a th:href="@{/student/update/cancel/{id}(id=${student.verificationKey.id})}">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
-                                    Cancel
+                                    Скасувати
                                 </button>
                             </a>
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
-                                Save Changes
+                                Зберегти зміни
                             </button>
                         </div>
                     </div>

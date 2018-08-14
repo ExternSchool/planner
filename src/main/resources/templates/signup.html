@@ -23,40 +23,41 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post" id="form">
-        <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Log In</a>
-        <h3 class="h3 mb-3 font-weight-normal">Please Sign Up</h3>
+        <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Увійти</a>
+        <h4 class="h3 mb-3 font-weight-normal">Реєстрація</h4>
         <input type="hidden" th:field="*{id}"/>
         <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
                th:unless="${#httpServletRequest.getParameter('error') == null}">
-            Show some error msg
+            Місце індикації помилок введення даних
         </small>
         <fieldset>
             <div class="form-group">
                 <label for="email" class="sr-only">Email</label>
-                <input class="form-control" type="email" id="email" th:field="*{email}"
-                       placeholder="Email as user name" required autofocus>
+                <input class="form-control" type="email" id="email" th:field="*{email}" title="Введіть email"
+                       placeholder="Електронна адреса (email)" required autofocus>
             </div>
             <div class="form-group">
-                <label for="password" class="sr-only">Password</label>
+                <label for="password" class="sr-only">Пароль</label>
                 <input class="form-control" type="password" id="password" th:field="*{password}"
-                       placeholder="Password"
+                       placeholder="Введіть пароль"
                        pattern="(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                       title="at least 6 characters using UpperCase, LowerCase, Number/SpecialChar"
+                       title="не менше 6 знаків латиною, серед яких є літери: Велика, мала, цифра/спеціальний символ"
                        required>
             </div>
             <div class="form-group">
-                <input class="form-control" type="password" id="confirm_password" placeholder="Confirm Password" required>
+                <input class="form-control" type="password" id="confirm_password" title="Повторно введіть ваш пароль"
+                       placeholder="Підтвердіть пароль" required>
             </div>
             <div class="form-group">
                 <input class="form-control" type="text" id="key" th:field="*{verificationKey}"
-                       placeholder="Verification Key" value="" title="Provided by the school to verify users">
+                       placeholder="Ключ підтвердження особи(якщо є)" value="" title="Надається школою">
             </div>
             <div class="checkbox mb-3">
                 <label class="small">
-                    <input type="checkbox" id="terms" required>I have read and agree to the <a href="#">terms of service</a>
+                    <input type="checkbox" id="terms" required>Я погоджуюсь з <a href="#">умовами користування</a>
                 </label>
             </div>
-            <input class="btn btn-lg btn-primary btn-block" id="submit" value="Sign Me Up" type="submit">
+            <input class="btn btn-lg btn-primary btn-block" id="submit" value="Зареєструватися" type="submit">
         </fieldset>
     </form>
 

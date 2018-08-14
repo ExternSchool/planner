@@ -1,8 +1,8 @@
 package io.github.externschool.planner.util;
 
 public final class Constants {
-    public static final String UK_GENDER_MALE = "чол.ст.";
-    public static final String UK_GENDER_FEMALE = "жін.ст.";
+    public static final String UK_GENDER_MALE = "чол.";
+    public static final String UK_GENDER_FEMALE = "жін.";
 
     public static final String UK_GRADE_LEVEL_NOT_DEFINED = "Не визначено";
     public static final String UK_GRADE_LEVEL_1 = "1й клас";

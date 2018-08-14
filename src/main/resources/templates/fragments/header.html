@@ -17,75 +17,99 @@
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item">
                     <a th:class="${activeTab == 'main'}? 'nav-link active' : 'nav-link'"
-                       href="/">Home</a>
+                       href="/">Головна</a>
                 </li>
 
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
-                           href="/guest/">Guests</a>
+                           href="/guest/">Відвідувачі</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
-                           href="/guest/profile">My Guest Profile</a>
+                           href="/guest/profile">Персональні дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
                         <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
-                           href="/student/profile">My Student Profile</a>
+                           href="#">Учбовий план</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="#">Консультації</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="#">Контрольні</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="/student/profile">Персональні дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_TEACHER')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
-                           href="/teacher/profile">My Teacher Profile</a>
+                           href="/teacher/profile">Персональні дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
-                           href="/student/">Students</a>
+                           href="/student/">Екстерни</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
-                           href="/teacher/">Teachers</a>
+                           href="/teacher/">Вчителі</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'subject'}? 'nav-link active' : 'nav-link'"
-                           href="/subject/">Subjects</a>
+                           href="/subject/">Предмети</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="#">Plans</a>
+                           href="#">Річні плани</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
+                           href="#">Плани екстернів</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'events'}? 'nav-link active' : 'nav-link'"
-                           href="/schedule-events/new">Events</a>
+                           href="/schedule-events/new">Розклади</a>
                     </div>
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
                 <div sec:authorize="!hasRole('ROLE_ADMIN')">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Search</button>
+                    <input class="form-control mr-sm-2" type="search" placeholder="Пошук" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
                 </div>
                 <div sec:authorize="isAnonymous()">
-                    <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Sign Up</a>
-                    <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Log In</a>
+                    <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Реєстрація</a>
+                    <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Увійти</a>
                 </div>
                 <div sec:authorize="isAuthenticated()">
-                    <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"> Log Out</a>
+                    <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"> Вийти</a>
                 </div>
             </form>
         </div>
