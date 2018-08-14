@@ -27,16 +27,16 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal" th:inline="text"><small>Subjects</small></h4>
+    <h4 class="h3 font-weight-normal" th:inline="text"><small>Навчальні предмети</small></h4>
     <form th:action="@{/subject/add}" method="post">
         <div class="input-group input-group-sm mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text">New Subject</span>
+                <span class="input-group-text">Введіть назву предмета</span>
             </div>
             <input class="form-control form-control-sm" type="text" id="new_title"
-                   placeholder="Title of study subject" th:name="new_title" >
+                   placeholder="Назва навчального предмета" th:name="new_title" >
             <div class="input-group-append">
-                <button class="btn btn-outline-success btn-sm" type="submit">Add New</button>
+                <button class="btn btn-outline-success btn-sm" type="submit">Додати новий предмет</button>
             </div>
         </div>
     </form>
@@ -44,16 +44,16 @@
         <table class="col-lg-12 table table-sm table-hover">
             <thead class="">
             <tr>
-                <th class="text-left">Title</th>
-                <th class="text-right" style="width: 10%">Edit</th>
-                <th class="text-right" style="width: 10%">Delete</th>
+                <th class="text-left">Назва навчального предмета (дисципліни)</th>
+                <th class="text-right" style="width: 10%">Змінити</th>
+                <th class="text-right" style="width: 10%">Видалити</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="subject : ${subjects}">
                 <td class="text-left">
                     <span th:if="${subject.id != editId}" th:text="${subject.title}">
-                        Title
+                        Назва предмета
                     </span>
                     <form class="form-inline" th:method="post" th:if="${subject.id == editId}"
                           th:action="@{/subject/{id}/edit(id=${subject.id})}">
@@ -62,7 +62,7 @@
                             <input class="form-control form-control-sm align-content-start" type="text" id="new_title"
                                    th:value="${subject.title}" th:name="new_title" >
                             <div class="input-group-append">
-                                <button class="btn btn-outline-success btn-sm" type="submit">Edit</button>
+                                <button class="btn btn-outline-success btn-sm" type="submit">Ввести</button>
                             </div>
                         </div>
                     </form>

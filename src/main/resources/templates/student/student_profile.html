@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text"><small>Картка екстерна [[${student.getEmail()}]]</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Персональні дані екстерна [[${student.getEmail()}]]</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>
@@ -99,15 +99,15 @@
                         </div>
                         <div class="form-group col-lg-6 mb-0">
                             <label for="phone" class="col-form-label float-left">Номер телефона</label>
-                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
-                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
+                            <input class="form-control" type="tel" placeholder="Формат: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Формат: (999)999-9999'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-12 mb-3">
                             <label for="address" class="col-form-label float-left">Адреса</label>
-                            <input class="form-control" type="text" placeholder="Home address"
+                            <input class="form-control" type="text" placeholder="Домашня адреса"
                                    th:field="*{address}" id="address">
                         </div>
                     </div>
