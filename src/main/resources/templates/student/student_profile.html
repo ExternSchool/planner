@@ -43,61 +43,65 @@
                 <div class="col-lg-8">
                     <div class="row">
                         <div class="form-group col-lg-12 mb-0">
-                        <label for="lastName" class="col-form-label float-left mb-0">Прізвище</label>
-                        <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
-                               th:field="*{lastName}" required
-                               th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            <label for="lastName" class="col-form-label float-left mb-0">Прізвище</label>
+                            <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                                   th:field="*{lastName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6 mb-0">
-                                <label for="firstName" class="col-form-label float-left">Ім'я</label>
-                                <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
-                                       th:field="*{firstName}" required
-                                       th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            <label for="firstName" class="col-form-label float-left">Ім'я</label>
+                            <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
+                                   th:field="*{firstName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                         <div class="form-group col-lg-6 mb-0">
-                                <label for="patronymicName" class="col-form-label float-left">По-батькові</label>
-                                <input class="form-control" type="text" placeholder="По-батькові" id="patronymicName"
-                                       th:field="*{patronymicName}" required
-                                       th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-lg-6 mb-0">
-                                <label for="gender" class="col-form-label float-left">Стать</label>
-                                <select class="form-control" name="gender" id="gender" th:field="*{gender}"
-                                        th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                                    <option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">
-                                        Стать
-                                    </option>
-                                </select>
-                        </div>
-                        <div class="form-group col-lg-6 mb-0">
-                                <label for="dateOfBirth" class="col-form-label float-left">Дата народження</label>
-                                <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
-                                       th:field="*{dateOfBirth}" id="dateOfBirth" required
-                                       th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                                <div class="input-group-addon">
-                                </div>
+                            <label for="patronymicName" class="col-form-label float-left">По-батькові</label>
+                            <input class="form-control" type="text" placeholder="По-батькові" id="patronymicName"
+                                   th:field="*{patronymicName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6 mb-0">
-                                <label for="grade" class="col-form-label float-left">Клас</label>
-                                <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
-                                        th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                                    <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
-                                            th:text="${grade.toString()}">
-                                        Клас
-                                    </option>
-                                </select>
+                            <label for="gender" class="col-form-label float-left">Стать</label>
+                            <select class="form-control" name="gender" id="gender" th:field="*{gender}"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">
+                                    Стать
+                                </option>
+                            </select>
+                            <input type="hidden" th:field="*{gender}"
+                                   th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
                         </div>
                         <div class="form-group col-lg-6 mb-0">
-                                <label for="phone" class="col-form-label float-left">Номер телефона</label>
-                                <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
-                                       pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
-                                       id="phone" th:field="*{phoneNumber}" required>
+                            <label for="dateOfBirth" class="col-form-label float-left">Дата народження</label>
+                            <input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"
+                                   th:field="*{dateOfBirth}" id="dateOfBirth" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                            <div class="input-group-addon">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="grade" class="col-form-label float-left">Клас</label>
+                            <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
+                                        th:text="${grade.toString()}">
+                                    Клас
+                                </option>
+                            </select>
+                            <input type="hidden" th:field="*{gradeLevel}"
+                                   th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+                        </div>
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="phone" class="col-form-label float-left">Номер телефона</label>
+                            <input class="form-control" type="tel" placeholder="Format: (999)999-9999"
+                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Format: (999)999-9999'
+                                   id="phone" th:field="*{phoneNumber}" required>
                         </div>
                     </div>
                     <div class="row">
