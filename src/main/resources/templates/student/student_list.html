@@ -28,31 +28,31 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal text-center" th:inline="text"><small>Students</small></h4>
+    <h4 class="h3 font-weight-normal text-center" th:inline="text"><small>Екстерни</small></h4>
     <div class="form-group mb-0">
         <input type="hidden" th:field="${level}">
         <nav id="selector" aria-label="Grades navigation">
             <ul class="pagination pagination-sm  float-left mb-0">
                 <li th:class="${level == 0}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/">All Grades</a></li>
+                    <a class="page-link" href="/student/">Всі класи</a></li>
                 <li th:class="${level == 1}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/1">1</a></li>
+                    <a class="page-link" href="/student/grade/1"> 1</a></li>
                 <li th:class="${level == 2}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/2">2</a></li>
+                    <a class="page-link" href="/student/grade/2"> 2</a></li>
                 <li th:class="${level == 3}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/3">3</a></li>
+                    <a class="page-link" href="/student/grade/3"> 3</a></li>
                 <li th:class="${level == 4}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/4">4</a></li>
+                    <a class="page-link" href="/student/grade/4"> 4</a></li>
                 <li th:class="${level == 5}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/5">5</a></li>
+                    <a class="page-link" href="/student/grade/5"> 5</a></li>
                 <li th:class="${level == 6}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/6">6</a></li>
+                    <a class="page-link" href="/student/grade/6"> 6</a></li>
                 <li th:class="${level == 7}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/7">7</a></li>
+                    <a class="page-link" href="/student/grade/7"> 7</a></li>
                 <li th:class="${level == 8}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/8">8</a></li>
+                    <a class="page-link" href="/student/grade/8"> 8</a></li>
                 <li th:class="${level == 9}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/9">9</a></li>
+                    <a class="page-link" href="/student/grade/9"> 9</a></li>
                 <li th:class="${level == 10}? 'page-item active' : 'page-item'">
                     <a class="page-link" href="/student/grade/10">10</a></li>
                 <li th:class="${level == 11}? 'page-item active' : 'page-item'">
@@ -63,30 +63,32 @@
         </nav>
     </div>
     <form th:method="post" th:action="@{/student/add}">
-        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm mb-1">Add New</button>
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm mb-1">Додати нового учня</button>
     </form>
     <div class="table-responsive" th:if="${not #lists.isEmpty(students)}">
         <table class="col-lg-12 table table-sm table-hover">
             <thead class="">
             <tr>
-                <th class="text-left">Lastname</th>
-                <th class="text-left">Firstname</th>
-                <th class="text-left">Patronym</th>
-                <th class="text-left">Gender</th>
-                <th>Grade</th>
-                <th>Phone</th>
-                <th class="text-right" style="width: 10%">Edit</th>
-                <th class="text-right" style="width: 10%">Delete</th>
+                <th class="text-left">Прізвище</th>
+                <th class="text-left">Ім'я</th>
+                <th class="text-left">По-батькові</th>
+                <th class="text-left">Стать</th>
+                <th>Клас</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th class="text-right" style="width: 10%">Змінити</th>
+                <th class="text-right" style="width: 10%">Видалити</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="student : ${students}">
-                <td class="text-left" th:text="${student.getLastName()}">Surname</td>
-                <td class="text-left" th:text="${student.getFirstName()}">Name</td>
-                <td class="text-left" th:text="${student.getPatronymicName()}">Patronym</td>
-                <td class="text-left" th:text="${student.getGender()}">Gender</td>
-                <td th:text="${student.getGradeLevel()}">Grade</td>
-                <td th:text="${student.getPhoneNumber()}">Phone</td>
+                <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
+                <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
+                <td class="text-left" th:text="${student.getPatronymicName()}">По-батькові</td>
+                <td class="text-left" th:text="${student.getGender()}">Стать</td>
+                <td th:text="${student.getGradeLevel()}">Клас</td>
+                <td th:text="${student.getPhoneNumber()}">Телефон</td>
+                <td th:text="${student.getEmail()}">Email</td>
                 <td class="text-right">
                     <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
                         <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
