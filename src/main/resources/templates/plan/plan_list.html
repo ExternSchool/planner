@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk">
+<head>
+    <title>Study Plan List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='student')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 font-weight-normal" th:inline="text"><small>Річні навчальні плани</small></h4>
+    <div class="form-group mb-0">
+        <input type="hidden" th:field="${level}">
+        <nav id="selector" aria-label="Grades navigation">
+            <ul class="pagination pagination-sm  float-left mb-0">
+                <li th:class="${level == 0}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/">Всі класи</a></li>
+                <li th:class="${level == 1}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/1"> 1</a></li>
+                <li th:class="${level == 2}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/2"> 2</a></li>
+                <li th:class="${level == 3}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/3"> 3</a></li>
+                <li th:class="${level == 4}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/4"> 4</a></li>
+                <li th:class="${level == 5}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/5"> 5</a></li>
+                <li th:class="${level == 6}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/6"> 6</a></li>
+                <li th:class="${level == 7}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/7"> 7</a></li>
+                <li th:class="${level == 8}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/8"> 8</a></li>
+                <li th:class="${level == 9}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/9"> 9</a></li>
+                <li th:class="${level == 10}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/10">10</a></li>
+                <li th:class="${level == 11}? 'page-item active' : 'page-item'">
+                    <a class="page-link" href="/plan/grade/11">11</a></li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">12</a></li>
+            </ul>
+        </nav>
+    </div>
+    <form th:method="post" th:action="@{/plan/add}">
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm mb-1">Додати новий предмет</button>
+    </form>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(students)}">
+        <table class="col-lg-12 table table-sm table-hover">
+            <thead class="">
+            <tr>
+                <th class="text-left">Предмет</th>
+                <th class="text-left">Назва річного курсу</th>
+                <th>Год.семестр 1</th>
+                <th>Год.семестр 2</th>
+                <th>К/р семестр 1</th>
+                <th>К/р семестр 2</th>
+                <th class="text-right" style="width: 10%">Змінити</th>
+                <th class="text-right" style="width: 10%">Видалити</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="student : ${students}">
+                <td class="text-left" th:text="${student.getLastName()}">Предмет</td>
+                <td class="text-left" th:text="${student.getFirstName()}">Назва річного курсу</td>
+                <td th:text="${student.getPatronymicName()}">Год.семестр 1</td>
+                <td th:text="${student.getGender()}">Год.семестр 2</td>
+                <td th:text="${student.getGradeLevel()}">К/р семестр 1</td>
+                <td th:text="${student.getPhoneNumber()}">К/р семестр 2</td>
+                <td class="text-right">
+                    <form th:method="post" th:action="@{/plan/{id}(id=${student.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="text-right">
+                    <form th:method="post" th:action="@{/plan/{id}/delete(id=${student.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+</body>
+</html>
