@@ -72,7 +72,7 @@
                 <th class="text-left">Прізвище</th>
                 <th class="text-left">Ім'я</th>
                 <th class="text-left">По-батькові</th>
-                <th class="text-left">Стать</th>
+                <th>Стать</th>
                 <th>Клас</th>
                 <th>Телефон</th>
                 <th>Email</th>
@@ -85,7 +85,7 @@
                 <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
                 <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
                 <td class="text-left" th:text="${student.getPatronymicName()}">По-батькові</td>
-                <td class="text-left" th:text="${student.getGender()}">Стать</td>
+                <td th:text="${student.getGender()}">Стать</td>
                 <td th:text="${student.getGradeLevel()}">Клас</td>
                 <td th:text="${student.getPhoneNumber()}">Телефон</td>
                 <td th:text="${student.getEmail()}">Email</td>
