@@ -40,6 +40,10 @@ public class Course implements Serializable {
     private Integer examSemesterOneScore;
     @Column(name = "exam_s2_score")
     private Integer examSemesterTwoScore;
+    @Column(name = "semester1_score")
+    private Integer semesterOneScore;
+    @Column(name = "semester2_score")
+    private Integer semesterTwoScore;
     @Column(name = "final_score")
     private Integer finalScore;
 
@@ -122,6 +126,22 @@ public class Course implements Serializable {
         this.examSemesterTwoScore = examSemesterTwoScore;
     }
 
+    public Integer getSemesterOneScore() {
+        return semesterOneScore;
+    }
+
+    public void setSemesterOneScore(final Integer semesterOneScore) {
+        this.semesterOneScore = semesterOneScore;
+    }
+
+    public Integer getSemesterTwoScore() {
+        return semesterTwoScore;
+    }
+
+    public void setSemesterTwoScore(final Integer semesterTwoScore) {
+        this.semesterTwoScore = semesterTwoScore;
+    }
+
     public Integer getFinalScore() {
         return finalScore;
     }
@@ -135,21 +155,23 @@ public class Course implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Course course = (Course) o;
-        return Objects.equals(id, course.id) &&
-                Objects.equals(teacher, course.teacher) &&
+        return Objects.equals(title, course.title) &&
                 Objects.equals(interviewSemesterOneScore, course.interviewSemesterOneScore) &&
                 Objects.equals(interviewSemesterTwoScore, course.interviewSemesterTwoScore) &&
                 Objects.equals(approvalSemesterOne, course.approvalSemesterOne) &&
                 Objects.equals(approvalSemesterTwo, course.approvalSemesterTwo) &&
                 Objects.equals(examSemesterOneScore, course.examSemesterOneScore) &&
                 Objects.equals(examSemesterTwoScore, course.examSemesterTwoScore) &&
+                Objects.equals(semesterOneScore, course.semesterOneScore) &&
+                Objects.equals(semesterTwoScore, course.semesterTwoScore) &&
                 Objects.equals(finalScore, course.finalScore);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, interviewSemesterOneScore, interviewSemesterTwoScore, approvalSemesterOne,
-                approvalSemesterTwo, examSemesterOneScore, examSemesterTwoScore, finalScore);
+        return Objects.hash(title, interviewSemesterOneScore, interviewSemesterTwoScore, approvalSemesterOne,
+                approvalSemesterTwo, examSemesterOneScore, examSemesterTwoScore, semesterOneScore, semesterTwoScore,
+                finalScore);
     }
 
     @Override

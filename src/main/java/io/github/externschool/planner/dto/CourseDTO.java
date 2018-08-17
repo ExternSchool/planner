@@ -16,6 +16,8 @@ public class CourseDTO {
     private Boolean approvalSemesterTwo;
     private Integer examSemesterOneScore;
     private Integer examSemesterTwoScore;
+    private Integer semesterOneScore;
+    private Integer semesterTwoScore;
     private Integer finalScore;
 
     public CourseDTO(final Long studentId, final Long planId) {
@@ -95,6 +97,22 @@ public class CourseDTO {
         this.examSemesterTwoScore = examSemesterTwoScore;
     }
 
+    public Integer getSemesterOneScore() {
+        return semesterOneScore;
+    }
+
+    public void setSemesterOneScore(final Integer semesterOneScore) {
+        this.semesterOneScore = semesterOneScore;
+    }
+
+    public Integer getSemesterTwoScore() {
+        return semesterTwoScore;
+    }
+
+    public void setSemesterTwoScore(final Integer semesterTwoScore) {
+        this.semesterTwoScore = semesterTwoScore;
+    }
+
     public Integer getFinalScore() {
         return finalScore;
     }
@@ -118,14 +136,16 @@ public class CourseDTO {
                 Objects.equals(approvalSemesterTwo, courseDTO.approvalSemesterTwo) &&
                 Objects.equals(examSemesterOneScore, courseDTO.examSemesterOneScore) &&
                 Objects.equals(examSemesterTwoScore, courseDTO.examSemesterTwoScore) &&
+                Objects.equals(semesterOneScore, courseDTO.semesterOneScore) &&
+                Objects.equals(semesterTwoScore, courseDTO.semesterTwoScore) &&
                 Objects.equals(finalScore, courseDTO.finalScore);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(studentId, planId, teacher, title, interviewSemesterOneScore,
-                interviewSemesterTwoScore, approvalSemesterOne, approvalSemesterTwo,
-                examSemesterOneScore, examSemesterTwoScore, finalScore);
+        return Objects.hash(studentId, planId, teacher, title, interviewSemesterOneScore, interviewSemesterTwoScore,
+                approvalSemesterOne, approvalSemesterTwo, examSemesterOneScore, examSemesterTwoScore,
+                semesterOneScore, semesterTwoScore, finalScore);
     }
 
     @Override

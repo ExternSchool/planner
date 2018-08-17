@@ -87,7 +87,7 @@ public class StudyPlanServiceTest {
         Mockito.when(planRepository.findAllBySubjectOrderByGradeLevel(subject))
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllBySubjectOrderByGradeLevel(subject);
+        List<StudyPlan> actualPlans = planService.findAllBySubject(subject);
 
         assertThat(actualPlans)
                 .isNotEmpty()
@@ -99,7 +99,7 @@ public class StudyPlanServiceTest {
         Mockito.when(planRepository.findAllByGradeLevelOrderBySubject(expectedPlan.getGradeLevel()))
                 .thenReturn(Collections.singletonList(expectedPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllByGradeLevelOrderBySubject(expectedPlan.getGradeLevel());
+        List<StudyPlan> actualPlans = planService.findAllByGradeLevel(expectedPlan.getGradeLevel());
 
         assertThat(actualPlans)
                 .isNotEmpty()
@@ -111,7 +111,7 @@ public class StudyPlanServiceTest {
         Mockito.when(planRepository.findAllByOrderByGradeLevel())
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllByOrderByGradeLevel();
+        List<StudyPlan> actualPlans = planService.findAll();
 
         assertThat(actualPlans)
                 .isNotEmpty()
