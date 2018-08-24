@@ -29,120 +29,122 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="h3 font-weight-normal" th:inline="text"><small>Річні навчальні плани</small></h4>
-    <input type="hidden" th:field="${subjectid}"/>
-    <input type="hidden" th:field="${plan_id}"/>
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="form-group mb-0">
-                <input type="hidden" th:field="${level}">
-                <nav id="selector" aria-label="Grades navigation">
-                    <ul class="pagination pagination-sm  float-left mb-0">
-                        <li th:class="${level == 0}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/">Всі класи</a></li>
-                        <li th:class="${level == 1}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/1"> 1</a></li>
-                        <li th:class="${level == 2}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/2"> 2</a></li>
-                        <li th:class="${level == 3}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/3"> 3</a></li>
-                        <li th:class="${level == 4}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/4"> 4</a></li>
-                        <li th:class="${level == 5}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/5"> 5</a></li>
-                        <li th:class="${level == 6}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/6"> 6</a></li>
-                        <li th:class="${level == 7}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/7"> 7</a></li>
-                        <li th:class="${level == 8}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/8"> 8</a></li>
-                        <li th:class="${level == 9}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/9"> 9</a></li>
-                        <li th:class="${level == 10}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/10">10</a></li>
-                        <li th:class="${level == 11}? 'page-item active' : 'page-item'">
-                            <a class="page-link" href="/plan/grade/11">11</a></li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">12</a></li>
-                    </ul>
-                </nav>
+    <input type="hidden" th:field="${plans}"/>
+    <input type="hidden" th:field="${subjects}"/>
+    <input type="hidden" th:field="${subject_id}"/>
+    <form action="#" th:action="@{/plan/}" th:object="${plan}" th:method="post">
+        <input type="hidden" th:field="${plan}"/>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group mb-0">
+                    <input type="hidden" th:field="${level}">
+                    <nav id="selector" aria-label="Grades navigation">
+                        <ul class="pagination pagination-sm  float-left mb-1">
+                            <li th:class="${level == 0}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/">Всі класи</a></li>
+                            <li th:class="${level == 1}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/1"> 1</a></li>
+                            <li th:class="${level == 2}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/2"> 2</a></li>
+                            <li th:class="${level == 3}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/3"> 3</a></li>
+                            <li th:class="${level == 4}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/4"> 4</a></li>
+                            <li th:class="${level == 5}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/5"> 5</a></li>
+                            <li th:class="${level == 6}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/6"> 6</a></li>
+                            <li th:class="${level == 7}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/7"> 7</a></li>
+                            <li th:class="${level == 8}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/8"> 8</a></li>
+                            <li th:class="${level == 9}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/9"> 9</a></li>
+                            <li th:class="${level == 10}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/10">10</a></li>
+                            <li th:class="${level == 11}? 'page-item active' : 'page-item'">
+                                <a class="page-link" href="/plan/grade/11">11</a></li>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">12</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <input type="hidden" th:field="${subjects}"/>
-            <div th:if="${(level>0)and(level<13)}">
-                <form th:method="post" th:action="@{/plan/add/subject/{sid}/grade/{gid}(sid=${subjectid},gid=${level})}">
+            <div class="col-lg-6">
+                <div th:if="${(level>0)and(level<13)}">
                     <div class="input-group input-sm float-right mb-1">
-                        <select class="custom-select form-control-sm" name="subjectid" id="subjectid">
-                            <option th:each="subj : ${subjects}" th:value="${subj.id}" th:text="${subj.title}">
-                                Предмет
+                        <select class="custom-select form-control-sm" name = "subject_id" th:field="${subject_id}">
+                            <option th:each="subject : ${subjects}" th:value="${subject.getId()}"
+                                    th:text="${subject.getTitle()}">Предмет
                             </option>
                         </select>
                         <div class="input-group-append">
-                            <button type="submit" name="add" value="add" class="btn btn-outline-success btn-sm">
-                                Додати предмет</button>
+                            <a th:href="@{/plan/add/subject/{sid}/grade/{gid}(sid=${subject_id},gid=${level})}">
+                                <button type="button" name="add" value="add" class="btn btn-outline-success btn-sm">
+                                    Додати предмет</button>
+                            </a>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="table-responsive" th:if="${not #lists.isEmpty(plans)}">
-        <table class="col-lg-12 table table-sm table-hover">
-            <thead class="">
-            <tr>
-                <th class="text-left">Клас</th>
-                <th class="text-left">Назва річного курсу</th>
-                <th>Год.сем.1</th>
-                <th>Год.сем.2</th>
-                <th>К/р сем.1</th>
-                <th>К/р сем.2</th>
-                <th class="text-right" style="width: 10%">Змінити</th>
-                <th class="text-right" style="width: 10%">Видалити</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="plan : ${plans}">
-                <td class="text-left" th:text="${plan.getGradeLevel()}">Клас</td>
-                <!--<td class="text-left" th:text="${plan.getTitle()}">Назва річного курсу</td>-->
-                <td class="text-left">
-                    <span th:if="${plan.id != editId}" th:text="${plan.title}">
-                        Назва річного курсу
-                    </span>
-                    <form class="form-inline" th:method="post" th:if="${plan.id == editId}"
-                          th:action="@{/plan/{id}/edit(id=${plan.id})}">
-                        <input type="hidden" th:field="${editId}"/>
-                        <div class="input-group">
-                            <input class="form-control form-control-sm align-content-start" type="text" id="new_title"
-                                   th:value="${plan.title}" th:name="new_title" >
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-success btn-sm" type="submit">Ввести</button>
-                            </div>
+        <form class="table-responsive" th:if="${not #lists.isEmpty(plans)}">
+            <table class="col-lg-12 table table-sm table-hover">
+                <thead class="">
+                <tr>
+                    <th class="text-left">Клас</th>
+                    <th class="text-left">Назва річного курсу</th>
+                    <th>Год. в с.1</th>
+                    <th>Год. в с.2</th>
+                    <th>К/р в с.1</th>
+                    <th>К/р в с.2</th>
+                    <th class="text-right" style="width: 10%">Змінити</th>
+                    <th class="text-right" style="width: 10%">Видалити</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${plans}">
+                    <td class="text-left" th:text="${p.getGradeLevel()}">Клас</td>
+                    <td class="text-left">
+                        <div th:if="${p.id != plan.id}" th:text="${p.title}">
+                            Назва річного курсу
                         </div>
-                    </form>
-                </td>
+                        <div th:if="${p.id == plan.id}">
+                            <form class="form-inline" th:method="POST" th:action="@{/plan/{id}/edit(id=${p.id})}">
+                                <div class="input-group col-lg-12">
+                                    <input class="input-group form-control form-control-sm align-content-start" type="text"
+                                           th:value="${plan.title}" th:name="new_title" id="new_title">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-success btn-sm" type="submit">Ввести</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
 
-                <td th:text="${plan.getHoursPerSemesterOne()}">Год.семестр 1</td>
-                <td th:text="${plan.getHoursPerSemesterTwo()}">Год.семестр 2</td>
-                <td th:text="${plan.getExamSemesterOne()}">К/р семестр 1</td>
-                <td th:text="${plan.getExamSemesterTwo()}">К/р семестр 2</td>
-                <td class="text-right">
-                    <form th:method="post" th:action="@{/plan/{id}(id=${plan.id})}">
-                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
-                            <i class="far fa-edit" aria-hidden="true"></i>
-                        </button>
-                    </form>
-                </td>
-                <td class="text-right">
-                    <form th:method="post" th:action="@{/plan/{id}/delete(id=${plan.id})}">
-                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <td th:text="${p.getHoursPerSemesterOne()}">Год.семестр 1</td>
+                    <td th:text="${p.getHoursPerSemesterTwo()}">Год.семестр 2</td>
+                    <td th:text="${p.getExamSemesterOne()}">К/р семестр 1</td>
+                    <td th:text="${p.getExamSemesterTwo()}">К/р семестр 2</td>
+                    <td class="text-right">
+                        <a th:href="@{/plan/{id}(id=${p.id})}">
+                            <button type="button" name="edit" value="edit" class="btn badge badge-primary">
+                                <i class="far fa-edit" aria-hidden="true"></i>
+                            </button>
+                        </a>
+                    </td>
+                    <td class="text-right">
+                        <form th:method="post" th:action="@{/plan/{id}/delete(id=${p.id})}">
+                            <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
 </main>
 
 <!--Footer content here-->
