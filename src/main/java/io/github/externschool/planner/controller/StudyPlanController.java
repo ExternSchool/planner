@@ -49,29 +49,22 @@ public class StudyPlanController {
         return displayAllStudyPlansList(level);
     }
 
-    private ModelAndView prepareModelAndView(Integer level, Long planId) {
-        List<StudyPlanDTO> plans = Optional.of((level == 0
-                ? planService.findAll().stream()
-                : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
-                    .map(s -> conversionService.convert(s, StudyPlanDTO.class))
-                    .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
-        ModelAndView modelAndView = new ModelAndView("plan/plan_list", "plans", plans);
-        modelAndView.addObject("plan", conversionService.convert(
-                Optional.ofNullable(planService.findById(planId))
-                        .orElse(new StudyPlan()),
-                StudyPlanDTO.class));
-        List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle();
-        modelAndView.addObject("subjects", subjects);
-        modelAndView.addObject("subject_id", Optional.ofNullable(subjects.get(0).getId()).orElse(0L));
-        modelAndView.addObject("level", level);
-
-        return modelAndView;
-    }
-
     @GetMapping("/{id}")
     public ModelAndView grade(@PathVariable Long id) {
         return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
+    }
+
+    @PostMapping("/")
+    public ModelAndView processSubjectListActionAdd(@ModelAttribute("plan") StudyPlanDTO planDTO) {
+        Optional.ofNullable(subjectService.findSubjectById(planDTO.getSubject().getId())).ifPresent(subject -> {
+            StudyPlan plan = new StudyPlan();
+            plan.setSubject(subject);
+            plan.setGradeLevel(planDTO.getGradeLevel());
+            plan.setTitle(subject.getTitle());
+            planService.saveOrUpdatePlan(plan);
+        });
+
+        return new ModelAndView("redirect:/plan/grade/" + planDTO.getGradeLevel().getValue());
     }
 
     @PostMapping("/{id}/edit")
@@ -98,17 +91,22 @@ public class StudyPlanController {
         return new ModelAndView("redirect:/plan/");
     }
 
-    @GetMapping("/add/subject/{sid}/grade/{gid}")
-    public ModelAndView processSubjectListActionAdd(@PathVariable ("sid") Long subject_id,
-                                                    @PathVariable ("gid") Integer grade_level) {
-        Optional.ofNullable(subjectService.findSubjectById(subject_id)).ifPresent(subject -> {
-            StudyPlan plan = new StudyPlan();
-            plan.setSubject(subject);
-            plan.setGradeLevel(GradeLevel.valueOf(grade_level));
-            plan.setTitle(subject.getTitle());
-            planService.saveOrUpdatePlan(plan);
-        });
+    private ModelAndView prepareModelAndView(Integer level, Long planId) {
+        List<StudyPlanDTO> plans = Optional.of((level == 0
+                ? planService.findAll().stream()
+                : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
+                .map(s -> conversionService.convert(s, StudyPlanDTO.class))
+                .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+        ModelAndView modelAndView = new ModelAndView("plan/plan_list", "plans", plans);
+        modelAndView.addObject("plan", conversionService.convert(
+                Optional.ofNullable(planService.findById(planId))
+                        .orElse(new StudyPlan(GradeLevel.valueOf(level), new SchoolSubject())),
+                StudyPlanDTO.class));
+        List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle();
+        modelAndView.addObject("subjects", subjects);
+        modelAndView.addObject("level", GradeLevel.valueOf(level));
 
-        return new ModelAndView("redirect:/plan/grade/" + grade_level);
+        return modelAndView;
     }
 }

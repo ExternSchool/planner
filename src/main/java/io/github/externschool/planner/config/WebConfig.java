@@ -3,6 +3,7 @@ package io.github.externschool.planner.config;
 import io.github.externschool.planner.converter.CourseDTOToCourse;
 import io.github.externschool.planner.converter.CourseToCourseDTO;
 import io.github.externschool.planner.converter.GenderEnumFormatter;
+import io.github.externschool.planner.converter.GradeLevelEnumFormatter;
 import io.github.externschool.planner.converter.LocalDateFormatter;
 import io.github.externschool.planner.converter.PersonDTOToPerson;
 import io.github.externschool.planner.converter.PersonToPersonDTO;
@@ -27,6 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired private SchoolSubjectFormatter subjectFormatter;
     @Autowired private LocalDateFormatter localDateFormatter;
     @Autowired private GenderEnumFormatter genderEnumFormatter;
+    @Autowired private GradeLevelEnumFormatter gradeLevelEnumFormatter;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -47,5 +49,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addFormatter(subjectFormatter);
         registry.addFormatter(localDateFormatter);
         registry.addFormatter(genderEnumFormatter);
+        registry.addFormatter(gradeLevelEnumFormatter);
     }
 }

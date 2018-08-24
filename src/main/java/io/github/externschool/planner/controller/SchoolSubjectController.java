@@ -31,7 +31,7 @@ public class SchoolSubjectController {
         ModelAndView modelAndView = new ModelAndView(
                 "subject/subject_list",
                 "subjects", Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                .orElse(Collections.emptyList()));
+                    .orElse(Collections.emptyList()));
         modelAndView.addObject("editId", editId);
 
         return modelAndView;
