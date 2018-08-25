@@ -36,7 +36,7 @@ public class StudyPlanServiceImpl implements StudyPlanService {
 
     @Override
     public List<StudyPlan> findAllBySubject(final SchoolSubject subject) {
-        return repository.findAllBySubjectOrderByGradeLevel(subject);
+        return repository.findAllBySubjectOrderByGradeLevelAscTitleAsc(subject);
     }
 
     @Override
@@ -44,12 +44,12 @@ public class StudyPlanServiceImpl implements StudyPlanService {
         if (gradeLevel == null) {
             return findAll();
         }
-        return repository.findAllByGradeLevelOrderBySubject(gradeLevel);
+        return repository.findAllByGradeLevelOrderByTitleAsc(gradeLevel);
     }
 
     @Override
     public List<StudyPlan> findAll() {
-        return repository.findAllByOrderByGradeLevel();
+        return repository.findAllByOrderByGradeLevelAscTitleAsc();
     }
 
     @Override

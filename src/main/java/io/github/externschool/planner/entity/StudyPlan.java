@@ -39,9 +39,9 @@ public class StudyPlan {
     @Column(name = "hrs_s2")
     private Integer hoursPerSemesterTwo;
     @Column(name = "exam_s1")
-    private Boolean examSemesterOne;
+    private Integer examSemesterOne;
     @Column(name = "exam_s2")
-    private Boolean examSemesterTwo;
+    private Integer examSemesterTwo;
 
     public StudyPlan() {
     }
@@ -52,8 +52,13 @@ public class StudyPlan {
         this.title = subject.getTitle();
     }
 
-    public StudyPlan(GradeLevel gradeLevel, SchoolSubject subject, String title, Integer hoursPerSemesterOne,
-                     Integer hoursPerSemesterTwo, Boolean examSemesterOne, Boolean examSemesterTwo) {
+    public StudyPlan(GradeLevel gradeLevel,
+                     SchoolSubject subject,
+                     String title,
+                     Integer hoursPerSemesterOne,
+                     Integer hoursPerSemesterTwo,
+                     Integer examSemesterOne,
+                     Integer examSemesterTwo) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
         this.title = title;
@@ -111,19 +116,19 @@ public class StudyPlan {
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
     }
 
-    public Boolean getExamSemesterOne() {
+    public Integer getExamSemesterOne() {
         return examSemesterOne;
     }
 
-    public void setExamSemesterOne(final Boolean examSemesterOne) {
+    public void setExamSemesterOne(final Integer examSemesterOne) {
         this.examSemesterOne = examSemesterOne;
     }
 
-    public Boolean getExamSemesterTwo() {
+    public Integer getExamSemesterTwo() {
         return examSemesterTwo;
     }
 
-    public void setExamSemesterTwo(final Boolean examSemesterTwo) {
+    public void setExamSemesterTwo(final Integer examSemesterTwo) {
         this.examSemesterTwo = examSemesterTwo;
     }
 
@@ -132,7 +137,10 @@ public class StudyPlan {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final StudyPlan plan = (StudyPlan) o;
-        return gradeLevel == plan.gradeLevel &&
+        return Objects.equals(id, plan.id) &&
+                gradeLevel == plan.gradeLevel &&
+                Objects.equals(subject, plan.subject) &&
+                Objects.equals(title, plan.title) &&
                 Objects.equals(hoursPerSemesterOne, plan.hoursPerSemesterOne) &&
                 Objects.equals(hoursPerSemesterTwo, plan.hoursPerSemesterTwo) &&
                 Objects.equals(examSemesterOne, plan.examSemesterOne) &&

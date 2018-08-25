@@ -148,7 +148,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
 
-        List<StudyPlan> plans = planRepository.findAllByGradeLevelOrderBySubject(student.getGradeLevel());
+        List<StudyPlan> plans = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
         for (StudyPlan plan : plans) {
             Course course = new Course(student.getId(), plan.getId());
             courseRepository.save(course);
@@ -180,8 +180,8 @@ public class BootstrapDataPopulator implements InitializingBean {
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
             plan.setHoursPerSemesterOne(2);
             plan.setHoursPerSemesterTwo(2);
-            plan.setExamSemesterOne(true);
-            plan.setExamSemesterTwo(true);
+            plan.setExamSemesterOne(1);
+            plan.setExamSemesterTwo(1);
             plan.setTitle("Introduction to " + plan.getTitle());
             planRepository.save(plan);
 

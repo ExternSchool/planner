@@ -50,35 +50,32 @@ public class StudyPlanController {
     }
 
     @GetMapping("/{id}")
-    public ModelAndView grade(@PathVariable Long id) {
+    public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
         return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
     }
 
-    @PostMapping("/")
-    public ModelAndView processSubjectListActionAdd(@ModelAttribute("plan") StudyPlanDTO planDTO) {
-        Optional.ofNullable(subjectService.findSubjectById(planDTO.getSubject().getId())).ifPresent(subject -> {
-            StudyPlan plan = new StudyPlan();
-            plan.setSubject(subject);
-            plan.setGradeLevel(planDTO.getGradeLevel());
-            plan.setTitle(subject.getTitle());
-            planService.saveOrUpdatePlan(plan);
-        });
+    @PostMapping(value = "/", params = "action=add")
+    public ModelAndView processStudyPlansListActionAdd(@ModelAttribute("plan") StudyPlanDTO planDTO) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/plan/");
+        Optional.ofNullable(subjectService.findSubjectById(planDTO.getSubject().getId()))
+                .ifPresent(subject -> {
+                    StudyPlan plan = new StudyPlan(planDTO.getGradeLevel(), subject, subject.getTitle(),
+                            0, 0, 0, 0);
+                    plan = planService.saveOrUpdatePlan(plan);
+                    modelAndView.addObject("level", plan.getGradeLevel().getValue());
+                });
 
-        return new ModelAndView("redirect:/plan/grade/" + planDTO.getGradeLevel().getValue());
+        return modelAndView;
     }
 
-    @PostMapping("/{id}/edit")
-    public ModelAndView processSubjectListActionEdit(@PathVariable ("id") Long id,
-                                                     @ModelAttribute("new_title") String title) {
+    @PostMapping(value = "/", params = "action=save")
+    public ModelAndView processStudyPlansActionSave(@ModelAttribute("plan") StudyPlanDTO planDTO) {
         ModelAndView modelAndView = new ModelAndView("redirect:/plan/");
-        if (!title.isEmpty()) {
-            Optional.ofNullable(planService.findById(id))
-                    .ifPresent(plan -> {
-                        plan.setTitle(title);
-                        planService.saveOrUpdatePlan(plan);
-                        modelAndView.addObject("level", plan.getGradeLevel().getValue());
-                    });
-        }
+        Optional.ofNullable(planService.findById(planDTO.getId()))
+                .ifPresent(plan -> {
+                    planService.saveOrUpdatePlan(conversionService.convert(planDTO, StudyPlan.class));
+                    modelAndView.addObject("level", plan.getGradeLevel().getValue());
+                });
 
         return modelAndView;
     }

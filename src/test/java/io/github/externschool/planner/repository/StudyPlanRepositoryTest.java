@@ -73,7 +73,7 @@ public class StudyPlanRepositoryTest {
 
     @Test
     public void shouldReturnTwoPlans_whenFindAllBySubjectIdOrderByGradeLevel() {
-        List<StudyPlan> actualStudyPlans = repository.findAllBySubjectOrderByGradeLevel(subjects.get(0));
+        List<StudyPlan> actualStudyPlans = repository.findAllBySubjectOrderByGradeLevelAscTitleAsc(subjects.get(0));
 
         assertThat(actualStudyPlans)
                 .containsAnyElementsOf(expectedStudyPlans)
@@ -83,7 +83,7 @@ public class StudyPlanRepositoryTest {
 
     @Test
     public void shouldReturnTwoPlans_whenFindAllByGradeLevel() {
-        List<StudyPlan> actualStudyPlans = repository.findAllByGradeLevelOrderBySubject(GradeLevel.LEVEL_1);
+        List<StudyPlan> actualStudyPlans = repository.findAllByGradeLevelOrderByTitleAsc(GradeLevel.LEVEL_1);
 
         assertThat(actualStudyPlans)
                 .containsAnyElementsOf(expectedStudyPlans)
@@ -97,7 +97,7 @@ public class StudyPlanRepositoryTest {
         List<StudyPlan> expectedStudyPlans = entityManager
                 .getEntityManager()
                 .createQuery("Select t from Plan t").getResultList();
-        List<StudyPlan> actualStudyPlans = repository.findAllByOrderByGradeLevel();
+        List<StudyPlan> actualStudyPlans = repository.findAllByOrderByGradeLevelAscTitleAsc();
 
         assertThat(actualStudyPlans)
                 .containsAll(expectedStudyPlans)

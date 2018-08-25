@@ -14,9 +14,9 @@ public interface StudyPlanRepository extends JpaRepository<StudyPlan, Long> {
 
     StudyPlan findByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
 
-    List<StudyPlan> findAllBySubjectOrderByGradeLevel(SchoolSubject subject);
+    List<StudyPlan> findAllBySubjectOrderByGradeLevelAscTitleAsc(SchoolSubject subject);
 
-    List<StudyPlan> findAllByGradeLevelOrderBySubject(GradeLevel gradeLevel);
+    List<StudyPlan> findAllByGradeLevelOrderByTitleAsc(GradeLevel gradeLevel);
 
-    List<StudyPlan> findAllByOrderByGradeLevel();
+    List<StudyPlan> findAllByOrderByGradeLevelAscTitleAsc();
 }

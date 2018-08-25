@@ -84,7 +84,7 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldReturnExpectedList_whenFindAllBySubjectOrderByGradeLevel() {
-        Mockito.when(planRepository.findAllBySubjectOrderByGradeLevel(subject))
+        Mockito.when(planRepository.findAllBySubjectOrderByGradeLevelAscTitleAsc(subject))
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
         List<StudyPlan> actualPlans = planService.findAllBySubject(subject);
@@ -96,7 +96,7 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByGradeLevelOrderBySubject() {
-        Mockito.when(planRepository.findAllByGradeLevelOrderBySubject(expectedPlan.getGradeLevel()))
+        Mockito.when(planRepository.findAllByGradeLevelOrderByTitleAsc(expectedPlan.getGradeLevel()))
                 .thenReturn(Collections.singletonList(expectedPlan));
 
         List<StudyPlan> actualPlans = planService.findAllByGradeLevel(expectedPlan.getGradeLevel());
@@ -108,7 +108,7 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldReturnExpectedList_whenFindAllByOrderByGradeLevel() {
-        Mockito.when(planRepository.findAllByOrderByGradeLevel())
+        Mockito.when(planRepository.findAllByOrderByGradeLevelAscTitleAsc())
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
         List<StudyPlan> actualPlans = planService.findAll();
