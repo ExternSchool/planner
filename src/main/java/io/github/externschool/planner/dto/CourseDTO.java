@@ -9,14 +9,15 @@ public class CourseDTO {
     private Long planId;
     private Teacher teacher;
     private String title;
-
-    private Integer interviewSemesterOneScore;
-    private Integer interviewSemesterTwoScore;
     private Boolean approvalSemesterOne;
     private Boolean approvalSemesterTwo;
-    private Integer examSemesterOneScore;
-    private Integer examSemesterTwoScore;
-    private Integer finalScore;
+    private Integer interviewScoreSemesterOne;
+    private Integer interviewScoreSemesterTwo;
+    private Integer examScoreSemesterOne;
+    private Integer examScoreSemesterTwo;
+    private Integer finalScoreSemesterOne;
+    private Integer finalScoreSemesterTwo;
+    private Integer finalScoreForYear;
 
     public CourseDTO(final Long studentId, final Long planId) {
         this.studentId = studentId;
@@ -47,20 +48,20 @@ public class CourseDTO {
         this.title = title;
     }
 
-    public Integer getInterviewSemesterOneScore() {
-        return interviewSemesterOneScore;
+    public Integer getInterviewScoreSemesterOne() {
+        return interviewScoreSemesterOne;
     }
 
-    public void setInterviewSemesterOneScore(final Integer interviewSemesterOneScore) {
-        this.interviewSemesterOneScore = interviewSemesterOneScore;
+    public void setInterviewScoreSemesterOne(final Integer interviewScoreSemesterOne) {
+        this.interviewScoreSemesterOne = interviewScoreSemesterOne;
     }
 
-    public Integer getInterviewSemesterTwoScore() {
-        return interviewSemesterTwoScore;
+    public Integer getInterviewScoreSemesterTwo() {
+        return interviewScoreSemesterTwo;
     }
 
-    public void setInterviewSemesterTwoScore(final Integer interviewSemesterTwoScore) {
-        this.interviewSemesterTwoScore = interviewSemesterTwoScore;
+    public void setInterviewScoreSemesterTwo(final Integer interviewScoreSemesterTwo) {
+        this.interviewScoreSemesterTwo = interviewScoreSemesterTwo;
     }
 
     public Boolean getApprovalSemesterOne() {
@@ -79,53 +80,70 @@ public class CourseDTO {
         this.approvalSemesterTwo = approvalSemesterTwo;
     }
 
-    public Integer getExamSemesterOneScore() {
-        return examSemesterOneScore;
+    public Integer getExamScoreSemesterOne() {
+        return examScoreSemesterOne;
     }
 
-    public void setExamSemesterOneScore(final Integer examSemesterOneScore) {
-        this.examSemesterOneScore = examSemesterOneScore;
+    public void setExamScoreSemesterOne(final Integer examScoreSemesterOne) {
+        this.examScoreSemesterOne = examScoreSemesterOne;
     }
 
-    public Integer getExamSemesterTwoScore() {
-        return examSemesterTwoScore;
+    public Integer getExamScoreSemesterTwo() {
+        return examScoreSemesterTwo;
     }
 
-    public void setExamSemesterTwoScore(final Integer examSemesterTwoScore) {
-        this.examSemesterTwoScore = examSemesterTwoScore;
+    public void setExamScoreSemesterTwo(final Integer examScoreSemesterTwo) {
+        this.examScoreSemesterTwo = examScoreSemesterTwo;
     }
 
-    public Integer getFinalScore() {
-        return finalScore;
+    public Integer getFinalScoreSemesterOne() {
+        return finalScoreSemesterOne;
     }
 
-    public void setFinalScore(final Integer finalScore) {
-        this.finalScore = finalScore;
+    public void setFinalScoreSemesterOne(final Integer finalScoreSemesterOne) {
+        this.finalScoreSemesterOne = finalScoreSemesterOne;
+    }
+
+    public Integer getFinalScoreSemesterTwo() {
+        return finalScoreSemesterTwo;
+    }
+
+    public void setFinalScoreSemesterTwo(final Integer finalScoreSemesterTwo) {
+        this.finalScoreSemesterTwo = finalScoreSemesterTwo;
+    }
+
+    public Integer getFinalScoreForYear() {
+        return finalScoreForYear;
+    }
+
+    public void setFinalScoreForYear(final Integer finalScoreForYear) {
+        this.finalScoreForYear = finalScoreForYear;
     }
 
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof CourseDTO)) return false;
         final CourseDTO courseDTO = (CourseDTO) o;
         return Objects.equals(studentId, courseDTO.studentId) &&
                 Objects.equals(planId, courseDTO.planId) &&
                 Objects.equals(teacher, courseDTO.teacher) &&
                 Objects.equals(title, courseDTO.title) &&
-                Objects.equals(interviewSemesterOneScore, courseDTO.interviewSemesterOneScore) &&
-                Objects.equals(interviewSemesterTwoScore, courseDTO.interviewSemesterTwoScore) &&
+                Objects.equals(interviewScoreSemesterOne, courseDTO.interviewScoreSemesterOne) &&
+                Objects.equals(interviewScoreSemesterTwo, courseDTO.interviewScoreSemesterTwo) &&
                 Objects.equals(approvalSemesterOne, courseDTO.approvalSemesterOne) &&
                 Objects.equals(approvalSemesterTwo, courseDTO.approvalSemesterTwo) &&
-                Objects.equals(examSemesterOneScore, courseDTO.examSemesterOneScore) &&
-                Objects.equals(examSemesterTwoScore, courseDTO.examSemesterTwoScore) &&
-                Objects.equals(finalScore, courseDTO.finalScore);
+                Objects.equals(examScoreSemesterOne, courseDTO.examScoreSemesterOne) &&
+                Objects.equals(examScoreSemesterTwo, courseDTO.examScoreSemesterTwo) &&
+                Objects.equals(finalScoreSemesterOne, courseDTO.finalScoreSemesterOne) &&
+                Objects.equals(finalScoreSemesterTwo, courseDTO.finalScoreSemesterTwo) &&
+                Objects.equals(finalScoreForYear, courseDTO.finalScoreForYear);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(studentId, planId, teacher, title, interviewSemesterOneScore,
-                interviewSemesterTwoScore, approvalSemesterOne, approvalSemesterTwo,
-                examSemesterOneScore, examSemesterTwoScore, finalScore);
+
+        return Objects.hash(studentId, planId, teacher, title, interviewScoreSemesterOne, interviewScoreSemesterTwo, approvalSemesterOne, approvalSemesterTwo, examScoreSemesterOne, examScoreSemesterTwo, finalScoreSemesterOne, finalScoreSemesterTwo, finalScoreForYear);
     }
 
     @Override

@@ -12,8 +12,8 @@ public class StudyPlanDTO {
     private String title;
     private Integer hoursPerSemesterOne;
     private Integer hoursPerSemesterTwo;
-    private Boolean examSemesterOne;
-    private Boolean examSemesterTwo;
+    private Integer examSemesterOne;
+    private Integer examSemesterTwo;
 
     public StudyPlanDTO(){
     }
@@ -24,8 +24,8 @@ public class StudyPlanDTO {
                         String title,
                         Integer hoursPerSemesterOne,
                         Integer hoursPerSemesterTwo,
-                        Boolean examSemesterOne,
-                        Boolean examSemesterTwo) {
+                        Integer examSemesterOne,
+                        Integer examSemesterTwo) {
         this.id = id;
         this.gradeLevel = gradeLevel;
         this.subject = subject;
@@ -84,19 +84,19 @@ public class StudyPlanDTO {
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
     }
 
-    public Boolean getExamSemesterOne() {
+    public Integer getExamSemesterOne() {
         return examSemesterOne;
     }
 
-    public void setExamSemesterOne(Boolean examSemesterOne) {
+    public void setExamSemesterOne(final Integer examSemesterOne) {
         this.examSemesterOne = examSemesterOne;
     }
 
-    public Boolean getExamSemesterTwo() {
+    public Integer getExamSemesterTwo() {
         return examSemesterTwo;
     }
 
-    public void setExamSemesterTwo(Boolean examSemesterTwo) {
+    public void setExamSemesterTwo(final Integer examSemesterTwo) {
         this.examSemesterTwo = examSemesterTwo;
     }
 

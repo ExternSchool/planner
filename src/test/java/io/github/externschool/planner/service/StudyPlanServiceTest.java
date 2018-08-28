@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -70,24 +71,25 @@ public class StudyPlanServiceTest {
     }
 
     @Test
-    public void shouldReturnExpectedPlan_whenFindBySubjectAndGradeLevel() {
-        Mockito.when(planRepository.findByGradeLevelAndSubject(expectedPlan.getGradeLevel(), expectedPlan.getSubject()))
-                .thenReturn(expectedPlan);
+    public void shouldReturnExpectedPlans_whenFindAllBySubjectAndGradeLevel() {
+        List<StudyPlan> expectedPlans = Collections.singletonList(expectedPlan);
+        Mockito.when(planRepository.findAllByGradeLevelAndSubject(expectedPlan.getGradeLevel(), expectedPlan.getSubject()))
+                .thenReturn(expectedPlans);
 
-        StudyPlan actualPlan = planService.findByGradeLevelAndSubject(GradeLevel.LEVEL_3, subject);
+        List<StudyPlan> studyPlans = planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_3, subject);
 
-        assertThat(actualPlan)
+        assertThat(studyPlans)
                 .isNotNull()
-                .isEqualTo(expectedPlan)
-                .isEqualToComparingFieldByField(expectedPlan);
+                .isEqualTo(expectedPlans)
+                .containsExactlyInAnyOrderElementsOf(expectedPlans);
     }
 
     @Test
     public void shouldReturnExpectedList_whenFindAllBySubjectOrderByGradeLevel() {
-        Mockito.when(planRepository.findAllBySubjectOrderByGradeLevel(subject))
+        Mockito.when(planRepository.findAllBySubjectOrderByGradeLevelAscTitleAsc(subject))
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllBySubjectOrderByGradeLevel(subject);
+        List<StudyPlan> actualPlans = planService.findAllBySubject(subject);
 
         assertThat(actualPlans)
                 .isNotEmpty()
@@ -96,10 +98,10 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByGradeLevelOrderBySubject() {
-        Mockito.when(planRepository.findAllByGradeLevelOrderBySubject(expectedPlan.getGradeLevel()))
+        Mockito.when(planRepository.findAllByGradeLevelOrderByTitleAsc(expectedPlan.getGradeLevel()))
                 .thenReturn(Collections.singletonList(expectedPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllByGradeLevelOrderBySubject(expectedPlan.getGradeLevel());
+        List<StudyPlan> actualPlans = planService.findAllByGradeLevel(expectedPlan.getGradeLevel());
 
         assertThat(actualPlans)
                 .isNotEmpty()
@@ -108,10 +110,10 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldReturnExpectedList_whenFindAllByOrderByGradeLevel() {
-        Mockito.when(planRepository.findAllByOrderByGradeLevel())
+        Mockito.when(planRepository.findAllByOrderByGradeLevelAscTitleAsc())
                 .thenReturn(Arrays.asList(expectedPlan, anotherPlan));
 
-        List<StudyPlan> actualPlans = planService.findAllByOrderByGradeLevel();
+        List<StudyPlan> actualPlans = planService.findAll();
 
         assertThat(actualPlans)
                 .isNotEmpty()
@@ -154,5 +156,12 @@ public class StudyPlanServiceTest {
         verify(courseRepository, times(1)).delete(expectedCourse);
         verify(courseRepository, times(1)).delete(anotherCourse);
         verify(planRepository, times(1)).delete(expectedPlan);
+    }
+
+    @Test
+    public void shouldDoNothing_whenTryingToDeleteNull() {
+        planService.deletePlan(null);
+
+        verify(planRepository, never()).delete(null);
     }
 }
