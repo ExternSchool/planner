@@ -27,11 +27,11 @@ public class SchoolSubjectController {
     }
 
     @GetMapping({"/"})
-    public ModelAndView displayStudentList(Long editId) {
+    public ModelAndView displaySubjectList(Long editId) {
         ModelAndView modelAndView = new ModelAndView(
                 "subject/subject_list",
                 "subjects", Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                .orElse(Collections.emptyList()));
+                    .orElse(Collections.emptyList()));
         modelAndView.addObject("editId", editId);
 
         return modelAndView;
@@ -40,7 +40,7 @@ public class SchoolSubjectController {
     @PostMapping("/{id}")
     public ModelAndView grade(@PathVariable Long id) {
 
-        return displayStudentList(id);
+        return displaySubjectList(id);
     }
 
     @PostMapping("/{id}/edit")

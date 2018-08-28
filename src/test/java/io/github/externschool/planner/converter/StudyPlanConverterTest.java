@@ -34,8 +34,8 @@ public class StudyPlanConverterTest {
         final String title = "Study plan";
         final Integer hoursPerSemesterOne = 30;
         final Integer hoursPerSemesterTwo = 40;
-        final Boolean examSemesterOne = true;
-        final Boolean examSemesterTwo = false;
+        final Integer examSemesterOne = 1;
+        final Integer examSemesterTwo = 0;
 
         studyPlan = new StudyPlan();
         studyPlan.setId(id);

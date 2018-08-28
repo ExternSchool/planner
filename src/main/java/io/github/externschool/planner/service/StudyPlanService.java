@@ -9,13 +9,13 @@ import java.util.List;
 public interface StudyPlanService {
     StudyPlan findById(Long id);
 
-    StudyPlan findByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
+    List<StudyPlan> findAllByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
 
-    List<StudyPlan> findAllBySubjectOrderByGradeLevel(SchoolSubject subject);
+    List<StudyPlan> findAllBySubject(SchoolSubject subject);
 
-    List<StudyPlan> findAllByGradeLevelOrderBySubject(GradeLevel gradeLevel);
+    List<StudyPlan> findAllByGradeLevel(GradeLevel gradeLevel);
 
-    List<StudyPlan> findAllByOrderByGradeLevel();
+    List<StudyPlan> findAll();
 
     StudyPlan saveOrUpdatePlan(StudyPlan plan);
 

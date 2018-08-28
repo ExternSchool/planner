@@ -89,7 +89,8 @@
                             <label for="grade" class="col-form-label float-left">Клас</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
                                     th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                                <option th:each="grade: ${grades}" th:value="${grade.getValue()}"
+                                <option th:each="grade: ${grades}"
+                                        th:value="${grade.getValue()}"
                                         th:text="${grade.toString()}">
                                     Клас
                                 </option>

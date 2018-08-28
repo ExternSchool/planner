@@ -135,7 +135,7 @@ public class TeacherServiceIntegrationTest {
 
         subjectService.deleteSubjectById(subjectToRemove.getId());
         List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
-        List<StudyPlan> actualPlans = planService.findAllByOrderByGradeLevel();
+        List<StudyPlan> actualPlans = planService.findAll();
 
         assertThat(actualSubjects)
                 .isNotEmpty()
@@ -155,7 +155,7 @@ public class TeacherServiceIntegrationTest {
                     .ifPresent(subjects -> subjectService.deleteSubjectById(s.getId()));
         });
         plans.forEach(p -> {
-            Optional.ofNullable(planService.findAllByOrderByGradeLevel())
+            Optional.ofNullable(planService.findAll())
                     .ifPresent(plans -> planService.deletePlan(p));
         });
         teachers.forEach(t -> {

@@ -96,7 +96,7 @@ public class CourseServiceImpl implements CourseService {
     @Transactional
     @Override
     public List<Course> createCoursesForStudent(final Student student) {
-        List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderBySubject(student.getGradeLevel());
+        List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
         List<Course> coursesToTake = new ArrayList<>();
         plansToFulfill.forEach(plan -> coursesToTake.add(new Course(student.getId(), plan.getId())));
         coursesToTake.forEach(this::saveOrUpdateCourse);

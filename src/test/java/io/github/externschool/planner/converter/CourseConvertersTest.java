@@ -64,24 +64,24 @@ public class CourseConvertersTest {
         expectedCourse = new Course(student.getId(), plan.getId());
         expectedCourse.setTeacher(teacher);
         expectedCourse.setTitle(plan.getTitle() + " " + student.getGradeLevel().toString());
-        expectedCourse.setInterviewSemesterOneScore(10);
-        expectedCourse.setInterviewSemesterTwoScore(7);
         expectedCourse.setApprovalSemesterOne(true);
         expectedCourse.setApprovalSemesterTwo(false);
-        expectedCourse.setExamSemesterOneScore(9);
-        expectedCourse.setExamSemesterTwoScore(0);
-        expectedCourse.setFinalScore(0);
+        expectedCourse.setInterviewScoreSemesterOne(10);
+        expectedCourse.setInterviewScoreSemesterTwo(7);
+        expectedCourse.setExamScoreSemesterOne(9);
+        expectedCourse.setExamScoreSemesterTwo(0);
+        expectedCourse.setFinalScoreForYear(0);
 
         expectedDTO = new CourseDTO(student.getId(), plan.getId());
         expectedDTO.setTeacher(teacher);
         expectedDTO.setTitle(plan.getTitle() + " " + student.getGradeLevel().toString());
-        expectedDTO.setInterviewSemesterOneScore(10);
-        expectedDTO.setInterviewSemesterTwoScore(7);
         expectedDTO.setApprovalSemesterOne(true);
         expectedDTO.setApprovalSemesterTwo(false);
-        expectedDTO.setExamSemesterOneScore(9);
-        expectedDTO.setExamSemesterTwoScore(0);
-        expectedDTO.setFinalScore(0);
+        expectedDTO.setInterviewScoreSemesterOne(10);
+        expectedDTO.setInterviewScoreSemesterTwo(7);
+        expectedDTO.setExamScoreSemesterOne(9);
+        expectedDTO.setExamScoreSemesterTwo(0);
+        expectedDTO.setFinalScoreForYear(0);
     }
 
     @Test

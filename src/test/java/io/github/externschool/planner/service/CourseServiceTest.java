@@ -217,7 +217,7 @@ public class CourseServiceTest {
         newPlan.setId(11L);
         Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
         expectedCourse.getTeacher().removeCourse(expectedCourse);
-        Mockito.when(planRepository.findAllByGradeLevelOrderBySubject(expectedStudent.getGradeLevel()))
+        Mockito.when(planRepository.findAllByGradeLevelOrderByTitleAsc(expectedStudent.getGradeLevel()))
                 .thenReturn(Arrays.asList(expectedPlan, newPlan));
         List<Course> expectedCourses = Arrays.asList(expectedCourse, newCourse);
 
