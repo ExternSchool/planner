@@ -8,6 +8,8 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 public class TeacherDTOToTeacher implements Converter<TeacherDTO, Teacher> {
@@ -15,11 +17,7 @@ public class TeacherDTOToTeacher implements Converter<TeacherDTO, Teacher> {
     public Teacher convert(final TeacherDTO teacherDTO) {
         Teacher teacher = new Teacher();
         BeanUtils.copyProperties(teacherDTO, teacher, "verificationKey", "email", "schoolSubjects");
-        VerificationKey key = teacherDTO.getVerificationKey();
-        teacher.addVerificationKey(key);
-        if (key != null && key.getUser() != null) {
-            key.getUser().addVerificationKey(key);
-        }
+        Optional.ofNullable(teacherDTO.getVerificationKey()).ifPresent(teacher::addVerificationKey);
         teacherDTO.getSchoolSubjects().forEach(teacher::addSubject);
 
         return teacher;

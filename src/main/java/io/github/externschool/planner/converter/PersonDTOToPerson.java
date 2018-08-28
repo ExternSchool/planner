@@ -15,12 +15,7 @@ public class PersonDTOToPerson implements Converter<PersonDTO, Person> {
     public Person convert(PersonDTO personDTO) {
         Person person = new Person();
         BeanUtils.copyProperties(personDTO, person, "verificationKey", "email");
-        Optional.ofNullable(personDTO.getVerificationKey())
-                .ifPresent(key -> {
-                    person.addVerificationKey(key);
-                    Optional.ofNullable(key.getUser())
-                            .ifPresent(user -> user.addVerificationKey(key));
-                });
+        Optional.ofNullable(personDTO.getVerificationKey()).ifPresent(person::addVerificationKey);
 
         return person;
     }

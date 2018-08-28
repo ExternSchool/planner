@@ -41,13 +41,16 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    //TODO remove CascadeType.REMOVE
     @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
             orphanRemoval = true)
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
+    //TODO remove CascadeType.REMOVE
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
+    //TODO Fix Cascade
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;

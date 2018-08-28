@@ -1,11 +1,13 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.StudentDTO;
-import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Student;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
@@ -13,11 +15,9 @@ public class StudentToStudentDTO implements Converter<Student, StudentDTO> {
     public StudentDTO convert(final Student student) {
         StudentDTO studentDTO = new StudentDTO();
         BeanUtils.copyProperties(student, studentDTO);
-        if (student.getVerificationKey().getUser() != null) {
-            studentDTO.setEmail(student.getVerificationKey().getUser().getEmail());
-        } else {
-            studentDTO.setEmail("");
-        }
+        studentDTO.setEmail(Optional.ofNullable(student.getVerificationKey().getUser())
+                .map(User::getEmail)
+                .orElse(""));
         studentDTO.setGradeLevel(student.getGradeLevel() != null ? student.getGradeLevel().getValue() : 0);
 
         return studentDTO;
