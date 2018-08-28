@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,17 +151,8 @@ public class TeacherServiceIntegrationTest {
 
     @After
     public void tearDown() {
-        subjects.forEach(s -> {
-            Optional.ofNullable(subjectService.findSubjectById(s.getId()))
-                    .ifPresent(subjects -> subjectService.deleteSubjectById(s.getId()));
-        });
-        plans.forEach(p -> {
-            Optional.ofNullable(planService.findAll())
-                    .ifPresent(plans -> planService.deletePlan(p));
-        });
-        teachers.forEach(t -> {
-            Optional.ofNullable(teacherService.findAllTeachers())
-                    .ifPresent(teachers -> teacherService.deleteTeacherById(t.getId()));
-        });
+        plans.stream().filter(Objects::nonNull).forEach(planService::deletePlan);
+        subjects.stream().filter(Objects::nonNull).map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
+        teachers.stream().filter(Objects::nonNull).map(Teacher::getId).forEach(teacherService::deleteTeacherById);
     }
 }

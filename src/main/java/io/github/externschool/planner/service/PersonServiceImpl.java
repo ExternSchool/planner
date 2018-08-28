@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.OpenOption;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -48,14 +50,14 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public void deletePerson(Person person) {
         if (person != null) {
-            VerificationKey key = person.getVerificationKey();
-            User user = key.getUser();
-            if (user != null) {
-                user.removeVerificationKey();
-                userRepository.save(user);
-            }
-            person.removeVerificationKey();
-            keyRepository.delete(key);
+            Optional.ofNullable(person.getVerificationKey()).ifPresent(key -> {
+                Optional.ofNullable(key.getUser()).ifPresent(user -> {
+                    user.removeVerificationKey();
+                    userRepository.save(user);
+                });
+                person.removeVerificationKey();
+                keyRepository.delete(key);
+            });
             personRepository.delete(person);
         }
     }

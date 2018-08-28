@@ -25,6 +25,7 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
+    //TODO Fix Cascade
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "key_id")
     private VerificationKey verificationKey;

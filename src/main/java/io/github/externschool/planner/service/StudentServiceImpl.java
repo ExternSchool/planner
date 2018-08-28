@@ -57,22 +57,16 @@ public class StudentServiceImpl implements StudentService {
     @Transactional
     @Override
     public void deleteStudentById(final Long id) {
-        Optional.ofNullable(findStudentById(id))
-                .ifPresent(student -> {
-                    courseRepository.findAllById_StudentId(id).stream()
-                            .filter(Objects::nonNull)
-                            .forEach(course -> {
-                                Optional.ofNullable(course.getTeacher())
-                                        .ifPresent(teacher -> teacher.removeCourse(course));
-                                courseRepository.delete(course);
-                            });
-                    Optional.ofNullable(student.getVerificationKey())
-                            .ifPresent(key -> {
-                                Optional.ofNullable(key.getUser())
-                                        .ifPresent(User::removeVerificationKey);
-                                keyRepository.delete(key);
-                            });
-                    studentRepository.deleteById(id);
-                });
+        Optional.ofNullable(findStudentById(id)).ifPresent(student -> {
+            courseRepository.findAllById_StudentId(id).stream().filter(Objects::nonNull).forEach(course -> {
+                Optional.ofNullable(course.getTeacher()).ifPresent(teacher -> teacher.removeCourse(course));
+                courseRepository.delete(course);
+            });
+            Optional.ofNullable(student.getVerificationKey()).ifPresent(key -> {
+                Optional.ofNullable(key.getUser()).ifPresent(User::removeVerificationKey);
+                keyRepository.delete(key);
+            });
+            studentRepository.deleteById(id);
+        });
     }
 }
