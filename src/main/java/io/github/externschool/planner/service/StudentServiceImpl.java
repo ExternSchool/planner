@@ -62,7 +62,8 @@ public class StudentServiceImpl implements StudentService {
                     courseRepository.findAllById_StudentId(id).stream()
                             .filter(Objects::nonNull)
                             .forEach(course -> {
-                                course.getTeacher().removeCourse(course);
+                                Optional.ofNullable(course.getTeacher())
+                                        .ifPresent(teacher -> teacher.removeCourse(course));
                                 courseRepository.delete(course);
                             });
                     Optional.ofNullable(student.getVerificationKey())

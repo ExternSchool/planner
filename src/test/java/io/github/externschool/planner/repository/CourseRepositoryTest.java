@@ -2,8 +2,8 @@ package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.StudyPlan;
+import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
@@ -27,11 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class CourseRepositoryTest {
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private CourseRepository repository;
+    @Autowired private TestEntityManager entityManager;
+    @Autowired private CourseRepository repository;
 
     private List<StudyPlan> plans;
     private List<Course> expectedCourses;
@@ -123,5 +120,19 @@ public class CourseRepositoryTest {
                 .containsAll(expectedCourses)
                 .size()
                 .isEqualTo(3);
+    }
+
+    @Test
+    public void shouldReturnSameHash_whenSaveCourse() {
+        Long studentId = student.getId();
+        long planId = plans.get(0).getId();
+        Course course = new Course(studentId, planId);
+        int primary = course.hashCode();
+
+        repository.save(course);
+        int actual = repository.findById_StudentIdAndId_PlanId(studentId, planId).hashCode();
+
+        assertThat(actual)
+                .isEqualTo(primary);
     }
 }

@@ -2,8 +2,6 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
@@ -13,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -54,23 +53,14 @@ public class TeacherServiceImpl implements TeacherService {
     @Transactional
     @Override
     public void deleteTeacherById(Long id) {
-        Teacher teacher = teacherRepository.findTeacherById(id);
-        if (teacher != null) {
-            for (SchoolSubject subject : new HashSet<>(teacher.getSubjects())) {
-                teacher.removeSubject(subject);
-            }
-            for (Course course : new HashSet<>(teacher.getCourses())) {
-                teacher.removeCourse(course);
-            }
-            VerificationKey key = teacher.getVerificationKey();
-            if (key != null) {
-                User user = key.getUser();
-                if (user != null) {
-                    user.removeVerificationKey();
-                }
+        Optional.ofNullable(teacherRepository.findTeacherById(id)).ifPresent(teacher -> {
+            new HashSet<>(teacher.getCourses()).forEach(teacher::removeCourse);
+            new HashSet<>(teacher.getSubjects()).forEach(teacher::removeSubject);
+            Optional.ofNullable(teacher.getVerificationKey()).ifPresent(key -> {
+                Optional.ofNullable(key.getUser()).ifPresent(User::removeVerificationKey);
                 keyRepository.delete(key);
-            }
+            });
             teacherRepository.deleteById(id);
-        }
+        });
     }
 }

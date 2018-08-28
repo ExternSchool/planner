@@ -61,7 +61,7 @@ public class StudyPlanRepositoryTest {
 
     @Test
     public void shouldReturnThreePlans_whenFindBySubjectIdAndGradeLevelAndDeleteThisPlan() {
-        repository.delete(repository.findByGradeLevelAndSubject(GradeLevel.LEVEL_1, subjects.get(0)));
+        repository.deleteAll(repository.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_1, subjects.get(0)));
         List<StudyPlan> actualStudyPlans = repository.findAll();
 
         assertThat(actualStudyPlans)

@@ -12,7 +12,7 @@ import java.util.List;
 public interface StudyPlanRepository extends JpaRepository<StudyPlan, Long> {
     StudyPlan findStudyPlanById(Long id);
 
-    StudyPlan findByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
+    List<StudyPlan> findAllByGradeLevelAndSubject(GradeLevel gradeLevel, SchoolSubject subject);
 
     List<StudyPlan> findAllBySubjectOrderByGradeLevelAscTitleAsc(SchoolSubject subject);
 
