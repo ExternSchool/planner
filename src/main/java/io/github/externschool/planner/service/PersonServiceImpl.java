@@ -1,7 +1,5 @@
 package io.github.externschool.planner.service;
 
-import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -10,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.OpenOption;
 import java.util.List;
 import java.util.Optional;
 
