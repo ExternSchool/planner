@@ -47,11 +47,15 @@ public class Course implements Serializable {
     @Column(name = "final_year")
     private Integer finalScoreForYear;
 
-    private Course() {
+    public Course() {
     }
 
     public Course(@NotNull final Long studentId, @NotNull final Long planId) {
         this.id = new CoursePK(studentId, planId);
+    }
+
+    public CoursePK getId() {
+        return id;
     }
 
     public Long getStudentId() {
@@ -235,10 +239,10 @@ public class Course implements Serializable {
         @Column(name = "plan_id")
         private Long planId;
 
-        private CoursePK() {
+        public CoursePK() {
         }
 
-        CoursePK(@NotNull final Long studentId, @NotNull final Long planId) {
+        public CoursePK(@NotNull final Long studentId, @NotNull final Long planId) {
             this.studentId = studentId;
             this.planId = planId;
         }

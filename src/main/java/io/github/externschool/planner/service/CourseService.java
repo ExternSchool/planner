@@ -24,4 +24,5 @@ public interface CourseService {
     String getCourseTitleByCourse(Course course);
 
     List<Course> createCoursesForStudent(Student student);
+
 }
