@@ -54,6 +54,10 @@ public class Course implements Serializable {
         this.id = new CoursePK(studentId, planId);
     }
 
+    CoursePK getId() {
+        return id;
+    }
+
     public Long getStudentId() {
         return id.getStudentId();
     }
@@ -235,7 +239,7 @@ public class Course implements Serializable {
         @Column(name = "plan_id")
         private Long planId;
 
-        private CoursePK() {
+        CoursePK() {
         }
 
         CoursePK(@NotNull final Long studentId, @NotNull final Long planId) {
