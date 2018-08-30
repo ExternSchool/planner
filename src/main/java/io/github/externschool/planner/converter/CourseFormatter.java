@@ -22,8 +22,7 @@ public class CourseFormatter implements Formatter<Course> {
         String s1 = sString[0];
         String s2 = sString[1];
 
-        return courseRepository.findById_StudentIdAndId_PlanId(Long.parseLong(s1)
-                , Long.parseLong(s2));
+        return courseRepository.findById_StudentIdAndId_PlanId(Long.parseLong(s1), Long.parseLong(s2));
     }
 
     @Override
