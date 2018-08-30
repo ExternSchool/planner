@@ -29,6 +29,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired private SchoolSubjectFormatter subjectFormatter;
     @Autowired private LocalDateFormatter localDateFormatter;
     @Autowired private GenderEnumFormatter genderEnumFormatter;
+    @Autowired private GradeLevelEnumFormatter gradeLevelEnumFormatter;
+    @Autowired private CourseFormatter courseFormatter;
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
@@ -49,6 +51,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addFormatter(subjectFormatter);
         registry.addFormatter(localDateFormatter);
         registry.addFormatter(genderEnumFormatter);
-
+        registry.addFormatter(gradeLevelEnumFormatter);
+        registry.addFormatter(courseFormatter);
     }
 }
