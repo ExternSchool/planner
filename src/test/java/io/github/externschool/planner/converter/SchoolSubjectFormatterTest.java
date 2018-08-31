@@ -18,7 +18,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SchoolSubjectFormatterTest {
-    @Mock private SchoolSubjectRepository repository;
+    @Mock
+    private SchoolSubjectRepository repository;
     private SchoolSubjectFormatter formatter;
 
     private SchoolSubject subject = new SchoolSubject();
@@ -34,7 +35,7 @@ public class SchoolSubjectFormatterTest {
     }
 
     @Test
-    public void shouldReturnSameSubjectById_whenRunnedParsePrint() throws ParseException {
+    public void shouldReturnSameSubjectById_whenRanParsePrint() throws ParseException {
         Locale locale = new Locale("uk");
 
         String printed = formatter.print(subject, locale);
