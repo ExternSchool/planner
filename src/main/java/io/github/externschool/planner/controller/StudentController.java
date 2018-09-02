@@ -14,7 +14,6 @@ import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
-import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -147,7 +147,7 @@ public class StudentController {
     @Secured("ROLE_ADMIN")
     @GetMapping("/{id}/plan")
     public ModelAndView showStudentPlanForm(@PathVariable("id") Long id,
-                                               final Principal principal) {
+                                            final Principal principal) {
         Student student = studentService.findStudentById(id);
         User user = userService.findUserByEmail(principal.getName());
         if (student == null) {
@@ -216,14 +216,13 @@ public class StudentController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
-    @GetMapping(value = "/update/cancel/{id}")
-    public ModelAndView processFormStudentProfileActionCancel(@PathVariable("id") Long keyId,
-                                                              Principal principal) {
+    @GetMapping(value = "/cancel/{kid}")
+    public ModelAndView processFormStudentProfileCancel(@PathVariable("kid") Long keyId, Principal principal) {
         VerificationKey key = keyService.findKeyById(keyId);
         if (key != null
                 && (key.getPerson() == null
-                    || key.getPerson().getId() == null
-                    || personService.findPersonById(key.getPerson().getId()) == null)) {
+                || key.getPerson().getId() == null
+                || personService.findPersonById(key.getPerson().getId()) == null)) {
             keyService.deleteById(key.getId());
         }
 
@@ -231,15 +230,17 @@ public class StudentController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping(value = "/update", params = "action=newKey")
-    public ModelAndView processFormStudentProfileActionNewKey(@ModelAttribute("student") StudentDTO studentDTO) {
-        //TODO Add key change confirmation
-        /*
-        When key change confirmed:
-        DTO Receives a NEW KEY which is instantly assigned, it CAN'T BE CANCELLED even if Cancel button pressed.
-        An old key is removed from user (if present), user receives Guest role
-         */
-        studentDTO = (StudentDTO)keyService.setNewKeyToDTO(studentDTO);
+    @PostMapping(value = "/{id}/new-key")
+    public ModelAndView processFormStudentProfileActionNewKey(@PathVariable("id") Long id) {
+        //When key change confirmed:
+        //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
+        //user receives Guest role
+        StudentDTO studentDTO = Optional.ofNullable(studentService.findStudentById(id))
+                .filter(Objects::nonNull)
+                .map(student -> conversionService.convert(student, StudentDTO.class))
+                .map(s -> (StudentDTO)keyService.setNewKeyToDTO(s))
+                .orElse(new StudentDTO());
+
         Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.assignNewRolesByKey(user, user.getVerificationKey());

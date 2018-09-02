@@ -151,11 +151,11 @@ public class BootstrapDataPopulator implements InitializingBean {
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
-        Person person = personService.saveOrUpdatePerson(new Person(null,
+        Person person = new Person(null,
                 "Jonh",
                 "Johnovich",
                 "Doe",
-                "(044)222-2222"));
+                "(044)222-2222");
         Student student = new Student(person,
                 LocalDate.of(2002, 02, 22),
                 Gender.MALE,
