@@ -297,7 +297,7 @@ public class StudentController {
                 .map(StudyPlan::getSubject)
                 .map(teacherService::findAllBySubject)
                 .orElse(Collections.emptyList()));
-        teachers.add(teacherService.findAllByLastName(UK_COURSE_NO_TEACHER).get(0));
+        teacherService.findAllByLastName(UK_COURSE_NO_TEACHER).stream().findAny().ifPresent(teachers::add);
         modelAndView.addObject("teachers", teachers);
         modelAndView.addObject("coursePlanId", coursePlanId);
 

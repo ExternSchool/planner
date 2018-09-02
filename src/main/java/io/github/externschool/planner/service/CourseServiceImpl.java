@@ -117,7 +117,7 @@ public class CourseServiceImpl implements CourseService {
                     Course newCourse = new Course(student.getId(), plan.getId());
                     newCourse.setTitle(plan.getTitle());
                     teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER).stream()
-                            .findFirst()
+                            .findAny()
                             .ifPresent(teacher -> teacher.addCourse(newCourse));
                     coursesToTake.add(newCourse);
                     saveOrUpdateCourse(newCourse);

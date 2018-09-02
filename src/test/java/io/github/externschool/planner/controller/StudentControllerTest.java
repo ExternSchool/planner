@@ -9,6 +9,7 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
+import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
@@ -38,6 +39,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -73,6 +75,7 @@ public class StudentControllerTest {
     private MultiValueMap<String, String> map;
     private Course course;
     private StudyPlan plan;
+    private Teacher teacher;
 
     @Before
     public void setup(){
@@ -117,6 +120,10 @@ public class StudentControllerTest {
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
+
+        teacher = new Teacher();
+        teacher.setLastName(UK_COURSE_NO_TEACHER);
+        teacherService.saveOrUpdateTeacher(teacher);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -406,5 +413,6 @@ public class StudentControllerTest {
         userService.deleteUser(user);
         keyService.deleteById(key.getId());
         Optional.ofNullable(plan).ifPresent(p -> planService.deletePlan(p));
+        teacherService.deleteTeacherById(teacher.getId());
     }
 }
