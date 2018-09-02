@@ -14,7 +14,7 @@ public class GradeLevelEnumFormatter implements Formatter<GradeLevel> {
     public GradeLevel parse(final String s, final Locale locale) throws ParseException {
         return Arrays.stream(GradeLevel.values())
                 .filter(gradeLevel -> gradeLevel.toString().equals(s))
-                .findFirst()
+                .findAny()
                 .orElse(GradeLevel.LEVEL_NOT_DEFINED);
     }
 

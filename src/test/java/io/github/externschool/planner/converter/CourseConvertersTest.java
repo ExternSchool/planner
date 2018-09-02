@@ -70,7 +70,7 @@ public class CourseConvertersTest {
         expectedCourse.setInterviewScoreSemesterTwo(7);
         expectedCourse.setExamScoreSemesterOne(9);
         expectedCourse.setExamScoreSemesterTwo(0);
-        expectedCourse.setFinalScoreForYear(0);
+        expectedCourse.setFinalResultScore(0);
 
         expectedDTO = new CourseDTO(student.getId(), plan.getId());
         expectedDTO.setTeacher(teacher);
@@ -81,7 +81,7 @@ public class CourseConvertersTest {
         expectedDTO.setInterviewScoreSemesterTwo(7);
         expectedDTO.setExamScoreSemesterOne(9);
         expectedDTO.setExamScoreSemesterTwo(0);
-        expectedDTO.setFinalScoreForYear(0);
+        expectedDTO.setFinalResultScore(0);
     }
 
     @Test

@@ -58,7 +58,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void deleteStudentById(final Long id) {
         Optional.ofNullable(findStudentById(id)).ifPresent(student -> {
-            courseRepository.findAllById_StudentId(id).stream().filter(Objects::nonNull).forEach(course -> {
+            courseRepository.findAllById_StudentIdOrderByTitle(id).stream().filter(Objects::nonNull).forEach(course -> {
                 Optional.ofNullable(course.getTeacher()).ifPresent(teacher -> teacher.removeCourse(course));
                 courseRepository.delete(course);
             });

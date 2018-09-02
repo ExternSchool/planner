@@ -49,7 +49,7 @@ public class CourseRepositoryTest {
         teacher = new Teacher(new Person(), "Teacher", new HashSet<>(), new HashSet<>());
         entityManager.persist(teacher);
 
-        for (String name : Arrays.asList("Quantum Mechanics", "Algebraic topology", "Rocket Science")) {
+        for (String name : Arrays.asList("Quantum Mechanics", "Algebraic Topology", "Rocket Science")) {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(name);
             entityManager.persist(subject);
@@ -94,7 +94,7 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnEmptyList_whenFindAllByStudentId_thenDeleteTheseCourses() {
-        repository.deleteAll(repository.findAllById_StudentId(expectedCourses.get(0).getStudentId()));
+        repository.deleteAll(repository.findAllById_StudentIdOrderByTitle(expectedCourses.get(0).getStudentId()));
         List<Course> actualCourses = repository.findAll();
 
         assertThat(actualCourses)
@@ -104,7 +104,7 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnCourse_whenFindAllByPlanId() {
-        List<Course> actualCourses = repository.findAllById_PlanId(plans.get(0).getId());
+        List<Course> actualCourses = repository.findAllById_PlanIdOrderByTitle(plans.get(0).getId());
 
         assertThat(actualCourses)
                 .containsAnyElementsOf(expectedCourses)
@@ -114,7 +114,7 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnThreeCourses_whenFindAllByTeacher() {
-        List<Course> actualCourses = repository.findAllByTeacher(teacher);
+        List<Course> actualCourses = repository.findAllByTeacherOrderByTitle(teacher);
 
         assertThat(actualCourses)
                 .containsAll(expectedCourses)

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,6 +94,23 @@ public class TeacherServiceTest {
                 .isNotNull()
                 .isEqualTo(expectedList.get(0))
                 .isEqualToComparingFieldByField(expectedList.get(0));
+    }
+
+    @Test
+    public void shouldReturnSingletonList_whenFindAllByLastName() {
+        Teacher noTeacherAssigned = new Teacher();
+        noTeacherAssigned.setLastName(UK_COURSE_NO_TEACHER);
+        List<Teacher> expectedList = Collections.singletonList(noTeacherAssigned);
+
+        Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
+                .thenReturn(expectedList);
+
+        List<Teacher> actualList = teacherService.findAllByLastName(UK_COURSE_NO_TEACHER);
+
+        assertThat(actualList)
+                .isNotNull()
+                .isInstanceOf(List.class)
+                .containsExactly(noTeacherAssigned);
     }
 
     @Test

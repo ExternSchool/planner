@@ -3,7 +3,6 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
-import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,7 @@ public class StudyPlanServiceImpl implements StudyPlanService {
         Optional.ofNullable(plan).ifPresent(p -> {
             Optional.ofNullable(plan.getSubject())
                     .ifPresent(subject -> subject.removePlan(plan));
-            courseRepository.findAllById_PlanId(plan.getId()).stream()
+            courseRepository.findAllById_PlanIdOrderByTitle(plan.getId()).stream()
                     .filter(Objects::nonNull)
                     .forEach(courseRepository::delete);
             repository.delete(plan);

@@ -18,16 +18,15 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class SchoolSubjectFormatterTest {
-    @Mock
-    private SchoolSubjectRepository repository;
+    @Mock private SchoolSubjectRepository repository;
     private SchoolSubjectFormatter formatter;
 
-    private SchoolSubject subject = new SchoolSubject();
+    private SchoolSubject subject;
 
     @Before
     public void setup() {
         formatter = new SchoolSubjectFormatter(repository);
-
+        subject = new SchoolSubject();
         subject.setId(1L);
 
         Mockito.when(repository.findById(subject.getId()))
@@ -47,5 +46,3 @@ public class SchoolSubjectFormatterTest {
                 .isEqualToComparingFieldByField(subject);
     }
 }
-
-

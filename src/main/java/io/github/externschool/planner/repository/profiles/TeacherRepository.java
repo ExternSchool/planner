@@ -9,12 +9,13 @@ import java.util.List;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Long> {
-
     Teacher findTeacherById(Long id);
 
     List<Teacher> findAll();
 
     List<Teacher> findAllBySubjectsContains(SchoolSubject subject);
+
+    List<Teacher> findAllByLastNameOrderByLastName(String lastName);
 
     List<Teacher> findAllByOrderByLastName();
 }
