@@ -206,10 +206,8 @@ public class StudentControllerTest {
     public void shouldReturnModelAndView_whenGetPlanWithExistingId() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
-        Long id = student.getId();
-        String url = "/student/" + id + "/plan";
 
-        mockMvc.perform(get(url))
+        mockMvc.perform(get("/student/" + student.getId() + "/plan"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"));
     }
@@ -230,14 +228,12 @@ public class StudentControllerTest {
     public void shouldReturnModelAndView_whenShowStudentPlanForm() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
-        Long id = student.getId();
         String studentData = student.getLastName() + " " +
                 student.getFirstName() + " " +
                 student.getPatronymicName() + ", " +
                 student.getGradeLevel().toString();
-        String url = "/student/" + id + "/plan";
 
-        mockMvc.perform(get(url))
+        mockMvc.perform(get("/student/" + student.getId() + "/plan"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
                 .andExpect(model().attribute("studentData", studentData))
@@ -263,11 +259,8 @@ public class StudentControllerTest {
         course = new Course(student.getId(), plan.getId());
         course.setTitle(title);
         courseService.saveOrUpdateCourse(course);
-        Long sid = course.getStudentId();
-        Long id = course.getPlanId();
-        String url = "/student/" + sid + "/plan/" + id;
 
-        mockMvc.perform(get(url))
+        mockMvc.perform(get("/student/" + course.getStudentId() + "/plan/" + course.getPlanId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
                 .andExpect(model().attribute("studentData", studentData))
@@ -294,11 +287,8 @@ public class StudentControllerTest {
         course = new Course(student.getId(), plan.getId());
         course.setTitle(title);
         courseService.saveOrUpdateCourse(course);
-        Long sid = course.getStudentId();
-        Long id = course.getPlanId();
-        String url = "/student/" + sid + "/plan/" + id;
 
-        mockMvc.perform(post(url)
+        mockMvc.perform(post("/student/" + course.getStudentId() + "/plan/" + course.getPlanId())
                 .param("action", "teacher"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
