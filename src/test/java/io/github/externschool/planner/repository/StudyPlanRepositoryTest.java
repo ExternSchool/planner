@@ -34,7 +34,7 @@ public class StudyPlanRepositoryTest {
     public void setup() {
         expectedStudyPlans = new ArrayList<>();
         subjects = new ArrayList<>();
-        for (String name : Arrays.asList("Quantum Mechanics","Algebraic topology")) {
+        for (String name : Arrays.asList("Quantum Mechanics","Algebraic Topology")) {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(name);
             subjects.add(subject);

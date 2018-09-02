@@ -76,6 +76,7 @@
                 <th>Клас</th>
                 <th>Телефон</th>
                 <th>Email</th>
+                <th class="text-right" style="width: 10%">План</th>
                 <th class="text-right" style="width: 10%">Змінити</th>
                 <th class="text-right" style="width: 10%">Видалити</th>
             </tr>
@@ -89,6 +90,11 @@
                 <td th:text="${student.getGradeLevel()}">Клас</td>
                 <td th:text="${student.getPhoneNumber()}">Телефон</td>
                 <td th:text="${student.getEmail()}">Email</td>
+                <td class="text-right">
+                    <a th:href="@{/student/{id}/plan(id=${student.id})}" class="btn badge badge-success">
+                        <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                    </a>
+                </td>
                 <td class="text-right">
                     <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
                         <button type="submit" name="edit" value="edit" class="btn badge badge-primary">

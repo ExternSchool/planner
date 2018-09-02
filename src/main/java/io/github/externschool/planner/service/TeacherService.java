@@ -12,6 +12,8 @@ public interface TeacherService {
 
     List<Teacher> findAllBySubject(SchoolSubject subject);
 
+    List<Teacher> findAllByLastName(String lastName);
+
     List<Teacher> findAllByOrderByLastName();
 
     Teacher saveOrUpdateTeacher(Teacher teacher);

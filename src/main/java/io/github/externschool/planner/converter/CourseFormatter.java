@@ -28,6 +28,7 @@ public class CourseFormatter implements Formatter<Course> {
     @Override
     public String print(final Course course,final Locale locale) {
         return (course !=null && course.getPlanId() != null && course.getStudentId() != null
-                ? course.getStudentId().toString() +"&" +course.getPlanId().toString() :"");
+                ? course.getStudentId().toString() + "&" + course.getPlanId().toString()
+                : "");
     }
 }

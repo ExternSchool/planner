@@ -135,7 +135,7 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldRemovePlanFromSubject_whenDeletePlan() {
-        Mockito.when(courseRepository.findAllById_PlanId(expectedPlan.getId()))
+        Mockito.when(courseRepository.findAllById_PlanIdOrderByTitle(expectedPlan.getId()))
                 .thenReturn(Arrays.asList(expectedCourse, anotherCourse));
 
         planService.deletePlan(expectedPlan);
@@ -148,7 +148,7 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldDeleteCourses_whenDeletePlan() {
-        Mockito.when(courseRepository.findAllById_PlanId(expectedPlan.getId()))
+        Mockito.when(courseRepository.findAllById_PlanIdOrderByTitle(expectedPlan.getId()))
                 .thenReturn(Arrays.asList(expectedCourse, anotherCourse));
 
         planService.deletePlan(expectedPlan);

@@ -26,7 +26,7 @@ public class SchoolSubjectController {
         this.subjectService = subjectService;
     }
 
-    @GetMapping({"/"})
+    @GetMapping("/")
     public ModelAndView displaySubjectList(Long editId) {
         ModelAndView modelAndView = new ModelAndView(
                 "subject/subject_list",

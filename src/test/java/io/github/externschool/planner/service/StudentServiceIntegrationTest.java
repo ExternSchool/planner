@@ -68,7 +68,7 @@ public class StudentServiceIntegrationTest {
         plans = new ArrayList<>();
         courses = new ArrayList<>();
 
-        for (String name : Arrays.asList("Quantum Mechanics", "Algebraic topology", "Rocket Science")) {
+        for (String name : Arrays.asList("Quantum Mechanics", "Algebraic Topology", "Rocket Science")) {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(name);
             subjects.add(subject);

@@ -91,8 +91,8 @@ public class Person {
 
     public String getShortName() {
         return lastName + " " +
-                firstName.substring(0,1) + "." +
-                patronymicName.substring(0,1) + ".";
+                (firstName != null ? firstName.substring(0,1) + "." : "") +
+                (patronymicName != null ? patronymicName.substring(0,1) + "." : "");
     }
 
     public String getPhoneNumber() {

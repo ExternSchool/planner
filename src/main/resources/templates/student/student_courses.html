@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk">
+<head>
+    <title>Students Personal Plan</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous"><!--Latest minified Bootstrap, JQuery, Moment-->
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='student')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 font-weight-normal" th:inline="text"><small>Поточні результати екстерна</small></h4>
+    <fieldset>
+        <form th:action="@{/student/courses/}" th:object="${courses}" th:method="POST">
+            <input type="hidden" th:field="${courses}"/>
+
+        </form>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- Script -->
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("form").bind("keypress", function(e) {
+            if (e.keyCode == 13) {
+                return false;
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

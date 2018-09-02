@@ -95,10 +95,12 @@
                 </div>
                 <div class=" col-lg-6 mb-0">
                     <div class="form-group mb-1">
-                        <label class="col-form-label " for="schoolSubjects">Виберіть предмети</label>
+                        <label class="col-form-label " for="schoolSubjects">
+                            Предмети (натисніть Ctrl, щоб вибрати декілька)</label>
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
-                                    th:field="*{schoolSubjects}" size="12">
+                                    th:field="*{schoolSubjects}" size="12"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <option th:each="subject : ${allSubjects}"
                                         th:value="${{subject}}"
                                         th:text="${subject.title}">

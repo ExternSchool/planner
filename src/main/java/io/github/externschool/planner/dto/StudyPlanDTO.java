@@ -12,8 +12,8 @@ public class StudyPlanDTO {
     private String title;
     private Integer hoursPerSemesterOne;
     private Integer hoursPerSemesterTwo;
-    private Integer examSemesterOne;
-    private Integer examSemesterTwo;
+    private Integer worksPerSemesterOne;
+    private Integer worksPerSemesterTwo;
 
     public StudyPlanDTO(){
     }
@@ -24,16 +24,16 @@ public class StudyPlanDTO {
                         String title,
                         Integer hoursPerSemesterOne,
                         Integer hoursPerSemesterTwo,
-                        Integer examSemesterOne,
-                        Integer examSemesterTwo) {
+                        Integer worksPerSemesterOne,
+                        Integer worksPerSemesterTwo) {
         this.id = id;
         this.gradeLevel = gradeLevel;
         this.subject = subject;
         this.title = title;
         this.hoursPerSemesterOne = hoursPerSemesterOne;
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
-        this.examSemesterOne = examSemesterOne;
-        this.examSemesterTwo = examSemesterTwo;
+        this.worksPerSemesterOne = worksPerSemesterOne;
+        this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
     public Long getId() {
@@ -84,20 +84,20 @@ public class StudyPlanDTO {
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
     }
 
-    public Integer getExamSemesterOne() {
-        return examSemesterOne;
+    public Integer getWorksPerSemesterOne() {
+        return worksPerSemesterOne;
     }
 
-    public void setExamSemesterOne(final Integer examSemesterOne) {
-        this.examSemesterOne = examSemesterOne;
+    public void setWorksPerSemesterOne(final Integer worksPerSemesterOne) {
+        this.worksPerSemesterOne = worksPerSemesterOne;
     }
 
-    public Integer getExamSemesterTwo() {
-        return examSemesterTwo;
+    public Integer getWorksPerSemesterTwo() {
+        return worksPerSemesterTwo;
     }
 
-    public void setExamSemesterTwo(final Integer examSemesterTwo) {
-        this.examSemesterTwo = examSemesterTwo;
+    public void setWorksPerSemesterTwo(final Integer worksPerSemesterTwo) {
+        this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
     @Override
@@ -111,13 +111,13 @@ public class StudyPlanDTO {
                 Objects.equals(title, that.title) &&
                 Objects.equals(hoursPerSemesterOne, that.hoursPerSemesterOne) &&
                 Objects.equals(hoursPerSemesterTwo, that.hoursPerSemesterTwo) &&
-                Objects.equals(examSemesterOne, that.examSemesterOne) &&
-                Objects.equals(examSemesterTwo, that.examSemesterTwo);
+                Objects.equals(worksPerSemesterOne, that.worksPerSemesterOne) &&
+                Objects.equals(worksPerSemesterTwo, that.worksPerSemesterTwo);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, gradeLevel, subject, title, hoursPerSemesterOne,
-                hoursPerSemesterTwo, examSemesterOne, examSemesterTwo);
+                hoursPerSemesterTwo, worksPerSemesterOne, worksPerSemesterTwo);
     }
 }

@@ -34,7 +34,7 @@ public class StudyPlanJpaTest {
     @Before
     public void setup() {
         expectedStudyPlans = new ArrayList<>();
-        for (String name : Arrays.asList("Quantum Mechanics","Algebraic topology")) {
+        for (String name : Arrays.asList("Quantum Mechanics","Algebraic Topology")) {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(name);
             for (GradeLevel level : Arrays.asList(GradeLevel.LEVEL_1, GradeLevel.LEVEL_3)) {

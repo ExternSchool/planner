@@ -1,7 +1,6 @@
 package io.github.externschool.planner.repository.profiles;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import org.junit.Before;
@@ -87,5 +86,17 @@ public class TeacherRepositoryTest {
                 .isNotNull()
                 .hasSize(2)
                 .containsExactlyInAnyOrder(secondTeacher, firstTeacher);
+    }
+
+    @Test
+    public void shouldReturnSingletonList_whenFindAllByLastName() {
+        String expectedName = firstTeacher.getLastName();
+
+        List<Teacher> teachers = this.repository.findAllByLastNameOrderByLastName(expectedName);
+
+        assertThat(teachers)
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(firstTeacher);
     }
 }

@@ -32,6 +32,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+
 @Service
 @ExcludeFromTests
 public class BootstrapDataPopulator implements InitializingBean {
@@ -40,29 +42,44 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final SchoolSubjectService schoolSubjectService;
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final VerificationKeyService verificationKeyService;
-    @Autowired private StudyPlanRepository planRepository;
-    @Autowired private StudentService studentService;
-    @Autowired private CourseRepository courseRepository;
-    @Autowired private PersonService personService;
-
+    private final StudyPlanRepository planRepository;
+    private final StudentService studentService;
+    private final CourseRepository courseRepository;
+    private final PersonService personService;
     private final RoleService roleService;
 
+    @Autowired
     public BootstrapDataPopulator(final UserService userService,
                                   final TeacherService teacherService,
                                   final SchoolSubjectService schoolSubjectService,
                                   final ScheduleEventTypeRepository eventTypeRepository,
                                   final VerificationKeyService verificationKeyService,
-                                  final RoleService roleService) {
+                                  final RoleService roleService,
+                                  final StudyPlanRepository planRepository,
+                                  final StudentService studentService,
+                                  final CourseRepository courseRepository,
+                                  final PersonService personService) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
         this.verificationKeyService = verificationKeyService;
         this.eventTypeRepository = eventTypeRepository;
         this.roleService = roleService;
+        this.planRepository = planRepository;
+        this.studentService = studentService;
+        this.courseRepository = courseRepository;
+        this.personService = personService;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        Teacher noTeacher = new Teacher();
+        noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        VerificationKey keyNoTeacher = new VerificationKey();
+        verificationKeyService.saveOrUpdateKey(keyNoTeacher);
+        noTeacher.addVerificationKey(keyNoTeacher);
+        teacherService.saveOrUpdateTeacher(noTeacher);
+
         createScheduleEventType();
 
         User admin = userService.createUser("q@q", "q", "ROLE_ADMIN");
@@ -81,17 +98,16 @@ public class BootstrapDataPopulator implements InitializingBean {
         userService.saveOrUpdate(admin);
 
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
-//        presetStudent = userService.saveOrUpdate(presetStudent);
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Student presetStudentProfile = new Student(new Person(73L,
                 "Student",
                 "To",
                 "Test",
                 "(044)000-2222"),
-                LocalDate.of(2001, 12, 12),
+                LocalDate.of(2006, 2, 2),
                 Gender.MALE,
                 "Homeless",
-                GradeLevel.LEVEL_11);
+                GradeLevel.LEVEL_7);
         presetStudentProfile.addVerificationKey(key);
         presetStudent.setVerificationKey(key);
         studentService.saveOrUpdateStudent(presetStudentProfile);
@@ -107,7 +123,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(066)666-6666"),
                 key,
                 "Psychologist",
-                Collections.singletonList("Cognitive dissonance theory"));
+                Collections.singletonList("Cognitive Dissonance Theory"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -119,7 +135,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(099)999-9999"),
                 key,
                 "Principal",
-                Arrays.asList("Quantum Mechanics", "Algebraic topology"));
+                Arrays.asList("Quantum Mechanics", "Algebraic Topology"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -131,7 +147,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(099)999-1111"),
                 key,
                 "Teacher",
-                Arrays.asList("Anatomy and physiology", "Rocket Science"));
+                Arrays.asList("Anatomy and Physiology", "Rocket Science"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -141,10 +157,10 @@ public class BootstrapDataPopulator implements InitializingBean {
                 "Doe",
                 "(044)222-2222"));
         Student student = new Student(person,
-                LocalDate.of(2006, 02, 22),
+                LocalDate.of(2002, 02, 22),
                 Gender.MALE,
                 "Khreshchatyk str., 11, ap.11, Kyiv 01001",
-                GradeLevel.LEVEL_7);
+                GradeLevel.LEVEL_11);
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
 
@@ -180,8 +196,8 @@ public class BootstrapDataPopulator implements InitializingBean {
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_7, subject);
             plan.setHoursPerSemesterOne(2);
             plan.setHoursPerSemesterTwo(2);
-            plan.setExamSemesterOne(1);
-            plan.setExamSemesterTwo(1);
+            plan.setWorksPerSemesterOne(1);
+            plan.setWorksPerSemesterTwo(1);
             plan.setTitle("Introduction to " + plan.getTitle());
             planRepository.save(plan);
 
