@@ -207,8 +207,9 @@ public class StudentControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
         Long id = student.getId();
+        String url = "/student/" + id + "/plan";
 
-        mockMvc.perform(get("/student/" + id + "/plan"))
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"));
     }
@@ -234,8 +235,9 @@ public class StudentControllerTest {
                 student.getFirstName() + " " +
                 student.getPatronymicName() + ", " +
                 student.getGradeLevel().toString();
+        String url = "/student/" + id + "/plan";
 
-        mockMvc.perform(get("/student/" + id + "/plan"))
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
                 .andExpect(model().attribute("studentData", studentData))
@@ -263,8 +265,9 @@ public class StudentControllerTest {
         courseService.saveOrUpdateCourse(course);
         Long sid = course.getStudentId();
         Long id = course.getPlanId();
+        String url = "/student/" + sid + "/plan/" + id;
 
-        mockMvc.perform(get("/student/" + sid + "/plan/" + id))
+        mockMvc.perform(get(url))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
                 .andExpect(model().attribute("studentData", studentData))
@@ -293,8 +296,9 @@ public class StudentControllerTest {
         courseService.saveOrUpdateCourse(course);
         Long sid = course.getStudentId();
         Long id = course.getPlanId();
+        String url = "/student/" + sid + "/plan/" + id;
 
-        mockMvc.perform(post("/student/" + sid + "/plan/" + id)
+        mockMvc.perform(post(url)
                 .param("action", "teacher"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
