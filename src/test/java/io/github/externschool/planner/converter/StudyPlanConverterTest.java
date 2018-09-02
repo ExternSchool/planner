@@ -34,8 +34,8 @@ public class StudyPlanConverterTest {
         final String title = "Study plan";
         final Integer hoursPerSemesterOne = 30;
         final Integer hoursPerSemesterTwo = 40;
-        final Integer examSemesterOne = 1;
-        final Integer examSemesterTwo = 0;
+        final Integer worksPerSemesterOne = 1;
+        final Integer worksPerSemesterTwo = 0;
 
         studyPlan = new StudyPlan();
         studyPlan.setId(id);
@@ -44,8 +44,8 @@ public class StudyPlanConverterTest {
         studyPlan.setTitle(title);
         studyPlan.setHoursPerSemesterOne(hoursPerSemesterOne);
         studyPlan.setHoursPerSemesterTwo(hoursPerSemesterTwo);
-        studyPlan.setExamSemesterOne(examSemesterOne);
-        studyPlan.setExamSemesterTwo(examSemesterTwo);
+        studyPlan.setWorksPerSemesterOne(worksPerSemesterOne);
+        studyPlan.setWorksPerSemesterTwo(worksPerSemesterTwo);
 
         studyPlanDTO = new StudyPlanDTO();
         studyPlanDTO.setId(id);
@@ -54,8 +54,8 @@ public class StudyPlanConverterTest {
         studyPlanDTO.setTitle(title);
         studyPlanDTO.setHoursPerSemesterOne(hoursPerSemesterOne);
         studyPlanDTO.setHoursPerSemesterTwo(hoursPerSemesterTwo);
-        studyPlanDTO.setExamSemesterOne(examSemesterOne);
-        studyPlanDTO.setExamSemesterTwo(examSemesterTwo);
+        studyPlanDTO.setWorksPerSemesterOne(worksPerSemesterOne);
+        studyPlanDTO.setWorksPerSemesterTwo(worksPerSemesterTwo);
     }
 
     @Test

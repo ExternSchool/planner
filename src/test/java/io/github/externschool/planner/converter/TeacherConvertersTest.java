@@ -39,7 +39,7 @@ public class TeacherConvertersTest {
         String lastName = "Doe";
         String phoneNumber = "(099)999-9999";
         String officer = "Principal";
-        Set<SchoolSubject> schoolSubjects = Stream.of("Quantum Mechanics", "Algebraic topology")
+        Set<SchoolSubject> schoolSubjects = Stream.of("Quantum Mechanics", "Algebraic Topology")
                 .map(s -> {
                     SchoolSubject subject = new SchoolSubject();
                     subject.setTitle(s);

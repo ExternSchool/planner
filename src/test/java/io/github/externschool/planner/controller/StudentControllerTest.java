@@ -1,18 +1,22 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.Role;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
-import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
+import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
+import io.github.externschool.planner.service.StudyPlanService;
+import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
@@ -33,9 +37,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -53,11 +57,12 @@ public class StudentControllerTest {
     @Autowired private StudentService studentService;
     @Autowired private PersonService personService;
     @Autowired private UserService userService;
-    @Autowired private SchoolSubjectService subjectService;
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
     @Autowired private CourseService courseService;
+    @Autowired private TeacherService teacherService;
+    @Autowired private StudyPlanService planService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -67,6 +72,9 @@ public class StudentControllerTest {
     private final String userName = "some@email.com";
     private final String firstName = "StudentsName";
     private MultiValueMap<String, String> map;
+    private Course course;
+    private StudyPlan plan;
+    private Teacher teacher;
 
     @Before
     public void setup(){
@@ -74,11 +82,12 @@ public class StudentControllerTest {
                 studentService, 
                 personService, 
                 userService,
-                subjectService,
                 keyService, 
                 conversionService, 
                 roleService,
-                courseService);
+                courseService,
+                teacherService,
+                planService);
 
         key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -111,6 +120,10 @@ public class StudentControllerTest {
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
+
+        teacher = new Teacher();
+        teacher.setLastName(UK_COURSE_NO_TEACHER);
+        teacherService.saveOrUpdateTeacher(teacher);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -196,6 +209,105 @@ public class StudentControllerTest {
     }
 
     @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnModelAndView_whenGetPlanWithExistingId() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
+
+        mockMvc.perform(get("/student/" + student.getId() + "/plan"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_plan"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldRedirect_whenGetPlanWithWrongId() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
+
+        mockMvc.perform(get("/student/0/plan"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/student/"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnModelAndView_whenShowStudentPlanForm() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
+        String studentData = student.getLastName() + " " +
+                student.getFirstName() + " " +
+                student.getPatronymicName() + ", " +
+                student.getGradeLevel().toString();
+
+        mockMvc.perform(get("/student/" + student.getId() + "/plan"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_plan"))
+                .andExpect(model().attribute("studentData", studentData))
+                .andExpect(model().attribute("studentId", student.getId()))
+                .andExpect(model().attributeExists("courses"))
+                .andExpect(model().attribute("course", new CourseDTO(0L, 0L)))
+                .andExpect(model().attributeExists("teachers"))
+                .andExpect(model().attribute("coursePlanId", 0L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnModelAndView_whenShowStudentPlanFormToEditTeacher() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
+        String studentData = student.getLastName() + " " +
+                student.getFirstName() + " " +
+                student.getPatronymicName() + ", " +
+                student.getGradeLevel().toString();
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        courseService.saveOrUpdateCourse(course);
+
+        mockMvc.perform(get("/student/" + course.getStudentId() + "/plan/" + course.getPlanId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_plan"))
+                .andExpect(model().attribute("studentData", studentData))
+                .andExpect(model().attribute("studentId", student.getId()))
+                .andExpect(model().attributeExists("courses"))
+                .andExpect(model().attribute("course",
+                        Matchers.hasProperty("title", Matchers.equalTo(title))))
+                .andExpect(model().attributeExists("teachers"))
+                .andExpect(model().attribute("coursePlanId", course.getPlanId()));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnModelAndView_whenProcessStudentPlanFormActionTeacher() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
+        String studentData = student.getLastName() + " " +
+                student.getFirstName() + " " +
+                student.getPatronymicName() + ", " +
+                student.getGradeLevel().toString();
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        courseService.saveOrUpdateCourse(course);
+
+        mockMvc.perform(post("/student/" + course.getStudentId() + "/plan/" + course.getPlanId())
+                .param("action", "teacher"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_plan"))
+                .andExpect(model().attribute("studentData", studentData))
+                .andExpect(model().attribute("studentId", student.getId()))
+                .andExpect(model().attributeExists("courses"))
+                .andExpect(model().attribute("course", new CourseDTO(0L, 0L)))
+                .andExpect(model().attributeExists("teachers"))
+                .andExpect(model().attribute("coursePlanId", 0L));
+    }
+
+    @Test
     @WithMockUser(username = userName, roles = "STUDENT")
     public void shouldRedirect_whenPostUpdateActionSaveStudent() throws Exception {
         mockMvc.perform(post("/student/update")
@@ -209,9 +321,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
-        user.setRoles(roles);
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
 
         mockMvc.perform(post("/student/update")
@@ -227,6 +337,7 @@ public class StudentControllerTest {
     public void shouldReturnFormBack_whenPostUpdateActionSaveInvalidDate() throws Exception {
         map.remove("dateOfBirth");
         map.add("dateOfBirth", "123");
+
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
                 .params(map))
@@ -251,9 +362,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenGetUpdateCancelAdmin() throws Exception {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
-        user.setRoles(roles);
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
 
         mockMvc.perform(get("/student/update/cancel/" + student.getVerificationKey().getId()))
@@ -303,5 +412,7 @@ public class StudentControllerTest {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);
         keyService.deleteById(key.getId());
+        Optional.ofNullable(plan).ifPresent(p -> planService.deletePlan(p));
+        teacherService.deleteTeacherById(teacher.getId());
     }
 }

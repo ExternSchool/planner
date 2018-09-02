@@ -17,7 +17,12 @@ public class CourseDTO {
     private Integer examScoreSemesterTwo;
     private Integer finalScoreSemesterOne;
     private Integer finalScoreSemesterTwo;
-    private Integer finalScoreForYear;
+    private Integer finalResultScore;
+
+    private Integer hoursPerSemesterOne;
+    private Integer hoursPerSemesterTwo;
+    private Integer worksPerSemesterOne;
+    private Integer worksPerSemesterTwo;
 
     public CourseDTO(final Long studentId, final Long planId) {
         this.studentId = studentId;
@@ -112,38 +117,79 @@ public class CourseDTO {
         this.finalScoreSemesterTwo = finalScoreSemesterTwo;
     }
 
-    public Integer getFinalScoreForYear() {
-        return finalScoreForYear;
+    public Integer getFinalResultScore() {
+        return finalResultScore;
     }
 
-    public void setFinalScoreForYear(final Integer finalScoreForYear) {
-        this.finalScoreForYear = finalScoreForYear;
+    public void setFinalResultScore(final Integer finalResultScore) {
+        this.finalResultScore = finalResultScore;
+    }
+
+    public Integer getHoursPerSemesterOne() {
+        return hoursPerSemesterOne;
+    }
+
+    public void setHoursPerSemesterOne(final Integer hoursPerSemesterOne) {
+        this.hoursPerSemesterOne = hoursPerSemesterOne;
+    }
+
+    public Integer getHoursPerSemesterTwo() {
+        return hoursPerSemesterTwo;
+    }
+
+    public void setHoursPerSemesterTwo(final Integer hoursPerSemesterTwo) {
+        this.hoursPerSemesterTwo = hoursPerSemesterTwo;
+    }
+
+    public Integer getWorksPerSemesterOne() {
+        return worksPerSemesterOne;
+    }
+
+    public void setWorksPerSemesterOne(final Integer worksPerSemesterOne) {
+        this.worksPerSemesterOne = worksPerSemesterOne;
+    }
+
+    public Integer getWorksPerSemesterTwo() {
+        return worksPerSemesterTwo;
+    }
+
+    public void setWorksPerSemesterTwo(final Integer worksPerSemesterTwo) {
+        this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof CourseDTO)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         final CourseDTO courseDTO = (CourseDTO) o;
-        return Objects.equals(studentId, courseDTO.studentId) &&
-                Objects.equals(planId, courseDTO.planId) &&
-                Objects.equals(teacher, courseDTO.teacher) &&
-                Objects.equals(title, courseDTO.title) &&
-                Objects.equals(interviewScoreSemesterOne, courseDTO.interviewScoreSemesterOne) &&
-                Objects.equals(interviewScoreSemesterTwo, courseDTO.interviewScoreSemesterTwo) &&
-                Objects.equals(approvalSemesterOne, courseDTO.approvalSemesterOne) &&
-                Objects.equals(approvalSemesterTwo, courseDTO.approvalSemesterTwo) &&
-                Objects.equals(examScoreSemesterOne, courseDTO.examScoreSemesterOne) &&
-                Objects.equals(examScoreSemesterTwo, courseDTO.examScoreSemesterTwo) &&
-                Objects.equals(finalScoreSemesterOne, courseDTO.finalScoreSemesterOne) &&
-                Objects.equals(finalScoreSemesterTwo, courseDTO.finalScoreSemesterTwo) &&
-                Objects.equals(finalScoreForYear, courseDTO.finalScoreForYear);
+        return Objects.equals(getStudentId(), courseDTO.getStudentId()) &&
+                Objects.equals(getPlanId(), courseDTO.getPlanId()) &&
+                Objects.equals(getTeacher(), courseDTO.getTeacher()) &&
+                Objects.equals(getTitle(), courseDTO.getTitle()) &&
+                Objects.equals(getApprovalSemesterOne(), courseDTO.getApprovalSemesterOne()) &&
+                Objects.equals(getApprovalSemesterTwo(), courseDTO.getApprovalSemesterTwo()) &&
+                Objects.equals(getInterviewScoreSemesterOne(), courseDTO.getInterviewScoreSemesterOne()) &&
+                Objects.equals(getInterviewScoreSemesterTwo(), courseDTO.getInterviewScoreSemesterTwo()) &&
+                Objects.equals(getExamScoreSemesterOne(), courseDTO.getExamScoreSemesterOne()) &&
+                Objects.equals(getExamScoreSemesterTwo(), courseDTO.getExamScoreSemesterTwo()) &&
+                Objects.equals(getFinalScoreSemesterOne(), courseDTO.getFinalScoreSemesterOne()) &&
+                Objects.equals(getFinalScoreSemesterTwo(), courseDTO.getFinalScoreSemesterTwo()) &&
+                Objects.equals(getFinalResultScore(), courseDTO.getFinalResultScore()) &&
+                Objects.equals(getHoursPerSemesterOne(), courseDTO.getHoursPerSemesterOne()) &&
+                Objects.equals(getHoursPerSemesterTwo(), courseDTO.getHoursPerSemesterTwo()) &&
+                Objects.equals(getWorksPerSemesterOne(), courseDTO.getWorksPerSemesterOne()) &&
+                Objects.equals(getWorksPerSemesterTwo(), courseDTO.getWorksPerSemesterTwo());
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(studentId, planId, teacher, title, interviewScoreSemesterOne, interviewScoreSemesterTwo, approvalSemesterOne, approvalSemesterTwo, examScoreSemesterOne, examScoreSemesterTwo, finalScoreSemesterOne, finalScoreSemesterTwo, finalScoreForYear);
+        return Objects.hash(getStudentId(), getPlanId(), getTeacher(), getTitle(),
+                getApprovalSemesterOne(), getApprovalSemesterTwo(),
+                getInterviewScoreSemesterOne(), getInterviewScoreSemesterTwo(),
+                getExamScoreSemesterOne(), getExamScoreSemesterTwo(),
+                getFinalScoreSemesterOne(), getFinalScoreSemesterTwo(),
+                getFinalResultScore(), getHoursPerSemesterOne(), getHoursPerSemesterTwo(),
+                getWorksPerSemesterOne(), getWorksPerSemesterTwo());
     }
 
     @Override

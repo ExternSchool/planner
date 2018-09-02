@@ -44,8 +44,8 @@ public class Course implements Serializable {
     private Integer finalScoreSemesterOne;
     @Column(name = "final_s2")
     private Integer finalScoreSemesterTwo;
-    @Column(name = "final_year")
-    private Integer finalScoreForYear;
+    @Column(name = "final_score")
+    private Integer finalResultScore;
 
     private Course() {
     }
@@ -146,12 +146,12 @@ public class Course implements Serializable {
         this.finalScoreSemesterTwo = finalScoreSemesterTwo;
     }
 
-    public Integer getFinalScoreForYear() {
-        return finalScoreForYear;
+    public Integer getFinalResultScore() {
+        return finalResultScore;
     }
 
-    public void setFinalScoreForYear(final Integer finalScoreForYear) {
-        this.finalScoreForYear = finalScoreForYear;
+    public void setFinalResultScore(final Integer finalResultScore) {
+        this.finalResultScore = finalResultScore;
     }
 
     @Override
@@ -199,9 +199,9 @@ public class Course implements Serializable {
                 ? !getFinalScoreSemesterTwo().equals(course.getFinalScoreSemesterTwo())
                 : course.getFinalScoreSemesterTwo() != null)
             return false;
-        return getFinalScoreForYear() != null
-                ? getFinalScoreForYear().equals(course.getFinalScoreForYear())
-                : course.getFinalScoreForYear() == null;
+        return getFinalResultScore() != null
+                ? getFinalResultScore().equals(course.getFinalResultScore())
+                : course.getFinalResultScore() == null;
     }
 
     @Override
@@ -216,7 +216,7 @@ public class Course implements Serializable {
         result = 31 * result + (getExamScoreSemesterTwo() != null ? getExamScoreSemesterTwo().hashCode() : 0);
         result = 31 * result + (getFinalScoreSemesterOne() != null ? getFinalScoreSemesterOne().hashCode() : 0);
         result = 31 * result + (getFinalScoreSemesterTwo() != null ? getFinalScoreSemesterTwo().hashCode() : 0);
-        result = 31 * result + (getFinalScoreForYear() != null ? getFinalScoreForYear().hashCode() : 0);
+        result = 31 * result + (getFinalResultScore() != null ? getFinalResultScore().hashCode() : 0);
         return result;
     }
 

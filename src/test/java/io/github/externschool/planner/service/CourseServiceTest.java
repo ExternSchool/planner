@@ -8,6 +8,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import io.github.externschool.planner.repository.profiles.StudentRepository;
+import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +34,7 @@ public class CourseServiceTest {
     @Mock private CourseRepository courseRepository;
     @Mock private StudentRepository studentRepository;
     @Mock private StudyPlanRepository planRepository;
+    @Mock private TeacherRepository teacherRepository;
     private CourseService courseService;
 
     private Course expectedCourse;
@@ -43,7 +45,7 @@ public class CourseServiceTest {
 
     @Before
     public void setUp() {
-        courseService = new CourseServiceImpl(courseRepository, studentRepository, planRepository);
+        courseService = new CourseServiceImpl(courseRepository, studentRepository, planRepository, teacherRepository);
 
         expectedStudent = new Student();
         expectedStudent.setId(1L);
@@ -97,7 +99,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByStudentId() {
-        Mockito.when(courseRepository.findAllById_StudentId(expectedStudent.getId()))
+        Mockito.when(courseRepository.findAllById_StudentIdOrderByTitle(expectedStudent.getId()))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByStudentId(expectedStudent.getId());
@@ -110,7 +112,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByPlanId() {
-        Mockito.when(courseRepository.findAllById_PlanId(expectedPlan.getId()))
+        Mockito.when(courseRepository.findAllById_PlanIdOrderByTitle(expectedPlan.getId()))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByPlanId(expectedPlan.getId());
@@ -123,7 +125,7 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByTeacher() {
-        Mockito.when(courseRepository.findAllByTeacher(teacher))
+        Mockito.when(courseRepository.findAllByTeacherOrderByTitle(teacher))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
         List<Course> actualCourses = courseService.findAllByTeacher(teacher);
@@ -167,7 +169,7 @@ public class CourseServiceTest {
     public void shouldReturnString_whenGetCourseTitleByCourse() {
         Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
                 .thenReturn(expectedPlan);
-        String title = courseService.getCourseTitleByCourse(expectedCourse);
+        String title = courseService.getCourseTitleAndTeacherByCourse(expectedCourse);
 
         assertThat(title)
                 .isNotBlank()
@@ -179,7 +181,7 @@ public class CourseServiceTest {
         Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
                 .thenReturn(expectedPlan);
         expectedPlan.setTitle("");
-        String title = courseService.getCourseTitleByCourse(expectedCourse);
+        String title = courseService.getCourseTitleAndTeacherByCourse(expectedCourse);
 
         assertThat(title)
                 .isNotBlank()
@@ -191,7 +193,7 @@ public class CourseServiceTest {
         Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
                 .thenReturn(expectedPlan);
         expectedCourse.getTeacher().removeCourse(expectedCourse);
-        String title = courseService.getCourseTitleByCourse(expectedCourse);
+        String title = courseService.getCourseTitleAndTeacherByCourse(expectedCourse);
 
         assertThat(title)
                 .isNotBlank()
@@ -204,7 +206,7 @@ public class CourseServiceTest {
                 .thenReturn(expectedPlan);
         expectedCourse.getTeacher().removeCourse(expectedCourse);
         expectedPlan.setTitle(null);
-        String title = courseService.getCourseTitleByCourse(expectedCourse);
+        String title = courseService.getCourseTitleAndTeacherByCourse(expectedCourse);
 
         assertThat(title)
                 .isNotBlank()
@@ -212,16 +214,57 @@ public class CourseServiceTest {
     }
 
     @Test
-    public void shouldCreateCoursesForStudent_whenCreateCoursesForStudent() {
+    public void shouldReturnStudentsCourses_whenSelectCoursesForStudent() {
         StudyPlan newPlan = new StudyPlan();
         newPlan.setId(11L);
         Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
-        expectedCourse.getTeacher().removeCourse(expectedCourse);
+        Teacher noTeacher = new Teacher();
+        noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        noTeacher.setId(12L);
+        noTeacher.addCourse(newCourse);
+        List<Course> expectedCourses = Arrays.asList(expectedCourse, newCourse);
         Mockito.when(planRepository.findAllByGradeLevelOrderByTitleAsc(expectedStudent.getGradeLevel()))
                 .thenReturn(Arrays.asList(expectedPlan, newPlan));
-        List<Course> expectedCourses = Arrays.asList(expectedCourse, newCourse);
+        Mockito.when(courseRepository.findAllById_StudentIdOrderByTitle(expectedStudent.getId()))
+                .thenReturn(expectedCourses);
+        Mockito.when(planRepository.findStudyPlanById(11L))
+                .thenReturn(newPlan);
+        Mockito.when(planRepository.findStudyPlanById(expectedCourse.getPlanId()))
+                .thenReturn(expectedPlan);
+        Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
+                .thenReturn(Collections.singletonList(noTeacher));
 
-        List<Course> actualCourses = courseService.createCoursesForStudent(expectedStudent);
+        List<Course> actualCourses = courseService.selectCoursesForStudent(expectedStudent);
+
+        assertThat(actualCourses)
+                .isNotEmpty()
+                .containsExactlyInAnyOrder(expectedCourse, newCourse)
+                .containsExactlyInAnyOrderElementsOf(expectedCourses);
+    }
+
+    @Test
+    public void shouldAddNewCourse_whenSelectCoursesForStudent() {
+        StudyPlan newPlan = new StudyPlan();
+        newPlan.setId(11L);
+        Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
+        Teacher noTeacher = new Teacher();
+        noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        noTeacher.setId(12L);
+        noTeacher.addCourse(newCourse);
+        List<Course> expectedCourses = Arrays.asList(expectedCourse, newCourse);
+        Mockito.when(planRepository.findAllByGradeLevelOrderByTitleAsc(expectedStudent.getGradeLevel()))
+                .thenReturn(Arrays.asList(expectedPlan, newPlan));
+        Mockito.when(courseRepository.findAllById_StudentIdOrderByTitle(expectedStudent.getId()))
+                .thenReturn(Collections.singletonList(expectedCourse))
+                .thenReturn(expectedCourses);
+        Mockito.when(planRepository.findStudyPlanById(11L))
+                .thenReturn(newPlan);
+        Mockito.when(planRepository.findStudyPlanById(expectedCourse.getPlanId()))
+                .thenReturn(expectedPlan);
+        Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
+                .thenReturn(Collections.singletonList(noTeacher));
+
+        List<Course> actualCourses = courseService.selectCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()

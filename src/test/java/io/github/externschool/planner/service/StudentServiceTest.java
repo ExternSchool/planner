@@ -146,12 +146,12 @@ public class StudentServiceTest {
         Stream.of(courseOne, courseTwo).forEach(teacher::addCourse);
         Mockito.when(studentRepository.findStudentById(id))
                 .thenReturn(expectedStudent);
-        Mockito.when(courseRepository.findAllById_StudentId(id))
+        Mockito.when(courseRepository.findAllById_StudentIdOrderByTitle(id))
                 .thenReturn(expectedCourses)
                 .thenReturn(Collections.emptyList());
 
         studentService.deleteStudentById(expectedStudent.getId());
-        List<Course> actualCourses = courseRepository.findAllById_StudentId(id);
+        List<Course> actualCourses = courseRepository.findAllById_StudentIdOrderByTitle(id);
 
         verify(courseRepository, times(1)).delete(courseOne);
         verify(courseRepository, times(1)).delete(courseTwo);

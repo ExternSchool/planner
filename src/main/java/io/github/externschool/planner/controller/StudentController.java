@@ -3,11 +3,13 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
+import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
@@ -32,14 +34,14 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
 @Controller
@@ -48,31 +50,32 @@ public class StudentController {
     private final StudentService studentService;
     private final PersonService personService;
     private final UserService userService;
-    private final SchoolSubjectService subjectService;
     private final VerificationKeyService keyService;
     private final ConversionService conversionService;
     private final RoleService roleService;
     private final CourseService courseService;
-    @Autowired private TeacherService teacherService;
-    @Autowired private StudyPlanService planService;
+    private final TeacherService teacherService;
+    private final StudyPlanService planService;
 
     @Autowired
     public StudentController(final StudentService studentService,
                              final PersonService personService,
                              final UserService userService,
-                             final SchoolSubjectService subjectService,
                              final VerificationKeyService keyService,
                              final ConversionService conversionService,
                              final RoleService roleService,
-                             final CourseService courseService) {
+                             final CourseService courseService,
+                             final TeacherService teacherService,
+                             final StudyPlanService planService) {
         this.studentService = studentService;
         this.personService = personService;
         this.userService = userService;
-        this.subjectService = subjectService;
         this.keyService = keyService;
         this.conversionService = conversionService;
         this.roleService = roleService;
         this.courseService = courseService;
+        this.teacherService = teacherService;
+        this.planService = planService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -131,6 +134,58 @@ public class StudentController {
         return showStudentProfileForm(studentDTO, true);
     }
 
+    @Secured("ROLE_STUDENT")
+    @GetMapping("/plan")
+    public ModelAndView displayFormStudentPlanForStudent(final Principal principal) {
+        User user = userService.findUserByEmail(principal.getName());
+        Student student = studentService.findStudentById(user.getVerificationKey().getPerson().getId());
+        List<Course> courses = courseService.selectCoursesForStudent(student);
+
+        return showStudentPlanForm(student, courses, 0L);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{id}/plan")
+    public ModelAndView showStudentPlanForm(@PathVariable("id") Long id,
+                                               final Principal principal) {
+        Student student = studentService.findStudentById(id);
+        User user = userService.findUserByEmail(principal.getName());
+        if (student == null) {
+            return redirectByRole(user);
+        }
+        List<Course> courses = courseService.selectCoursesForStudent(student);
+
+        return showStudentPlanForm(student, courses, 0L);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{sid}/plan/{id}")
+    public ModelAndView showStudentPlanFormToEditTeacher(@PathVariable("sid") Long sid,
+                                                         @PathVariable("id") Long id) {
+        Student student = studentService.findStudentById(sid);
+        if (student == null) {
+            return new ModelAndView("redirect:/student/");
+        }
+        List<Course> courses = courseService.findAllByStudentId(sid);
+        Long coursePlanId = Optional.ofNullable(courseService.findCourseByStudentIdAndPlanId(sid, id).getPlanId())
+                .orElse(0L);
+
+        return showStudentPlanForm(student, courses, coursePlanId);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PostMapping(value = "/{sid}/plan/{id}", params = "action=teacher")
+    public ModelAndView processStudentPlanFormActionTeacher(@PathVariable("sid") Long sid,
+                                                            @PathVariable("id") Long id,
+                                                            @ModelAttribute("course") CourseDTO courseDTO) {
+        Course course = courseService.findCourseByStudentIdAndPlanId(sid, id);
+        course.setTeacher(courseDTO.getTeacher());
+        courseService.saveOrUpdateCourse(course);
+        List<Course> courses = courseService.findAllByStudentId(sid);
+
+        return showStudentPlanForm(studentService.findStudentById(sid), courses, 0L);
+    }
+
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
     public ModelAndView delete(@PathVariable("id") Long id) {
@@ -167,8 +222,8 @@ public class StudentController {
         VerificationKey key = keyService.findKeyById(keyId);
         if (key != null
                 && (key.getPerson() == null
-                || key.getPerson().getId() == null
-                || personService.findPersonById(key.getPerson().getId()) == null)) {
+                    || key.getPerson().getId() == null
+                    || personService.findPersonById(key.getPerson().getId()) == null)) {
             keyService.deleteById(key.getId());
         }
 
@@ -181,8 +236,8 @@ public class StudentController {
         //TODO Add key change confirmation
         /*
         When key change confirmed:
-        DTO Receives NEW KEY which is instantly assigned, it CAN'T BE CANCELLED even if Cancel button pressed.
-        An old key is removed from user (if present), user receives role of Guest
+        DTO Receives a NEW KEY which is instantly assigned, it CAN'T BE CANCELLED even if Cancel button pressed.
+        An old key is removed from user (if present), user receives Guest role
          */
         studentDTO = (StudentDTO)keyService.setNewKeyToDTO(studentDTO);
         Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
@@ -195,11 +250,12 @@ public class StudentController {
     }
 
     private ModelAndView redirectByRole(User user) {
-        if (userService.findUserByEmail(user.getEmail())
-                .getRoles()
-                .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+        if (user != null && user.getEmail() != null) {
+            User userFound = userService.findUserByEmail(user.getEmail());
+            if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 
-            return new ModelAndView("redirect:/student/");
+                return new ModelAndView("redirect:/student/");
+            }
         }
 
         return new ModelAndView("redirect:/");
@@ -211,6 +267,40 @@ public class StudentController {
         modelAndView.addObject("grades", Arrays.asList(GradeLevel.values()));
         modelAndView.addObject("genders", Arrays.asList(Gender.values()));
         modelAndView.addObject("isNew", isNew);
+
+        return modelAndView;
+    }
+
+    private ModelAndView showStudentPlanForm(Student student, List<Course> courses, Long coursePlanId) {
+        ModelAndView modelAndView = new ModelAndView("student/student_plan");
+        String studentData = student.getLastName() + " " +
+                student.getFirstName() + " " +
+                student.getPatronymicName() + ", " +
+                student.getGradeLevel().toString();
+        modelAndView.addObject("studentData", studentData);
+        modelAndView.addObject("studentId", student.getId());
+        List<CourseDTO> courseDTOs = courses.stream()
+                .map(c -> conversionService.convert(c, CourseDTO.class))
+                .peek(courseDTO -> {
+                    StudyPlan plan = planService.findById(courseDTO.getPlanId());
+                    courseDTO.setHoursPerSemesterOne(plan.getHoursPerSemesterOne());
+                    courseDTO.setHoursPerSemesterTwo(plan.getHoursPerSemesterTwo());
+                    courseDTO.setWorksPerSemesterOne(plan.getWorksPerSemesterOne());
+                    courseDTO.setWorksPerSemesterTwo(plan.getWorksPerSemesterTwo());
+                })
+                .collect(Collectors.toList());
+        modelAndView.addObject("courses", courseDTOs);
+        modelAndView.addObject("course",
+                Optional.ofNullable(courseService.findCourseByStudentIdAndPlanId(student.getId(), coursePlanId))
+                        .map(course -> conversionService.convert(course, CourseDTO.class))
+                        .orElse(new CourseDTO(0L, 0L)));
+        List<Teacher> teachers = new ArrayList<>(Optional.ofNullable(planService.findById(coursePlanId))
+                .map(StudyPlan::getSubject)
+                .map(teacherService::findAllBySubject)
+                .orElse(Collections.emptyList()));
+        teacherService.findAllByLastName(UK_COURSE_NO_TEACHER).stream().findAny().ifPresent(teachers::add);
+        modelAndView.addObject("teachers", teachers);
+        modelAndView.addObject("coursePlanId", coursePlanId);
 
         return modelAndView;
     }

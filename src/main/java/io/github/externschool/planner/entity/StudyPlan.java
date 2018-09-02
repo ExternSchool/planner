@@ -39,9 +39,9 @@ public class StudyPlan {
     @Column(name = "hrs_s2")
     private Integer hoursPerSemesterTwo;
     @Column(name = "exam_s1")
-    private Integer examSemesterOne;
+    private Integer worksPerSemesterOne;
     @Column(name = "exam_s2")
-    private Integer examSemesterTwo;
+    private Integer worksPerSemesterTwo;
 
     public StudyPlan() {
     }
@@ -57,15 +57,15 @@ public class StudyPlan {
                      String title,
                      Integer hoursPerSemesterOne,
                      Integer hoursPerSemesterTwo,
-                     Integer examSemesterOne,
-                     Integer examSemesterTwo) {
+                     Integer worksPerSemesterOne,
+                     Integer worksPerSemesterTwo) {
         this.gradeLevel = gradeLevel;
         this.subject = subject;
         this.title = title;
         this.hoursPerSemesterOne = hoursPerSemesterOne;
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
-        this.examSemesterOne = examSemesterOne;
-        this.examSemesterTwo = examSemesterTwo;
+        this.worksPerSemesterOne = worksPerSemesterOne;
+        this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
     public Long getId() {
@@ -116,20 +116,20 @@ public class StudyPlan {
         this.hoursPerSemesterTwo = hoursPerSemesterTwo;
     }
 
-    public Integer getExamSemesterOne() {
-        return examSemesterOne;
+    public Integer getWorksPerSemesterOne() {
+        return worksPerSemesterOne;
     }
 
-    public void setExamSemesterOne(final Integer examSemesterOne) {
-        this.examSemesterOne = examSemesterOne;
+    public void setWorksPerSemesterOne(final Integer worksPerSemesterOne) {
+        this.worksPerSemesterOne = worksPerSemesterOne;
     }
 
-    public Integer getExamSemesterTwo() {
-        return examSemesterTwo;
+    public Integer getWorksPerSemesterTwo() {
+        return worksPerSemesterTwo;
     }
 
-    public void setExamSemesterTwo(final Integer examSemesterTwo) {
-        this.examSemesterTwo = examSemesterTwo;
+    public void setWorksPerSemesterTwo(final Integer worksPerSemesterTwo) {
+        this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
     @Override
@@ -143,8 +143,8 @@ public class StudyPlan {
                 Objects.equals(title, plan.title) &&
                 Objects.equals(hoursPerSemesterOne, plan.hoursPerSemesterOne) &&
                 Objects.equals(hoursPerSemesterTwo, plan.hoursPerSemesterTwo) &&
-                Objects.equals(examSemesterOne, plan.examSemesterOne) &&
-                Objects.equals(examSemesterTwo, plan.examSemesterTwo);
+                Objects.equals(worksPerSemesterOne, plan.worksPerSemesterOne) &&
+                Objects.equals(worksPerSemesterTwo, plan.worksPerSemesterTwo);
     }
 
     @Override
@@ -152,21 +152,21 @@ public class StudyPlan {
         return Objects.hash(gradeLevel,
                 hoursPerSemesterOne,
                 hoursPerSemesterTwo,
-                examSemesterOne,
-                examSemesterTwo);
+                worksPerSemesterOne,
+                worksPerSemesterTwo);
     }
 
     @Override
     public String toString() {
         return "StudyPlan{" +
                 "id=" + id +
-                ", name=" + title +
+                ", title=" + title +
                 ", gradeLevel=" + gradeLevel +
                 ", subject=" + subject +
                 ", hrsOne=" + hoursPerSemesterOne +
                 ", hrsTwo=" + hoursPerSemesterTwo +
-                ", examOne=" + examSemesterOne +
-                ", examTwo=" + examSemesterTwo +
+                ", examOne=" + worksPerSemesterOne +
+                ", examTwo=" + worksPerSemesterTwo +
                 '}';
     }
 }
