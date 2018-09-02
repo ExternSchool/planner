@@ -1,6 +1,7 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -15,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Collections;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
+
 @Controller
 @Secured("ROLE_ADMIN")
 @RequestMapping("/subject")
@@ -28,13 +31,8 @@ public class SchoolSubjectController {
 
     @GetMapping("/")
     public ModelAndView displaySubjectList(Long editId) {
-        ModelAndView modelAndView = new ModelAndView(
-                "subject/subject_list",
-                "subjects", Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                    .orElse(Collections.emptyList()));
-        modelAndView.addObject("editId", editId);
 
-        return modelAndView;
+        return prepareSubjectList(editId);
     }
 
     @PostMapping("/{id}")
@@ -65,10 +63,31 @@ public class SchoolSubjectController {
 
     @PostMapping("/add")
     public ModelAndView processSubjectListActionAdd(@ModelAttribute("new_title") String title) {
+        try {
+            if (title.isEmpty()) {
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE);
+            }
+        } catch (BindingResultException e) {
+            ModelAndView modelAndView = prepareSubjectList(0L);
+            modelAndView.addObject("error", e.getMessage());
+
+            return modelAndView;
+        }
+
         SchoolSubject subject = new SchoolSubject();
         subject.setTitle(title);
         subjectService.saveOrUpdateSubject(subject);
 
         return new ModelAndView("redirect:/subject/");
+    }
+
+    private ModelAndView prepareSubjectList(Long editId) {
+        ModelAndView modelAndView = new ModelAndView(
+                "subject/subject_list",
+                "subjects", Optional.ofNullable(subjectService.findAllByOrderByTitle())
+                .orElse(Collections.emptyList()));
+        modelAndView.addObject("editId", editId);
+
+        return modelAndView;
     }
 }

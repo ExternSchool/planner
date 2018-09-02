@@ -190,21 +190,6 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnNewKey_WhenPostRequestUpdateNewKey() throws Exception {
-        TeacherDTO teacherDTO = new TeacherDTO();
-
-        mockMvc.perform(post("/teacher/update").param("action", "newKey"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_profile"))
-                .andExpect(model().attribute("teacher",
-                        Matchers.hasProperty("verificationKey",
-                                Matchers.not(teacherDTO.getVerificationKey()))))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Teacher Profile")));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
         Integer sizeBefore = teachers.size();
@@ -216,6 +201,29 @@ public class TeacherControllerTest {
                 .andExpect(view().name("redirect:/teacher/"));
 
         assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore - 1);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.not(user)))));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.not(key))));
     }
 
     @After

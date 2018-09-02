@@ -11,7 +11,6 @@ import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -125,16 +124,32 @@ public class TeacherController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping(value = "/update", params = "action=newKey")
-    public ModelAndView processTeacherProfileFormNewKey(@ModelAttribute("teacher") TeacherDTO teacherDTO) {
-        //TODO Add key change confirmation request
-        teacherDTO = (TeacherDTO)keyService.setNewKeyToDTO(teacherDTO);
+    @PostMapping(value = "/{id}/new-key")
+    public ModelAndView processTeacherProfileFormNewKey(@PathVariable("id") Long id) {
+        //When key change confirmed:
+        //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
+        //user receives Guest role
+        TeacherDTO teacherDTO = Optional.ofNullable(teacherService.findTeacherById(id))
+                .filter(Objects::nonNull)
+                .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
+                .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
+                .orElse(new TeacherDTO());
 
-        return showTeacherProfile(teacherDTO);
+        Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
+                .ifPresent(user -> {
+                    userService.assignNewRolesByKey(user, user.getVerificationKey());
+                    userService.saveOrUpdate(user);
+                });
+
+        ModelAndView modelAndView = showTeacherProfile(teacherDTO);
+        modelAndView.addObject("isNew", true);
+
+        return modelAndView;
     }
 
     private ModelAndView showTeacherProfile(TeacherDTO teacherDTO) {
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile",
+                "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
@@ -142,7 +157,7 @@ public class TeacherController {
     }
 
     private Boolean isNew(TeacherDTO teacherDTO) {
-        return Optional.ofNullable(teacherDTO)
+        return !Optional.ofNullable(teacherDTO)
                 .filter(Objects::nonNull)
                 .map(t -> Optional.ofNullable(teacherService.findTeacherById(t.getId())).isPresent())
                 .orElse(false);

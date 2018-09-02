@@ -20,6 +20,7 @@ public final class Constants {
 
     public static final String UK_FORM_INVALID_KEY_MESSAGE = "Введено недійсний ключ!";
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Помилка вводу даних!";
+    public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
 
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Вчитель не призначений";

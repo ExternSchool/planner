@@ -28,6 +28,9 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     <h4 class="h3 font-weight-normal" th:inline="text"><small>Навчальні предмети</small></h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Show some error msg
+    </small>
     <form th:action="@{/subject/add}" method="post">
         <div class="input-group input-group-sm mb-1">
             <div class="input-group-prepend">

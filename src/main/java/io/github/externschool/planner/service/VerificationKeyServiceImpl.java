@@ -3,13 +3,13 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VerificationKeyServiceImpl implements VerificationKeyService {
@@ -53,19 +53,14 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
     @Override
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
         VerificationKey newKey = repository.save(new VerificationKey());
-        VerificationKey oldKey = personDTO.getVerificationKey();
-        if (oldKey != null) {
-            User oldUser = oldKey.getUser();
-            Person oldPerson = oldKey.getPerson();
-            if (oldUser != null) {
-                oldUser.removeVerificationKey();
-            }
-            if (oldPerson != null) {
-                oldPerson.removeVerificationKey();
-                oldPerson.addVerificationKey(newKey);
-            }
-            deleteById(oldKey.getId());
-        }
+        Optional.ofNullable(personDTO.getVerificationKey()).ifPresent(key -> {
+            Optional.ofNullable(key.getUser()).ifPresent(User::removeVerificationKey);
+            Optional.ofNullable(key.getPerson()).ifPresent(person -> {
+                person.removeVerificationKey();
+                person.addVerificationKey(newKey);
+            });
+            deleteById(key.getId());
+        });
         personDTO.setVerificationKey(newKey);
 
         return personDTO;

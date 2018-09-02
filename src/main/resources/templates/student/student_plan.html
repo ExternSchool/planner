@@ -42,11 +42,11 @@
                     <thead class="">
                     <tr>
                         <th class="text-left">Назва річного курсу</th>
-                        <th class="text-left">Вчитель</th>
                         <th>Конс. с.1</th>
                         <th>Конс. с.2</th>
                         <th>К/р с.1</th>
                         <th>К/р с.2</th>
+                        <th class="text-left">Вчитель</th>
                         <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                             <th class="text-right" style="width: 10%">Змінити</th>
                         </div>
@@ -55,6 +55,12 @@
                     <tbody>
                     <tr th:each="p : ${courses}">
                         <td class="text-left" th:text="${p.title}">Назва річного курсу</td>
+                        <td th:text="${p.getHoursPerSemesterOne() == 0 ? '-' : p.getHoursPerSemesterOne()}">
+                            Годин, сем.1</td>
+                        <td th:text="${p.getHoursPerSemesterTwo() == 0 ? '-' : p.getHoursPerSemesterTwo()}">
+                            Годин, сем.2</td>
+                        <td th:text="${p.getWorksPerSemesterOne() == 0 ? '-' : '+'}">К/р семестр 1</td>
+                        <td th:text="${p.getWorksPerSemesterTwo() == 0 ? '-' : '+'}">К/р семестр 2</td>
                         <div th:if="${p.getPlanId() != coursePlanId}">
                             <td class="text-left" th:text="${p.getTeacher() != null ? p.getTeacher().getShortName():''}">
                                 Вчитель</td>
@@ -74,12 +80,6 @@
                                 </div>
                             </td>
                         </div>
-                        <td th:text="${p.getHoursPerSemesterOne() == 0 ? '-' : p.getHoursPerSemesterOne()}">
-                            Годин, сем.1</td>
-                        <td th:text="${p.getHoursPerSemesterTwo() == 0 ? '-' : p.getHoursPerSemesterTwo()}">
-                            Годин, сем.2</td>
-                        <td th:text="${p.getWorksPerSemesterOne() == 0 ? '-' : '+'}">К/р семестр 1</td>
-                        <td th:text="${p.getWorksPerSemesterTwo() == 0 ? '-' : '+'}">К/р семестр 2</td>
                         <td th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" class="text-right">
                             <a th:href="@{/student/{sid}/plan/{id}(sid=${studentId},id=${p.getPlanId()})}">
                                 <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
