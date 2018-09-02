@@ -50,31 +50,32 @@ public class StudentController {
     private final StudentService studentService;
     private final PersonService personService;
     private final UserService userService;
-    private final SchoolSubjectService subjectService;
     private final VerificationKeyService keyService;
     private final ConversionService conversionService;
     private final RoleService roleService;
     private final CourseService courseService;
-    @Autowired private TeacherService teacherService;
-    @Autowired private StudyPlanService planService;
+    private final TeacherService teacherService;
+    private final StudyPlanService planService;
 
     @Autowired
     public StudentController(final StudentService studentService,
                              final PersonService personService,
                              final UserService userService,
-                             final SchoolSubjectService subjectService,
                              final VerificationKeyService keyService,
                              final ConversionService conversionService,
                              final RoleService roleService,
-                             final CourseService courseService) {
+                             final CourseService courseService,
+                             final TeacherService teacherService,
+                             final StudyPlanService planService) {
         this.studentService = studentService;
         this.personService = personService;
         this.userService = userService;
-        this.subjectService = subjectService;
         this.keyService = keyService;
         this.conversionService = conversionService;
         this.roleService = roleService;
         this.courseService = courseService;
+        this.teacherService = teacherService;
+        this.planService = planService;
     }
 
     @Secured("ROLE_ADMIN")

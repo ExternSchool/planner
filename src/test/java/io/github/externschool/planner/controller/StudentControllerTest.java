@@ -57,13 +57,12 @@ public class StudentControllerTest {
     @Autowired private StudentService studentService;
     @Autowired private PersonService personService;
     @Autowired private UserService userService;
-    @Autowired private SchoolSubjectService subjectService;
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
     @Autowired private CourseService courseService;
-    @Autowired private StudyPlanService planService;
     @Autowired private TeacherService teacherService;
+    @Autowired private StudyPlanService planService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -83,11 +82,12 @@ public class StudentControllerTest {
                 studentService, 
                 personService, 
                 userService,
-                subjectService,
                 keyService, 
                 conversionService, 
                 roleService,
-                courseService);
+                courseService,
+                teacherService,
+                planService);
 
         key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
