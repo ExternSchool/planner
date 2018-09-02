@@ -371,9 +371,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        Long id = student.getId();
-        Student student = studentService.findStudentById(id);
-
         mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))

@@ -14,7 +14,6 @@ import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
-import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -240,8 +238,9 @@ public class StudentController {
         StudentDTO studentDTO = Optional.ofNullable(studentService.findStudentById(id))
                 .filter(Objects::nonNull)
                 .map(student -> conversionService.convert(student, StudentDTO.class))
+                .map(s -> (StudentDTO)keyService.setNewKeyToDTO(s))
                 .orElse(new StudentDTO());
-        studentDTO = (StudentDTO)keyService.setNewKeyToDTO(studentDTO);
+
         Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.assignNewRolesByKey(user, user.getVerificationKey());
