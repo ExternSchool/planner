@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -135,6 +136,21 @@ public class SchoolSubjectControllerTest {
 
         assertThat(subjectService.findAllByOrderByTitle().size())
                 .isEqualTo(previousSize + 1);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndViewWithError_whenPostAddEmptyTitle() throws Exception {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        Integer previousSize = subjectService.findAllByOrderByTitle().size();
+
+        mockMvc.perform(post("/subject/add").params(map))
+                .andExpect(status().isOk())
+                .andExpect(view().name("subject/subject_list"))
+                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE));
+
+        assertThat(subjectService.findAllByOrderByTitle().size())
+                .isEqualTo(previousSize);
     }
 
     @After

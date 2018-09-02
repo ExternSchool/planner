@@ -13,7 +13,6 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
-import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
@@ -211,9 +210,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetPlanWithExistingId() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
-
         mockMvc.perform(get("/student/" + student.getId() + "/plan"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"));
@@ -233,8 +229,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenShowStudentPlanForm() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
         String studentData = student.getLastName() + " " +
                 student.getFirstName() + " " +
                 student.getPatronymicName() + ", " +
@@ -254,8 +248,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenShowStudentPlanFormToEditTeacher() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
         String studentData = student.getLastName() + " " +
                 student.getFirstName() + " " +
                 student.getPatronymicName() + ", " +
@@ -282,8 +274,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenProcessStudentPlanFormActionTeacher() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
         String studentData = student.getLastName() + " " +
                 student.getFirstName() + " " +
                 student.getPatronymicName() + ", " +
@@ -365,7 +355,7 @@ public class StudentControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
 
-        mockMvc.perform(get("/student/update/cancel/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
     }
@@ -373,7 +363,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
     public void shouldRedirect_whenGetUpdateCancelStudent() throws Exception {
-        mockMvc.perform(get("/student/update/cancel/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
@@ -381,10 +371,10 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/student/update")
-                .param("action", "newKey")
-                .params(map))
-                .andExpect(model().attributeDoesNotExist("error"))
+        Long id = student.getId();
+        Student student = studentService.findStudentById(id);
+
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("student",
@@ -396,10 +386,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/student/update")
-                .param("action", "newKey")
-                .params(map))
-                .andExpect(model().attributeDoesNotExist("error"))
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("student",

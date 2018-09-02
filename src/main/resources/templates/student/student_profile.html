@@ -125,8 +125,9 @@
                                     <input class="form-control" type="text" id="key" th:field="${student.verificationKey.value}" readonly
                                            placeholder="для автентифікації облікового запису">
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-primary" type="submit" name="action" id="newKey" value="newKey"
-                                                th:disabled="${isNew}">
+                                        <!-- Button trigger modal -->
+                                        <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalKey"
+                                                th:disabled="${isNew}" type="button">
                                             Згенерувати новий ключ
                                         </button>
                                     </div>
@@ -136,7 +137,7 @@
                     </div>
                     <div class="form-group row col-md-8 mx-auto">
                         <div class="col-md-4">
-                            <a th:href="@{/student/update/cancel/{id}(id=${student.verificationKey.id})}">
+                            <a th:href="@{/student/cancel/{id}(id=${student.verificationKey.id})}">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Скасувати
                                 </button>
@@ -167,6 +168,43 @@
 <script type="text/javascript">
 
 </script>
+
+<!-- Modal -->
+<div class="modal fade" id="modalKey" tabindex="-1" role="dialog" aria-labelledby="modalKeyTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLongTitle">Генерація нового ключа підтвердження</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <p>
+                    Створення нового ключа призведе до втрати прав доступу та контролю за даними з
+                    боку власника облікового запису, що зараз пов'язаний з цим профілем.
+                </p>
+                <p>
+                    Крім того, буде втрачено всі внесені, але не збережені, зміни.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте згенерувати новий ключ підтвердження особи?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form class="form" th:object="${student}" method="post" th:action="@{/student/{id}/new-key(id=${student.id})}" id="form2">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <button type="submit" class="btn btn-primary" name="action" id="newKey" value="newKey">
+                        Так, згенерувати!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
 
 </body>
 </html>
