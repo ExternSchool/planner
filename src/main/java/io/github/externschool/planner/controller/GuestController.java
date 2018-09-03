@@ -61,9 +61,9 @@ public class GuestController {
         List<PersonDTO> persons = personService.findAllByOrderByName().stream()
                 .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
                 .filter(Objects::nonNull)
-                .filter(p -> (p.getVerificationKey() != null
+                .filter(p -> (p.getVerificationKey() == null) || (p.getVerificationKey() != null
                         && !keyService.findKeyByValue(p.getVerificationKey().getValue())
-                        .getUser().getRoles().contains(roleAdmin)))
+                            .getUser().getRoles().contains(roleAdmin)))
                 .collect(Collectors.toList());
 
         return new ModelAndView("guest/person_list", "persons", persons);
