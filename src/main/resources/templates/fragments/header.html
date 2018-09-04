@@ -8,7 +8,7 @@
 <body>
 <div th:fragment="header(activeTab)">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="https://externschool.github.io/" target="_blank">Visit Planner</a>
+        <a class="navbar-brand" href="https://externschool.github.io/" target="_blank"><small>Visit Planner</small></a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -58,7 +58,7 @@
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_TEACHER')">
-                        <a th:class="${activeTab == 'teacher_schedule'}? 'nav-link active' : 'nav-link'"
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/schedule">Розклад</a>
                     </div>
                 </li>
@@ -101,7 +101,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="/plan/">Річні плани</a>
+                           href="/plan/">Плани</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -113,15 +113,15 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'events'}? 'nav-link active' : 'nav-link'"
-                           href="/schedule-events/new">Нова зустріч</a>
+                           href="/schedule-events/new">+ Візит</a>
                     </div>
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <div sec:authorize="!hasRole('ROLE_ADMIN')">
+                <!--<div sec:authorize="!hasRole('ROLE_ADMIN')">-->
                     <input class="form-control mr-sm-2" type="search" placeholder="Пошук" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
-                </div>
+                <!--</div>-->
                 <div sec:authorize="isAnonymous()">
                     <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Реєстрація</a>
                     <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Увійти</a>

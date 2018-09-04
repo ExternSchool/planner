@@ -22,7 +22,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+    <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -31,6 +31,13 @@
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
+<fieldset>
+    <form class="form mb-0" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-update(id=${teacher.id})}"
+          method="post" id="form">
+        <input type="hidden" th:field="${teacher}"/>
+
+    </form>
+</fieldset>
 
 </main>
 
@@ -64,11 +71,12 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}" id="form2">
+                <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
+                      method="post" id="form2">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <button type="submit" class="btn btn-primary" name="action" id="newKey" value="newKey">
+                    <button type="submit" class="btn btn-primary" name="action" id="modal-save" value="modal-save">
                         Так, дійсно!
                     </button>
                 </form>
