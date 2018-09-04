@@ -122,6 +122,39 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @WithMockUser(username = userName, roles = "TEACHER")
+    public void shouldRedirect_WhenShowTeacherScheduleToTeacher() throws Exception {
+        mockMvc.perform(get("/teacher/schedule"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenShowTeacherSchedule() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/schedule"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule"))
+                .andExpect(model().attribute("teacher", conversionService.convert(teacher, TeacherDTO.class)))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenProcessTeacherScheduleModalFormSave() throws Exception {
+        //TODO check for the data returned from the saved form when realized
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/schedule-modal")
+                .param("action", "save"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);

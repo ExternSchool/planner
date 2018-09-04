@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <title>Teacher Schedule</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="font-weight-normal mb-0" th:inline="text"><small>Розклад вчителя (працівника) [[${teacher.getShortName()}]]</small></h4>
+    <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
+        Місце для відображення повідомлень про помилки
+    </small>
+<fieldset>
+    <form class="form mb-0" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-update(id=${teacher.id})}"
+          method="post" id="form">
+        <input type="hidden" th:field="${teacher}"/>
+
+    </form>
+</fieldset>
+
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">
+            <div th:replace="fragments/footer :: footer"></div>
+        </span>
+    </div>
+</footer>
+
+<!-- Modal -->
+<div class="modal fade" id="modalKey" tabindex="-1" role="dialog" aria-labelledby="modalKeyTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLongTitle">Заголовок</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <p>
+                    Текст ...
+                    <br>
+                    Абзац ...
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте ...?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
+                      method="post" id="form2">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <button type="submit" class="btn btn-primary" name="action" id="modal-save" value="modal-save">
+                        Так, дійсно!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+</body>
+</html>

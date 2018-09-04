@@ -7,6 +7,7 @@ import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
@@ -42,22 +45,14 @@ public class UserControllerTest {
     @Autowired private WebApplicationContext wac;
     @Autowired private UserService userService;
     @Autowired private VerificationKeyService keyService;
-    @Autowired private PersonService personService;
     @Autowired private ConversionService conversionService;
-    @Autowired private RoleService roleService;
-    @Autowired private StudentService studentService;
     private UserController controller;
     private MockMvc mockMvc;
+    private User expectedUser;
 
     @Before
     public void setup() {
-        controller = new UserController(
-                userService,
-                keyService,
-                personService,
-                conversionService,
-                roleService,
-                studentService);
+        controller = new UserController(userService, keyService, conversionService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(springSecurity())
@@ -65,10 +60,9 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "user@x.com", roles = "ADMIN")
     public void shouldReturnsSuccessTemplate_WhenGetRequestAuthorized() throws Exception {
-        mockMvc
-                .perform(get("/guest/"))
+        mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_list"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
@@ -102,7 +96,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupParamsOk() throws Exception {
-        User expectedUser = new User("user@x.com", "!Qwert");
+        expectedUser = userService.createUser("user@x.com", "!Qwert", "ROLE_GUEST");
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("email",expectedUser.getEmail());
         map.add("password", expectedUser.getPassword());

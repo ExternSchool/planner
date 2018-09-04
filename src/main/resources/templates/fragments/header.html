@@ -8,7 +8,8 @@
 <body>
 <div th:fragment="header(activeTab)">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="https://externschool.github.io/" target="_blank">Visit Planner</a>
+        <a class="navbar-brand" style="font: italic bold 12px/30px Georgia, serif;"
+           href="https://externschool.github.io/" target="_blank">Visit Planner</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -58,6 +59,24 @@
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/schedule">Розклад</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher_visitors'}? 'nav-link active' : 'nav-link'"
+                           href="#">Відвідувачі</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher_students'}? 'nav-link active' : 'nav-link'"
+                           href="#">Екстерни</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/profile">Персональні дані</a>
                     </div>
@@ -83,7 +102,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="/plan/">Річні плани</a>
+                           href="/plan/">Плани</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -95,7 +114,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'events'}? 'nav-link active' : 'nav-link'"
-                           href="/schedule-events/new">Нова зустріч</a>
+                           href="/schedule-events/new">+Візит</a>
                     </div>
                 </li>
             </ul>

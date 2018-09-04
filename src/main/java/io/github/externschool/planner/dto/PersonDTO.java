@@ -80,6 +80,12 @@ public class PersonDTO {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+    
+    public String getShortName() {
+        return lastName + " " +
+                (firstName != null ? firstName.substring(0,1) + "." : "") +
+                (patronymicName != null ? patronymicName.substring(0,1) + "." : "");
+    }
 
     public String getPhoneNumber() {
         return phoneNumber;
