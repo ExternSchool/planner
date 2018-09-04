@@ -8,7 +8,8 @@
 <body>
 <div th:fragment="header(activeTab)">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="https://externschool.github.io/" target="_blank"><small>Visit Planner</small></a>
+        <a class="navbar-brand" style="font: italic bold 12px/30px Georgia, serif;"
+           href="https://externschool.github.io/" target="_blank">Visit Planner</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -118,10 +119,10 @@
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <!--<div sec:authorize="!hasRole('ROLE_ADMIN')">-->
+                <div sec:authorize="!hasRole('ROLE_ADMIN')">
                     <input class="form-control mr-sm-2" type="search" placeholder="Пошук" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
-                <!--</div>-->
+                </div>
                 <div sec:authorize="isAnonymous()">
                     <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Реєстрація</a>
                     <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Увійти</a>
