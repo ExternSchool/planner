@@ -56,14 +56,16 @@ public class GuestController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
-    public ModelAndView displayGuestList(){
+    public ModelAndView showGuestList(){
         Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
         List<PersonDTO> persons = personService.findAllByOrderByName().stream()
                 .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
                 .filter(Objects::nonNull)
-                .filter(p -> (p.getVerificationKey() != null
-                        && !keyService.findKeyByValue(p.getVerificationKey().getValue())
-                        .getUser().getRoles().contains(roleAdmin)))
+                .filter(p -> (p.getVerificationKey() == null)
+                        || (p.getVerificationKey() != null
+                            && keyService.findKeyByValue(p.getVerificationKey().getValue()).getUser() != null
+                            && !keyService.findKeyByValue(p.getVerificationKey().getValue()).getUser().getRoles()
+                        .contains(roleAdmin)))
                 .collect(Collectors.toList());
 
         return new ModelAndView("guest/person_list", "persons", persons);
@@ -71,7 +73,7 @@ public class GuestController {
 
     @Secured("ROLE_GUEST")
     @GetMapping("/profile")
-    public ModelAndView displayFormPersonProfile(final Principal principal) {
+    public ModelAndView showFormPersonProfile(final Principal principal) {
         final User user = userService.findUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
         PersonDTO personDTO =  conversionService.convert(personService.findPersonById(id), PersonDTO.class);
@@ -81,7 +83,7 @@ public class GuestController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
-    public ModelAndView displayFormPersonProfileToEdit(@PathVariable("id") Long id){
+    public ModelAndView showFormPersonProfileToEdit(@PathVariable("id") Long id){
         PersonDTO personDTO = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
         return showPersonProfileForm(personDTO, false);
@@ -147,7 +149,7 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping(value = "/update")
+    @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView processFormPersonProfileActionCancel(Principal principal) {
 
         return redirectByRole(userService.findUserByEmail(principal.getName()));
