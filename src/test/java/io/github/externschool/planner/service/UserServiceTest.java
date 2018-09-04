@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,8 +35,8 @@ import static org.mockito.Mockito.when;
 public class UserServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private RoleService roleService;
-    @Mock VerificationKeyRepository keyRepository;
-    @Mock PersonRepository personRepository;
+    @Mock private VerificationKeyRepository keyRepository;
+    @Mock private PersonRepository personRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     private UserService userService;
 
