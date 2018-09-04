@@ -100,13 +100,13 @@ public class BootstrapDataPopulator implements InitializingBean {
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Student presetStudentProfile = new Student(new Person(73L,
-                "Student",
-                "To",
-                "Test",
-                "(044)000-2222"),
-                LocalDate.of(2006, 2, 2),
+                "Гаврило",
+                "Петрович",
+                "Принцип",
+                "(111)000-2222"),
+                LocalDate.of(2006, 07, 28),
                 Gender.MALE,
-                "Homeless",
+                "вул. Франца Фердінанда, 28, кв. 6",
                 GradeLevel.LEVEL_7);
         presetStudentProfile.addVerificationKey(key);
         presetStudent.setVerificationKey(key);
@@ -117,49 +117,49 @@ public class BootstrapDataPopulator implements InitializingBean {
         verificationKeyService.saveOrUpdateKey(key);
         Teacher teacher = createTeacher(new Person(
                         null,
-                        "James",
-                        "Merrill",
-                        "Carlsmith",
+                        "Джеймс",
+                        "Меріл",
+                        "Карлсміт",
                         "(066)666-6666"),
                 key,
-                "Psychologist",
-                Collections.singletonList("Cognitive Dissonance Theory"));
+                "Психолог",
+                Collections.singletonList("Теорія когнитивного дисонансу"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         teacher = createTeacher(new Person(
                         null,
-                        "Alexander",
-                        "Sutherland",
-                        "Neill",
+                        "Олександр",
+                        "Сазерленд",
+                        "Нейл",
                         "(099)999-9999"),
                 key,
-                "Principal",
-                Arrays.asList("Quantum Mechanics", "Algebraic Topology"));
+                "Директор",
+                Arrays.asList("Квантова механіка", "Теорія квантового поля"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         teacher = createTeacher(new Person(
                         null,
-                        "Leonardo",
-                        "di ser Piero",
-                        "da Vinci",
+                        "Леонардо",
+                        "ді сер П'єро",
+                        "да Вінчі",
                         "(099)999-1111"),
                 key,
-                "Teacher",
-                Arrays.asList("Anatomy and Physiology", "Rocket Science"));
+                "",
+                Arrays.asList("Анатомія та фізіологія", "Основи ракетобудування"));
         teacherService.saveOrUpdateTeacher(teacher);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Person person = new Person(null,
-                "Jonh",
-                "Johnovich",
-                "Doe",
+                "Марко",
+                "Ілліч",
+                "Цукерберг",
                 "(044)222-2222");
         Student student = new Student(person,
                 LocalDate.of(2002, 02, 22),
                 Gender.MALE,
-                "Khreshchatyk str., 11, ap.11, Kyiv 01001",
+                "вул. Лицехватська, 11, кв.11, Київ, 01001",
                 GradeLevel.LEVEL_11);
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
@@ -198,7 +198,7 @@ public class BootstrapDataPopulator implements InitializingBean {
             plan.setHoursPerSemesterTwo(2);
             plan.setWorksPerSemesterOne(1);
             plan.setWorksPerSemesterTwo(1);
-            plan.setTitle("Introduction to " + plan.getTitle());
+            plan.setTitle(plan.getTitle());
             planRepository.save(plan);
 
             teacher.addSubject(subject);
