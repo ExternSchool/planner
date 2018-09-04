@@ -22,7 +22,7 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+    <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
 </header>
 
 <!-- Begin page content -->
@@ -31,6 +31,13 @@
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
+<fieldset>
+    <form class="form mb-0" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-update(id=${teacher.id})}"
+          method="post" id="form">
+        <input type="hidden" th:field="${teacher}"/>
+
+    </form>
+</fieldset>
 
 </main>
 
@@ -48,29 +55,29 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalLongTitle">Генерація нового ключа підтвердження</h5>
+                <h5 class="modal-title" id="modalLongTitle">Заголовок</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-justify">
                 <p>
-                    Створення нового ключа приведе до втрати прав доступу та контролю за даними з
-                    боку власника облікового запису, що зараз пов'язаний з цим профілем.
+                    Текст ...
                     <br>
-                    Крім того, буде втрачено всі внесені до форми, але не збережені зміни персональних даних.
+                    Абзац ...
                 </p>
                 <p>
-                    Ви впевнені, що бажаєте згенерувати новий ключ підтвердження особи?
+                    Ви впевнені, що бажаєте ...?
                 </p>
             </div>
             <div class="modal-footer">
-                <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/{id}/new-key(id=${teacher.id})}" id="form2">
+                <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
+                      method="post" id="form2">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <button type="submit" class="btn btn-primary" name="action" id="newKey" value="newKey">
-                        Так, згенерувати!
+                    <button type="submit" class="btn btn-primary" name="action" id="modal-save" value="modal-save">
+                        Так, дійсно!
                     </button>
                 </form>
             </div>

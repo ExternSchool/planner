@@ -43,6 +43,7 @@
                 <th class="text-left">Посада</th>
                 <th style="width: 15ch">Телефон</th>
                 <th>Email</th>
+                <th class="text-right" style="width: 10ch">Розклад</th>
                 <th class="text-right" style="width: 10ch">Змінити</th>
                 <th class="text-right" style="width: 10ch">Видалити</th>
             </tr>
@@ -56,9 +57,14 @@
                 <td th:text="${teacher.getPhoneNumber()}">Телефон</td>
                 <td class="" th:text="${teacher.getEmail()}">Email</td>
                 <td class="text-right">
+                    <a th:href="@{/teacher/{id}/schedule(id=${teacher.id})}" class="btn badge badge-success">
+                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                    </a>
+                </td>
+                <td class="text-right">
                     <form th:method="post" th:action="@{/teacher/{id}(id=${teacher.id})}">
                         <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
-                            <i class="far fa-edit" aria-hidden="true"></i>
+                            <i class="fas fa-edit" aria-hidden="true"></i>
                         </button>
                     </form>
                 </td>

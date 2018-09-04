@@ -77,6 +77,32 @@ public class TeacherController {
         return showTeacherProfile(teacherDTO);
     }
 
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/schedule")
+    public ModelAndView showTeacherScheduleToTeacher(final Principal principal) {
+        final User user = userService.findUserByEmail(principal.getName());
+        Long id = user.getVerificationKey().getPerson().getId();
+
+        return new ModelAndView("redirect:/teacher/" + id + "/schedule");
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/schedule")
+    public ModelAndView showTeacherSchedule(@PathVariable("id") Long id) {
+        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+
+        return new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @PostMapping(value = "/{id}/schedule-modal", params = "action=save")
+    public ModelAndView processTeacherScheduleModalFormSave(@PathVariable("id") Long id,
+                                                      @ModelAttribute("teacher") TeacherDTO teacherDTO,
+                                                      final Principal principal) {
+
+        return new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
+    }
+
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
     public ModelAndView showTeacherProfileToEdit(@PathVariable("id") Long id) {
