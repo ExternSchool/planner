@@ -58,6 +58,24 @@
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher_schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/schedule">Розклад</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher_visitors'}? 'nav-link active' : 'nav-link'"
+                           href="#">Відвідувачі</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'teacher_students'}? 'nav-link active' : 'nav-link'"
+                           href="#">Екстерни</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/profile">Персональні дані</a>
                     </div>
