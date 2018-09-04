@@ -8,6 +8,8 @@ import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.repository.VerificationKeyRepository;
+import io.github.externschool.planner.repository.profiles.PersonRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,12 +29,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private RoleService roleService;
+    @Mock VerificationKeyRepository keyRepository;
+    @Mock PersonRepository personRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     private UserService userService;
 
@@ -46,7 +51,8 @@ public class UserServiceTest {
 
     @Before
     public void setUp() {
-        userService = new UserServiceImpl(userRepository, roleService, passwordEncoder);
+        userService =
+                new UserServiceImpl(userRepository, roleService, passwordEncoder, keyRepository, personRepository);
 
         userDTO = new UserDTO();
         userDTO.setEmail(email);
@@ -57,10 +63,10 @@ public class UserServiceTest {
         expectedUser.setPassword(password);
         expectedUser.addRole(role);
 
-        Mockito.when(userRepository.findByEmail(expectedUser.getEmail())).thenReturn(expectedUser);
-        Mockito.when(userRepository.save(expectedUser)).thenReturn(expectedUser);
+        when(userRepository.findByEmail(expectedUser.getEmail())).thenReturn(expectedUser);
+        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
         Arrays.asList("ROLE_GUEST", "ROLE_STUDENT", "ROLE_TEACHER", "ROLE_OFFICER", "ROLE_ADMIN")
-                .forEach(r -> Mockito.when(roleService.getRoleByName(r))
+                .forEach(r -> when(roleService.getRoleByName(r))
                         .thenReturn(new Role(r)));
     }
 
@@ -207,5 +213,16 @@ public class UserServiceTest {
         assertThat(actualUser)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("roles", Collections.singleton(new Role("ROLE_GUEST")));
+    }
+
+    @Test
+    public void shouldReturnNewKeyAndPerson_whenCreateAndAddNewKeyAndPerson() {
+        User actualUser = new User();
+
+        userService.createAndAddNewKeyAndPerson(actualUser);
+
+        assertThat(actualUser.getVerificationKey())
+                .isNotNull()
+                .hasNoNullFieldsOrPropertiesExcept("id");
     }
 }

@@ -125,7 +125,7 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/new-key")
-    public ModelAndView processTeacherProfileFormNewKey(@PathVariable("id") Long id) {
+    public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id) {
         //When key change confirmed:
         //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
         //user receives Guest role
@@ -137,7 +137,7 @@ public class TeacherController {
 
         Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
-                    userService.assignNewRolesByKey(user, user.getVerificationKey());
+                    userService.createAndAddNewKeyAndPerson(user);
                     userService.saveOrUpdate(user);
                 });
 

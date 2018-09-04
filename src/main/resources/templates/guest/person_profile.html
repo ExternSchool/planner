@@ -70,11 +70,11 @@
                     </div>
                     <div class="form-group row">
                         <div class="col-md-4" th:if="${!isNew}">
-                            <a href="/guest/update">
-                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                            <!--<a href="/guest/update">-->
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="submit">
                                 Скасувати
                             </button>
-                            </a>
+                            <!--</a>-->
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
@@ -94,6 +94,15 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<script>
+    window.onload = function() {
+        var anchors = document.getElementsByTagName("a");
+        for (var i = 0; i < anchors.length; i++) {
+            anchors[i].onclick = function() {return false;};
+        }
+    };
+</script>
 
 </body>
 </html>

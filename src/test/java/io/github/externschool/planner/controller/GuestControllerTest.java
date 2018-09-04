@@ -206,7 +206,8 @@ public class GuestControllerTest {
         user.setRoles(roles);
         userService.saveOrUpdate(user);
 
-        mockMvc.perform(get("/guest/update"))
+        mockMvc.perform(post("/guest/update")
+                .param("action", "cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/"));
     }
@@ -214,7 +215,8 @@ public class GuestControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "GUEST")
     public void shouldRedirect_whenPostUpdateActionCancelGuest() throws Exception {
-        mockMvc.perform(get("/guest/update"))
+        mockMvc.perform(post("/guest/update")
+                .param("action", "cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
