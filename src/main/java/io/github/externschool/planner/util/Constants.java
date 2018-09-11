@@ -23,7 +23,7 @@ public final class Constants {
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
 
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
-    public static final String UK_COURSE_NO_TEACHER = "Вчитель не призначений";
+    public static final String UK_COURSE_NO_TEACHER = "Не призначений";
 
     private Constants() {
         throw new AssertionError();

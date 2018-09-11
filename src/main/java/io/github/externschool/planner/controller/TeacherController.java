@@ -90,8 +90,10 @@ public class TeacherController {
     @GetMapping("/{id}/schedule")
     public ModelAndView showTeacherSchedule(@PathVariable("id") Long id) {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule",
+                "teacher", teacherDTO);
 
-        return new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
+        return modelAndView;
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
@@ -99,7 +101,6 @@ public class TeacherController {
     public ModelAndView processTeacherScheduleModalFormSave(@PathVariable("id") Long id,
                                                       @ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-
         return new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
     }
 

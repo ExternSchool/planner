@@ -92,8 +92,6 @@ public class ScheduleEvent {
                           final boolean isOpen,
                           final boolean isCancelled,
                           final boolean isAccomplished) {
-
-
         this.id = id;
         this.title = title;
         this.description = description;
