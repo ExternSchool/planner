@@ -55,7 +55,7 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
-    public ModelAndView showTeacherListForm() {
+    public ModelAndView displayTeacherListForm() {
         List<Teacher> teachers = teacherService.findAllByOrderByLastName();
         Optional.ofNullable(teacherService.findAllByLastName(UK_COURSE_NO_TEACHER))
                 .ifPresent(t -> t.forEach(teachers::remove));
@@ -69,17 +69,17 @@ public class TeacherController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/profile")
-    public ModelAndView showTeacherProfileForTeacher(final Principal principal) {
+    public ModelAndView displayTeacherProfileForTeacher(final Principal principal) {
         final User user = userService.findUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-        return showTeacherProfile(teacherDTO);
+        return displayTeacherProfile(teacherDTO);
     }
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/schedule")
-    public ModelAndView showTeacherScheduleToTeacher(final Principal principal) {
+    public ModelAndView displayTeacherScheduleToTeacher(final Principal principal) {
         final User user = userService.findUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
 
@@ -88,10 +88,11 @@ public class TeacherController {
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/schedule")
-    public ModelAndView showTeacherSchedule(@PathVariable("id") Long id) {
+    public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id) {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule",
                 "teacher", teacherDTO);
+
 
         return modelAndView;
     }
@@ -106,17 +107,17 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
-    public ModelAndView showTeacherProfileToEdit(@PathVariable("id") Long id) {
+    public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id) {
         Teacher teacher = teacherService.findTeacherById(id);
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-        return showTeacherProfile(teacherDTO);
+        return displayTeacherProfile(teacherDTO);
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/add")
-    public ModelAndView showTeacherProfileToAdd() {
-        return showTeacherProfile(new TeacherDTO());
+    public ModelAndView displayTeacherProfileToAdd() {
+        return displayTeacherProfile(new TeacherDTO());
     }
 
     @Secured("ROLE_ADMIN")
@@ -168,13 +169,13 @@ public class TeacherController {
                     userService.saveOrUpdate(user);
                 });
 
-        ModelAndView modelAndView = showTeacherProfile(teacherDTO);
+        ModelAndView modelAndView = displayTeacherProfile(teacherDTO);
         modelAndView.addObject("isNew", true);
 
         return modelAndView;
     }
 
-    private ModelAndView showTeacherProfile(TeacherDTO teacherDTO) {
+    private ModelAndView displayTeacherProfile(TeacherDTO teacherDTO) {
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile",
                 "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
