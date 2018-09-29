@@ -51,7 +51,6 @@ public class User implements Serializable {
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
-    //TODO Fix Cascade
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
