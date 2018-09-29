@@ -68,6 +68,18 @@ public class PersonServiceTest {
     }
 
     @Test
+    public void shouldSaveNewPersonAndVerificationKey_whenSaveOrUpdate(){
+        Mockito.when(personRepository.save(firstPerson))
+                .thenReturn(firstPerson);
+
+        Person actualPerson = personService.saveOrUpdatePerson(firstPerson);
+
+        assertThat(actualPerson).hasFieldOrProperty("verificationKey");
+        assertThat(actualPerson.getVerificationKey()).isEqualTo(firstPerson.getVerificationKey());
+
+    }
+
+    @Test
     public void shouldReturnAllPersonsSortedByLastName_WhenFindAll(){
         Mockito.when(personRepository.findAllByOrderByLastName())
                 .thenReturn(personList);
