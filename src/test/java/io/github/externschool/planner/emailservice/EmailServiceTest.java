@@ -22,7 +22,7 @@ public class EmailServiceTest {
     @Before
     public void setup(){
         user = new User();
-        user.setEmail("test@receiver.com");
+        user.setEmail("extern.school@gmail.com");
 
         scheduleEvent = new ScheduleEvent();
         scheduleEvent.setOwner(user);

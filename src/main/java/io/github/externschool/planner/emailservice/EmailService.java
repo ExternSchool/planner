@@ -19,7 +19,7 @@ public class EmailService {
 
         simpleMailMessage.setTo(scheduleEvent.getOwner().getEmail());
         simpleMailMessage.setSubject("Event cancellation");
-        simpleMailMessage.setFrom("extern.school@gmail.com");
+        simpleMailMessage.setFrom(scheduleEvent.getOwner().getEmail());
         simpleMailMessage.setText("Sorry, may be next time)");
         mailSender.send(simpleMailMessage);
     }
