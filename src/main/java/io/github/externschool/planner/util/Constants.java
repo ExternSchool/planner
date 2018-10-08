@@ -25,6 +25,9 @@ public final class Constants {
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Вчитель не призначений";
 
+    public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічи";
+    public static final String APPOINTMENT_CANCELLATION_TEXT = "Вибачте, але наша зустріч відмінена.";
+
     private Constants() {
         throw new AssertionError();
     }
