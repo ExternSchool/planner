@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
@@ -26,8 +28,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.LOCALE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -41,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@ImportAutoConfiguration(ThymeleafAutoConfiguration.class)
 public class TeacherControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private TeacherService teacherService;
@@ -148,19 +156,19 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
     }
 
-    @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
-    public void shouldReturnTemplate_WhenProcessTeacherScheduleModalFormSave() throws Exception {
-        //TODO check for the data returned from the saved form when realized
-
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/schedule-modal")
-                .param("action", "save"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
-    }
+//    @Test
+//    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+//    public void shouldReturnTemplate_WhenProcessTeacherScheduleModalFormSave() throws Exception {
+//        //TODO check for the data returned from the saved form when realized
+//
+//        mockMvc.perform(post("/teacher/" + teacher.getId() + "/schedule-modal")
+//                .param("action", "save"))
+//                .andExpect(status().isOk())
+//                .andExpect(view().name("teacher/teacher_schedule"))
+//                .andExpect(model().attributeExists("teacher"))
+//                .andExpect(content().contentType("text/html;charset=UTF-8"))
+//                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
+//    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -233,7 +241,7 @@ public class TeacherControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
-        Integer sizeBefore = teachers.size();
+        int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
         Long id = teacherDTO.getId();
 
