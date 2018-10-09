@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
@@ -48,6 +49,7 @@ public class TeacherControllerTest {
     @Autowired private VerificationKeyService keyService;
     @Autowired private UserService userService;
     @Autowired private RoleService roleService;
+    @Autowired private ScheduleService scheduleService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -61,7 +63,13 @@ public class TeacherControllerTest {
     @Before
     public void setup() {
         controller = new TeacherController(
-                teacherService, subjectService, conversionService, keyService, userService, roleService);
+                teacherService,
+                subjectService,
+                conversionService,
+                keyService,
+                userService,
+                roleService,
+                scheduleService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);

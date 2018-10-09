@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <title>Teacher Schedule</title>
     <meta charset="utf-8">
@@ -39,9 +38,11 @@
 <!-- Begin page content -->
 <main role="main" class="container-fluid">
     <h4 class="font-weight-normal mb-1" th:inline="text"><small>Розклад вчителя (працівника): [[${teacher.getShortName()}]]</small></h4>
+    <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
+    <!--/*@thymesVar id="teacher" type="io.github.externschool.planner.dto.TeacherDTO"*/-->
     <form class="form mb-0" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-update(id=${teacher.id})}"
           method="post" id="form">
         <input type="hidden" th:field="${teacher}"/>
@@ -51,22 +52,40 @@
                 <div class="card-header">Поточний тиждень</div>
                 <div class="card-body text-left">
                     <h5 class="card-title text-left">Понеділок
-                        <span class="float-right badge badge-info badge-pill">11/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[0]}"
+                              th:text="${#temporals.format(currentWeek[0], 'dd/MM')}">
+                            пн</span>
                     </h5>
                     <h5 class="card-title text-left">Вівторок
-                        <span class="float-right badge badge-info badge-pill">12/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[1]}"
+                              th:text="${#temporals.format(currentWeek[1], 'dd/MM')}">
+                            вт</span>
                     </h5>
                     <h5 class="card-title text-left">Середа
-                        <span class="float-right badge badge-info badge-pill">13/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[2]}"
+                              th:text="${#temporals.format(currentWeek[2], 'dd/MM')}">
+                            ср</span>
                     </h5>
                     <h5 class="card-title text-left">Четвер
-                        <span class="float-right badge badge-info badge-pill">14/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[3]}"
+                              th:text="${#temporals.format(currentWeek[3], 'dd/MM')}">
+                            чт</span>
                     </h5>
                     <h5 class="card-title text-left">П'ятниця
-                        <span class="float-right badge badge-info badge-pill">15/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[4]}"
+                              th:text="${#temporals.format(currentWeek[4], 'dd/MM')}">
+                            пт</span>
                     </h5>
                     <h5 class="card-title text-left">Субота
-                        <span class="float-right badge badge-info badge-pill">16/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${currentWeek[5]}"
+                              th:text="${#temporals.format(currentWeek[5], 'dd/MM')}">
+                            сб</span>
                     </h5>
                 </div>
                 <div class="card-footer">
@@ -82,7 +101,10 @@
                                     data-target="#modalDelete" type="button">
                                 Скасувати
                             </button>
-                            <span class="float-right badge badge-info badge-pill">18/09</span>
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${nextWeek[0]}"
+                                  th:text="${#temporals.format(nextWeek[0], 'dd/MM')}">
+                                пн</span>
                         </div>
                     </h5>
 
@@ -95,7 +117,10 @@
                     <p class="card-text">12:00-13:00 Педагогічна рада</p>
 
                     <h5 class="card-title">Вівторок
-                        <span class="float-right badge badge-info badge-pill">19/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${nextWeek[1]}"
+                              th:text="${#temporals.format(nextWeek[1], 'dd/MM')}">
+                            вт</span>
                     </h5>
 
                     <h5 class="card-title">Середа
@@ -104,7 +129,10 @@
                                     data-target="#modalDelete" type="button">
                                 Скасувати
                             </button>
-                            <span class="float-right badge badge-info badge-pill">20/09</span>
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${nextWeek[2]}"
+                                  th:text="${#temporals.format(nextWeek[2], 'dd/MM')}">
+                                ср</span>
                         </div>
                     </h5>
                     <p class="card-text">09:00-09:30 Індивідуальна консультація</p>
@@ -117,14 +145,23 @@
                     <p class="card-text">12:30-13:00 Поліщук Матвій, 9-й клас</p>
 
                     <h5 class="card-title">Четвер
-                        <span class="float-right badge badge-info badge-pill">21/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${nextWeek[3]}"
+                              th:text="${#temporals.format(nextWeek[3], 'dd/MM')}">
+                            чт</span>
                     </h5>
 
                     <h5 class="card-title">П'ятниця
-                        <span class="float-right badge badge-info badge-pill">22/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${nextWeek[4]}"
+                              th:text="${#temporals.format(nextWeek[4], 'dd/MM')}">
+                            пт</span>
                     </h5>
                     <h5 class="card-title">Субота
-                        <span class="float-right badge badge-info badge-pill">23/09</span>
+                        <span class="float-right badge badge-info badge-pill"
+                              th:value="${nextWeek[5]}"
+                              th:text="${#temporals.format(nextWeek[5], 'dd/MM')}">
+                            сб</span>
                     </h5>
                 </div>
                 <div class="card-footer">
@@ -284,7 +321,7 @@
             </div>
             <div class="modal-footer">
                 <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
-                      method="post" id="form2">
+                      method="post" id="form3">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, залишити старий
                     </button>

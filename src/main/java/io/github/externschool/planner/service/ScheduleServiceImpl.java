@@ -12,8 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
+import java.util.ArrayList;
+import java.util.List;
+
+import static io.github.externschool.planner.util.Constants.LOCALE;
+
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
+ * @author Benkoff (mailto.benkoff@gmal.com)
  */
 @Service
 @Transactional
@@ -48,6 +58,29 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .build();
 
         return this.eventRepo.save(newEvent);
+    }
+
+    @Override
+    public LocalDate getCurrentWeekFirstDay() {
+        LocalDate now = LocalDate.now();
+        TemporalField fieldISO = WeekFields.of(LOCALE).dayOfWeek();
+
+        return now.with(fieldISO, 1);
+    }
+
+    @Override
+    public List<LocalDate> getWeekStartingFirstDay(final LocalDate firstDay) {
+        ArrayList<LocalDate> week = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            week.add(firstDay.plus(Period.of(0, 0, i)));
+        }
+
+        return week;
+    }
+
+    @Override
+    public LocalDate getNextWeekFirstDay() {
+        return getCurrentWeekFirstDay().plus(Period.of(0, 0, 7));
     }
 
     private void canUserCreateEventForType(User user, ScheduleEventType type) {

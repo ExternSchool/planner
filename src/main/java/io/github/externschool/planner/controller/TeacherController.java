@@ -5,6 +5,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
@@ -37,6 +38,7 @@ public class TeacherController {
     private final VerificationKeyService keyService;
     private final UserService userService;
     private final RoleService roleService;
+    private final ScheduleService scheduleService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -44,13 +46,15 @@ public class TeacherController {
                              final ConversionService conversionService,
                              final VerificationKeyService keyService,
                              final UserService userService,
-                             final RoleService roleService) {
+                             final RoleService roleService,
+                             final ScheduleService scheduleService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
         this.keyService = keyService;
         this.userService = userService;
         this.roleService = roleService;
+        this.scheduleService = scheduleService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -92,7 +96,10 @@ public class TeacherController {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule",
                 "teacher", teacherDTO);
-
+        modelAndView.addObject("currentWeek",
+                scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay()));
+        modelAndView.addObject("nextWeek",
+                scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay()));
 
         return modelAndView;
     }

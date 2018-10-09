@@ -14,7 +14,7 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
     public LocalDate parse(final String s, final Locale locale) throws ParseException {
         LocalDate date;
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             date = LocalDate.parse(s, formatter);
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), 1);
@@ -25,6 +25,6 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
 
     @Override
     public String print(final LocalDate date, final Locale locale) {
-        return date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
     }
 }
