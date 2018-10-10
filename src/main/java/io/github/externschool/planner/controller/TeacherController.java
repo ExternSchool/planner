@@ -1,9 +1,12 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
@@ -22,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -92,16 +98,61 @@ public class TeacherController {
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/schedule")
-    public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id) {
+    public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id,
+                                               final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule",
-                "teacher", teacherDTO);
-        modelAndView.addObject("currentWeek",
-                scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay()));
-        modelAndView.addObject("nextWeek",
-                scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay()));
+        List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
+        List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
+        List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
+        List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
+        Optional<User> optionalUser = Optional.ofNullable(teacherService.findTeacherById(id))
+                .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
+                .orElse(null);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            currentWeek.forEach(date ->
+                    currentWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+            nextWeek.forEach(date ->
+                    nextWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+
+            modelAndView = new ModelAndView("teacher/teacher_schedule",
+                    "teacher", teacherDTO);
+            modelAndView.addObject("currentWeek", currentWeek);
+            modelAndView.addObject("nextWeek", nextWeek);
+            modelAndView.addObject("currentWeekEvents", currentWeekEvents);
+            modelAndView.addObject("nextWeekEvents", nextWeekEvents);
+        }
 
         return modelAndView;
+    }
+
+    // TODO replace this method with ScheduleToScheduleDTO converter
+    // public access in test purpose only
+    public List<ScheduleEventDTO> convertToDTO(List<ScheduleEvent> events) {
+        return events.stream()
+                .map(e -> new ScheduleEventDTO(
+                        e.getId(),
+                        LocalDate.from(e.getStartOfEvent()),
+                        LocalTime.from(e.getStartOfEvent()),
+                        // as a description add a list of participants with their grades, if they are students
+                        // or add the name of the type for this event
+                        e.getParticipants().isEmpty() ? e.getType().getName() : String.valueOf(
+                                e.getParticipants().stream()
+                                        .map(user -> Optional.ofNullable(user.getVerificationKey())
+                                                .map(VerificationKey::getPerson)
+                                                .map(person ->
+                                                        person.getLastName() + " " + Optional.of((Student)person)
+                                                                .map(p -> p.getGradeLevel().toString())
+                                                                .orElse(""))
+                                                .orElse(""))
+                                        .collect(Collectors.toList())),
+                        e.isOpen(),
+                        e.getType().getName(),
+                        e.getTitle(),
+                        e.getCreatedAt()))
+                .collect(Collectors.toList());
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})

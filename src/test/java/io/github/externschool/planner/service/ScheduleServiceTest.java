@@ -19,7 +19,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,13 +34,8 @@ import static org.mockito.Mockito.when;
  * @author Benkoff (mailto.benkoff@gmal.com)
  */
 public class ScheduleServiceTest {
-
-    @Mock
-    private ScheduleEventTypeRepository eventTypeRepo;
-
-    @Mock
-    private ScheduleEventRepository eventRepo;
-
+    @Mock private ScheduleEventTypeRepository eventTypeRepo;
+    @Mock private ScheduleEventRepository eventRepo;
     private ScheduleService scheduleService;
 
     @Before
@@ -122,5 +119,25 @@ public class ScheduleServiceTest {
                         firstDay.plus(Period.of(0, 0 ,4)),
                         firstDay.plus(Period.of(0, 0 ,5)),
                         firstDay.plus(Period.of(0, 0 ,6)));
+    }
+
+    @Test
+    public void shouldReturnListEvents_whenGetEventsByOwnerAndDate() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        eventOne.setId(2L);
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        User owner = new User();
+        LocalDate date = LocalDate.of(2018, 6, 7);
+        Mockito.when(
+                eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, date.atStartOfDay(), date.atTime(LocalTime.MAX)))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwnerAndDate(owner, date);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
     }
 }

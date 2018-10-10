@@ -103,7 +103,7 @@ public class ScheduleEventType {
     @Override
     public String toString() {
         return "ScheduleEventType{" +
-                "id=" + id +
+                "id=" + id != null ? id.toString() : "" +
                 ", name='" + name + '\'' +
                 ", creators=" + creators +
                 ", participants=" + participants +

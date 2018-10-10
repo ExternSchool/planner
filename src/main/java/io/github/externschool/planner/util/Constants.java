@@ -27,6 +27,8 @@ public final class Constants {
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
 
+    public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
+
     public static final Locale LOCALE = new Locale("uk", "UA");
 
     private Constants() {

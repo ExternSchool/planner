@@ -1,5 +1,6 @@
 package io.github.externschool.planner.bootstrapdata;
 
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
@@ -16,6 +17,7 @@ import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.TeacherService;
@@ -27,12 +29,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSONAL;
 
 @Service
 @ExcludeFromTests
@@ -47,6 +53,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final CourseRepository courseRepository;
     private final PersonService personService;
     private final RoleService roleService;
+    private final ScheduleService scheduleService;
 
     @Autowired
     public BootstrapDataPopulator(final UserService userService,
@@ -58,7 +65,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                                   final StudyPlanRepository planRepository,
                                   final StudentService studentService,
                                   final CourseRepository courseRepository,
-                                  final PersonService personService) {
+                                  final PersonService personService, final ScheduleService scheduleService) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
@@ -69,6 +76,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         this.studentService = studentService;
         this.courseRepository = courseRepository;
         this.personService = personService;
+        this.scheduleService = scheduleService;
     }
 
     @Override
@@ -97,24 +105,9 @@ public class BootstrapDataPopulator implements InitializingBean {
         personService.saveOrUpdatePerson(adminPerson);
         userService.saveOrUpdate(admin);
 
-        User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
-        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
-        Student presetStudentProfile = new Student(new Person(73L,
-                "Гаврило",
-                "Петрович",
-                "Принцип",
-                "(111)000-2222"),
-                LocalDate.of(2006, 07, 28),
-                Gender.MALE,
-                "вул. Франца Фердінанда, 28, кв. 6",
-                GradeLevel.LEVEL_7);
-        presetStudentProfile.addVerificationKey(key);
-        presetStudent.setVerificationKey(key);
-        studentService.saveOrUpdateStudent(presetStudentProfile);
-        userService.saveOrUpdate(presetStudent);
-
-        key = new VerificationKey();
-        verificationKeyService.saveOrUpdateKey(key);
+        // Commented to let this teacher be Admin q@q
+//        key = new VerificationKey();
+//        verificationKeyService.saveOrUpdateKey(key);
         Teacher teacher = createTeacher(new Person(
                         null,
                         "Джеймс",
@@ -125,6 +118,22 @@ public class BootstrapDataPopulator implements InitializingBean {
                 "Психолог",
                 Collections.singletonList("Теорія когнитивного дисонансу"));
         teacherService.saveOrUpdateTeacher(teacher);
+
+        User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Student presetStudentProfile = new Student(new Person(73L,
+                "Гаврило",
+                "Петрович",
+                "Принцип",
+                "(111)000-2222"),
+                LocalDate.of(2006, 7, 28),
+                Gender.MALE,
+                "вул. Франца Фердінанда, 28, кв. 6",
+                GradeLevel.LEVEL_7);
+        presetStudentProfile.addVerificationKey(key);
+        presetStudent.setVerificationKey(key);
+        studentService.saveOrUpdateStudent(presetStudentProfile);
+        userService.saveOrUpdate(presetStudent);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         teacher = createTeacher(new Person(
@@ -157,9 +166,9 @@ public class BootstrapDataPopulator implements InitializingBean {
                 "Цукерберг",
                 "(044)222-2222");
         Student student = new Student(person,
-                LocalDate.of(2002, 02, 22),
+                LocalDate.of(2002, 2, 22),
                 Gender.MALE,
-                "вул. Лицехватська, 11, кв.11, Київ, 01001",
+                "вул. Рекламна, 11, кв.11, Київ, 01001",
                 GradeLevel.LEVEL_11);
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
@@ -173,6 +182,10 @@ public class BootstrapDataPopulator implements InitializingBean {
             t.addCourse(course);
             courseRepository.save(course);
         }
+
+        Set<User> eventUsers = new HashSet<>();
+        eventUsers.add(presetStudent);
+        createScheduleEventsWithSetOfUsers(admin, eventUsers);
     }
 
     private Teacher createTeacher(Person person, VerificationKey key, String officerName, List<String> subjectsNames) {
@@ -211,6 +224,43 @@ public class BootstrapDataPopulator implements InitializingBean {
     private void createScheduleEventType() {
         ScheduleEventType eventType = new ScheduleEventType("TestEvent", 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType = this.eventTypeRepository.save(eventType);
+        this.eventTypeRepository.save(eventType);
+
+        eventType = new ScheduleEventType("TestGroupEvent", 2);
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        this.eventTypeRepository.save(eventType);
+
+        eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        this.eventTypeRepository.save(eventType);
+    }
+
+    private void createScheduleEventsWithSetOfUsers(final User owner, final Set<User> participants) {
+        ScheduleEventDTO eventOne =  new ScheduleEventDTO(
+                null,
+                LocalDate.now(),
+                LocalTime.of(9, 0),
+                "",
+                true,
+                "TestGroupEvent",
+                "Test-1",
+                LocalDateTime.now());
+        ScheduleEventDTO eventTwo = new ScheduleEventDTO(
+                null,
+                LocalDate.now(),
+                LocalTime.of(9,30),
+                UK_EVENT_TYPE_PERSONAL,
+                true,
+                UK_EVENT_TYPE_PERSONAL,
+                UK_EVENT_TYPE_PERSONAL,
+                LocalDateTime.now());
+        participants.forEach(user -> {
+            scheduleService.addParticipant(user, scheduleService.createEventWithDuration(owner, eventOne, 25));
+        });
+        participants.stream()
+                .findAny()
+                .ifPresent(user -> scheduleService.addParticipant(
+                        user,
+                        scheduleService.createEventWithDuration(owner, eventTwo, 15)));
     }
 }

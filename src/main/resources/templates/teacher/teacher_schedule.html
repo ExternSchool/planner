@@ -51,42 +51,200 @@
             <div class="card bg-light mb-2" style="min-width: 20rem;">
                 <div class="card-header">Поточний тиждень</div>
                 <div class="card-body text-left">
-                    <h5 class="card-title text-left">Понеділок
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[0]}"
-                              th:text="${#temporals.format(currentWeek[0], 'dd/MM')}">
+                    <div>
+                        <h5 class="card-title text-left">Понеділок
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[0]}"
+                                  th:text="${#temporals.format(currentWeek[0], 'dd/MM')}">
                             пн</span>
-                    </h5>
-                    <h5 class="card-title text-left">Вівторок
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[1]}"
-                              th:text="${#temporals.format(currentWeek[1], 'dd/MM')}">
+                        </h5>
+
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[0])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[0]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h5 class="card-title text-left">Вівторок
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[1]}"
+                                  th:text="${#temporals.format(currentWeek[1], 'dd/MM')}">
                             вт</span>
-                    </h5>
-                    <h5 class="card-title text-left">Середа
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[2]}"
-                              th:text="${#temporals.format(currentWeek[2], 'dd/MM')}">
+                        </h5>
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[1])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[1]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="card-title text-left">Середа
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[2]}"
+                                  th:text="${#temporals.format(currentWeek[2], 'dd/MM')}">
                             ср</span>
-                    </h5>
-                    <h5 class="card-title text-left">Четвер
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[3]}"
-                              th:text="${#temporals.format(currentWeek[3], 'dd/MM')}">
+                        </h5>
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[2])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[2]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="card-title text-left">Четвер
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[3]}"
+                                  th:text="${#temporals.format(currentWeek[3], 'dd/MM')}">
                             чт</span>
-                    </h5>
-                    <h5 class="card-title text-left">П'ятниця
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[4]}"
-                              th:text="${#temporals.format(currentWeek[4], 'dd/MM')}">
+                        </h5>
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[3])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[3]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="card-title text-left">П'ятниця
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[4]}"
+                                  th:text="${#temporals.format(currentWeek[4], 'dd/MM')}">
                             пт</span>
-                    </h5>
-                    <h5 class="card-title text-left">Субота
-                        <span class="float-right badge badge-info badge-pill"
-                              th:value="${currentWeek[5]}"
-                              th:text="${#temporals.format(currentWeek[5], 'dd/MM')}">
+                        </h5>
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[4])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[4]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="card-title text-left">Субота
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[5]}"
+                                  th:text="${#temporals.format(currentWeek[5], 'dd/MM')}">
                             сб</span>
-                    </h5>
+                        </h5>
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(currentWeekEvents[5])}">
+                            <table class="col-lg-12 table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th style="width: 10ch">Час</th>
+                                    <th class="text-left">Подія</th>
+                                    <th class="text-right" style="width: 10ch">Деталі</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="evnt : ${currentWeekEvents[5]}">
+                                    <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                    <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                    <td class="text-right">
+                                        <form th:method="post" th:action="@{#}">
+                                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <small class="text-muted">Останнє оновлення: 2018-09-11 16:29</small>

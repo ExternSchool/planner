@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
@@ -12,11 +13,17 @@ import java.util.List;
  * @author Benkoff (mailto.benkoff@gmal.com)
  */
 public interface ScheduleService {
-    ScheduleEvent createEvent(User user, ScheduleEventReq eventReq);
+    ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
+
+    ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);
+
+    ScheduleEvent addParticipant(User participant, ScheduleEvent event);
 
     LocalDate getCurrentWeekFirstDay();
 
     LocalDate getNextWeekFirstDay();
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
+
+    List<ScheduleEvent> getEventsByOwnerAndDate(User owner, LocalDate date);
 }
