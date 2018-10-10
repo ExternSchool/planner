@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmal.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 @Repository
 public interface ScheduleEventRepository extends JpaRepository<ScheduleEvent, Long> {

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmal.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 public interface ScheduleService {
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);

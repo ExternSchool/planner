@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmal.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 @RunWith(SpringRunner.class)
 @DataJpaTest

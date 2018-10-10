@@ -30,7 +30,7 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmal.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 @Service
 @Transactional

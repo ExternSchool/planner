@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmal.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 public class ScheduleServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
