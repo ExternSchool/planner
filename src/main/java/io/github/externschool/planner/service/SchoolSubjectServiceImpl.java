@@ -3,6 +3,7 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
+import io.github.externschool.planner.util.CollatorHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +36,9 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     @Transactional(readOnly = true)
     @Override
     public List<SchoolSubject> findAllByOrderByTitle() {
-        return subjectRepository.findAllByOrderByTitle();
+        List<SchoolSubject> schoolSubjects = subjectRepository.findAllByOrderByTitle();
+        schoolSubjects.sort((s1, s2)-> CollatorHolder.getUaCollator().compare(s1.getTitle(), s2.getTitle()));
+        return schoolSubjects;
     }
 
     @Transactional(readOnly = true)
