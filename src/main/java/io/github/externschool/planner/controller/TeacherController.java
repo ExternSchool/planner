@@ -7,7 +7,9 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +49,7 @@ public class TeacherController {
     private final UserService userService;
     private final RoleService roleService;
     private final ScheduleService scheduleService;
+    private final ScheduleEventTypeService typeService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -53,7 +58,8 @@ public class TeacherController {
                              final VerificationKeyService keyService,
                              final UserService userService,
                              final RoleService roleService,
-                             final ScheduleService scheduleService) {
+                             final ScheduleService scheduleService,
+                             final ScheduleEventTypeService typeService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
@@ -61,6 +67,7 @@ public class TeacherController {
         this.userService = userService;
         this.roleService = roleService;
         this.scheduleService = scheduleService;
+        this.typeService = typeService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -101,31 +108,62 @@ public class TeacherController {
     public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id,
                                                final Principal principal) {
         ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
-
-        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
-        List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
-        List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
-        List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
-        List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
         Optional<User> optionalUser = Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
+
         if (optionalUser != null && optionalUser.isPresent()) {
+            TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+
+            List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
+            List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
+            // standard week schedule has no real date to start, so MIN value is used
+            List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(LocalDate.MIN);
+            List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
+            List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
+            List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
+
             User user = optionalUser.get();
             currentWeek.forEach(date ->
                     currentWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
             nextWeek.forEach(date ->
                     nextWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+            standardWeek.forEach(date ->
+                    standardWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
 
-            modelAndView = new ModelAndView("teacher/teacher_schedule",
-                    "teacher", teacherDTO);
+            modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
             modelAndView.addObject("currentWeek", currentWeek);
             modelAndView.addObject("nextWeek", nextWeek);
             modelAndView.addObject("currentWeekEvents", currentWeekEvents);
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
+            modelAndView.addObject("standardWeekEvents", standardWeekEvents);
+
         }
 
         return modelAndView;
+    }
+
+    // TODO Complete and add a test
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/new-schedule/{day}")
+    public ModelAndView displayTeacherNewScheduleModal(@PathVariable("id") Long id,
+                                               @PathVariable("day") Long dayOfWeek,
+                                               ModelMap model,
+                                               final Principal principal) {
+
+        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+        List<ScheduleEventType> types = typeService.loadEventTypes();
+        model.addAttribute("eventTypes", types);
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(LocalDate.MIN.plusDays(dayOfWeek))
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .withTitle(teacherService.findTeacherById(id).getShortName())
+                .build();
+        model.addAttribute("newEvent", newEvent);
+        model.addAttribute("teacher", teacherDTO);
+
+        return new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
     }
 
     // TODO replace this method with ScheduleToScheduleDTO converter
@@ -137,15 +175,17 @@ public class TeacherController {
                         LocalDate.from(e.getStartOfEvent()),
                         LocalTime.from(e.getStartOfEvent()),
                         // as a description add a list of participants with their grades, if they are students
-                        // or add the name of the type for this event
+                        // or add a name for the type of this event
                         e.getParticipants().isEmpty() ? e.getType().getName() : String.valueOf(
                                 e.getParticipants().stream()
                                         .map(user -> Optional.ofNullable(user.getVerificationKey())
                                                 .map(VerificationKey::getPerson)
                                                 .map(person ->
-                                                        person.getLastName() + " " + Optional.of((Student)person)
-                                                                .map(p -> p.getGradeLevel().toString())
-                                                                .orElse(""))
+                                                        person.getLastName() + " " + person.getFirstName() +
+                                                                Optional.of((Student)person)
+                                                                        .map(p -> ", " + String.valueOf(
+                                                                                p.getGradeLevel().getValue()))
+                                                                        .orElse(""))
                                                 .orElse(""))
                                         .collect(Collectors.toList())),
                         e.isOpen(),
@@ -216,7 +256,6 @@ public class TeacherController {
         //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
         //user receives Guest role
         TeacherDTO teacherDTO = Optional.ofNullable(teacherService.findTeacherById(id))
-                .filter(Objects::nonNull)
                 .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
                 .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
                 .orElse(new TeacherDTO());
@@ -244,7 +283,6 @@ public class TeacherController {
 
     private Boolean isNew(TeacherDTO teacherDTO) {
         return !Optional.ofNullable(teacherDTO)
-                .filter(Objects::nonNull)
                 .map(t -> Optional.ofNullable(teacherService.findTeacherById(t.getId())).isPresent())
                 .orElse(false);
     }

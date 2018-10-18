@@ -80,7 +80,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         Teacher noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
         VerificationKey keyNoTeacher = new VerificationKey();
@@ -254,13 +254,24 @@ public class BootstrapDataPopulator implements InitializingBean {
                 UK_EVENT_TYPE_PERSONAL,
                 UK_EVENT_TYPE_PERSONAL,
                 LocalDateTime.now());
-        participants.forEach(user -> {
-            scheduleService.addParticipant(user, scheduleService.createEventWithDuration(owner, eventOne, 25));
-        });
+        participants.forEach(user -> scheduleService.addParticipant(
+                        user,
+                        scheduleService.createEventWithDuration(owner, eventOne, 25)));
         participants.stream()
                 .findAny()
                 .ifPresent(user -> scheduleService.addParticipant(
                         user,
                         scheduleService.createEventWithDuration(owner, eventTwo, 15)));
+
+        ScheduleEventDTO eventThree = new ScheduleEventDTO(
+                null,
+                LocalDate.now(),
+                LocalTime.of(9,45),
+                UK_EVENT_TYPE_PERSONAL,
+                true,
+                UK_EVENT_TYPE_PERSONAL,
+                UK_EVENT_TYPE_PERSONAL,
+                LocalDateTime.now());
+        scheduleService.createEventWithDuration(owner, eventThree, 45);
     }
 }

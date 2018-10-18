@@ -7,18 +7,18 @@ public final class Constants {
     public static final String UK_GENDER_FEMALE = "жін.";
 
     public static final String UK_GRADE_LEVEL_NOT_DEFINED = "Не визначено";
-    public static final String UK_GRADE_LEVEL_1 = "1й клас";
-    public static final String UK_GRADE_LEVEL_2 = "2й клас";
-    public static final String UK_GRADE_LEVEL_3 = "3й клас";
-    public static final String UK_GRADE_LEVEL_4 = "4й клас";
-    public static final String UK_GRADE_LEVEL_5 = "5й клас";
-    public static final String UK_GRADE_LEVEL_6 = "6й клас";
-    public static final String UK_GRADE_LEVEL_7 = "7й клас";
-    public static final String UK_GRADE_LEVEL_8 = "8й клас";
-    public static final String UK_GRADE_LEVEL_9 = "9й клас";
-    public static final String UK_GRADE_LEVEL_10 = "10й клас";
-    public static final String UK_GRADE_LEVEL_11 = "11й клас";
-    public static final String UK_GRADE_LEVEL_12 = "12й клас";
+    public static final String UK_GRADE_LEVEL_1 = "1 клас";
+    public static final String UK_GRADE_LEVEL_2 = "2 клас";
+    public static final String UK_GRADE_LEVEL_3 = "3 клас";
+    public static final String UK_GRADE_LEVEL_4 = "4 клас";
+    public static final String UK_GRADE_LEVEL_5 = "5 клас";
+    public static final String UK_GRADE_LEVEL_6 = "6 клас";
+    public static final String UK_GRADE_LEVEL_7 = "7 клас";
+    public static final String UK_GRADE_LEVEL_8 = "8 клас";
+    public static final String UK_GRADE_LEVEL_9 = "9 клас";
+    public static final String UK_GRADE_LEVEL_10 = "10 клас";
+    public static final String UK_GRADE_LEVEL_11 = "11 клас";
+    public static final String UK_GRADE_LEVEL_12 = "12 клас";
 
     public static final String UK_FORM_INVALID_KEY_MESSAGE = "Введено недійсний ключ!";
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Помилка вводу даних!";

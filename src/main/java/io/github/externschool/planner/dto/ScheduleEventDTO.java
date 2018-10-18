@@ -110,4 +110,66 @@ public class ScheduleEventDTO {
                 ", created=" + created +
                 '}';
     }
+
+    public static final class ScheduleEventDTOBuilder {
+        private Long id;
+        private LocalDate date;
+        private LocalTime startTime;
+        private String description;
+        private Boolean isOpen;
+        private String eventType;
+        private String title;
+        private LocalDateTime created;
+
+        private ScheduleEventDTOBuilder() {
+        }
+
+        public static ScheduleEventDTOBuilder aScheduleEventDTO() {
+            return new ScheduleEventDTOBuilder();
+        }
+
+        public ScheduleEventDTOBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withDate(LocalDate date) {
+            this.date = date;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withStartTime(LocalTime startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withIsOpen(Boolean isOpen) {
+            this.isOpen = isOpen;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withEventType(String eventType) {
+            this.eventType = eventType;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public ScheduleEventDTOBuilder withCreated(LocalDateTime created) {
+            this.created = created;
+            return this;
+        }
+
+        public ScheduleEventDTO build() {
+            return new ScheduleEventDTO(id, date, startTime, description, isOpen, eventType, title, created);
+        }
+    }
 }

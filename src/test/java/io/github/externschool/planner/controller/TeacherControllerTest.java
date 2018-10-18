@@ -10,6 +10,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
@@ -65,6 +66,7 @@ public class TeacherControllerTest {
     @Autowired private UserService userService;
     @Autowired private RoleService roleService;
     @Autowired private ScheduleService scheduleService;
+    @Autowired private ScheduleEventTypeService typeService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -84,7 +86,8 @@ public class TeacherControllerTest {
                 keyService,
                 userService,
                 roleService,
-                scheduleService);
+                scheduleService,
+                typeService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -300,23 +303,12 @@ public class TeacherControllerTest {
         s1.addVerificationKey(key1);
         participants.add(p1);
 
-        User p2 = new User("2", "");
-        p2.setId(2L);
-        VerificationKey key2 = new VerificationKey();
-        p2.addVerificationKey(key2);
-        Student s2 = new Student();
-        s2.setId(4L);
-        s2.setLastName("Two");
-        s2.setGradeLevel(GradeLevel.LEVEL_7);
-        s2.addVerificationKey(key2);
-        participants.add(p2);
-
         ScheduleEvent eventOne = ScheduleEvent.builder()
                 .withId(1L)
                 .withStartDateTime(LocalDateTime.of(2018, 10, 10, 12, 10))
                 .withParticipants(participants)
                 .withOpenStatus(false)
-                .withType(new ScheduleEventType("Type 2", 2))
+                .withType(new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1))
                 .withTitle("")
                 .build();
         ScheduleEvent eventTwo = ScheduleEvent.builder()
@@ -333,12 +325,13 @@ public class TeacherControllerTest {
                 1L,
                 LocalDate.from(eventOne.getStartOfEvent()),
                 LocalTime.from(eventOne.getStartOfEvent()),
-                String.valueOf("[" + s1.getLastName() + " " + s1.getGradeLevel().toString() + ", " +
-                        s2.getLastName() + " " + s2.getGradeLevel().toString() + "]"),
+                String.valueOf("[" + s1.getLastName() + " " + s1.getFirstName() + ", " +
+                        String.valueOf(s1.getGradeLevel().getValue()) + "]"),
                 false,
                 eventOne.getType().getName(),
                 eventOne.getTitle(),
                 eventOne.getCreatedAt());
+
         ScheduleEventDTO dtoTwo = new ScheduleEventDTO(
                 2L,
                 LocalDate.from(eventTwo.getStartOfEvent()),
