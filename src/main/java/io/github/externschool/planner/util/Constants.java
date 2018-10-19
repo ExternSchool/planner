@@ -28,6 +28,12 @@ public final class Constants {
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
 
     public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
+    public static final String UK_EVENT_TYPE_GROUP = "Групова консультація";
+    public static final String UK_EVENT_TYPE_GRADE_BOOK = "Видача залікових книжок";
+    public static final String UK_EVENT_TYPE_PSYCHOLOGIST = "Співбесіда з психологом";
+    public static final String UK_EVENT_TYPE_PRINCIPAL = "Прийом директора";
+    public static final String UK_EVENT_TYPE_TEST = "Написання контрольної роботи";
+    public static final String UK_EVENT_TYPE_COUNCIL = "Педагогічна рада";
 
     public static final Locale LOCALE = new Locale("uk", "UA");
 

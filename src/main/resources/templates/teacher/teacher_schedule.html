@@ -413,8 +413,8 @@
                         <h5>Понеділок
                             <span class="float-right">
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
-                                th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
-                                type="button">
+                                        th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
+                                        type="button">
                                     Новий розклад
                                 </button>
                             </span>
@@ -561,86 +561,87 @@
 <!--Footer content here-->
 <footer class="footer">
     <div class="container text-muted">
-            <div th:replace="fragments/footer :: footer"></div>
+        <div th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 
 <!-- ModalHolder -->
-<div id="newScheduleModalHolder"></div>
+<div id="newScheduleModalHolder">
+    <input type="hidden" th:field="${newEvent}"/>
+</div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
 <div class="modal fade" id="newScheduleModal" role="dialog" th:fragment="newSchedule">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalNewTitle">Створення нового розкладу</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-justify">
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <!--<label for="startOfEvent">Start Date/Time Of Event</label>-->
-                        <!--<input class="form-control" type="time" placeholder="start of event" id="startOfEvent"-->
-                               <!--th:field="${newEvent.startTime}" required>-->
+            <fieldset>
+                <form th:method="post" th:action="@{/teacher/{id}/new-schedule/add(id=${teacher.id})}" th:object="${newEvent}" class="form" id="formNewSchedule">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalNewTitle">Створення нового розкладу</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <select class="custom-select" id="inputGroupSelectEventType">
-                        <option value="1">Індивідуальна консультація</option>
-                        <option value="2">Групова консультація</option>
-                        <option value="3">Видача залікових книжок</option>
-                        <option value="4">Співбесіда з психологом</option>
-                        <option value="5">Прийом директора</option>
-                        <option value="6">Написання контрольної роботи</option>
-                        <option value="7">Педагогічна рада</option>
-                    </select>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-success" type="button">Додати</button>
-                    </div>
-                </div>
+                    <div class="modal-body text-justify">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <input class="form-control" type="time" placeholder="start of event" id="startOfEvent"
+                                       min="9:00" max="20:00" pattern="[0-9]{2}:[0-9]{2}"
+                                       th:field="${newEvent.startTime}" required>
+                            </div>
+                            <select class="select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Event Type
+                                </option>
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-success" type="button">Додати</button>
+                            </div>
+                        </div>
 
-                <table class="col-lg-12 table table-sm table-hover">
-                    <thead>
-                    <tr>
-                        <th>Час</th>
-                        <th class="text-center">Подія</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>09:00-09:30</td>
-                        <td>Індивідуальна консультація
-                            <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>09:30-10:00</td>
-                        <td>Індивідуальна консультація
-                            <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-                <p>
-                    Замінити старий розклад щойно створеним новим?
-                </p>
-            </div>
-            <div class="modal-footer">
-                <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
-                      method="post" id="form3">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Ні, залишити старий
-                    </button>
-                    <button type="submit" class="btn btn-primary" name="action" id="modal-save" value="modal-save">
-                        Так, замінити новим
-                    </button>
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>Час</th>
+                                <th class="text-center">Подія</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>09:00-09:30</td>
+                                <td>Індивідуальна консультація
+                                    <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>09:30-10:00</td>
+                                <td>Індивідуальна консультація
+                                    <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p>
+                            Замінити старий розклад щойно створеним новим?
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Ні, залишити старий
+                        </button>
+                        <button type="submit" class="btn btn-primary" name="action" id="save" value="save">
+                            Так, замінити новим
+                        </button>
+                    </div>
                 </form>
-            </div>
+            </fieldset>
         </div>
     </div>
 </div>

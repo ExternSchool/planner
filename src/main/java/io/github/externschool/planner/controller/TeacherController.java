@@ -137,7 +137,8 @@ public class TeacherController {
             modelAndView.addObject("currentWeekEvents", currentWeekEvents);
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
             modelAndView.addObject("standardWeekEvents", standardWeekEvents);
-
+            modelAndView.addObject("newEvent",
+                    ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
         }
 
         return modelAndView;
@@ -152,8 +153,7 @@ public class TeacherController {
                                                final Principal principal) {
 
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
-        List<ScheduleEventType> types = typeService.loadEventTypes();
-        model.addAttribute("eventTypes", types);
+        model.addAttribute("eventTypes", typeService.loadEventTypes());
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(LocalDate.MIN.plusDays(dayOfWeek))
                 .withCreated(LocalDateTime.now())
@@ -165,6 +165,17 @@ public class TeacherController {
 
         return new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
     }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @PostMapping(value = "/{id}/new-schedule/add", params = "action=save")
+    public ModelAndView processTeacherScheduleModalFormSave(@PathVariable("id") Long id,
+                                                            @ModelAttribute("newEvent") ScheduleEventDTO newEvent,
+                                                            final Principal principal) {
+        // TODO Add new schedule event
+
+        return displayTeacherSchedule(id, principal);
+    }
+
 
     // TODO replace this method with ScheduleToScheduleDTO converter
     // public access in test purpose only
@@ -193,14 +204,6 @@ public class TeacherController {
                         e.getTitle(),
                         e.getCreatedAt()))
                 .collect(Collectors.toList());
-    }
-
-    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping(value = "/{id}/schedule-modal", params = "action=save")
-    public ModelAndView processTeacherScheduleModalFormSave(@PathVariable("id") Long id,
-                                                      @ModelAttribute("teacher") TeacherDTO teacherDTO,
-                                                      final Principal principal) {
-        return new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
     }
 
     @Secured("ROLE_ADMIN")
