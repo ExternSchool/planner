@@ -19,7 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @Controller
@@ -41,7 +43,7 @@ public class StudyPlanController {
 
     @GetMapping("/")
     public ModelAndView displayAllStudyPlansList(Integer level) {
-        return prepareModelAndView(Optional.ofNullable(level).orElse(0),0L);
+        return prepareModelAndView(OptionalInt.of(level).orElse(0),0L);
     }
 
     @GetMapping("/grade/{level}")
@@ -51,7 +53,10 @@ public class StudyPlanController {
 
     @GetMapping("/{id}")
     public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
-        return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
+        int level = Optional.ofNullable(planService.findById(id))
+                .map(plan -> plan.getGradeLevel().getValue())
+                .orElse(0);
+        return prepareModelAndView(level, id);
     }
 
     @PostMapping(value = "/", params = "action=add")

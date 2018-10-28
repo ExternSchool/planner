@@ -107,7 +107,7 @@ public class TeacherController {
     @GetMapping("/{id}/schedule")
     public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id,
                                                final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
 
         if (optionalUser != null && optionalUser.isPresent()) {
@@ -148,7 +148,7 @@ public class TeacherController {
                                                   @PathVariable("eid") Long eventId,
                                                   ModelMap model,
                                                   final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
         if (optionalUser != null && optionalUser.isPresent() && event != null) {
@@ -167,7 +167,7 @@ public class TeacherController {
                                                        @PathVariable("day") int dayOfWeek,
                                                        ModelMap model,
                                                        final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
@@ -194,7 +194,7 @@ public class TeacherController {
                                                                 @PathVariable("day") int dayOfWeek,
                                                                 ModelMap model,
                                                                 final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             model.addAttribute(
@@ -213,7 +213,7 @@ public class TeacherController {
                                                            @PathVariable("day") int dayOfWeek,
                                                            ModelMap model,
                                                            final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
             // TODO remove all events from Current Week Schedule
@@ -232,7 +232,7 @@ public class TeacherController {
                                                              @PathVariable("day") int dayOfWeek,
                                                              ModelMap model,
                                                              final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             model.addAttribute(
@@ -251,7 +251,7 @@ public class TeacherController {
                                                         @PathVariable("day") int dayOfWeek,
                                                         ModelMap model,
                                                         final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
             // TODO remove all events from Next Week Schedule
@@ -271,7 +271,7 @@ public class TeacherController {
                                                                 @ModelAttribute("newEvent") ScheduleEventDTO newEvent,
                                                                 ModelMap model,
                                                                 final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             ScheduleEventDTO anEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
@@ -325,7 +325,7 @@ public class TeacherController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
     public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id, final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Teacher teacher = teacherService.findTeacherById(id);
         if(teacher != null) {
             TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
@@ -344,7 +344,7 @@ public class TeacherController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
     public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        ModelAndView modelAndView = redirectByRole(principal);
         Teacher teacher = teacherService.findTeacherById(id);
         if(teacher != null) {
             //TODO Add deletion confirmation
@@ -367,13 +367,13 @@ public class TeacherController {
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(principal);
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping(value = "/update")
     public ModelAndView processTeacherProfileFormCancel(final Principal principal) {
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(principal);
     }
 
     @Secured("ROLE_ADMIN")
@@ -416,12 +416,15 @@ public class TeacherController {
                 .orElse(false);
     }
 
-    private ModelAndView redirectByRole(User user) {
-        if (user != null && user.getEmail() != null) {
-            User userFound = userService.findUserByEmail(user.getEmail());
-            if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+    private ModelAndView redirectByRole(Principal principal) {
+        if (principal != null) {
+            User user = userService.findUserByEmail(principal.getName());
+            if (user != null && user.getEmail() != null) {
+                User userFound = userService.findUserByEmail(user.getEmail());
+                if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 
-                return new ModelAndView("redirect:/teacher/");
+                    return new ModelAndView("redirect:/teacher/");
+                }
             }
         }
 
