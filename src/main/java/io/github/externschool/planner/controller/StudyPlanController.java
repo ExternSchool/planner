@@ -89,9 +89,15 @@ public class StudyPlanController {
     }
 
     private ModelAndView prepareModelAndView(Integer level, Long planId) {
+        if (level == null) {
+            level = 0;
+        }
+        if (planId == null) {
+            planId = 0L;
+        }
         List<StudyPlanDTO> plans = Optional.of((level == 0
-                ? planService.findAll().stream()
-                : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
+                    ? planService.findAll().stream()
+                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
