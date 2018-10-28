@@ -1,6 +1,5 @@
 package io.github.externschool.planner.converter;
 
-import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Student;

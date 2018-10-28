@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Teacher Profile</title>
     <meta charset="utf-8">
@@ -100,7 +99,7 @@
                             Навчальні предмети (утримуйте Ctrl, щоб вибрати декілька)</label>
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
-                                    th:field="*{schoolSubjects}" size="12"
+                                    th:field="*{schoolSubjects}" size="14"
                                     th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <option th:each="subject : ${allSubjects}"
                                         th:value="${{subject}}"
@@ -135,10 +134,8 @@
 
 <!--Footer content here-->
 <footer class="footer">
-    <div class="container">
-        <span class="text-muted">
-            <div th:replace="fragments/footer :: footer"></div>
-        </span>
+    <div class="container text-muted">
+        <div th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
 

@@ -7,7 +7,6 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
-import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -37,6 +36,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 
 @Controller
@@ -108,22 +108,20 @@ public class TeacherController {
     public ModelAndView displayTeacherSchedule(@PathVariable("id") Long id,
                                                final Principal principal) {
         ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
-        Optional<User> optionalUser = Optional.ofNullable(teacherService.findTeacherById(id))
-                .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
-                .orElse(null);
+        Optional<User> optionalUser = getOptionalUser(id);
 
         if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
             TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
             List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
             List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
-            // standard week schedule has no real date to start, so MIN value is used
-            List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(LocalDate.MIN);
+            // standard week schedule has no real date to start, so FIRST_MONDAY_OF_EPOCH is used
+            List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(FIRST_MONDAY_OF_EPOCH);
             List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
 
-            User user = optionalUser.get();
             currentWeek.forEach(date ->
                     currentWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
             nextWeek.forEach(date ->
@@ -144,36 +142,154 @@ public class TeacherController {
         return modelAndView;
     }
 
-    // TODO Complete and add a test
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping("/{id}/new-schedule/{day}")
-    public ModelAndView displayTeacherNewScheduleModal(@PathVariable("id") Long id,
-                                               @PathVariable("day") Long dayOfWeek,
-                                               ModelMap model,
-                                               final Principal principal) {
+    @GetMapping("/{id}/event/{eid}/delete")
+    public ModelAndView processTeacherEventDelete(@PathVariable("id") Long id,
+                                                  @PathVariable("eid") Long eventId,
+                                                  ModelMap model,
+                                                  final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        ScheduleEvent event = scheduleService.getEventById(eventId);
+        if (optionalUser != null && optionalUser.isPresent() && event != null) {
+            // TODO remove an event from Standard Schedule
+            System.out.println("\n\n" + "DELETE an event from Standard Schedule, id:" + eventId + "\n\n");
 
-        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
-        model.addAttribute("eventTypes", typeService.loadEventTypes());
-        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withDate(LocalDate.MIN.plusDays(dayOfWeek))
-                .withCreated(LocalDateTime.now())
-                .withIsOpen(true)
-                .withTitle(teacherService.findTeacherById(id).getShortName())
-                .build();
-        model.addAttribute("newEvent", newEvent);
-        model.addAttribute("teacher", teacherDTO);
+            modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
+        }
 
-        return new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
+        return modelAndView;
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping(value = "/{id}/new-schedule/add", params = "action=save")
-    public ModelAndView processTeacherScheduleModalFormSave(@PathVariable("id") Long id,
-                                                            @ModelAttribute("newEvent") ScheduleEventDTO newEvent,
-                                                            final Principal principal) {
-        // TODO Add new schedule event
+    @GetMapping("/{id}/new-schedule/{day}")
+    public ModelAndView displayTeacherNewScheduleModal(@PathVariable("id") Long id,
+                                                       @PathVariable("day") int dayOfWeek,
+                                                       ModelMap model,
+                                                       final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            model.addAttribute("eventTypes", typeService.loadEventTypes());
+            model.addAttribute(
+                    "newEvent",
+                    ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
+            model.addAttribute(
+                    "teacher",
+                    conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
+            model.addAttribute("thisDay", dayOfWeek);
+            model.addAttribute(
+                    "thisDayEvents",
+                    convertToDTO(scheduleService.getEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
+            modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
+        }
 
-        return displayTeacherSchedule(id, principal);
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/current-week/{day}")
+    public ModelAndView displayTeacherDeleteCurrentWeekDayModal(@PathVariable("id") Long id,
+                                                                @PathVariable("day") int dayOfWeek,
+                                                                ModelMap model,
+                                                                final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            model.addAttribute(
+                    "teacher",
+                    conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
+            model.addAttribute("thisDay", dayOfWeek);
+            modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteCurrentWeekDay", model);
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/current-week/{day}/delete")
+    public ModelAndView processTeacherDeleteCurrentWeekDay(@PathVariable("id") Long id,
+                                                           @PathVariable("day") int dayOfWeek,
+                                                           ModelMap model,
+                                                           final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
+            // TODO remove all events from Current Week Schedule
+            System.out.println("\n\n" + "DELETE all events from Current Week Schedule, date:" +
+                    scheduleService.getCurrentWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+
+            modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/next-week/{day}")
+    public ModelAndView displayTeacherDeleteNextWeekDayModal(@PathVariable("id") Long id,
+                                                             @PathVariable("day") int dayOfWeek,
+                                                             ModelMap model,
+                                                             final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            model.addAttribute(
+                    "teacher",
+                    conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
+            model.addAttribute("thisDay", dayOfWeek);
+            modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteNextWeekDay", model);
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/next-week/{day}/delete")
+    public ModelAndView processTeacherDeleteNextWeekDay(@PathVariable("id") Long id,
+                                                        @PathVariable("day") int dayOfWeek,
+                                                        ModelMap model,
+                                                        final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
+            // TODO remove all events from Next Week Schedule
+            System.out.println("\n\n" + "DELETE all events from Next Week Schedule, date:" +
+                    scheduleService.getNextWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+
+            modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @PostMapping(value = "/{id}/new-schedule/{day}/add")
+    public ModelAndView processTeacherScheduleModalFormAddEvent(@PathVariable("id") Long id,
+                                                                @PathVariable("day") int dayOfWeek,
+                                                                @ModelAttribute("newEvent") ScheduleEventDTO newEvent,
+                                                                ModelMap model,
+                                                                final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Optional<User> optionalUser = getOptionalUser(id);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            ScheduleEventDTO anEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                    .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))
+                    .withCreated(LocalDateTime.now())
+                    .withIsOpen(true)
+                    .withTitle(teacherService.findTeacherById(id).getShortName())
+                    .withDescription(newEvent.getEventType())
+                    .withEventType(newEvent.getEventType())
+                    .withStartTime(newEvent.getStartTime())
+                    .build();
+
+            // TODO Add duration in dependence to the schedule event type
+            scheduleService.createEventWithDuration(optionalUser.get(), anEvent, 45);
+            modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
+        }
+
+        return modelAndView;
     }
 
 
@@ -255,9 +371,11 @@ public class TeacherController {
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/new-key")
     public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id) {
-        //When key change confirmed:
-        //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
-        //user receives Guest role
+        /*
+          When key change confirmed:
+          DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
+          user receives Guest role
+         */
         TeacherDTO teacherDTO = Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
                 .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
@@ -300,5 +418,11 @@ public class TeacherController {
         }
 
         return new ModelAndView("redirect:/");
+    }
+
+    private Optional<User> getOptionalUser(final Long id) {
+        return Optional.ofNullable(teacherService.findTeacherById(id))
+                .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
+                .orElse(null);
     }
 }

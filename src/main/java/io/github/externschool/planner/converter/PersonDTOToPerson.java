@@ -1,7 +1,6 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.PersonDTO;
-import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.converter.Converter;

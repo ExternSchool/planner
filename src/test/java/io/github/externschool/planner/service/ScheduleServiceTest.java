@@ -140,4 +140,43 @@ public class ScheduleServiceTest {
                 .isNotNull()
                 .containsSequence(expectedEvents);
     }
+
+    @Test
+    public void shouldReturnEventById() {
+        long id = 100500L;
+        ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        expectedEvent.setId(id);
+
+        Mockito.when(eventRepo.getOne(id))
+                .thenReturn(expectedEvent);
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .isEqualTo(expectedEvent);
+    }
+
+    @Test
+    public void shouldDeleteEventById() {
+        long id = 100500L;
+        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        anEvent.setId(id);
+
+        when(this.eventRepo.getOne(id))
+                .thenReturn(anEvent)
+                .thenReturn(null);
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .isEqualTo(anEvent);
+
+        scheduleService.deleteEvent(id);
+        actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNull();
+    }
 }

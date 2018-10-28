@@ -1,6 +1,5 @@
 package io.github.externschool.planner.dto;
 
-import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.profile.Gender;
 
 import javax.validation.constraints.NotBlank;

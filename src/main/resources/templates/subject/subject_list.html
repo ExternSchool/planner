@@ -62,7 +62,7 @@
                           th:action="@{/subject/{id}/edit(id=${subject.id})}">
                         <input type="hidden" th:field="${editId}"/>
                         <div class="input-group col-lg-10">
-                            <input class="form-control form-control-sm align-content-start" type="text" id="new_title"
+                            <input class="form-control form-control-sm align-content-start" type="text" id="subj_title"
                                    th:value="${subject.title}" th:name="new_title">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-success btn-sm" type="submit">Ввести</button>

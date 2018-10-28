@@ -72,11 +72,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // TODO need case when event with this type is not found
         ScheduleEventType type = this.eventTypeRepo.findByName(eventDTO.getEventType());
-
         canUserCreateEventForType(owner, type);
 
         ScheduleEvent newEvent = ScheduleEvent.builder()
                 .withTitle(eventDTO.getTitle())
+                .withDescription(eventDTO.getDescription())
                 .withStartDateTime(LocalDateTime.of(eventDTO.getDate(), eventDTO.getStartTime()))
                 .withEndDateTime(LocalDateTime.of(eventDTO.getDate(),
                         eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES))))
@@ -100,6 +100,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         return this.eventRepo.save(event);
+    }
+
+    @Override
+    public ScheduleEvent getEventById(long id) {
+        return eventRepo.getOne(id);
     }
 
     @Override
@@ -143,5 +148,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         return eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner,
                 date.atStartOfDay(),
                 date.atTime(LocalTime.MAX));
+    }
+
+    @Override
+    public void deleteEvent(long id) {
+        eventRepo.deleteById(id);
     }
 }

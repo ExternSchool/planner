@@ -19,6 +19,8 @@ public interface ScheduleService {
 
     ScheduleEvent addParticipant(User participant, ScheduleEvent event);
 
+    ScheduleEvent getEventById(long id);
+
     LocalDate getCurrentWeekFirstDay();
 
     LocalDate getNextWeekFirstDay();
@@ -26,4 +28,6 @@ public interface ScheduleService {
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
 
     List<ScheduleEvent> getEventsByOwnerAndDate(User owner, LocalDate date);
+
+    void deleteEvent(long id);
 }

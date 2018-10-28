@@ -1,5 +1,6 @@
 package io.github.externschool.planner.util;
 
+import java.time.LocalDate;
 import java.util.Locale;
 
 public final class Constants {
@@ -36,6 +37,8 @@ public final class Constants {
     public static final String UK_EVENT_TYPE_COUNCIL = "Педагогічна рада";
 
     public static final Locale LOCALE = new Locale("uk", "UA");
+
+    public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
 
     private Constants() {
         throw new AssertionError();

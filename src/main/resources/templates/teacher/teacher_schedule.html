@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Teacher Schedule</title>
     <meta charset="utf-8">
@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-    <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>-->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
@@ -56,8 +56,9 @@
                         <h5>Понеділок
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[0])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -90,8 +91,9 @@
                         <h5>Вівторок
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[1])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 1 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -124,8 +126,9 @@
                         <h5>Середа
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[2])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 2 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -158,8 +161,9 @@
                         <h5>Четвер
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[3])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 3 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -192,8 +196,9 @@
                         <h5>П'ятниця
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[4])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 4 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -234,8 +239,9 @@
                         <h5>Понеділок
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[0])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -268,8 +274,9 @@
                         <h5>Вівторок
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[1])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 1 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -302,8 +309,9 @@
                         <h5>Середа
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[2])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 2 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -336,8 +344,9 @@
                         <h5>Четвер
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[3])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 3 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -370,8 +379,9 @@
                         <h5>П'ятниця
                             <span class="float-right">
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[4])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3" data-toggle="modal"
-                                        data-target="#modalDelete" type="button">
+                                        class="float-left btn btn-sm btn-outline-danger mr-3"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 4 + '\');'"
+                                        type="button">
                                     Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
@@ -401,7 +411,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <small class="text-muted">Останнє оновлення: 2018-10-16</small>
+                <small class="text-muted">Останнє оновлення: 2018-10-27</small>
             </div>
         </div>
 
@@ -415,7 +425,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
                                         type="button">
-                                    Новий розклад
+                                    Додати
                                 </button>
                             </span>
                         </h5>
@@ -426,12 +436,19 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${standardWeekEvents[0]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-right">
+                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -444,7 +461,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 1 + '\');'"
                                         type="button">
-                                    Новий розклад
+                                    Додати
                                 </button>
                             </span>
                         </h5>
@@ -455,12 +472,19 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${standardWeekEvents[1]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-right">
+                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -473,7 +497,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 2 + '\');'"
                                         type="button">
-                                    Новий розклад
+                                    Додати
                                 </button>
                             </span>
                         </h5>
@@ -484,12 +508,19 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${standardWeekEvents[2]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-right">
+                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -502,7 +533,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 3 + '\');'"
                                         type="button">
-                                    Новий розклад
+                                    Додати
                                 </button>
                             </span>
                         </h5>
@@ -513,12 +544,19 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${standardWeekEvents[3]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-right">
+                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -531,7 +569,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + 4 + '\');'"
                                         type="button">
-                                    Новий розклад
+                                    Додати
                                 </button>
                             </span>
                         </h5>
@@ -542,12 +580,19 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${standardWeekEvents[4]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-right">
+                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </a>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -566,93 +611,82 @@
 </footer>
 
 <!-- ModalHolder -->
-<div id="newScheduleModalHolder">
-    <input type="hidden" th:field="${newEvent}"/>
-</div>
+<div id="newScheduleModalHolder"></div>
+<div id="deleteEventModalHolder"></div>
+<div id="deleteCurrentModalHolder"></div>
+<div id="deleteNextModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
 <div class="modal fade" id="newScheduleModal" role="dialog" th:fragment="newSchedule">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <fieldset>
-                <form th:method="post" th:action="@{/teacher/{id}/new-schedule/add(id=${teacher.id})}" th:object="${newEvent}" class="form" id="formNewSchedule">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalNewTitle">Створення нового розкладу</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body text-justify">
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <input class="form-control" type="time" placeholder="start of event" id="startOfEvent"
-                                       min="9:00" max="20:00" pattern="[0-9]{2}:[0-9]{2}"
-                                       th:field="${newEvent.startTime}" required>
-                            </div>
-                            <select class="select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
-                                <option th:each="type : ${eventTypes}"
-                                        th:value="${type.name}"
-                                        th:text="${type.name}">
-                                    Event Type
-                                </option>
-                            </select>
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-success" type="button">Додати</button>
-                            </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNewTitle">Створення нового розкладу</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <form th:method="post"
+                      th:action="@{/teacher/{id}/new-schedule/{day}/add(id=${teacher.id}, day=${thisDay})}"
+                      th:object="${newEvent}" class="form" id="formNewEvent">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <input class="form-control" type="time" placeholder="start of event" id="startOfEvent"
+                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
-
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th>Час</th>
-                                <th class="text-center">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>09:00-09:30</td>
-                                <td>Індивідуальна консультація
-                                    <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>09:30-10:00</td>
-                                <td>Індивідуальна консультація
-                                    <button type="submit" name="delete" value="delete" class="float-right btn badge badge-danger">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        <p>
-                            Замінити старий розклад щойно створеним новим?
-                        </p>
+                        <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
+                            <option th:each="type : ${eventTypes}"
+                                    th:value="${type.name}"
+                                    th:text="${type.name}">
+                                Event Type
+                            </option>
+                        </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Ні, залишити старий
+                            Скасувати
                         </button>
-                        <button type="submit" class="btn btn-primary" name="action" id="save" value="save">
-                            Так, замінити новим
+                        <button type="submit" class="btn btn-primary">
+                            Додати нову подію
                         </button>
                     </div>
                 </form>
-            </fieldset>
+            </div>
         </div>
     </div>
 </div>
-<!-- / Modal -->
 
-<!-- Modal -->
-<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="modalDeleteTitle" aria-hidden="true">
+<!-- TODO Complete this modal and use it to confirm evenе deletion -->
+<div class="modal fade" id="deleteEventModal" role="dialog" th:fragment="deleteEvent">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalDeleteTitle">Скасування розкладу</h5>
+                <h5 class="modal-title" id="deleteEventModalTitle">Вилучення події з розкладу</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Повернутися до розкладу
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Вилучити подію
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteCurrentModal" role="dialog" th:fragment="deleteCurrentWeekDay">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCurrentModalTitle">Скасування розкладу</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -668,22 +702,52 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <form class="form" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-modal(id=${teacher.id})}"
-                      method="post" id="form2">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Ні, дякую
-                    </button>
-                    <button type="submit" class="btn btn-primary" name="action" id="modal-cancel" value="modal-cancel">
-                        Так, скасувати!
-                    </button>
-                </form>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Ні, дякую
+                </button>
+                <a th:href="@{/teacher/{id}/current-week/{day}/delete(id=${teacher.id}, day=${thisDay})}"
+                   class="btn btn-primary">
+                    Так, скасувати!
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteNextModal" role="dialog" th:fragment="deleteNextWeekDay">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteNextModalTitle">Скасування розкладу</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p>
+                    Виконання цієї дії приведе<br>
+                    до скасування всіх призначень на цей день!<br>
+                    Будь ласка, попередьте всіх записаних відвідувачів
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте скасувати розклад на цей день?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Ні, дякую
+                </button>
+                <a th:href="@{/teacher/{id}/next-week/{day}/delete(id=${teacher.id}, day=${thisDay})}"
+                   class="btn btn-primary">
+                    Так, скасувати!
+                </a>
             </div>
         </div>
     </div>
 </div>
 <!-- / Modal -->
 
-<script src="/js/openNewScheduleModal.js"></script>
+<script src="/js/teacherScheduleModals.js"></script>
 
 </body>
 </html>

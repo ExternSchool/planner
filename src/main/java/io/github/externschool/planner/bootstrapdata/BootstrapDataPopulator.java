@@ -11,9 +11,9 @@ import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
-import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
@@ -23,7 +23,6 @@ import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +37,9 @@ import java.util.List;
 import java.util.Set;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_GROUP;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSONAL;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PRINCIPAL;
 
 @Service
 @ExcludeFromTests
@@ -185,7 +186,18 @@ public class BootstrapDataPopulator implements InitializingBean {
 
         Set<User> eventUsers = new HashSet<>();
         eventUsers.add(presetStudent);
-        createScheduleEventsWithSetOfUsers(admin, eventUsers);
+        createScheduleEventsWithSetOfUsers(
+                admin,
+                eventUsers,
+                LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
+                        ? LocalDate.now().plusDays(-2L)
+                        : LocalDate.now());
+        createScheduleEventsWithSetOfUsers(
+                admin,
+                eventUsers,
+                LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
+                        ? LocalDate.now().plusDays(5L)
+                        : LocalDate.now().plusDays(7L));
     }
 
     private Teacher createTeacher(Person person, VerificationKey key, String officerName, List<String> subjectsNames) {
@@ -222,56 +234,60 @@ public class BootstrapDataPopulator implements InitializingBean {
     }
     
     private void createScheduleEventType() {
-        ScheduleEventType eventType = new ScheduleEventType("TestEvent", 1);
+        ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
         this.eventTypeRepository.save(eventType);
 
-        eventType = new ScheduleEventType("TestGroupEvent", 2);
+        eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
         this.eventTypeRepository.save(eventType);
 
-        eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
+        eventType = new ScheduleEventType(UK_EVENT_TYPE_PRINCIPAL, 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
         this.eventTypeRepository.save(eventType);
     }
 
-    private void createScheduleEventsWithSetOfUsers(final User owner, final Set<User> participants) {
-        ScheduleEventDTO eventOne =  new ScheduleEventDTO(
-                null,
-                LocalDate.now(),
-                LocalTime.of(9, 0),
-                "",
-                true,
-                "TestGroupEvent",
-                "Test-1",
-                LocalDateTime.now());
-        ScheduleEventDTO eventTwo = new ScheduleEventDTO(
-                null,
-                LocalDate.now(),
-                LocalTime.of(9,30),
-                UK_EVENT_TYPE_PERSONAL,
-                true,
-                UK_EVENT_TYPE_PERSONAL,
-                UK_EVENT_TYPE_PERSONAL,
-                LocalDateTime.now());
+    private void createScheduleEventsWithSetOfUsers(final User owner,
+                                                    final Set<User> participants,
+                                                    final LocalDate date) {
+
+        ScheduleEventDTO eventOne =  ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(date)
+                .withStartTime(LocalTime.of(9,0))
+                .withEventType(UK_EVENT_TYPE_PRINCIPAL)
+                .withDescription(UK_EVENT_TYPE_PRINCIPAL)
+                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
+        ScheduleEventDTO eventTwo = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(date)
+                .withStartTime(LocalTime.of(9,30))
+                .withEventType(UK_EVENT_TYPE_GROUP)
+                .withDescription(UK_EVENT_TYPE_GROUP)
+                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
+
         participants.forEach(user -> scheduleService.addParticipant(
-                        user,
-                        scheduleService.createEventWithDuration(owner, eventOne, 25)));
+                user,
+                scheduleService.createEventWithDuration(owner, eventOne, 25)));
         participants.stream()
                 .findAny()
                 .ifPresent(user -> scheduleService.addParticipant(
                         user,
                         scheduleService.createEventWithDuration(owner, eventTwo, 15)));
 
-        ScheduleEventDTO eventThree = new ScheduleEventDTO(
-                null,
-                LocalDate.now(),
-                LocalTime.of(9,45),
-                UK_EVENT_TYPE_PERSONAL,
-                true,
-                UK_EVENT_TYPE_PERSONAL,
-                UK_EVENT_TYPE_PERSONAL,
-                LocalDateTime.now());
+        ScheduleEventDTO eventThree = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(date)
+                .withStartTime(LocalTime.of(9,45))
+                .withEventType(UK_EVENT_TYPE_PERSONAL)
+                .withDescription(UK_EVENT_TYPE_PERSONAL)
+                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
         scheduleService.createEventWithDuration(owner, eventThree, 45);
     }
 }

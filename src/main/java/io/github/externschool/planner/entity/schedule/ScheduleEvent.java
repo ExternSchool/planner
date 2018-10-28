@@ -238,14 +238,14 @@ public class ScheduleEvent {
     @Override
     public String toString() {
         return "ScheduleEvent{" +
-                "id=" + id != null ? id.toString() : "" +
+                "id=" + (id != null ? id.toString() : "") +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", location='" + location + '\'' +
+                ", location='" + (location != null ? location : "") + '\'' +
                 ", startOfEvent=" + startOfEvent +
                 ", endOfEvent=" + endOfEvent +
                 ", createdAt=" + createdAt +
-                ", modifiedAt=" + modifiedAt +
+                ", modifiedAt=" + (modifiedAt != null ? modifiedAt.toString() : "") +
                 ", isOpen=" + isOpen +
                 ", isCancelled=" + isCancelled +
                 ", isAccomplished=" + isAccomplished +
