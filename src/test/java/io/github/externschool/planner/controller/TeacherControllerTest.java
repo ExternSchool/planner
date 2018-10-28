@@ -80,7 +80,7 @@ public class TeacherControllerTest {
     private VerificationKey key;
     private VerificationKey keyNoTeacher;
     private User user;
-    private final String userName = "some@email.com";
+    private static final String USER_NAME = "some@email.com";
     private ScheduleEvent event;
 
     @Before
@@ -117,7 +117,7 @@ public class TeacherControllerTest {
         teacher.addSubject(subject);
         teacherService.saveOrUpdateTeacher(teacher);
 
-        user = userService.createUser(userName,"pass", "ROLE_TEACHER");
+        user = userService.createUser(USER_NAME,"pass", "ROLE_TEACHER");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
 
@@ -128,7 +128,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnTeacherListTemplate_WhenGetRequestRootWithAdminRole() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
@@ -141,7 +141,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "TEACHER")
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldReturnTeacherProfileTemplate_WhenRequestWithTeacherRole() throws Exception {
         mockMvc.perform(get("/teacher/profile"))
                 .andExpect(status().isOk())
@@ -158,7 +158,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "TEACHER")
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldRedirect_WhenShowTeacherScheduleToTeacher() throws Exception {
         mockMvc.perform(get("/teacher/schedule"))
                 .andExpect(status().is3xxRedirection())
@@ -166,7 +166,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_WhenDisplayTeacherSchedule() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/schedule"))
                 .andExpect(status().isOk())
@@ -183,7 +183,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherEventDelete() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
@@ -207,7 +207,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_WhenDisplayTeacherNewScheduleModal() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-schedule/" + 0))
                 .andExpect(status().isOk())
@@ -222,7 +222,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_WhenDisplayTeacherDeleteCurrentWeekDayModal() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0))
                 .andExpect(status().isOk())
@@ -234,7 +234,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
         // TODO complete when Controller method is finished
 
@@ -245,7 +245,7 @@ public class TeacherControllerTest {
 
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_WhenDisplayTeacherDeleteNextWeekDayModal() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0))
                 .andExpect(status().isOk())
@@ -257,7 +257,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
         // TODO complete when Controller method is finished
 
@@ -268,7 +268,7 @@ public class TeacherControllerTest {
 
 
     @Test
-    @WithMockUser(username = userName, roles = {"TEACHER", "ADMIN"})
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherScheduleModalFormAddEvent() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
@@ -318,7 +318,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
@@ -331,7 +331,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "TEACHER")
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldRedirectToRoot_WhenTeacherPostRequestUpdateSave() throws Exception {
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
@@ -341,7 +341,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminGetRequestCancelUpdate() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.saveOrUpdate(user);
@@ -352,7 +352,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "TEACHER")
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldRedirectToRoot_WhenTeacherGetRequestCancelUpdate() throws Exception {
         mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
@@ -360,8 +360,10 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.saveOrUpdate(user);
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
@@ -375,7 +377,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
         mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
                 .andExpect(status().isOk())
@@ -387,7 +389,7 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
         mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
                 .andExpect(status().isOk())

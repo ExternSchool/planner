@@ -324,11 +324,15 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
-    public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id) {
+    public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id, final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
         Teacher teacher = teacherService.findTeacherById(id);
-        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+        if(teacher != null) {
+            TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
+            modelAndView = displayTeacherProfile(teacherDTO);
+        }
 
-        return displayTeacherProfile(teacherDTO);
+        return modelAndView;
     }
 
     @Secured("ROLE_ADMIN")
@@ -339,11 +343,15 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
-    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id) {
-        //TODO Add deletion confirmation
-        teacherService.deleteTeacherById(id);
+    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(userService.findUserByEmail(principal.getName()));
+        Teacher teacher = teacherService.findTeacherById(id);
+        if(teacher != null) {
+            //TODO Add deletion confirmation
+            teacherService.deleteTeacherById(id);
+        }
 
-        return new ModelAndView("redirect:/teacher/");
+        return modelAndView;
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
