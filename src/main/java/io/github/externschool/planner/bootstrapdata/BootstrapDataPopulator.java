@@ -106,7 +106,6 @@ public class BootstrapDataPopulator implements InitializingBean {
         personService.saveOrUpdatePerson(adminPerson);
         userService.saveOrUpdate(admin);
 
-        // Commented to let this teacher be Admin q@q
         User presetTeacher = userService.createUser("t@t", "t", "ROLE_TEACHER");
         presetTeacher.addRole(roleService.getRoleByName("ROLE_OFFICER"));
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
