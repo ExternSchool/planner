@@ -68,4 +68,23 @@ public class ScheduleEventRepositoryIntegrationTest {
                 .hasSize(1)
                 .containsExactly(repository.getOne(1L));
     }
+
+    @Test
+    @SqlGroup(
+            value = {
+                    @Sql("/datasets/user/oneUser.sql"),
+                    @Sql("/datasets/scheduleEventType/oneType.sql"),
+                    @Sql("/datasets/scheduleEvent/oneEvent.sql")
+            }
+    )
+    public void shouldReturnListOfEvents_whenFindAllByOwner() {
+        User owner = new User();
+        owner.setId(1L);
+        List<ScheduleEvent> events = repository.findAllByOwner(owner);
+
+        assertThat(events)
+                .isNotNull()
+                .hasSize(1)
+                .containsExactly(repository.getOne(1L));
+    }
 }

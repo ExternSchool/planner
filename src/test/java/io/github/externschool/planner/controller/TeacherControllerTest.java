@@ -291,7 +291,7 @@ public class TeacherControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
-        Long id = teacherDTO.getId();
+        Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
         mockMvc.perform(post("/teacher/{id}", id))
                 .andExpect(status().isOk())
@@ -362,7 +362,7 @@ public class TeacherControllerTest {
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
-        Long id = teacherDTO.getId();
+        Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
         mockMvc.perform(post("/teacher/{id}/delete", id))
                 .andExpect(status().is3xxRedirection())
@@ -465,7 +465,6 @@ public class TeacherControllerTest {
         teacherService.deleteTeacherById(noTeacher.getId());
         keyService.deleteById(key.getId());
         keyService.deleteById(keyNoTeacher.getId());
-        Optional.ofNullable(event).ifPresent(e -> scheduleService.deleteEvent(e.getId()));
         userService.deleteUser(user);
     }
 }

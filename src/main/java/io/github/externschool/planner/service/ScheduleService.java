@@ -29,5 +29,7 @@ public interface ScheduleService {
 
     List<ScheduleEvent> getEventsByOwnerAndDate(User owner, LocalDate date);
 
+    List<ScheduleEvent> getEventsByOwner(User owner);
+
     void deleteEvent(long id);
 }

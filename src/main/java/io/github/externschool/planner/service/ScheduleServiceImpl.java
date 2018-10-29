@@ -151,6 +151,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public List<ScheduleEvent> getEventsByOwner(User owner) {
+        return eventRepo.findAllByOwner(owner);
+    }
+
+    @Override
     public void deleteEvent(long id) {
         eventRepo.deleteById(id);
     }

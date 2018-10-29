@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -37,6 +41,7 @@ public class UserServiceTest {
     @Mock private RoleService roleService;
     @Mock private VerificationKeyRepository keyRepository;
     @Mock private PersonRepository personRepository;
+    @Mock private ScheduleService scheduleService;
     @Autowired private PasswordEncoder passwordEncoder;
     private UserService userService;
 
@@ -50,8 +55,13 @@ public class UserServiceTest {
 
     @Before
     public void setUp() {
-        userService =
-                new UserServiceImpl(userRepository, roleService, passwordEncoder, keyRepository, personRepository);
+        userService = new UserServiceImpl(
+                userRepository,
+                roleService,
+                passwordEncoder,
+                keyRepository,
+                personRepository,
+                scheduleService);
 
         userDTO = new UserDTO();
         userDTO.setEmail(email);
@@ -100,6 +110,23 @@ public class UserServiceTest {
                 .isEqualTo(expectedUser)
                 .isEqualToComparingFieldByField(expectedUser);
     }
+
+    @Test
+    public void shouldDeleteEvents_WhenDeleteUser() {
+        long id1 = 100500L;
+        long id2 = 100501L;
+        ScheduleEvent eventOne = ScheduleEvent.builder().withOwner(expectedUser).withId(id1).build();
+        ScheduleEvent eventTwo = ScheduleEvent.builder().withOwner(expectedUser).withId(id2).build();
+        Mockito.when(scheduleService.getEventsByOwner(expectedUser))
+                .thenReturn(Arrays.asList(eventOne, eventTwo));
+
+        userService.deleteUser(expectedUser);
+
+        verify(scheduleService, times(1)).deleteEvent(id1);
+        verify(scheduleService, times(1)).deleteEvent(id2);
+        verify(userRepository, times(1)).delete(expectedUser);
+    }
+
 
     @Test(expected = EmailExistsException.class)
     public void shouldThrowEmailExistsException_IfUserExists() {

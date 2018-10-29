@@ -14,7 +14,10 @@ import java.util.List;
  */
 @Repository
 public interface ScheduleEventRepository extends JpaRepository<ScheduleEvent, Long> {
+
     List<ScheduleEvent> findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(User owner,
                                                                                 LocalDateTime startOfEventBeginning,
                                                                                 LocalDateTime startOfEventEnding);
+
+    List<ScheduleEvent> findAllByOwner(User owner);
 }

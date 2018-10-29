@@ -141,6 +141,26 @@ public class ScheduleServiceTest {
                 .containsSequence(expectedEvents);
     }
 
+
+    @Test
+    public void shouldReturnListEvents_whenGetEventsByOwner() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        eventOne.setId(2L);
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        User owner = new User();
+        Mockito.when(
+                eventRepo.findAllByOwner(owner))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
     @Test
     public void shouldReturnEventById() {
         long id = 100500L;
