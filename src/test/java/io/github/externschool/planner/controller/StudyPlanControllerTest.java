@@ -5,9 +5,11 @@ import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +50,7 @@ public class StudyPlanControllerTest {
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private UserService userService;
+    @Autowired VerificationKeyService keyService;
     private StudyPlanController controller;
 
     private MockMvc mockMvc;
@@ -75,6 +78,7 @@ public class StudyPlanControllerTest {
         });
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
+        user.addVerificationKey(keyService.saveOrUpdateKey(new VerificationKey()));
         userService.saveOrUpdate(user);
 
         mockMvc = MockMvcBuilders
