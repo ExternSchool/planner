@@ -42,13 +42,10 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    //TODO remove CascadeType.REMOVE
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
-    //TODO remove CascadeType.REMOVE
-    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
     @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)

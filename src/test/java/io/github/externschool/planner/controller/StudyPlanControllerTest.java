@@ -1,5 +1,6 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.StudyPlanDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
@@ -43,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudyPlanControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private StudyPlanService planService;
