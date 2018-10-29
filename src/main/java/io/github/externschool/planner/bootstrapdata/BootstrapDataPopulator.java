@@ -107,8 +107,9 @@ public class BootstrapDataPopulator implements InitializingBean {
         userService.saveOrUpdate(admin);
 
         // Commented to let this teacher be Admin q@q
-//        key = new VerificationKey();
-//        verificationKeyService.saveOrUpdateKey(key);
+        User presetTeacher = userService.createUser("t@t", "t", "ROLE_TEACHER");
+        presetTeacher.addRole(roleService.getRoleByName("ROLE_OFFICER"));
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Teacher teacher = createTeacher(new Person(
                         null,
                         "Джеймс",
@@ -118,7 +119,10 @@ public class BootstrapDataPopulator implements InitializingBean {
                 key,
                 "Психолог",
                 Collections.singletonList("Теорія когнитивного дисонансу"));
+        teacher.addVerificationKey(key);
+        presetTeacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
+        userService.saveOrUpdate(presetTeacher);
 
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -236,14 +240,17 @@ public class BootstrapDataPopulator implements InitializingBean {
     private void createScheduleEventType() {
         ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
         this.eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
         this.eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_PRINCIPAL, 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType.getCreators().add(roleService.getRoleByName("ROLE_OFFICER"));
         this.eventTypeRepository.save(eventType);
     }
 
