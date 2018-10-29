@@ -32,10 +32,15 @@ public class SchoolSubjectServiceTest {
     private SchoolSubjectServiceImpl service;
 
     private List<SchoolSubject> subjects;
+    private List<SchoolSubject> uaTitles;
+    private SchoolSubject uaSubject1;
+    private SchoolSubject uaSubject2;
+    private SchoolSubject uaSubject3;
+
     private Optional<SchoolSubject> optional;
 
     @Before
-    public void setup(){
+    public void setup() {
         subjects = new ArrayList<>();
         for (long i = 0L; i < 4L; i++) {
             SchoolSubject subject = new SchoolSubject();
@@ -44,6 +49,22 @@ public class SchoolSubjectServiceTest {
             subjects.add(subject);
         }
         optional = Optional.of(subjects.get(0));
+
+        uaSubject1 = new SchoolSubject();
+        uaSubject2 = new SchoolSubject();
+        uaSubject3 = new SchoolSubject();
+
+        String title1 = "Астрономія";
+        String title2 = "Історія";
+        String title3 = "Європейска мова";
+        uaSubject1.setTitle(title1);
+        uaSubject2 .setTitle(title2);
+        uaSubject3.setTitle(title3);
+
+        uaTitles = new ArrayList<>();
+        uaTitles.add(uaSubject3);
+        uaTitles.add(uaSubject2);
+        uaTitles.add(uaSubject1);
     }
 
     @Test
@@ -126,5 +147,20 @@ public class SchoolSubjectServiceTest {
         service.deleteSubjectById(deleted.getId());
 
         verify(repository, times(1)).delete(deleted);
+    }
+
+    @Test
+    public void shouldSortNonAscii_whenFindAllByOrderByTitle(){
+        List<SchoolSubject> expectedList = new ArrayList<>();
+        expectedList.add(uaSubject1);
+        expectedList.add(uaSubject3);
+        expectedList.add(uaSubject2);
+
+        Mockito.when(repository.findAllByOrderByTitle())
+                .thenReturn(expectedList);
+
+        List<SchoolSubject> actualList = repository.findAllByOrderByTitle();
+
+        assertThat(actualList).containsSequence(uaSubject1, uaSubject3, uaSubject2);
     }
 }
