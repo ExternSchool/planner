@@ -48,8 +48,8 @@ public class User implements Serializable {
     @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @OneToOne(fetch = FetchType.LAZY)
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
@@ -160,7 +160,6 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-//                ", version=" + version +
                 ", email='" + email + '\'' +
                 ", roles=" + roles.stream().map(Role::getName).collect(Collectors.joining(",")) +
                 ", verificationKey=" + (verificationKey != null ? verificationKey.getValue() : "") +
