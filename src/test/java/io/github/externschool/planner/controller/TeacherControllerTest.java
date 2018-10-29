@@ -379,7 +379,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + noTeacher.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -391,7 +391,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + noTeacher.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
