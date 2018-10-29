@@ -57,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 public class TeacherControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private TeacherService teacherService;

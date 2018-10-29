@@ -29,6 +29,7 @@ public class EmailServiceTest {
         scheduleEvent.setCancelled(true);
     }
 
+    //TODO Refactor this
     @Test
     public void shouldSendCancellationMail(){
 

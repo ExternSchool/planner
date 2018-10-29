@@ -37,7 +37,8 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     @Override
     public List<SchoolSubject> findAllByOrderByTitle() {
         List<SchoolSubject> schoolSubjects = subjectRepository.findAllByOrderByTitle();
-        schoolSubjects.sort((s1, s2)-> CollatorHolder.getUaCollator().compare(s1.getTitle(), s2.getTitle()));
+        // TODO Fix this
+//        schoolSubjects.sort((s1, s2)-> CollatorHolder.getUaCollator().compare(s1.getTitle(), s2.getTitle()));
         return schoolSubjects;
     }
 

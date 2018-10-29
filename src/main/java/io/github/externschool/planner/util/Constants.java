@@ -40,8 +40,8 @@ public final class Constants {
 
     public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
 
-    public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічи";
-    public static final String APPOINTMENT_CANCELLATION_TEXT = "Вибачте, але наша зустріч відмінена.";
+    public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі";
+    public static final String APPOINTMENT_CANCELLATION_TEXT = "Вибачте, але наша зустріч відмінена. ";
 
     private Constants() {
         throw new AssertionError();
