@@ -87,11 +87,17 @@ public class TeacherController {
     @Secured("ROLE_TEACHER")
     @GetMapping("/profile")
     public ModelAndView displayTeacherProfileForTeacher(final Principal principal) {
-        final User user = userService.findUserByEmail(principal.getName());
-        Long id = user.getVerificationKey().getPerson().getId();
-        TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+        ModelAndView modelAndView = redirectByRole(principal);
+        Long id = Optional.ofNullable(userService.findUserByEmail(principal.getName())
+                .getVerificationKey().getPerson().getId())
+                .orElse(0L);
 
-        return displayTeacherProfile(teacherDTO);
+        Teacher teacher = teacherService.findTeacherById(id);
+        if (teacher != null) {
+            modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
+        }
+
+        return modelAndView;
     }
 
     @Secured("ROLE_TEACHER")
@@ -326,7 +332,7 @@ public class TeacherController {
     @PostMapping("/{id}")
     public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id, final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
-        Teacher teacher = teacherService.findTeacherById(id);
+        Teacher teacher = teacherService.findTeacherById(Optional.ofNullable(id).orElse(0L));
         if(teacher != null) {
             TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
             modelAndView = displayTeacherProfile(teacherDTO);
@@ -378,7 +384,11 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/new-key")
-    public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id) {
+    public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id, Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        if (id == null) {
+            return modelAndView;
+        }
         /*
           When key change confirmed:
           DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
@@ -395,7 +405,7 @@ public class TeacherController {
                     userService.saveOrUpdate(user);
                 });
 
-        ModelAndView modelAndView = displayTeacherProfile(teacherDTO);
+        modelAndView = displayTeacherProfile(teacherDTO);
         modelAndView.addObject("isNew", true);
 
         return modelAndView;

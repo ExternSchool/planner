@@ -19,9 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
 @Controller
@@ -43,7 +41,7 @@ public class StudyPlanController {
 
     @GetMapping("/")
     public ModelAndView displayAllStudyPlansList(Integer level) {
-        return prepareModelAndView(OptionalInt.of(level).orElse(0),0L);
+        return prepareModelAndView(Optional.ofNullable(level).orElse(0),0L);
     }
 
     @GetMapping("/grade/{level}")
