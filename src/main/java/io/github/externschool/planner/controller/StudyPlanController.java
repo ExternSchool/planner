@@ -41,20 +41,20 @@ public class StudyPlanController {
 
     @GetMapping("/")
     public ModelAndView displayAllStudyPlansList(Integer level) {
-        return prepareModelAndView(Optional.ofNullable(level).orElse(0),0L);
+        return prepareModelAndView(level == null ? 0 : level,0L);
     }
 
     @GetMapping("/grade/{level}")
     public ModelAndView displayStudyPlansListByGrade(@PathVariable("level") Integer level) {
-        return displayAllStudyPlansList(level);
+        return displayAllStudyPlansList(level == null ? 0 : level);
     }
 
     @GetMapping("/{id}")
     public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
-        int level = Optional.ofNullable(planService.findById(id))
-                .map(plan -> plan.getGradeLevel().getValue())
-                .orElse(0);
-        return prepareModelAndView(level, id);
+        if (id == null || planService.findById(id) == null) {
+            return prepareModelAndView(0, 0L);
+        }
+        return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
     }
 
     @PostMapping(value = "/", params = "action=add")

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -125,7 +126,8 @@ public class StudyPlanControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetDisplayStudyPlansListActionEdit() throws Exception {
         StudyPlanDTO plan = conversionService.convert(plans.get(0), StudyPlanDTO.class);
-        Long id = plan.getId();
+        Long id = Optional.ofNullable(plan).map(StudyPlanDTO::getId).orElse(0L);
+
         mockMvc.perform(get("/plan/" + id))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
@@ -166,7 +168,7 @@ public class StudyPlanControllerTest {
         map.add("subject", subject.getId().toString());
         map.add("title", newTitle);
         map.add("action", "save");
-        Integer previousSize = planService.findAll().size();
+        int previousSize = planService.findAll().size();
         StudyPlan newPlan = new StudyPlan();
         BeanUtils.copyProperties(plan, newPlan);
         newPlan.setTitle(newTitle);
