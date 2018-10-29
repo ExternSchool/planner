@@ -42,17 +42,14 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    //TODO remove CascadeType.REMOVE
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
-    //TODO remove CascadeType.REMOVE
-    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @OneToOne(fetch = FetchType.LAZY)
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
@@ -163,7 +160,6 @@ public class User implements Serializable {
     public String toString() {
         return "User{" +
                 "id=" + id +
-//                ", version=" + version +
                 ", email='" + email + '\'' +
                 ", roles=" + roles.stream().map(Role::getName).collect(Collectors.joining(",")) +
                 ", verificationKey=" + (verificationKey != null ? verificationKey.getValue() : "") +
