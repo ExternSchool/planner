@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <name>planner</name>
-    <description>This project helps to organize visit planning process in ExternSchool in Kiev</description>
+    <description>This project helps to organize visit planning process to Extern School in Kiev</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -40,6 +40,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

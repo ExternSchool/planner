@@ -103,11 +103,15 @@ public class ScheduleEventType {
     @Override
     public String toString() {
         return "ScheduleEventType{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", creators=" + creators +
-                ", participants=" + participants +
-                ", countOfParticipant=" + countOfParticipant +
+                "id=" + (id != null ? id.toString() : "") +
+                ", name='" + paramToString(name) + '\'' +
+                ", creators=" + paramToString(creators) +
+                ", participants=" + (participants != null ? participants.size() : "") +
+                ", countOfParticipant=" + paramToString(countOfParticipant) +
                 '}';
+    }
+
+    private String paramToString(Object param) {
+        return (param != null ? param.toString() : "");
     }
 }

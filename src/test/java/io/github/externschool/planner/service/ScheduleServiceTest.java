@@ -18,6 +18,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.Period;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,21 +31,17 @@ import static org.mockito.Mockito.when;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
+ * @author Benkoff (mailto.benkoff@gmail.com)
  */
 public class ScheduleServiceTest {
-
-    @Mock
-    private ScheduleEventTypeRepository eventTypeRepo;
-
-    @Mock
-    private ScheduleEventRepository eventRepo;
-
-    private ScheduleService scheduleSrv;
+    @Mock private ScheduleEventTypeRepository eventTypeRepo;
+    @Mock private ScheduleEventRepository eventRepo;
+    private ScheduleService scheduleService;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.scheduleSrv = new ScheduleServiceImpl(this.eventRepo, this.eventTypeRepo);
+        this.scheduleService = new ScheduleServiceImpl(this.eventRepo, this.eventTypeRepo);
     }
 
     @Test
@@ -58,7 +60,7 @@ public class ScheduleServiceTest {
         eventType.getCreators().add(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
         when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
-        ScheduleEvent event = this.scheduleSrv.createEvent(user, eventReq);
+        ScheduleEvent event = this.scheduleService.createEvent(user, eventReq);
 
         assertThat(event)
                 .isNotNull()
@@ -74,6 +76,127 @@ public class ScheduleServiceTest {
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
         when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
-        this.scheduleSrv.createEvent(user, eventReq);
+        this.scheduleService.createEvent(user, eventReq);
+    }
+
+    @Test
+    public void shouldReturnCurrentWeekFirstDay() {
+        LocalDate firstDayCurrentWeek = scheduleService.getCurrentWeekFirstDay();
+        LocalDate firstDayNextWeek = scheduleService.getNextWeekFirstDay();
+
+        assertThat(firstDayCurrentWeek)
+                .isNotNull()
+                .isInstanceOf(LocalDate.class)
+                .isBefore(firstDayNextWeek)
+                .isBetween(LocalDate.now().minus(Period.of(0,0,6)), LocalDate.now());
+    }
+
+    @Test
+    public void shouldReturnNextWeekFirstDay() {
+        LocalDate firstDayCurrentWeek = scheduleService.getCurrentWeekFirstDay();
+        LocalDate firstDayNextWeek = scheduleService.getNextWeekFirstDay();
+
+        assertThat(firstDayNextWeek)
+                .isNotNull()
+                .isInstanceOf(LocalDate.class)
+                .isAfter(firstDayCurrentWeek)
+                .isBetween(LocalDate.now().plus(Period.of(0, 0, 1)),
+                        LocalDate.now().plus(Period.of(0, 0, 7)));
+    }
+
+    @Test
+    public void shouldReturnWeekStartingFirstDay() {
+        LocalDate firstDay = LocalDate.now();
+        List<LocalDate> week = scheduleService.getWeekStartingFirstDay(firstDay);
+
+        assertThat(week)
+                .hasSize(7)
+                .containsSequence(
+                        firstDay,
+                        firstDay.plus(Period.of(0, 0 ,1)),
+                        firstDay.plus(Period.of(0, 0 ,2)),
+                        firstDay.plus(Period.of(0, 0 ,3)),
+                        firstDay.plus(Period.of(0, 0 ,4)),
+                        firstDay.plus(Period.of(0, 0 ,5)),
+                        firstDay.plus(Period.of(0, 0 ,6)));
+    }
+
+    @Test
+    public void shouldReturnListEvents_whenGetEventsByOwnerAndDate() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        eventOne.setId(2L);
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        User owner = new User();
+        LocalDate date = LocalDate.of(2018, 6, 7);
+        Mockito.when(
+                eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, date.atStartOfDay(), date.atTime(LocalTime.MAX)))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwnerAndDate(owner, date);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
+
+    @Test
+    public void shouldReturnListEvents_whenGetEventsByOwner() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        eventOne.setId(2L);
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        User owner = new User();
+        Mockito.when(
+                eventRepo.findAllByOwner(owner))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
+    @Test
+    public void shouldReturnEventById() {
+        long id = 100500L;
+        ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        expectedEvent.setId(id);
+
+        Mockito.when(eventRepo.getOne(id))
+                .thenReturn(expectedEvent);
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .isEqualTo(expectedEvent);
+    }
+
+    @Test
+    public void shouldDeleteEventById() {
+        long id = 100500L;
+        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        anEvent.setId(id);
+
+        when(this.eventRepo.getOne(id))
+                .thenReturn(anEvent)
+                .thenReturn(null);
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .isEqualTo(anEvent);
+
+        scheduleService.deleteEvent(id);
+        actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNull();
     }
 }

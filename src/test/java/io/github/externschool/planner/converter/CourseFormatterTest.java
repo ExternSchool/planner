@@ -1,9 +1,6 @@
 package io.github.externschool.planner.converter;
 
-import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.course.Course;
-import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.repository.CourseRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,34 +18,28 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CourseFormatterTest {
-    @Mock private CourseRepository repository;
-    private CourseFormatter formatter;
 
-    private Course course;
+    @Mock
+    private CourseRepository courseRepository;
+    private CourseFormatter courseFormatter;
+    private Course course = new Course(1L, 2L);
 
     @Before
-    public void setup() {
-        formatter = new CourseFormatter(repository);
+    public void setup(){
+        courseFormatter = new CourseFormatter(courseRepository);
+        course.setTitle("Math");
 
-        StudyPlan plan = new StudyPlan();
-        plan.setId(1L);
-        Student student = new Student();
-        student.setId(2L);
-        course = new Course(student.getId(), plan.getId());
-
-        Mockito.when(repository.findById_StudentIdAndId_PlanId(student.getId(), plan.getId()))
+        Mockito.when(courseRepository.findById_StudentIdAndId_PlanId(1L, 2L))
                 .thenReturn(course);
     }
 
     @Test
-    public void shouldReturnSameCourse_whenRunParsePrint() throws ParseException {
+    public void shouldReturnSameCourse_whenParsePrint() throws ParseException {
         Locale locale = new Locale("uk");
-
-        String printed = formatter.print(course, locale);
-        Course actualCourse = formatter.parse(printed, locale);
+        String printed = courseFormatter.print(course, locale);
+        Course actualCourse = courseFormatter.parse(printed, locale);
 
         assertThat(actualCourse)
-                .isNotNull()
                 .isEqualTo(course)
                 .isEqualToComparingFieldByField(course);
     }

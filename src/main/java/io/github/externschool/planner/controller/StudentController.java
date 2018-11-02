@@ -83,7 +83,7 @@ public class StudentController {
     public ModelAndView displayStudentList() {
         ModelAndView modelAndView = new ModelAndView(
                 "student/student_list",
-                "students", Optional.ofNullable(studentService.findAllByOrderByLastName().stream()
+                "students", Optional.of(studentService.findAllByOrderByLastName().stream()
                 .map(s -> conversionService.convert(s, StudentDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList()));
@@ -95,7 +95,7 @@ public class StudentController {
     @Secured("ROLE_ADMIN")
     @GetMapping({"/grade/{level}"})
     public ModelAndView displayStudentListByGrade(@PathVariable("level") Integer level) {
-        List<StudentDTO> list = Optional.ofNullable(studentService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream()
+        List<StudentDTO> list = Optional.of(studentService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream()
                 .map(s -> conversionService.convert(s, StudentDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -282,6 +282,7 @@ public class StudentController {
         modelAndView.addObject("studentId", student.getId());
         List<CourseDTO> courseDTOs = courses.stream()
                 .map(c -> conversionService.convert(c, CourseDTO.class))
+                .filter(Objects::nonNull)
                 .peek(courseDTO -> {
                     StudyPlan plan = planService.findById(courseDTO.getPlanId());
                     courseDTO.setHoursPerSemesterOne(plan.getHoursPerSemesterOne());
