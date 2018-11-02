@@ -4,7 +4,6 @@ import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.service.RoleService;
@@ -29,7 +28,6 @@ import org.springframework.web.servlet.ModelAndView;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -298,36 +296,6 @@ public class TeacherController {
         return modelAndView;
     }
 
-
-    // TODO replace this method with ScheduleToScheduleDTO converter
-    // public access in test purpose only
-    public List<ScheduleEventDTO> convertToDTO(List<ScheduleEvent> events) {
-        return events.stream()
-                .map(e -> new ScheduleEventDTO(
-                        e.getId(),
-                        LocalDate.from(e.getStartOfEvent()),
-                        LocalTime.from(e.getStartOfEvent()),
-                        // as a description add a list of participants with their grades, if they are students
-                        // or add a name for the type of this event
-                        e.getParticipants().isEmpty() ? e.getType().getName() : String.valueOf(
-                                e.getParticipants().stream()
-                                        .map(user -> Optional.ofNullable(user.getVerificationKey())
-                                                .map(VerificationKey::getPerson)
-                                                .map(person ->
-                                                        person.getLastName() + " " + person.getFirstName() +
-                                                                Optional.of((Student)person)
-                                                                        .map(p -> ", " + String.valueOf(
-                                                                                p.getGradeLevel().getValue()))
-                                                                        .orElse(""))
-                                                .orElse(""))
-                                        .collect(Collectors.toList())),
-                        e.isOpen(),
-                        e.getType().getName(),
-                        e.getTitle(),
-                        e.getCreatedAt()))
-                .collect(Collectors.toList());
-    }
-
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
     public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id, final Principal principal) {
@@ -445,5 +413,11 @@ public class TeacherController {
         return Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
+    }
+
+    private List<ScheduleEventDTO> convertToDTO(List<ScheduleEvent> events) {
+        return events.stream()
+                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                .collect(Collectors.toList());
     }
 }

@@ -239,20 +239,24 @@ public class ScheduleEvent {
     public String toString() {
         return "ScheduleEvent{" +
                 "id=" + (id != null ? id.toString() : "") +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", location='" + (location != null ? location : "") + '\'' +
-                ", startOfEvent=" + startOfEvent +
-                ", endOfEvent=" + endOfEvent +
-                ", createdAt=" + createdAt +
-                ", modifiedAt=" + (modifiedAt != null ? modifiedAt.toString() : "") +
-                ", isOpen=" + isOpen +
-                ", isCancelled=" + isCancelled +
-                ", isAccomplished=" + isAccomplished +
-                ", owner=" + owner +
-                ", type=" + type +
-                ", participants=" + participants +
+                ", title='" + paramToString(title) + '\'' +
+                ", description='" + paramToString(description) + '\'' +
+                ", location='" + paramToString(location) + '\'' +
+                ", startOfEvent=" + paramToString(startOfEvent) +
+                ", endOfEvent=" + paramToString(endOfEvent) +
+                ", createdAt=" + paramToString(createdAt) +
+                ", modifiedAt=" + paramToString(modifiedAt) +
+                ", isOpen=" + paramToString(isOpen) +
+                ", isCancelled=" + paramToString(isCancelled) +
+                ", isAccomplished=" + paramToString(isAccomplished) +
+                ", owner=" + paramToString(owner) +
+                ", type=" + (type != null ? type.getId() : "") +
+                ", participants=" + paramToString(participants) +
                 '}';
+    }
+
+    private String paramToString(Object param) {
+        return (param != null ? param.toString() : "");
     }
 
     public static ScheduleEventBuilder builder() {
