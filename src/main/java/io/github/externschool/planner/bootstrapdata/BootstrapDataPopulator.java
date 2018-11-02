@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -190,13 +191,13 @@ public class BootstrapDataPopulator implements InitializingBean {
         Set<User> eventUsers = new HashSet<>();
         eventUsers.add(presetStudent);
         createScheduleEventsWithSetOfUsers(
-                admin,
+                presetTeacher,
                 eventUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
                         ? LocalDate.now().plusDays(-2L)
                         : LocalDate.now());
         createScheduleEventsWithSetOfUsers(
-                admin,
+                presetTeacher,
                 eventUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
                         ? LocalDate.now().plusDays(5L)
@@ -256,7 +257,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     private void createScheduleEventsWithSetOfUsers(final User owner,
                                                     final Set<User> participants,
                                                     final LocalDate date) {
-
+        int duration = (int)(Math.random() * 5 + 1) * 10;
         ScheduleEventDTO eventOne =  ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(LocalTime.of(9,0))
@@ -266,34 +267,34 @@ public class BootstrapDataPopulator implements InitializingBean {
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
+        participants.forEach(user -> scheduleService.addParticipant(
+                user,
+                scheduleService.createEventWithDuration(owner, eventOne, duration)));
+
         ScheduleEventDTO eventTwo = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
-                .withStartTime(LocalTime.of(9,30))
+                .withStartTime(eventOne.getStartTime().plus(duration, ChronoUnit.MINUTES))
                 .withEventType(UK_EVENT_TYPE_GROUP)
                 .withDescription(UK_EVENT_TYPE_GROUP)
                 .withTitle(owner.getVerificationKey().getPerson().getShortName())
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-
-        participants.forEach(user -> scheduleService.addParticipant(
-                user,
-                scheduleService.createEventWithDuration(owner, eventOne, 25)));
         participants.stream()
                 .findAny()
                 .ifPresent(user -> scheduleService.addParticipant(
                         user,
-                        scheduleService.createEventWithDuration(owner, eventTwo, 15)));
+                        scheduleService.createEventWithDuration(owner, eventTwo, duration)));
 
         ScheduleEventDTO eventThree = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
-                .withStartTime(LocalTime.of(9,45))
+                .withStartTime(eventTwo.getStartTime().plus(duration, ChronoUnit.MINUTES))
                 .withEventType(UK_EVENT_TYPE_PERSONAL)
                 .withDescription(UK_EVENT_TYPE_PERSONAL)
                 .withTitle(owner.getVerificationKey().getPerson().getShortName())
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        scheduleService.createEventWithDuration(owner, eventThree, 45);
+        scheduleService.createEventWithDuration(owner, eventThree, duration);
     }
 }
