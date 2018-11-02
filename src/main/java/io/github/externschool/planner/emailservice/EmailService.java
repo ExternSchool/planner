@@ -3,14 +3,12 @@ package io.github.externschool.planner.emailservice;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
-import io.github.externschool.planner.util.Constants;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
