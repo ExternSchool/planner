@@ -48,8 +48,8 @@
             <thead class="">
             <tr>
                 <th class="text-left">Назва навчального предмета (дисципліни)</th>
-                <th class="text-right" style="width: 10%">Змінити</th>
-                <th class="text-right" style="width: 10%">Видалити</th>
+                <th class="text-right" style="width: 10ch">Змінити</th>
+                <th class="text-right" style="width: 10ch">Видалити</th>
             </tr>
             </thead>
             <tbody>
@@ -62,7 +62,7 @@
                           th:action="@{/subject/{id}/edit(id=${subject.id})}">
                         <input type="hidden" th:field="${editId}"/>
                         <div class="input-group col-lg-10">
-                            <input class="form-control form-control-sm align-content-start" type="text" id="new_title"
+                            <input class="form-control form-control-sm align-content-start" type="text" id="subj_title"
                                    th:value="${subject.title}" th:name="new_title">
                             <div class="input-group-append">
                                 <button class="btn btn-outline-success btn-sm" type="submit">Ввести</button>

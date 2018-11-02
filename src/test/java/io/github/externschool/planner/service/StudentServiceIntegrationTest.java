@@ -60,7 +60,7 @@ public class StudentServiceIntegrationTest {
                 "Slast",
                 "(000)000-0000",
                 studentKey,
-                LocalDate.of(2010, 01, 01),
+                LocalDate.of(2010, 1, 1),
                 Gender.FEMALE,
                 "Address 123",
                 gradeLevel);

@@ -96,7 +96,7 @@ public class StudentControllerTest {
         student.setFirstName(firstName);
         student.setPatronymicName("B");
         student.setGender(Gender.FEMALE);
-        student.setDateOfBirth(LocalDate.of(2010, 05, 20));
+        student.setDateOfBirth(LocalDate.of(2010, 5, 20));
         student.setGradeLevel(GradeLevel.LEVEL_3);
         student.setPhoneNumber("(000)000-0000");
         student.setAddress("Address 123");
@@ -105,7 +105,7 @@ public class StudentControllerTest {
 
         StudentDTO studentDTO = conversionService.convert(student, StudentDTO.class);
         map = new LinkedMultiValueMap<>();
-        map.add("id", studentDTO.getId().toString());
+        map.add("id", Optional.ofNullable(studentDTO).map(s -> s.getId().toString()).orElse(""));
         map.add("lastName", studentDTO.getLastName());
         map.add("firstName", studentDTO.getFirstName());
         map.add("patronymicName", studentDTO.getPatronymicName());

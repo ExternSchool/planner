@@ -1,11 +1,16 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.StudyPlanDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
+import io.github.externschool.planner.service.UserService;
+import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -28,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -40,18 +45,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
+//        (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudyPlanControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private StudyPlanService planService;
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
+    @Autowired private UserService userService;
+    @Autowired VerificationKeyService keyService;
     private StudyPlanController controller;
 
     private MockMvc mockMvc;
     private List<StudyPlan> plans;
     private List<SchoolSubject> subjects;
     private Integer originalPlansNumber;
+    private User user;
+    private static final String USER_NAME = "some@email.com";
 
     @Before
     public void setup(){
@@ -70,6 +79,10 @@ public class StudyPlanControllerTest {
             plans.add(plan);
         });
 
+        user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
+        user.addVerificationKey(keyService.saveOrUpdateKey(new VerificationKey()));
+        userService.saveOrUpdate(user);
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -84,9 +97,10 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnPlanListTemplate_whenGetAllStudyPlansWithAdminRole() throws Exception {
         String title = plans.get(0).getTitle();
+
         mockMvc.perform(get("/plan/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
@@ -100,7 +114,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetDisplayStudyPlansListByGrade() throws Exception {
         mockMvc.perform(get("/plan/grade/3"))
                 .andExpect(status().isOk())
@@ -115,10 +129,11 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetDisplayStudyPlansListActionEdit() throws Exception {
         StudyPlanDTO plan = conversionService.convert(plans.get(0), StudyPlanDTO.class);
-        Long id = plan.getId();
+        Long id = Optional.ofNullable(plan).map(StudyPlanDTO::getId).orElse(0L);
+
         mockMvc.perform(get("/plan/" + id))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
@@ -128,7 +143,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenPostProcessStudyPlansListActionAdd() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         SchoolSubject subject = subjects.get(0);
@@ -148,7 +163,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirect_whenPostProcessStudyPlansActionSave() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         StudyPlan plan = plans.get(0);
@@ -159,7 +174,7 @@ public class StudyPlanControllerTest {
         map.add("subject", subject.getId().toString());
         map.add("title", newTitle);
         map.add("action", "save");
-        Integer previousSize = planService.findAll().size();
+        int previousSize = planService.findAll().size();
         StudyPlan newPlan = new StudyPlan();
         BeanUtils.copyProperties(plan, newPlan);
         newPlan.setTitle(newTitle);
@@ -175,7 +190,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
         mockMvc.perform(post("/plan/" + plans.get(0).getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
@@ -190,5 +205,6 @@ public class StudyPlanControllerTest {
     public void tearDown() {
         plans.stream().filter(Objects::nonNull).forEach(planService::deletePlan);
         subjects.stream().filter(Objects::nonNull).map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
+        userService.deleteUser(user);
     }
 }

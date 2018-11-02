@@ -72,8 +72,9 @@ public class TeacherDTO extends PersonDTO {
     @Override
     public String toString() {
         return "TeacherDTO{" +
-                "officer='" + officer + '\'' +
-                ", schoolSubjects=" + schoolSubjects.toString() +
+                "super=" + super.toString() +
+                "officer=" + officer +
+                ", schoolSubjects=" + schoolSubjects +
                 '}';
     }
 }

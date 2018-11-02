@@ -6,8 +6,10 @@ import io.github.externschool.planner.converter.CourseToCourseDTO;
 import io.github.externschool.planner.converter.GenderEnumFormatter;
 import io.github.externschool.planner.converter.GradeLevelEnumFormatter;
 import io.github.externschool.planner.converter.LocalDateFormatter;
+import io.github.externschool.planner.converter.LocalTimeFormatter;
 import io.github.externschool.planner.converter.PersonDTOToPerson;
 import io.github.externschool.planner.converter.PersonToPersonDTO;
+import io.github.externschool.planner.converter.ScheduleEventToScheduleEventDTO;
 import io.github.externschool.planner.converter.SchoolSubjectFormatter;
 import io.github.externschool.planner.converter.StudentDTOToStudent;
 import io.github.externschool.planner.converter.StudentToStudentDTO;
@@ -28,6 +30,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired private VerificationKeyFormatter keyFormatter;
     @Autowired private SchoolSubjectFormatter subjectFormatter;
     @Autowired private LocalDateFormatter localDateFormatter;
+    @Autowired private LocalTimeFormatter localTimeFormatter;
     @Autowired private GenderEnumFormatter genderEnumFormatter;
     @Autowired private GradeLevelEnumFormatter gradeLevelEnumFormatter;
     @Autowired private CourseFormatter courseFormatter;
@@ -46,10 +49,12 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new CourseToCourseDTO());
         registry.addConverter(new StudyPlanDTOToStudyPlan());
         registry.addConverter(new StudyPlanToStudyPlanDTO());
+        registry.addConverter(new ScheduleEventToScheduleEventDTO());
         
         registry.addFormatter(keyFormatter);
         registry.addFormatter(subjectFormatter);
         registry.addFormatter(localDateFormatter);
+        registry.addFormatter(localTimeFormatter);
         registry.addFormatter(genderEnumFormatter);
         registry.addFormatter(gradeLevelEnumFormatter);
         registry.addFormatter(courseFormatter);

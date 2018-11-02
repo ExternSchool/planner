@@ -41,16 +41,19 @@ public class StudyPlanController {
 
     @GetMapping("/")
     public ModelAndView displayAllStudyPlansList(Integer level) {
-        return prepareModelAndView(Optional.ofNullable(level).orElse(0),0L);
+        return prepareModelAndView(level == null ? 0 : level,0L);
     }
 
     @GetMapping("/grade/{level}")
     public ModelAndView displayStudyPlansListByGrade(@PathVariable("level") Integer level) {
-        return displayAllStudyPlansList(level);
+        return displayAllStudyPlansList(level == null ? 0 : level);
     }
 
     @GetMapping("/{id}")
     public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
+        if (id == null || planService.findById(id) == null) {
+            return prepareModelAndView(0, 0L);
+        }
         return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
     }
 
@@ -89,9 +92,15 @@ public class StudyPlanController {
     }
 
     private ModelAndView prepareModelAndView(Integer level, Long planId) {
+        if (level == null) {
+            level = 0;
+        }
+        if (planId == null) {
+            planId = 0L;
+        }
         List<StudyPlanDTO> plans = Optional.of((level == 0
-                ? planService.findAll().stream()
-                : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
+                    ? planService.findAll().stream()
+                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());

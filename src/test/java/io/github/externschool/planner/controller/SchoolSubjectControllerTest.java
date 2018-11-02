@@ -128,7 +128,7 @@ public class SchoolSubjectControllerTest {
     public void shouldRedirect_whenPostAdd() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("new_title", "New Title");
-        Integer previousSize = subjectService.findAllByOrderByTitle().size();
+        int previousSize = subjectService.findAllByOrderByTitle().size();
 
         mockMvc.perform(post("/subject/add").params(map))
                 .andExpect(status().is3xxRedirection())

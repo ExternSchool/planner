@@ -30,31 +30,31 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
-                           href="/guest/profile">Персональні дані</a>
+                           href="/guest/profile">Особові дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="/student/plan">Індивідуальний план</a>
+                           href="/student/plan">План</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
-                        <a th:class="${activeTab == 'consult'}? 'nav-link active' : 'nav-link'"
-                           href="#">Консультації</a>
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="#">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
-                        <a th:class="${activeTab == 'control'}? 'nav-link active' : 'nav-link'"
-                           href="#">Контрольні</a>
+                        <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
+                           href="#">Записи</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
                         <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
-                           href="/student/profile">Персональні дані</a>
+                           href="/student/profile">Особові дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -78,7 +78,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_TEACHER')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
-                           href="/teacher/profile">Персональні дані</a>
+                           href="/teacher/profile">Особові дані</a>
                     </div>
                 </li>
                 <li class="nav-item">

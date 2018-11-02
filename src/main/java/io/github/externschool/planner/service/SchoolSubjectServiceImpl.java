@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class SchoolSubjectServiceImpl implements SchoolSubjectService {
@@ -36,9 +39,12 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     @Transactional(readOnly = true)
     @Override
     public List<SchoolSubject> findAllByOrderByTitle() {
-        List<SchoolSubject> schoolSubjects = subjectRepository.findAllByOrderByTitle();
-        schoolSubjects.sort((s1, s2)-> CollatorHolder.getUaCollator().compare(s1.getTitle(), s2.getTitle()));
-        return schoolSubjects;
+        return subjectRepository.findAll().stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(
+                        SchoolSubject::getTitle,
+                        Comparator.nullsFirst(CollatorHolder.getUaCollator())))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

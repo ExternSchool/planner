@@ -97,8 +97,8 @@ public class SchoolSubjectServiceTest {
 
 
     @Test
-    public void shouldReturnFourSubjects_whenFindAllByOrderByName() {
-        Mockito.when(repository.findAllByOrderByTitle())
+    public void shouldReturnFourSubjects_whenFindAllByOrderByTitle() {
+        Mockito.when(repository.findAll())
                 .thenReturn(subjects);
         List<SchoolSubject> actual = service.findAllByOrderByTitle();
 
