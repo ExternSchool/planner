@@ -125,7 +125,8 @@ public class TeacherController {
             User user = optionalUser.get();
             TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-            List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
+            List<LocalDate> currentWeek = scheduleService
+                    .getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
             List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
             // standard week schedule has no real date to start, so FIRST_MONDAY_OF_EPOCH is used
             List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(FIRST_MONDAY_OF_EPOCH);
@@ -190,7 +191,8 @@ public class TeacherController {
             model.addAttribute("thisDay", dayOfWeek);
             model.addAttribute(
                     "thisDayEvents",
-                    convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
+                    convertToDTO(scheduleService
+                            .getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
         }
 
@@ -240,10 +242,6 @@ public class TeacherController {
         return modelAndView;
     }
 
-    private boolean isWorkingDay(int dayOfWeek) {
-        return dayOfWeek >= 0 && dayOfWeek < 5;
-    }
-
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/next-week/{day}")
     public ModelAndView displayTeacherDeleteNextWeekDayModal(@PathVariable("id") Long id,
@@ -271,7 +269,7 @@ public class TeacherController {
                                                         final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
+        if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
             List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
                     optionalUser.get(),
                     scheduleService.getNextWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
@@ -438,5 +436,9 @@ public class TeacherController {
         return events.stream()
                 .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isWorkingDay(int dayOfWeek) {
+        return dayOfWeek >= 0 && dayOfWeek < 5;
     }
 }
