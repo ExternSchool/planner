@@ -112,7 +112,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeleteEvents_WhenDeleteUser() {
+    public void shouldCancelEvents_WhenDeleteUser() {
         long id1 = 100500L;
         long id2 = 100501L;
         ScheduleEvent eventOne = ScheduleEvent.builder().withOwner(expectedUser).withId(id1).build();

@@ -18,7 +18,7 @@ public class LocalDateFormatterTest {
     @Autowired private LocalDateFormatter formatter;
 
     @Test
-    public void shouldReturnSameDate_whenRunnedParsePrint() throws ParseException {
+    public void shouldReturnSameDate_whenRunParsePrint() throws ParseException {
         LocalDate expectedDate = LocalDate.of(2018, 7, 4);
         Locale locale = new Locale("uk");
 

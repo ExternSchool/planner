@@ -3,7 +3,6 @@ package io.github.externschool.planner.entity;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import org.hibernate.annotations.Cascade;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +20,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.hibernate.annotations.CascadeType.SAVE_UPDATE;
 
 @Entity
 @Table(name = "user")
@@ -42,14 +43,16 @@ public class User implements Serializable {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST})
+    @OneToMany(mappedBy = "owner")
+    @Cascade(SAVE_UPDATE)
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
-    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
+    @ManyToMany(mappedBy = "participants")
+    @Cascade(SAVE_UPDATE)
     private Set<ScheduleEvent> relatedEvents = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    @Cascade(SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
@@ -146,7 +149,7 @@ public class User implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(email, user.email);
     }
