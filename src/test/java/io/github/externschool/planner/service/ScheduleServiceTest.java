@@ -61,11 +61,11 @@ public class ScheduleServiceTest {
         when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
         ScheduleEvent event = this.scheduleService.createEvent(user, eventReq);
+        event.setCreatedAt(expectedEvent.getCreatedAt());
 
         assertThat(event)
                 .isNotNull()
                 .isEqualTo(expectedEvent);
-
     }
 
     @Test(expected = UserCannotCreateEventException.class)
@@ -134,7 +134,7 @@ public class ScheduleServiceTest {
                 eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, date.atStartOfDay(), date.atTime(LocalTime.MAX)))
                 .thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwnerAndDate(owner, date);
+        List<ScheduleEvent> actualEvents = scheduleService.getActualEventsByOwnerAndDate(owner, date);
 
         assertThat(actualEvents)
                 .isNotNull()
@@ -175,6 +175,23 @@ public class ScheduleServiceTest {
         assertThat(actualEvent)
                 .isNotNull()
                 .isEqualTo(expectedEvent);
+    }
+
+    @Test
+    public void shouldCancelEventById() {
+        long id = 100500L;
+        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        anEvent.setId(id);
+
+        when(this.eventRepo.getOne(id))
+                .thenReturn(anEvent);
+
+        scheduleService.cancelEvent(id);
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("isCancelled", true);
     }
 
     @Test

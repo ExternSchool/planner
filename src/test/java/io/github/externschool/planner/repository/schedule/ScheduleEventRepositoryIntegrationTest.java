@@ -39,11 +39,12 @@ public class ScheduleEventRepositoryIntegrationTest {
     )
     public void shouldReturnListEvents() {
         List<ScheduleEvent> events = repository.findAll();
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setCreatedAt(events.get(0).getCreatedAt());
 
         assertThat(events)
                 .isNotNull()
-                .containsExactlyInAnyOrder(ScheduleEventFactory.createNewScheduleEventWithoutParticipants());
-
+                .containsExactlyInAnyOrder(event);
     }
 
     @Test
@@ -86,5 +87,26 @@ public class ScheduleEventRepositoryIntegrationTest {
                 .isNotNull()
                 .hasSize(1)
                 .containsExactly(repository.getOne(1L));
+    }
+
+    @Test
+    @SqlGroup(
+            value = {
+                    @Sql("/datasets/user/oneUser.sql"),
+                    @Sql("/datasets/scheduleEventType/oneType.sql"),
+                    @Sql("/datasets/scheduleEvent/oneEvent.sql")
+            }
+    )
+    public void shouldReturnEmptyListOfEvents_whenDeleteById() {
+        User owner = new User();
+        owner.setId(1L);
+        ScheduleEvent event = repository.findAllByOwner(owner).get(0);
+
+        repository.deleteById(event.getId());
+        List<ScheduleEvent> events = repository.findAllByOwner(owner);
+
+        assertThat(events)
+                .isNotNull()
+                .isEmpty();
     }
 }

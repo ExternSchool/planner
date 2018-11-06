@@ -2,6 +2,7 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Teacher;
@@ -28,10 +29,13 @@ import org.springframework.web.servlet.ModelAndView;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
@@ -48,6 +52,7 @@ public class TeacherController {
     private final RoleService roleService;
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService typeService;
+    private final EmailService emailService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -57,7 +62,8 @@ public class TeacherController {
                              final UserService userService,
                              final RoleService roleService,
                              final ScheduleService scheduleService,
-                             final ScheduleEventTypeService typeService) {
+                             final ScheduleEventTypeService typeService,
+                             final EmailService emailService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
@@ -66,6 +72,7 @@ public class TeacherController {
         this.roleService = roleService;
         this.scheduleService = scheduleService;
         this.typeService = typeService;
+        this.emailService = emailService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -127,11 +134,11 @@ public class TeacherController {
             List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
 
             currentWeek.forEach(date ->
-                    currentWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    currentWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
             nextWeek.forEach(date ->
-                    nextWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    nextWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
             standardWeek.forEach(date ->
-                    standardWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    standardWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
 
             modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
             modelAndView.addObject("currentWeek", currentWeek);
@@ -156,9 +163,7 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
         if (optionalUser != null && optionalUser.isPresent() && event != null) {
-            // TODO remove an event from Standard Schedule
-            System.out.println("\n\n" + "DELETE an event from Standard Schedule, id:" + eventId + "\n\n");
-
+            scheduleService.deleteEvent(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -185,7 +190,7 @@ public class TeacherController {
             model.addAttribute("thisDay", dayOfWeek);
             model.addAttribute(
                     "thisDayEvents",
-                    convertToDTO(scheduleService.getEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
+                    convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
         }
 
@@ -219,15 +224,24 @@ public class TeacherController {
                                                            final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
-            // TODO remove all events from Current Week Schedule
-            System.out.println("\n\n" + "DELETE all events from Current Week Schedule, date:" +
-                    scheduleService.getCurrentWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+        if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
+            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+                    optionalUser.get(),
+                    scheduleService.getCurrentWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
+            Executor executor = Executors.newSingleThreadExecutor();
+            events.forEach(event -> {
+                executor.execute(() -> emailService.sendCancelEventMail(event));
+                scheduleService.cancelEvent(event.getId());
+            });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
         return modelAndView;
+    }
+
+    private boolean isWorkingDay(int dayOfWeek) {
+        return dayOfWeek >= 0 && dayOfWeek < 5;
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
@@ -258,9 +272,14 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
-            // TODO remove all events from Next Week Schedule
-            System.out.println("\n\n" + "DELETE all events from Next Week Schedule, date:" +
-                    scheduleService.getNextWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+                    optionalUser.get(),
+                    scheduleService.getNextWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
+            Executor executor = Executors.newSingleThreadExecutor();
+            events.forEach(event -> {
+                executor.execute(() -> emailService.sendCancelEventMail(event));
+                scheduleService.cancelEvent(event.getId());
+            });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
