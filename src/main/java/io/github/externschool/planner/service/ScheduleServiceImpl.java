@@ -24,7 +24,9 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
@@ -97,6 +99,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             Set<User> participants = new HashSet<>(event.getParticipants());
             participants.add(participant);
             event.setParticipants(participants);
+            event.setModifiedAt(LocalDateTime.now());
         }
 
         return this.eventRepo.save(event);
@@ -144,10 +147,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> getEventsByOwnerAndDate(final User owner, final LocalDate date) {
-        return eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner,
+    public List<ScheduleEvent> getActualEventsByOwnerAndDate(final User owner, final LocalDate date) {
+        return eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                owner,
                 date.atStartOfDay(),
-                date.atTime(LocalTime.MAX));
+                date.atTime(LocalTime.MAX)).stream()
+                .filter(event -> !event.isCancelled())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -156,7 +162,21 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public void cancelEvent(long id) {
+        Optional.ofNullable(eventRepo.getOne(id)).ifPresent(event -> {
+            event.setCancelled(true);
+            event.setOpen(false);
+            event.setModifiedAt(LocalDateTime.now());
+        });
+    }
+
+    @Transactional
+    @Override
     public void deleteEvent(long id) {
-        eventRepo.deleteById(id);
+        Optional.ofNullable(eventRepo.getOne(id)).ifPresent(event -> {
+            event.setOwner(null);
+            event.setParticipants(new HashSet<>());
+            eventRepo.deleteById(id);
+        });
     }
 }

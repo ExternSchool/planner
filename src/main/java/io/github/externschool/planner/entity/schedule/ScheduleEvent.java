@@ -1,6 +1,8 @@
 package io.github.externschool.planner.entity.schedule;
 
 import io.github.externschool.planner.entity.User;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +18,7 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -68,7 +71,8 @@ public class ScheduleEvent {
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @JoinTable(
             name = "event_participant",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
@@ -223,16 +227,39 @@ public class ScheduleEvent {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (!(o instanceof ScheduleEvent)) return false;
         ScheduleEvent event = (ScheduleEvent) o;
-
-        return id != null ? id.equals(event.id) : event.id == null;
+        return Objects.equals(id, event.id) &&
+                Objects.equals(title, event.title) &&
+                Objects.equals(description, event.description) &&
+                Objects.equals(location, event.location) &&
+                Objects.equals(startOfEvent, event.startOfEvent) &&
+                Objects.equals(endOfEvent, event.endOfEvent) &&
+                Objects.equals(createdAt, event.createdAt) &&
+                Objects.equals(modifiedAt, event.modifiedAt) &&
+                Objects.equals(isOpen, event.isOpen) &&
+                Objects.equals(isCancelled, event.isCancelled) &&
+                Objects.equals(isAccomplished, event.isAccomplished) &&
+                Objects.equals(owner, event.owner) &&
+                Objects.equals(type, event.type);
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return Objects.hash(
+                id,
+                title,
+                description,
+                location,
+                startOfEvent,
+                endOfEvent,
+                createdAt,
+                modifiedAt,
+                isOpen,
+                isCancelled,
+                isAccomplished,
+                owner,
+                type);
     }
 
     @Override

@@ -27,9 +27,11 @@ public interface ScheduleService {
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
 
-    List<ScheduleEvent> getEventsByOwnerAndDate(User owner, LocalDate date);
+    List<ScheduleEvent> getActualEventsByOwnerAndDate(User owner, LocalDate date);
 
     List<ScheduleEvent> getEventsByOwner(User owner);
+
+    void cancelEvent(long id);
 
     void deleteEvent(long id);
 }
