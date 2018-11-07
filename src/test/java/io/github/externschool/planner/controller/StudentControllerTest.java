@@ -105,17 +105,18 @@ public class StudentControllerTest {
 
         StudentDTO studentDTO = conversionService.convert(student, StudentDTO.class);
         map = new LinkedMultiValueMap<>();
-        map.add("id", Optional.ofNullable(studentDTO).map(s -> s.getId().toString()).orElse(""));
-        map.add("lastName", studentDTO.getLastName());
-        map.add("firstName", studentDTO.getFirstName());
-        map.add("patronymicName", studentDTO.getPatronymicName());
-        map.add("gender", conversionService.convert(studentDTO.getGender(), String.class));
-        map.add("dateOfBirth", conversionService.convert(studentDTO.getDateOfBirth(), String.class));
-        map.add("grade", String.valueOf(studentDTO.getGradeLevel()));
-        map.add("phoneNumber", studentDTO.getPhoneNumber());
-        map.add("address", studentDTO.getAddress());
-        map.add("verificationKey", studentDTO.getVerificationKey().getValue());
-
+        if (studentDTO != null) {
+            map.add("id", studentDTO.getId().toString());
+            map.add("lastName", studentDTO.getLastName());
+            map.add("firstName", studentDTO.getFirstName());
+            map.add("patronymicName", studentDTO.getPatronymicName());
+            map.add("gender", conversionService.convert(studentDTO.getGender(), String.class));
+            map.add("dateOfBirth", conversionService.convert(studentDTO.getDateOfBirth(), String.class));
+            map.add("grade", String.valueOf(studentDTO.getGradeLevel()));
+            map.add("phoneNumber", studentDTO.getPhoneNumber());
+            map.add("address", studentDTO.getAddress());
+            map.add("verificationKey", studentDTO.getVerificationKey().getValue());
+        }
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
         userService.saveOrUpdate(user);
@@ -156,6 +157,36 @@ public class StudentControllerTest {
                         Matchers.hasItem(
                                 Matchers.<Student> hasProperty("gradeLevel",
                                         Matchers.equalTo(3)))));
+    }
+
+    @Test
+    @WithMockUser(roles = "TEACHER")
+    public void shouldReturnStudentListTemplate_whenGetStudentWithTeacherRole() throws Exception {
+        //TODO
+//        mockMvc.perform(get("/student/"))
+//                .andExpect(status().isOk())
+//                .andExpect(view().name("student/student_list"))
+//                .andExpect(content().string(Matchers.containsString("Student List")))
+//                .andExpect(model().attributeExists("students"))
+//                .andExpect(model().attribute("students",
+//                        Matchers.hasItem(
+//                                Matchers.<Student> hasProperty("firstName",
+//                                        Matchers.equalToIgnoringCase(firstName)))));
+    }
+
+    @Test
+    @WithMockUser(roles = "TEACHER")
+    public void shouldReturnStudentListTemplate_whenGetStudentListByGradeWithTeacherRole() throws Exception {
+        //TODO
+//        mockMvc.perform(get("/student/grade/3"))
+//                .andExpect(status().isOk())
+//                .andExpect(view().name("student/student_list"))
+//                .andExpect(content().string(Matchers.containsString("Student List")))
+//                .andExpect(model().attributeExists("students"))
+//                .andExpect(model().attribute("students",
+//                        Matchers.hasItem(
+//                                Matchers.<Student> hasProperty("gradeLevel",
+//                                        Matchers.equalTo(3)))));
     }
 
     @Test

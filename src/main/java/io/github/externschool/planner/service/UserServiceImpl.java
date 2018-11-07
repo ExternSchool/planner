@@ -131,6 +131,8 @@ public class UserServiceImpl implements UserService {
                 Teacher teacher = (Teacher) key.getPerson();
                 if (!teacher.getOfficer().isEmpty()) {
                     user = assignNewRole(user, "ROLE_OFFICER");
+                } else {
+                    user.removeRole(roleService.getRoleByName("ROLE_OFFICER"));
                 }
             }
         }
