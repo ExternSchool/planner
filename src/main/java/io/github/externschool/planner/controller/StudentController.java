@@ -106,45 +106,6 @@ public class StudentController {
         return modelAndView;
     }
 
-    private List<StudentDTO> getStudentsByTeacher(Teacher teacher) {
-        List<Course> courses = courseService.findAllByTeacher(teacher);
-        List<StudentDTO> resultList = new ArrayList<>();
-        for(Course course : courses) {
-            Optional<StudentDTO> dto = Optional.ofNullable(course.getStudentId())
-                    .map(studentService::findStudentById)
-                    .map(student -> conversionService.convert(student, StudentDTO.class));
-            dto.ifPresent(d -> d.setOptionalData(
-                    Optional.ofNullable(course.getPlanId())
-                            .map(planService::findById)
-                            .map(StudyPlan::getSubject)
-                            .map(SchoolSubject::getTitle)
-                            .orElse("")));
-            dto.ifPresent(resultList::add);
-        }
-        resultList.sort(Comparator.comparing(
-                StudentDTO::getLastName,
-                Comparator.nullsLast(CollatorHolder.getUaCollator())));
-
-        return resultList;
-    }
-
-    private Boolean isTeacher(Principal principal) {
-        return Optional.ofNullable(principal.getName())
-                .map(userService::findUserByEmail)
-                .map(User::getRoles)
-                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_TEACHER")))
-                .orElse(Boolean.FALSE);
-    }
-
-    private Optional<Teacher> getTeacher(Principal principal) {
-        return Optional.ofNullable(principal.getName())
-                .map(userService::findUserByEmail)
-                .map(User::getVerificationKey)
-                .map(VerificationKey::getPerson)
-                .map(Person::getId)
-                .map(teacherService::findTeacherById);
-    }
-
     @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
     @GetMapping({"/grade/{level}"})
     public ModelAndView displayStudentListByGrade(@PathVariable("level") Integer level, Principal principal) {
@@ -369,5 +330,44 @@ public class StudentController {
         modelAndView.addObject("coursePlanId", coursePlanId);
 
         return modelAndView;
+    }
+
+    private List<StudentDTO> getStudentsByTeacher(Teacher teacher) {
+        List<Course> courses = courseService.findAllByTeacher(teacher);
+        List<StudentDTO> resultList = new ArrayList<>();
+        for(Course course : courses) {
+            Optional<StudentDTO> dto = Optional.ofNullable(course.getStudentId())
+                    .map(studentService::findStudentById)
+                    .map(student -> conversionService.convert(student, StudentDTO.class));
+            dto.ifPresent(d -> d.setOptionalData(
+                    Optional.ofNullable(course.getPlanId())
+                            .map(planService::findById)
+                            .map(StudyPlan::getSubject)
+                            .map(SchoolSubject::getTitle)
+                            .orElse("")));
+            dto.ifPresent(resultList::add);
+        }
+        resultList.sort(Comparator.comparing(
+                StudentDTO::getLastName,
+                Comparator.nullsLast(CollatorHolder.getUaCollator())));
+
+        return resultList;
+    }
+
+    private Boolean isTeacher(Principal principal) {
+        return Optional.ofNullable(principal.getName())
+                .map(userService::findUserByEmail)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_TEACHER")))
+                .orElse(Boolean.FALSE);
+    }
+
+    private Optional<Teacher> getTeacher(Principal principal) {
+        return Optional.ofNullable(principal.getName())
+                .map(userService::findUserByEmail)
+                .map(User::getVerificationKey)
+                .map(VerificationKey::getPerson)
+                .map(Person::getId)
+                .map(teacherService::findTeacherById);
     }
 }

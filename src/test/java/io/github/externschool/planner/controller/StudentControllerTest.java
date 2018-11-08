@@ -160,33 +160,61 @@ public class StudentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "TEACHER")
+    @WithMockUser(username = "teacher", roles = "TEACHER")
     public void shouldReturnStudentListTemplate_whenGetStudentWithTeacherRole() throws Exception {
-        //TODO
-//        mockMvc.perform(get("/student/"))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("student/student_list"))
-//                .andExpect(content().string(Matchers.containsString("Student List")))
-//                .andExpect(model().attributeExists("students"))
-//                .andExpect(model().attribute("students",
-//                        Matchers.hasItem(
-//                                Matchers.<Student> hasProperty("firstName",
-//                                        Matchers.equalToIgnoringCase(firstName)))));
+        VerificationKey key = new VerificationKey();
+        keyService.saveOrUpdateKey(key);
+        User userTeacher = userService.createUser("teacher", "hhh", "ROLE_TEACHER");
+        userTeacher.addVerificationKey(key);
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        userService.saveOrUpdate(userTeacher);
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        course.setTeacher(teacher);
+        courseService.saveOrUpdateCourse(course);
+
+        mockMvc.perform(get("/student/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))));
     }
 
     @Test
-    @WithMockUser(roles = "TEACHER")
+    @WithMockUser(username = "teacher2", roles = "TEACHER")
     public void shouldReturnStudentListTemplate_whenGetStudentListByGradeWithTeacherRole() throws Exception {
-        //TODO
-//        mockMvc.perform(get("/student/grade/3"))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("student/student_list"))
-//                .andExpect(content().string(Matchers.containsString("Student List")))
-//                .andExpect(model().attributeExists("students"))
-//                .andExpect(model().attribute("students",
-//                        Matchers.hasItem(
-//                                Matchers.<Student> hasProperty("gradeLevel",
-//                                        Matchers.equalTo(3)))));
+        VerificationKey key = new VerificationKey();
+        keyService.saveOrUpdateKey(key);
+        User userTeacher = userService.createUser("teacher2", "hhh", "ROLE_TEACHER");
+        userTeacher.addVerificationKey(key);
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        userService.saveOrUpdate(userTeacher);
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        course.setTeacher(teacher);
+        courseService.saveOrUpdateCourse(course);
+
+        mockMvc.perform(get("/student/grade/3"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("gradeLevel",
+                                        Matchers.equalTo(3)))));
     }
 
     @Test
