@@ -349,7 +349,8 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null) {
+        if (isAdmin(principal)
+                && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
             if (teacherDTO.getVerificationKey() == null) {
                 teacherDTO.setVerificationKey(new VerificationKey());
             }
@@ -357,6 +358,14 @@ public class TeacherController {
         }
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
+
+        if (isAdmin(principal)) {
+            Optional.ofNullable(teacher)
+                    .map(Teacher::getVerificationKey)
+                    .map(VerificationKey::getUser)
+                    .ifPresent(user -> userService.saveOrUpdate(
+                            userService.assignNewRolesByKey(user, user.getVerificationKey())));
+        }
 
         return redirectByRole(principal);
     }
@@ -411,16 +420,17 @@ public class TeacherController {
                 .orElse(false);
     }
 
-    private ModelAndView redirectByRole(Principal principal) {
-        if (principal != null) {
-            User user = userService.findUserByEmail(principal.getName());
-            if (user != null && user.getEmail() != null) {
-                User userFound = userService.findUserByEmail(user.getEmail());
-                if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+    private Boolean isAdmin(Principal principal) {
+        return Optional.ofNullable(principal)
+                .map(p -> userService.findUserByEmail(p.getName()))
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
+                .orElse(Boolean.FALSE);
+    }
 
-                    return new ModelAndView("redirect:/teacher/");
-                }
-            }
+    private ModelAndView redirectByRole(Principal principal) {
+        if (isAdmin(principal)) {
+            return new ModelAndView("redirect:/teacher/");
         }
 
         return new ModelAndView("redirect:/");

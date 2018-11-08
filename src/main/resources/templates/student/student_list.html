@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 <html lang="uk">
 <head>
     <title>Student List</title>
@@ -32,7 +34,7 @@
     <div class="form-group mb-0">
         <input type="hidden" th:field="${level}">
         <nav id="selector" aria-label="Grades navigation">
-            <ul class="pagination pagination-sm  float-left mb-0">
+            <ul class="pagination pagination-sm  float-left mb-1">
                 <li th:class="${level == 0}? 'page-item active' : 'page-item'">
                     <a class="page-link" href="/student/">Всі класи</a></li>
                 <li th:class="${level == 1}? 'page-item active' : 'page-item'">
@@ -63,7 +65,11 @@
         </nav>
     </div>
     <form th:method="post" th:action="@{/student/add}">
-        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm mb-1">Додати нового учня</button>
+        <div sec:authorize="hasRole('ROLE_ADMIN')">
+            <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm">
+                Додати нового учня
+            </button>
+        </div>
     </form>
     <div class="table-responsive" th:if="${not #lists.isEmpty(students)}">
         <table class="col-lg-12 table table-sm table-hover">
@@ -72,13 +78,20 @@
                 <th class="text-left">Прізвище</th>
                 <th class="text-left">Ім'я</th>
                 <th class="text-left">По-батькові</th>
-                <th>Стать</th>
                 <th>Клас</th>
+                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <th>Стать</th>
+                </div>
+                <div sec:authorize="hasRole('ROLE_TEACHER')">
+                    <th>Предмет</th>
+                </div>
                 <th style="width: 15ch">Телефон</th>
                 <th>Email</th>
-                <th class="text-right" style="width: 10ch">План</th>
-                <th class="text-right" style="width: 10ch">Змінити</th>
-                <th class="text-right" style="width: 10ch">Видалити</th>
+                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <th class="text-right" style="width: 10ch">План</th>
+                    <th class="text-right" style="width: 10ch">Змінити</th>
+                    <th class="text-right" style="width: 10ch">Видалити</th>
+                </div>
             </tr>
             </thead>
             <tbody>
@@ -86,29 +99,36 @@
                 <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
                 <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
                 <td class="text-left" th:text="${student.getPatronymicName()}">По-батькові</td>
-                <td th:text="${student.getGender()}">Стать</td>
                 <td th:text="${student.getGradeLevel()}">Клас</td>
+                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <td th:text="${student.getGender()}">Стать</td>
+                </div>
+                <div sec:authorize="hasRole('ROLE_TEACHER')">
+                    <td th:text="${student.getOptionalData()}">Предмет</td>
+                </div>
                 <td th:text="${student.getPhoneNumber()}">Телефон</td>
                 <td th:text="${student.getEmail()}">Email</td>
-                <td class="text-right">
-                    <a th:href="@{/student/{id}/plan(id=${student.id})}" class="btn badge badge-secondary">
-                        <i class="fas fa-list-ol" style="color: white" aria-hidden="true"></i>
-                    </a>
-                </td>
-                <td class="text-right">
-                    <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
-                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
-                            <i class="fas fa-edit" aria-hidden="true"></i>
-                        </button>
-                    </form>
-                </td>
-                <td class="text-right">
-                    <form th:method="post" th:action="@{/student/{id}/delete(id=${student.id})}">
-                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                            <i class="fas fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </form>
-                </td>
+                <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <td class="text-right">
+                        <a th:href="@{/student/{id}/plan(id=${student.id})}" class="btn badge badge-secondary">
+                            <i class="fas fa-list-ol" style="color: white" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                    <td class="text-right">
+                        <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
+                            <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                                <i class="fas fa-edit" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="text-right">
+                        <form th:method="post" th:action="@{/student/{id}/delete(id=${student.id})}">
+                            <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
+                                <i class="fas fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
+                </div>
             </tr>
             </tbody>
         </table>
@@ -123,4 +143,3 @@
 </footer>
 
 </body>
-</html>
