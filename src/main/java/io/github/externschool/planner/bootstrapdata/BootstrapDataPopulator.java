@@ -31,16 +31,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_GROUP;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSONAL;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PRINCIPAL;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PSYCHOLOGIST;
 
 @Service
 @ExcludeFromTests
@@ -118,7 +118,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         "(066)666-6666"),
                 key,
                 "Психолог",
-                Collections.singletonList("Теорія когнитивного дисонансу"));
+                Collections.singletonList("Теорія когнітивного дисонансу"));
         teacher.addVerificationKey(key);
         presetTeacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
@@ -139,6 +139,19 @@ public class BootstrapDataPopulator implements InitializingBean {
         presetStudent.setVerificationKey(key);
         studentService.saveOrUpdateStudent(presetStudentProfile);
         userService.saveOrUpdate(presetStudent);
+
+        User presetGuest = userService.createUser("u@u", "u", "ROLE_GUEST");
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Person presetGuestProfile = new Person(
+                null,
+                "Ім'я",
+                "По-батькові",
+                "Відвідувач",
+                "(000)000-0000");
+        presetGuestProfile.addVerificationKey(key);
+        presetGuest.addVerificationKey(key);
+        personService.saveOrUpdatePerson(presetGuestProfile);
+        userService.saveOrUpdate(presetGuest);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         teacher = createTeacher(new Person(
@@ -188,17 +201,22 @@ public class BootstrapDataPopulator implements InitializingBean {
             courseRepository.save(course);
         }
 
-        Set<User> eventUsers = new HashSet<>();
-        eventUsers.add(presetStudent);
+        List<User> studentEventsUsers = new ArrayList<>();
+        studentEventsUsers.add(presetStudent);
+        List<User> guestEventsUsers = new ArrayList<>();
+        guestEventsUsers.add(presetGuest);
+
         createScheduleEventsWithSetOfUsers(
                 presetTeacher,
-                eventUsers,
+                studentEventsUsers,
+                guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
                         ? LocalDate.now().plusDays(-2L)
                         : LocalDate.now());
         createScheduleEventsWithSetOfUsers(
                 presetTeacher,
-                eventUsers,
+                studentEventsUsers,
+                guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
                         ? LocalDate.now().plusDays(5L)
                         : LocalDate.now().plusDays(7L));
@@ -248,39 +266,46 @@ public class BootstrapDataPopulator implements InitializingBean {
         eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
         this.eventTypeRepository.save(eventType);
 
-        eventType = new ScheduleEventType(UK_EVENT_TYPE_PRINCIPAL, 1);
+        eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
         eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
         eventType.getCreators().add(roleService.getRoleByName("ROLE_OFFICER"));
         this.eventTypeRepository.save(eventType);
     }
 
     private void createScheduleEventsWithSetOfUsers(final User owner,
-                                                    final Set<User> participants,
+                                                    final List<User> students,
+                                                    final List<User> guests,
                                                     final LocalDate date) {
         int duration = (int)(Math.random() * 5 + 1) * 10;
+        Teacher teacher = (Teacher)(owner.getVerificationKey().getPerson());
+        String description = teacher.getSubjects().stream()
+                    .findAny()
+                    .map(SchoolSubject::getTitle)
+                    .orElse("UNDEFINED");
+
         ScheduleEventDTO eventOne =  ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(LocalTime.of(9,0))
-                .withEventType(UK_EVENT_TYPE_PRINCIPAL)
-                .withDescription(UK_EVENT_TYPE_PRINCIPAL)
+                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
+                .withDescription(description)
                 .withTitle(owner.getVerificationKey().getPerson().getShortName())
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        participants.forEach(user -> scheduleService.addParticipant(
+        students.forEach(user -> scheduleService.addParticipant(
                 user,
                 scheduleService.createEventWithDuration(owner, eventOne, duration)));
 
         ScheduleEventDTO eventTwo = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(eventOne.getStartTime().plus(duration, ChronoUnit.MINUTES))
-                .withEventType(UK_EVENT_TYPE_GROUP)
-                .withDescription(UK_EVENT_TYPE_GROUP)
+                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
+                .withDescription(UK_EVENT_TYPE_PSYCHOLOGIST)
                 .withTitle(owner.getVerificationKey().getPerson().getShortName())
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        participants.stream()
+        students.stream()
                 .findAny()
                 .ifPresent(user -> scheduleService.addParticipant(
                         user,
@@ -296,5 +321,20 @@ public class BootstrapDataPopulator implements InitializingBean {
                 .withIsOpen(true)
                 .build();
         scheduleService.createEventWithDuration(owner, eventThree, duration);
+
+        ScheduleEventDTO eventFour = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(date)
+                .withStartTime(eventOne.getStartTime().plus(5, ChronoUnit.HOURS))
+                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
+                .withDescription(UK_EVENT_TYPE_PSYCHOLOGIST)
+                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
+        guests.stream()
+                .findAny()
+                .ifPresent(user -> scheduleService.addParticipant(
+                        user,
+                        scheduleService.createEventWithDuration(owner, eventFour, duration)));
     }
 }
