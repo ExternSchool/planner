@@ -150,7 +150,28 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "TEACHER")
-    public void shouldRedirect_WhenShowTeacherScheduleToTeacher() throws Exception {
+    public void shouldRedirect_WhenDisplayTeacherVisitorsToTeacher() throws Exception {
+        mockMvc.perform(get("/teacher/visitors"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/visitors"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_WhenDisplayTeacherVisitors() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/visitors"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attributeExists("visitors"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
+    public void shouldRedirect_WhenDisplayTeacherScheduleToTeacher() throws Exception {
         mockMvc.perform(get("/teacher/schedule"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));

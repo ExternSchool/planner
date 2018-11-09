@@ -94,7 +94,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleEvent addParticipant(final User participant, ScheduleEvent event) {
 
         // TODO check for user rights to participate in this event
-        // TODO add number of users by type verification
+        // TODO set number of users by event type
         if (participant != null && event != null && event.isOpen()) {
             Set<User> participants = new HashSet<>(event.getParticipants());
             participants.add(participant);
