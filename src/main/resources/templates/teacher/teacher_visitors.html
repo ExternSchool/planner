@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+<html lang="uk">
+<head>
+    <title>Student List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='visitors')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <div  th:if="${not #lists.isEmpty(students)}">
+        <h4 class="h3 font-weight-normal" th:inline="text"><small>Екстерни</small></h4>
+        <div class="table-responsive">
+            <table class="col-lg-12 table table-sm table-hover">
+                <thead class="">
+                <tr>
+                    <th class="text-left">Прізвище</th>
+                    <th class="text-left">Ім'я</th>
+                    <th>Клас</th>
+                    <th style="width: 15ch">Телефон</th>
+                    <th>Дата, Час, Предмет</th>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <!--<th class="text-right" style="width: 10ch">Змінити</th>-->
+                        <!--<th class="text-right" style="width: 10ch">Скасувати</th>-->
+                    </div>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="student : ${students}">
+                    <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
+                    <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
+                    <td th:text="${student.getGradeLevel()}">Клас</td>
+                    <td th:text="${student.getPhoneNumber()}">Телефон</td>
+                    <td th:text="${student.getOptionalData()}">Дата, Час, Предмет</td>
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <!--<td class="text-right">-->
+                        <!--<form th:method="post" th:action="@{/student/{id}(id=${student.id})}">-->
+                        <!--<button type="submit" name="edit" value="edit" class="btn badge badge-primary">-->
+                        <!--<i class="fas fa-edit" aria-hidden="true"></i>-->
+                        <!--</button>-->
+                        <!--</form>-->
+                        <!--</td>-->
+                        <!--<td class="text-right">-->
+                        <!--<form th:method="post" th:action="@{/student/{id}/delete(id=${student.id})}">-->
+                        <!--<button type="submit" name="delete" value="delete" class="btn badge badge-danger">-->
+                        <!--<i class="fas fa-trash" aria-hidden="true"></i>-->
+                        <!--</button>-->
+                        <!--</form>-->
+                        <!--</td>-->
+                    </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div  th:if="${not #lists.isEmpty(visitors)}">
+        <h4 class="h3 font-weight-normal" th:inline="text"><small>Відвідувачі</small></h4>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+</body>
