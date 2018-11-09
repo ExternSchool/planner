@@ -36,7 +36,7 @@ public class ScheduleEvent {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 5000)
+    @Column(length = 500)
     private String description;
 
     @Column

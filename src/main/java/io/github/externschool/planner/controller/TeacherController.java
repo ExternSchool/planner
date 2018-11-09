@@ -1,10 +1,13 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
+import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.service.RoleService;
@@ -30,6 +33,8 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +42,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
@@ -100,6 +106,74 @@ public class TeacherController {
         Teacher teacher = teacherService.findTeacherById(id);
         if (teacher != null) {
             modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
+        }
+
+        return modelAndView;
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/visitors")
+    public ModelAndView displayTeacherVisitorsToTeacher(final Principal principal) {
+        final User user = userService.findUserByEmail(principal.getName());
+        Long id = user.getVerificationKey().getPerson().getId();
+
+        return new ModelAndView("redirect:/teacher/" + id + "/visitors");
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/visitors")
+    public ModelAndView displayTeacherVisitors(@PathVariable("id") Long id,
+                                               final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        Optional<User> optionalUser = getOptionalUser(id);
+
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            Teacher teacher = teacherService.findTeacherById(id);
+            TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
+            List<StudentDTO> students = new ArrayList<>();
+            List<PersonDTO> visitors = new ArrayList<>();
+
+            LocalDate start = LocalDate.now();
+            LocalDate end = scheduleService.getNextWeekFirstDay().plusDays(6);
+            List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
+                    .limit(ChronoUnit.DAYS.between(start, end))
+                    .collect(Collectors.toList());
+            for (LocalDate date : dates) {
+                scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
+                    Optional.ofNullable(event.getParticipants()).ifPresent(participants -> {
+                        participants.forEach(participant -> {
+                            Optional.ofNullable(participant.getVerificationKey()).ifPresent(key -> {
+                                if (key.getPerson().getClass() == Student.class) {
+                                    Optional.ofNullable(conversionService.convert(key.getPerson(), StudentDTO.class))
+                                            .ifPresent(studentDTO -> {
+                                                studentDTO.setOptionalData(
+                                                        event.getStartOfEvent()
+                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                                                                + " "
+                                                                + event.getDescription());
+                                                students.add(studentDTO);
+                                            });
+                                } else {
+                                    Optional.ofNullable(conversionService.convert(key.getPerson(), PersonDTO.class))
+                                            .ifPresent(guestDTO -> {
+                                                guestDTO.setOptionalData(
+                                                        event.getStartOfEvent()
+                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                                                                + " "
+                                                                + event.getDescription());
+                                                visitors.add(guestDTO);
+                                            });
+                                }
+                            });
+                        });
+                    });
+                });
+            }
+
+            modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
+            modelAndView.addObject("students", students);
+            modelAndView.addObject("visitors", visitors);
         }
 
         return modelAndView;

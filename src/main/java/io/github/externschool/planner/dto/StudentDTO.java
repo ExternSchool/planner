@@ -12,7 +12,6 @@ public class StudentDTO extends PersonDTO {
     @NotNull private Gender gender;
     @NotBlank private String address;
     @NotNull private int gradeLevel;
-    private String optionalData;
 
     public StudentDTO() {
     }
@@ -49,14 +48,6 @@ public class StudentDTO extends PersonDTO {
         this.gradeLevel = gradeLevel;
     }
 
-    public String getOptionalData() {
-        return optionalData;
-    }
-
-    public void setOptionalData(final String optionalData) {
-        this.optionalData = optionalData;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,12 +57,11 @@ public class StudentDTO extends PersonDTO {
         return gradeLevel == that.gradeLevel &&
                 Objects.equals(dateOfBirth, that.dateOfBirth) &&
                 gender == that.gender &&
-                Objects.equals(address, that.address) &&
-                Objects.equals(optionalData, that.optionalData);
+                Objects.equals(address, that.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel, optionalData);
+        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel);
     }
 }

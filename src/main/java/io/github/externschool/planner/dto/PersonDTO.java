@@ -13,6 +13,7 @@ public class PersonDTO {
     @NotBlank private String patronymicName;
     @NotBlank private String lastName;
     @NotBlank private String phoneNumber;
+    private String optionalData;
 
     public PersonDTO() {
     }
@@ -80,6 +81,14 @@ public class PersonDTO {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
+    public String getOptionalData() {
+        return optionalData;
+    }
+
+    public void setOptionalData(final String optionalData) {
+        this.optionalData = optionalData;
+    }
     
     public String getShortName() {
         return lastName + " " +
@@ -102,15 +111,17 @@ public class PersonDTO {
         PersonDTO personDTO = (PersonDTO) o;
         return Objects.equals(id, personDTO.id) &&
                 Objects.equals(verificationKey, personDTO.verificationKey) &&
+                Objects.equals(email, personDTO.email) &&
                 Objects.equals(firstName, personDTO.firstName) &&
                 Objects.equals(patronymicName, personDTO.patronymicName) &&
                 Objects.equals(lastName, personDTO.lastName) &&
-                Objects.equals(phoneNumber, personDTO.phoneNumber);
+                Objects.equals(phoneNumber, personDTO.phoneNumber) &&
+                Objects.equals(optionalData, personDTO.optionalData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+        return Objects.hash(id, verificationKey, email, firstName, patronymicName, lastName, phoneNumber, optionalData);
     }
 
     @Override

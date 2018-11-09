@@ -14,6 +14,7 @@ import java.time.format.FormatStyle;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_PROPOSAL;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
@@ -46,6 +47,8 @@ public class EmailServiceImpl implements EmailService {
             String textMessage = APPOINTMENT_CANCELLATION_TEXT
                     + eventDateTime
                     + eventOwnersName
+                    + "\n"
+                    + APPOINTMENT_CANCELLATION_PROPOSAL
                     + "\n\n"
                     + APPOINTMENT_CANCELLATION_SIGNATURE
                     +"\n"
