@@ -17,7 +17,9 @@ public interface ScheduleService {
 
     ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);
 
-    ScheduleEvent addParticipant(User participant, ScheduleEvent event);
+    ScheduleEvent addParticipant(User user, ScheduleEvent event);
+
+    void removeParticipant(Long id);
 
     ScheduleEvent getEventById(long id);
 

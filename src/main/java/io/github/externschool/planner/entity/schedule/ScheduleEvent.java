@@ -1,8 +1,7 @@
 package io.github.externschool.planner.entity.schedule;
 
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,9 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -71,14 +69,18 @@ public class ScheduleEvent {
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
-    @JoinTable(
-            name = "event_participant",
-            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
+//    @ManyToMany(fetch = FetchType.EAGER)
+//    @Cascade(CascadeType.SAVE_UPDATE)
+//    @JoinTable(
+//            name = "event_participant",
+//            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
+//            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
+    @OneToMany(
+            mappedBy = "event",
+            cascade = javax.persistence.CascadeType.ALL,
+            orphanRemoval = true
     )
-    private Set<User> participants = new HashSet<>();
+    private Set<Participant> participants = new HashSet<>();
 
     public ScheduleEvent() {}
 
@@ -88,7 +90,6 @@ public class ScheduleEvent {
                           final String location,
                           final User owner,
                           final ScheduleEventType type,
-                          final Set<User> participants,
                           final LocalDateTime startOfEvent,
                           final LocalDateTime endOfEvent,
                           final LocalDateTime createdAt,
@@ -102,7 +103,6 @@ public class ScheduleEvent {
         this.location = location;
         this.owner = owner;
         this.type = type;
-        this.participants = participants;
         this.startOfEvent = startOfEvent;
         this.endOfEvent = endOfEvent;
         this.createdAt = createdAt;
@@ -160,12 +160,18 @@ public class ScheduleEvent {
         this.type = type;
     }
 
-    public Set<User> getParticipants() {
+    public Set<Participant> getParticipants() {
         return Collections.unmodifiableSet(participants);
     }
 
-    public void setParticipants(Set<User> participants) {
-        this.participants = new HashSet<>(participants);
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setEvent(this);
+    }
+
+    public void removeParticipant(Participant participant) {
+        participants.remove(participant);
+        participant.setEvent(null);
     }
 
     public LocalDateTime getStartOfEvent() {
@@ -278,7 +284,7 @@ public class ScheduleEvent {
                 ", isAccomplished=" + paramToString(isAccomplished) +
                 ", owner=" + paramToString(owner) +
                 ", type=" + (type != null ? type.getId() : "") +
-                ", participants=" + paramToString(participants) +
+                ", participants=" + participants.size() +
                 '}';
     }
 
@@ -297,7 +303,6 @@ public class ScheduleEvent {
         private String location;
         private User owner;
         private ScheduleEventType type;
-        private Set<User> participants = new HashSet<>();
         private LocalDateTime startOfEvent;
         private LocalDateTime endOfEvent;
         private LocalDateTime createdAt = LocalDateTime.now();
@@ -338,10 +343,10 @@ public class ScheduleEvent {
             return this;
         }
 
-        public ScheduleEventBuilder withParticipants(final Set<User> participants) {
-            this.participants = participants;
-            return this;
-        }
+//        public ScheduleEventBuilder withParticipants(final Set<Participant> participants) {
+//            this.participants = participants;
+//            return this;
+//        }
 
         public ScheduleEventBuilder withStartDateTime(final LocalDateTime dateTime) {
             this.startOfEvent = dateTime;
@@ -376,7 +381,6 @@ public class ScheduleEvent {
                     this.location,
                     this.owner,
                     this.type,
-                    this.participants,
                     this.startOfEvent,
                     this.endOfEvent,
                     this.createdAt,

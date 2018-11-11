@@ -16,11 +16,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hibernate.annotations.CascadeType.ALL;
 import static org.hibernate.annotations.CascadeType.SAVE_UPDATE;
 
 @Entity
@@ -38,18 +40,19 @@ public class User implements Serializable {
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
+    @JoinTable(
+            name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "owner")
-    @Cascade(SAVE_UPDATE)
+    @Cascade(ALL)
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
-    @ManyToMany(mappedBy = "participants")
-    @Cascade(SAVE_UPDATE)
-    private Set<ScheduleEvent> relatedEvents = new HashSet<>();
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    @Cascade(ALL)
+    private Set<Participant> participants = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
     @Cascade(SAVE_UPDATE)
@@ -136,14 +139,18 @@ public class User implements Serializable {
         event.setOwner(null);
     }
 
-    public void addRelatedEvent(ScheduleEvent event) {
-        this.relatedEvents.add(event);
-        event.getParticipants().add(this);
+    public Set<Participant> getParticipants() {
+        return Collections.unmodifiableSet(participants);
     }
 
-    public void removeRelatedEvent(ScheduleEvent event) {
-        this.relatedEvents.remove(event);
-        event.getParticipants().remove(this);
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setUser(this);
+    }
+
+    public void removeParticipant(Participant participant) {
+        participants.remove(participant);
+        participant.setUser(null);
     }
 
     @Override

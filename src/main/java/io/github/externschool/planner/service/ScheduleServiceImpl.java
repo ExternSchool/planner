@@ -2,11 +2,13 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.exceptions.UserCannotCreateEventException;
+import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +42,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleEventRepository eventRepo;
     private final ScheduleEventTypeRepository eventTypeRepo;
+    private final ParticipantRepository participantRepository;
+    private final UserService userService;
 
     @Autowired
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepo,
-                               final ScheduleEventTypeRepository eventTypeRepo) {
+                               final ScheduleEventTypeRepository eventTypeRepo,
+                               final UserService userService,
+                               final ParticipantRepository participantRepository) {
         this.eventRepo = eventRepo;
         this.eventTypeRepo = eventTypeRepo;
+        this.userService = userService;
+        this.participantRepository = participantRepository;
     }
 
     @Override
@@ -91,18 +99,32 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleEvent addParticipant(final User participant, ScheduleEvent event) {
+    public ScheduleEvent addParticipant(final User user, final ScheduleEvent event) {
 
         // TODO check for user rights to participate in this event
         // TODO set number of users by event type
-        if (participant != null && event != null && event.isOpen()) {
-            Set<User> participants = new HashSet<>(event.getParticipants());
-            participants.add(participant);
-            event.setParticipants(participants);
+        if (user != null && event != null && event.isOpen()) {
+            new Participant(user, event);
             event.setModifiedAt(LocalDateTime.now());
+            userService.saveOrUpdate(user);
+            eventRepo.save(event);
         }
 
-        return this.eventRepo.save(event);
+        return event;
+    }
+
+    @Transactional
+    @Override
+    public void removeParticipant(final Long id) {
+        participantRepository.findById(id).ifPresent(participant -> {
+            User user = participant.getUser();
+            user.removeParticipant(participant);
+            userService.saveOrUpdate(user);
+            ScheduleEvent event = participant.getEvent();
+            event.removeParticipant(participant);
+            eventRepo.save(event);
+            participantRepository.delete(participant);
+        });
     }
 
     @Override
@@ -175,7 +197,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void deleteEvent(long id) {
         Optional.ofNullable(eventRepo.getOne(id)).ifPresent(event -> {
             event.setOwner(null);
-            event.setParticipants(new HashSet<>());
+            event.getParticipants().forEach(participant -> {
+                User user = participant.getUser();
+                user.removeParticipant(participant);
+                userService.saveOrUpdate(user);
+                event.removeParticipant(participant);
+            });
             eventRepo.deleteById(id);
         });
     }

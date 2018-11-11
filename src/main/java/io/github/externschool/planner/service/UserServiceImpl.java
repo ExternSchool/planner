@@ -1,6 +1,7 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
@@ -18,8 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,21 +32,18 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationKeyRepository keyRepository;
     private final PersonRepository personRepository;
-    private final ScheduleService scheduleService;
 
     @Autowired
     public UserServiceImpl(final UserRepository userRepository,
                            final RoleService roleService,
                            final PasswordEncoder passwordEncoder,
                            final VerificationKeyRepository keyRepository,
-                           final PersonRepository personRepository,
-                           final ScheduleService scheduleService) {
+                           final PersonRepository personRepository) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.keyRepository = keyRepository;
         this.personRepository = personRepository;
-        this.scheduleService = scheduleService;
     }
 
     @Transactional(readOnly = true)
@@ -63,9 +64,12 @@ public class UserServiceImpl implements UserService {
             if (user.getVerificationKey() != null) {
                 user.removeVerificationKey();
             }
-            scheduleService.getEventsByOwner(user).stream()
-                    .filter(Objects::nonNull)
-                    .forEach(e -> scheduleService.deleteEvent(e.getId()));
+            user.getParticipants().forEach(participant -> {
+                participant.getEvent().removeParticipant(participant);
+                user.removeParticipant(participant);
+            });
+            // TODO delete events when user is their owner
+
 
             userRepository.delete(user);
         }

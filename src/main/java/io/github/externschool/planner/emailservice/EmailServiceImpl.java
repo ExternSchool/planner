@@ -55,7 +55,7 @@ public class EmailServiceImpl implements EmailService {
                     + LocalDateTime.now()
                             .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE));
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-            simpleMailMessage.setTo(participant.getEmail());
+            simpleMailMessage.setTo(participant.getUser().getEmail());
             simpleMailMessage.setSubject(APPOINTMENT_CANCELLATION_SUBJECT + eventDateTime + eventOwnersName);
             simpleMailMessage.setFrom(eventOwner.getEmail());
             simpleMailMessage.setText(textMessage);

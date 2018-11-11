@@ -9,6 +9,7 @@ import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.junit.Before;
@@ -36,16 +37,22 @@ import static org.mockito.Mockito.when;
 public class ScheduleServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
     @Mock private ScheduleEventRepository eventRepo;
+    @Mock private UserService userService;
+    @Mock private ParticipantRepository participantRepository;
     private ScheduleService scheduleService;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.scheduleService = new ScheduleServiceImpl(this.eventRepo, this.eventTypeRepo);
+        this.scheduleService = new ScheduleServiceImpl(
+                this.eventRepo,
+                this.eventTypeRepo,
+                this.userService,
+                this.participantRepository);
     }
 
     @Test
-    public void shouldCreateNewScheduleEventIfUserValidForThisEventType() {
+    public void shouldCreateNewScheduleEvent_ifUserValidForThisEventType() {
         ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
 
         User user = UserFactory.createUser();
@@ -77,6 +84,21 @@ public class ScheduleServiceTest {
         when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
         this.scheduleService.createEvent(user, eventReq);
+    }
+
+    @Test
+    public void shouldReturnEvent_whenCreateEventWithDuration() {
+        //TODO
+    }
+
+    @Test
+    public void shouldReturnEvent_whenAddParticipant() {
+        //TODO
+    }
+
+    @Test
+    public void shouldRemoveParticipant_whenRemoveParticipant() {
+        //TODO
     }
 
     @Test

@@ -41,7 +41,6 @@ public class UserServiceTest {
     @Mock private RoleService roleService;
     @Mock private VerificationKeyRepository keyRepository;
     @Mock private PersonRepository personRepository;
-    @Mock private ScheduleService scheduleService;
     @Autowired private PasswordEncoder passwordEncoder;
     private UserService userService;
 
@@ -60,8 +59,7 @@ public class UserServiceTest {
                 roleService,
                 passwordEncoder,
                 keyRepository,
-                personRepository,
-                scheduleService);
+                personRepository);
 
         userDTO = new UserDTO();
         userDTO.setEmail(email);
@@ -117,13 +115,9 @@ public class UserServiceTest {
         long id2 = 100501L;
         ScheduleEvent eventOne = ScheduleEvent.builder().withOwner(expectedUser).withId(id1).build();
         ScheduleEvent eventTwo = ScheduleEvent.builder().withOwner(expectedUser).withId(id2).build();
-        Mockito.when(scheduleService.getEventsByOwner(expectedUser))
-                .thenReturn(Arrays.asList(eventOne, eventTwo));
 
         userService.deleteUser(expectedUser);
 
-        verify(scheduleService, times(1)).deleteEvent(id1);
-        verify(scheduleService, times(1)).deleteEvent(id2);
         verify(userRepository, times(1)).delete(expectedUser);
     }
 

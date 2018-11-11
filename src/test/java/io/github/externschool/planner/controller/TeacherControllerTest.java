@@ -405,7 +405,6 @@ public class TeacherControllerTest {
                                 Matchers.not(key))));
     }
 
-
     @After
     public void tearDown() {
         teacherService.deleteTeacherById(teacher.getId());

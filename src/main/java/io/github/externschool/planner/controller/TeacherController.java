@@ -5,6 +5,7 @@ import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
@@ -141,11 +142,13 @@ public class TeacherController {
                     .collect(Collectors.toList());
             for (LocalDate date : dates) {
                 scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
-                    Optional.ofNullable(event.getParticipants()).ifPresent(participants -> {
-                        participants.forEach(participant -> {
-                            Optional.ofNullable(participant.getVerificationKey()).ifPresent(key -> {
-                                if (key.getPerson().getClass() == Student.class) {
-                                    Optional.ofNullable(conversionService.convert(key.getPerson(), StudentDTO.class))
+                    event.getParticipants().stream()
+                            .map(Participant::getUser)
+                            .map(User::getVerificationKey)
+                            .map(VerificationKey::getPerson)
+                            .forEach(person -> {
+                                if (person.getClass() == Student.class) {
+                                    Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
                                             .ifPresent(studentDTO -> {
                                                 studentDTO.setOptionalData(
                                                         event.getStartOfEvent()
@@ -155,7 +158,7 @@ public class TeacherController {
                                                 students.add(studentDTO);
                                             });
                                 } else {
-                                    Optional.ofNullable(conversionService.convert(key.getPerson(), PersonDTO.class))
+                                    Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
                                             .ifPresent(guestDTO -> {
                                                 guestDTO.setOptionalData(
                                                         event.getStartOfEvent()
@@ -166,8 +169,6 @@ public class TeacherController {
                                             });
                                 }
                             });
-                        });
-                    });
                 });
             }
 
