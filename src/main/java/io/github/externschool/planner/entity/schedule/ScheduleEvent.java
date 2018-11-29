@@ -2,6 +2,11 @@ package io.github.externschool.planner.entity.schedule;
 
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -17,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -62,24 +69,16 @@ public class ScheduleEvent {
     private Boolean isAccomplished;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "owner_id")
     private User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @Cascade(CascadeType.SAVE_UPDATE)
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @Cascade(CascadeType.SAVE_UPDATE)
-//    @JoinTable(
-//            name = "event_participant",
-//            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
-//            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
-    @OneToMany(
-            mappedBy = "event",
-            cascade = javax.persistence.CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "event")
     private Set<Participant> participants = new HashSet<>();
 
     public ScheduleEvent() {}
@@ -231,65 +230,69 @@ public class ScheduleEvent {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
+
         if (!(o instanceof ScheduleEvent)) return false;
-        ScheduleEvent event = (ScheduleEvent) o;
-        return Objects.equals(id, event.id) &&
-                Objects.equals(title, event.title) &&
-                Objects.equals(description, event.description) &&
-                Objects.equals(location, event.location) &&
-                Objects.equals(startOfEvent, event.startOfEvent) &&
-                Objects.equals(endOfEvent, event.endOfEvent) &&
-                Objects.equals(createdAt, event.createdAt) &&
-                Objects.equals(modifiedAt, event.modifiedAt) &&
-                Objects.equals(isOpen, event.isOpen) &&
-                Objects.equals(isCancelled, event.isCancelled) &&
-                Objects.equals(isAccomplished, event.isAccomplished) &&
-                Objects.equals(owner, event.owner) &&
-                Objects.equals(type, event.type);
+
+        final ScheduleEvent event = (ScheduleEvent) o;
+
+        return new EqualsBuilder()
+                .append(getId(), event.getId())
+                .append(getTitle(), event.getTitle())
+                .append(getDescription(), event.getDescription())
+                .append(getLocation(), event.getLocation())
+                .append(getStartOfEvent(), event.getStartOfEvent())
+                .append(getEndOfEvent(), event.getEndOfEvent())
+                .append(getCreatedAt(), event.getCreatedAt())
+                .append(getModifiedAt(), event.getModifiedAt())
+                .append(isOpen, event.isOpen)
+                .append(isCancelled, event.isCancelled)
+                .append(isAccomplished, event.isAccomplished)
+                .append(getOwner(), event.getOwner())
+                .append(getType(), event.getType())
+                .append(getParticipants(), event.getParticipants())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(
-                id,
-                title,
-                description,
-                location,
-                startOfEvent,
-                endOfEvent,
-                createdAt,
-                modifiedAt,
-                isOpen,
-                isCancelled,
-                isAccomplished,
-                owner,
-                type);
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getTitle())
+                .append(getDescription())
+                .append(getLocation())
+                .append(getStartOfEvent())
+                .append(getEndOfEvent())
+                .append(getCreatedAt())
+                .append(getModifiedAt())
+                .append(isOpen)
+                .append(isCancelled)
+                .append(isAccomplished)
+                .append(getOwner() != null ? 31 : 0)
+                .append(getType())
+                .append(getParticipants())
+                .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "ScheduleEvent{" +
-                "id=" + (id != null ? id.toString() : "") +
-                ", title='" + paramToString(title) + '\'' +
-                ", description='" + paramToString(description) + '\'' +
-                ", location='" + paramToString(location) + '\'' +
-                ", startOfEvent=" + paramToString(startOfEvent) +
-                ", endOfEvent=" + paramToString(endOfEvent) +
-                ", createdAt=" + paramToString(createdAt) +
-                ", modifiedAt=" + paramToString(modifiedAt) +
-                ", isOpen=" + paramToString(isOpen) +
-                ", isCancelled=" + paramToString(isCancelled) +
-                ", isAccomplished=" + paramToString(isAccomplished) +
-                ", owner=" + paramToString(owner) +
-                ", type=" + (type != null ? type.getId() : "") +
-                ", participants=" + participants.size() +
-                '}';
-    }
-
-    private String paramToString(Object param) {
-        return (param != null ? param.toString() : "");
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("title", title)
+                .append("description", description)
+                .append("location", location)
+                .append("startOfEvent", startOfEvent)
+                .append("endOfEvent", endOfEvent)
+                .append("createdAt", createdAt)
+                .append("modifiedAt", modifiedAt)
+                .append("isOpen", isOpen)
+                .append("isCancelled", isCancelled)
+                .append("isAccomplished", isAccomplished)
+                .append("owner", Optional.ofNullable(getOwner()).map(User::getEmail).orElse(""))
+                .append("type", type)
+                .append("participants", getParticipants().size())
+                .toString();
     }
 
     public static ScheduleEventBuilder builder() {
@@ -333,8 +336,8 @@ public class ScheduleEvent {
             return this;
         }
 
-        public ScheduleEventBuilder withOwner(final User person) {
-            this.owner = person;
+        public ScheduleEventBuilder withOwner(final User user) {
+            this.owner = user;
             return this;
         }
 
@@ -342,11 +345,6 @@ public class ScheduleEvent {
             this.type = eventType;
             return this;
         }
-
-//        public ScheduleEventBuilder withParticipants(final Set<Participant> participants) {
-//            this.participants = participants;
-//            return this;
-//        }
 
         public ScheduleEventBuilder withStartDateTime(final LocalDateTime dateTime) {
             this.startOfEvent = dateTime;
@@ -374,7 +372,7 @@ public class ScheduleEvent {
         }
 
         public ScheduleEvent build() {
-            return new ScheduleEvent(
+            ScheduleEvent event = new ScheduleEvent(
                     this.id,
                     this.title,
                     this.description,
@@ -389,6 +387,9 @@ public class ScheduleEvent {
                     this.isCancelled,
                     this.isAccomplished
             );
+            this.owner.addOwnEvent(event);
+
+            return event;
         }
     }
 }

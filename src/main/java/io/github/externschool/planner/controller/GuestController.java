@@ -124,7 +124,7 @@ public class GuestController {
                     personService.deletePerson(persistedPerson);
                     user.addVerificationKey(newKey);
                     userService.assignNewRolesByKey(user, newKey);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                     if (userService.findUserByEmail(principal.getName())
                             .getRoles()
                             .contains(roleService.getRoleByName("ROLE_ADMIN"))) {

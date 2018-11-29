@@ -1,6 +1,5 @@
 package io.github.externschool.planner.controller;
 
-import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.dto.StudyPlanDTO;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
@@ -81,7 +80,7 @@ public class StudyPlanControllerTest {
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
         user.addVerificationKey(keyService.saveOrUpdateKey(new VerificationKey()));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)

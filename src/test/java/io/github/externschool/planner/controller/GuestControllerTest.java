@@ -1,7 +1,6 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
-import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
@@ -25,9 +24,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
@@ -89,7 +85,7 @@ public class GuestControllerTest {
 
         user = userService.createUser(userName,"pass", "ROLE_GUEST");
         user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        userService.save(user);
     }
 
     @Test
@@ -160,10 +156,8 @@ public class GuestControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
-        user.setRoles(roles);
-        userService.saveOrUpdate(user);
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
 
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
@@ -199,12 +193,10 @@ public class GuestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName, roles = "ADMIN")
+    @WithMockUser(username = userName)
     public void shouldRedirect_whenPostUpdateActionCancelAdmin() throws Exception {
-        Set<Role> roles = new HashSet<>();
-        roles.add(roleService.getRoleByName("ROLE_ADMIN"));
-        user.setRoles(roles);
-        userService.saveOrUpdate(user);
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
 
         mockMvc.perform(post("/guest/update")
                 .param("action", "cancel"))
@@ -224,6 +216,8 @@ public class GuestControllerTest {
     @After
     public void tearDown() {
         personService.deletePerson(person);
+        System.out.println(userService.findUserByEmail(userName));
         userService.deleteUser(user);
+        System.out.println(userService.findUserByEmail(userName));
     }
 }

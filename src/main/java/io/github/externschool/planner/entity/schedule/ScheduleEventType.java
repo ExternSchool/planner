@@ -12,6 +12,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -86,32 +87,28 @@ public class ScheduleEventType {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        ScheduleEventType that = (ScheduleEventType) o;
-
-        return name.equals(that.name);
+        if (!(o instanceof ScheduleEventType)) return false;
+        final ScheduleEventType that = (ScheduleEventType) o;
+        return Objects.equals(getId(), that.getId()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getCountOfParticipant(), that.getCountOfParticipant());
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+
+        return Objects.hash(getId(), getName(), getCountOfParticipant());
     }
 
     @Override
     public String toString() {
-        return "ScheduleEventType{" +
-                "id=" + (id != null ? id.toString() : "") +
-                ", name='" + paramToString(name) + '\'' +
-                ", creators=" + paramToString(creators) +
-                ", participants=" + (participants != null ? participants.size() : "") +
-                ", countOfParticipant=" + paramToString(countOfParticipant) +
-                '}';
-    }
-
-    private String paramToString(Object param) {
-        return (param != null ? param.toString() : "");
+        final StringBuffer sb = new StringBuffer("ScheduleEventType{");
+        sb.append("id=").append(id);
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", countOfParticipant=").append(countOfParticipant);
+        sb.append('}');
+        return sb.toString();
     }
 }

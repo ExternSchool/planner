@@ -110,7 +110,7 @@ public class TeacherControllerTest {
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_TEACHER");
         user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -122,7 +122,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnTeacherListTemplate_WhenGetRequestRootWithAdminRole() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/teacher/"))
                 .andExpect(status().isOk())
@@ -198,7 +198,8 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherEventDelete() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
+
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withEventType(typeService.loadEventTypes().get(0).getName())
                 .withDate(LocalDate.now())
@@ -277,7 +278,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherScheduleModalFormAddEvent() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(0))
                 .withDescription(typeService.loadEventTypes().get(0).getName())
@@ -295,7 +296,7 @@ public class TeacherControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
 
-        event = scheduleService.getActualEventsByOwnerAndDate(user, newEvent.getDate()).get(0);
+//        event = scheduleService.getActualEventsByOwnerAndDate(user, newEvent.getDate()).get(0);
     }
 
     @Test
@@ -327,7 +328,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
@@ -350,7 +351,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminGetRequestCancelUpdate() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
@@ -369,7 +370,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);

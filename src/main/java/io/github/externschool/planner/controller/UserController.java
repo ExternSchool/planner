@@ -66,7 +66,7 @@ public class UserController {
             user = userService.createNewUser(userDTO);
             if (userDTO.getVerificationKey() == null) {
                 userService.createAndAddNewKeyAndPerson(user);
-                userService.saveOrUpdate(user);
+                userService.save(user);
             } else {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
                 if (key == null || key.getUser() != null) {
@@ -76,7 +76,7 @@ public class UserController {
                 if (key.getPerson() != null && key.getPerson().getClass() != Person.class) {
                     user.addVerificationKey(key);
                     userService.assignNewRolesByKey(user, key);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                 }
             }
         } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
@@ -97,7 +97,7 @@ public class UserController {
         User user = userService.findUserByEmail(principal.getName());
         if (user.getVerificationKey() == null) {
             userService.createAndAddNewKeyAndPerson(user);
-            userService.saveOrUpdate(user);
+            userService.save(user);
         }
         if (user.getVerificationKey().getPerson().getPhoneNumber() == null) {
             modelAndView.setViewName("/guest/person_profile");

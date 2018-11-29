@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 
@@ -17,17 +18,9 @@ public interface ScheduleService {
 
     ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);
 
-    ScheduleEvent addParticipant(User user, ScheduleEvent event);
-
-    void removeParticipant(Long id);
-
     ScheduleEvent getEventById(long id);
 
-    LocalDate getCurrentWeekFirstDay();
-
-    LocalDate getNextWeekFirstDay();
-
-    List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
+    ScheduleEvent saveEvent(ScheduleEvent event);
 
     List<ScheduleEvent> getActualEventsByOwnerAndDate(User owner, LocalDate date);
 
@@ -36,4 +29,18 @@ public interface ScheduleService {
     void cancelEvent(long id);
 
     void deleteEvent(long id);
+
+    ScheduleEvent addOwner(User owner, ScheduleEvent event);
+
+    void removeOwner(User owner, ScheduleEvent event);
+
+    ScheduleEvent addParticipant(User user, ScheduleEvent event);
+
+    void removeParticipant(Participant participant);
+
+    LocalDate getCurrentWeekFirstDay();
+
+    LocalDate getNextWeekFirstDay();
+
+    List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
 }

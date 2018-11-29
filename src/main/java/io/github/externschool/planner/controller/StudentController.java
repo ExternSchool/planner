@@ -269,7 +269,7 @@ public class StudentController {
         Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.createAndAddNewKeyAndPerson(user);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                 });
 
         return showStudentProfileForm(studentDTO, true);

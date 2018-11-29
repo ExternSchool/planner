@@ -11,6 +11,7 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,7 @@ public class UserServiceTest {
     @Mock private VerificationKeyRepository keyRepository;
     @Mock private PersonRepository personRepository;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Mock private ScheduleService scheduleService;
     private UserService userService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
@@ -59,7 +61,8 @@ public class UserServiceTest {
                 roleService,
                 passwordEncoder,
                 keyRepository,
-                personRepository);
+                personRepository,
+                scheduleService);
 
         userDTO = new UserDTO();
         userDTO.setEmail(email);

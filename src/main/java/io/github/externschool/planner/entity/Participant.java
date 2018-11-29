@@ -1,12 +1,17 @@
 package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -19,11 +24,19 @@ public class Participant implements Serializable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user")
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @JoinTable(
+            name = "user_participant",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event")
+    @Cascade(CascadeType.SAVE_UPDATE)
+    @JoinTable(
+            name = "event_participant",
+            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
     private ScheduleEvent event;
 
     private Participant() {
@@ -58,5 +71,33 @@ public class Participant implements Serializable {
     // use ScheduleEvent class addParticipant() method
     public void setEvent(ScheduleEvent event) {
         this.event = event;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+
+        if (!(o instanceof Participant)) return false;
+
+        final Participant that = (Participant) o;
+
+        return new EqualsBuilder()
+                .append(getId(), that.getId())
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Participant{");
+        sb.append("id=").append(id);
+        sb.append('}');
+        return sb.toString();
     }
 }

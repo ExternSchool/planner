@@ -119,7 +119,7 @@ public class StudentControllerTest {
         }
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         teacher = new Teacher();
         teacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -168,7 +168,7 @@ public class StudentControllerTest {
         userTeacher.addVerificationKey(key);
         teacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
-        userService.saveOrUpdate(userTeacher);
+        userService.save(userTeacher);
         plan = new StudyPlan();
         planService.saveOrUpdatePlan(plan);
         String title = "New Plan for Course";
@@ -197,7 +197,7 @@ public class StudentControllerTest {
         userTeacher.addVerificationKey(key);
         teacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
-        userService.saveOrUpdate(userTeacher);
+        userService.save(userTeacher);
         plan = new StudyPlan();
         planService.saveOrUpdatePlan(plan);
         String title = "New Plan for Course";
@@ -278,7 +278,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenGetPlanWithWrongId() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/student/0/plan"))
                 .andExpect(status().is3xxRedirection())
@@ -371,7 +371,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
@@ -412,7 +412,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenGetUpdateCancelAdmin() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())

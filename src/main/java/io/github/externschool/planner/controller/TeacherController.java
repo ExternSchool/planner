@@ -438,7 +438,7 @@ public class TeacherController {
             Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
-                    .ifPresent(user -> userService.saveOrUpdate(
+                    .ifPresent(user -> userService.save(
                             userService.assignNewRolesByKey(user, user.getVerificationKey())));
         }
 
@@ -471,7 +471,7 @@ public class TeacherController {
         Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.createAndAddNewKeyAndPerson(user);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                 });
 
         modelAndView = displayTeacherProfile(teacherDTO);

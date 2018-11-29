@@ -7,11 +7,13 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
+import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -32,18 +30,21 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationKeyRepository keyRepository;
     private final PersonRepository personRepository;
+    private final ScheduleService scheduleService;
 
     @Autowired
     public UserServiceImpl(final UserRepository userRepository,
                            final RoleService roleService,
                            final PasswordEncoder passwordEncoder,
                            final VerificationKeyRepository keyRepository,
-                           final PersonRepository personRepository) {
+                           final PersonRepository personRepository,
+                           final ScheduleService scheduleService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.keyRepository = keyRepository;
         this.personRepository = personRepository;
+        this.scheduleService = scheduleService;
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveOrUpdate(User user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 
@@ -64,12 +65,12 @@ public class UserServiceImpl implements UserService {
             if (user.getVerificationKey() != null) {
                 user.removeVerificationKey();
             }
-            user.getParticipants().forEach(participant -> {
-                participant.getEvent().removeParticipant(participant);
-                user.removeParticipant(participant);
-            });
-            // TODO delete events when user is their owner
-
+            for (ScheduleEvent event : user.getOwnEvents()) {
+                scheduleService.deleteEvent(event.getId());
+            }
+            for (Participant participant : user.getParticipants()) {
+                scheduleService.removeParticipant(participant);
+            }
 
             userRepository.delete(user);
         }
@@ -154,7 +155,7 @@ public class UserServiceImpl implements UserService {
         person.addVerificationKey(key);
         personRepository.save(person);
         user.addVerificationKey(key);
-        saveOrUpdate(user);
+        save(user);
         assignNewRolesByKey(user, key);
     }
 
