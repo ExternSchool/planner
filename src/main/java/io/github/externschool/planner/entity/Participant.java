@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,17 +27,17 @@ public class Participant implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @Cascade(CascadeType.SAVE_UPDATE)
     @JoinTable(
-            name = "user_participant",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
+            name = "participant_user",
+            joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")})
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Cascade(CascadeType.SAVE_UPDATE)
     @JoinTable(
-            name = "event_participant",
-            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")})
+            name = "participant_event",
+            joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")})
     private ScheduleEvent event;
 
     private Participant() {
