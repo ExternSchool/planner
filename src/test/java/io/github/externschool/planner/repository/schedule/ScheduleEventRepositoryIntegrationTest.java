@@ -35,16 +35,18 @@ public class ScheduleEventRepositoryIntegrationTest {
                     @Sql("/datasets/user/oneUser.sql"),
                     @Sql("/datasets/scheduleEventType/oneType.sql"),
                     @Sql("/datasets/scheduleEvent/oneEvent.sql")
-            }
-    )
+            })
     public void shouldReturnListEvents() {
         List<ScheduleEvent> events = repository.findAll();
         ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        event.setCreatedAt(events.get(0).getCreatedAt());
+        ScheduleEvent expectedEvent = events.get(0);
+        event.setCreatedAt(expectedEvent.getCreatedAt());
+        event.setOwner(expectedEvent.getOwner());
 
         assertThat(events)
-                .isNotNull()
-                .containsExactlyInAnyOrder(event);
+                .isNotNull();
+        assertThat(event)
+                .isEqualToComparingFieldByField(expectedEvent);
     }
 
     @Test

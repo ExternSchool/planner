@@ -6,7 +6,8 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,7 +21,8 @@ import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLA
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
-@Component
+@Service
+@Transactional
 public class EmailServiceImpl implements EmailService {
 
     private JavaMailSender mailSender;
@@ -55,7 +57,7 @@ public class EmailServiceImpl implements EmailService {
                     + LocalDateTime.now()
                             .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE));
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-            simpleMailMessage.setTo(participant.getEmail());
+            simpleMailMessage.setTo(participant.getUser().getEmail());
             simpleMailMessage.setSubject(APPOINTMENT_CANCELLATION_SUBJECT + eventDateTime + eventOwnersName);
             simpleMailMessage.setFrom(eventOwner.getEmail());
             simpleMailMessage.setText(textMessage);

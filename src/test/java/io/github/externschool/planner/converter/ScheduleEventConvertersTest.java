@@ -2,11 +2,13 @@ package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.service.ScheduleService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,34 +32,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class ScheduleEventConvertersTest {
     @Autowired private ConversionService conversionService;
+    @Autowired private ScheduleService scheduleService;
 
     @Test
     public void shouldReturnExpectedDTO_whenConvertToDTO() {
-        Set<User> participants = new HashSet<>();
-        User p1 = new User("1", "");
-        p1.setId(1L);
+        User user = new User("1", "");
+        user.setId(1L);
         VerificationKey key1 = new VerificationKey();
-        p1.addVerificationKey(key1);
+        user.addVerificationKey(key1);
         Student s1 = new Student();
         s1.setId(3L);
         s1.setLastName("One");
         s1.setGradeLevel(GradeLevel.LEVEL_7);
         s1.addVerificationKey(key1);
-        participants.add(p1);
 
         ScheduleEvent eventOne = ScheduleEvent.builder()
                 .withId(1L)
                 .withStartDateTime(LocalDateTime.of(2018, 10, 10, 12, 10))
-                .withParticipants(participants)
                 .withOpenStatus(false)
+                .withDescription("One null, 7")
                 .withType(new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1))
                 .withTitle("")
                 .build();
+        scheduleService.addParticipant(user, eventOne);
+
         ScheduleEvent eventTwo = ScheduleEvent.builder()
                 .withId(2L)
                 .withStartDateTime(LocalDateTime.of(2018, 10, 10, 12, 40))
-                .withParticipants(new HashSet<>())
                 .withOpenStatus(true)
+                .withDescription("Індивідуальна консультація")
                 .withType(new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1))
                 .withTitle("")
                 .build();

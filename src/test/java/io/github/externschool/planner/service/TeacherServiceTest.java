@@ -5,6 +5,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.junit.Before;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.verify;
 public class TeacherServiceTest {
     @Mock private TeacherRepository teacherRepository;
     @Mock private VerificationKeyRepository keyRepository;
+    @Mock private CourseRepository courseRepository;
     private TeacherService teacherService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
@@ -40,7 +42,7 @@ public class TeacherServiceTest {
 
     @Before
     public void setUp() {
-        teacherService = new TeacherServiceImpl(teacherRepository, keyRepository);
+        teacherService = new TeacherServiceImpl(teacherRepository, keyRepository, courseRepository);
 
         expectedTeacher = new Teacher();
         expectedTeacher.setLastName("LastName");

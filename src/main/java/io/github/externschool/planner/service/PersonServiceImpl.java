@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private final UserRepository userRepository;
@@ -43,10 +44,9 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findAllByOrderByLastName();
     }
 
-    @Transactional
     @Override
     public void deletePerson(Person person) {
-        if (person != null) {
+        if (person != null && findPersonById(person.getId()) != null) {
             Optional.ofNullable(person.getVerificationKey()).ifPresent(key -> {
                 Optional.ofNullable(key.getUser()).ifPresent(user -> {
                     user.removeVerificationKey();

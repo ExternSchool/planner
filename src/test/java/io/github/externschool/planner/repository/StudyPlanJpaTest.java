@@ -3,9 +3,10 @@ package io.github.externschool.planner.repository;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,14 +23,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class StudyPlanJpaTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private SchoolSubjectRepository repository;
+    @Autowired private TestEntityManager entityManager;
+    @Autowired private SchoolSubjectRepository subjectRepository;
+    @Autowired private StudyPlanRepository planRepository;
 
     private List<StudyPlan> expectedStudyPlans;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -39,8 +40,9 @@ public class StudyPlanJpaTest {
             subject.setTitle(name);
             for (GradeLevel level : Arrays.asList(GradeLevel.LEVEL_1, GradeLevel.LEVEL_3)) {
                 StudyPlan plan = new StudyPlan(level, subject);
-                subject.addPlan(plan);
+                plan.setSubject(subject);
                 expectedStudyPlans.add(plan);
+                entityManager.persist(plan);
             }
 
             entityManager.persist(subject);
@@ -49,7 +51,7 @@ public class StudyPlanJpaTest {
 
     @Test
     public void shouldReturnFourPlans_whenAddTwoPlansToEachOfTwoSubjects() {
-        List<StudyPlan> actualStudyPlans = repository.findAll().stream()
+        List<StudyPlan> actualStudyPlans = subjectRepository.findAll().stream()
                 .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
 
@@ -59,26 +61,13 @@ public class StudyPlanJpaTest {
     }
 
     @Test
-    public void shouldReturnTwoPlans_whenDeleteOneSubjectWhichContainsTwoPlans() {
-        repository.delete(repository.findByTitle("Quantum Mechanics"));
-        List<StudyPlan> actualStudyPlans = repository.findAll().stream()
-                .flatMap(o -> o.getPlans().stream())
-                .collect(Collectors.toList());
-
-        assertThat(actualStudyPlans)
-                .containsAnyElementsOf(expectedStudyPlans)
-                .size()
-                .isNotEqualTo(expectedStudyPlans.size())
-                .isEqualTo(2);
-    }
-
-    @Test
     public void shouldReturnThreePlans_whenRemoveStudyPlanFromSubject() {
-        SchoolSubject subject = repository.findByTitle("Quantum Mechanics");
-        subject.removePlan((StudyPlan) subject.getPlans().toArray()[0]);
+        SchoolSubject subject = subjectRepository.findByTitle("Quantum Mechanics");
+        subject.getPlans().stream().findFirst().ifPresent(StudyPlan::removeSubject);
+
         entityManager.persist(subject);
 
-        List<StudyPlan> actualStudyPlans = repository.findAll().stream()
+        List<StudyPlan> actualStudyPlans = subjectRepository.findAll().stream()
                 .flatMap(o -> o.getPlans().stream())
                 .collect(Collectors.toList());
 
@@ -88,19 +77,10 @@ public class StudyPlanJpaTest {
                 .isEqualTo(3);
     }
 
-    @Test
-    @SuppressWarnings({"unchecked", "JpaQlInspection"})
-    public void shouldReturnNoPlans_whenNoSubjects() {
-        repository.deleteAll();
-        List<StudyPlan> actualStudyPlans = entityManager
-                .getEntityManager()
-                .createQuery("Select t from Plan t").getResultList();
 
-        assertThat(actualStudyPlans).size().isEqualTo(0);
-    }
-
-    @After
-    public void tearDown(){
-        repository.deleteAll();
+    @Test(expected = org.springframework.dao.DataIntegrityViolationException.class)
+    public void shouldThrowDataIntegrityViolationException_whenDeleteSubjectWhichContainsPlans() {
+        subjectRepository.deleteAll();
+        planRepository.findAll();
     }
 }

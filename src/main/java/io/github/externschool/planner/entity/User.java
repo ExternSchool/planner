@@ -1,7 +1,6 @@
 package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,12 +15,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.hibernate.annotations.CascadeType.SAVE_UPDATE;
 
 @Entity
 @Table(name = "user")
@@ -37,22 +34,19 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false, length = 60)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "name"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "owner")
-    @Cascade(SAVE_UPDATE)
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
-    @ManyToMany(mappedBy = "participants")
-    @Cascade(SAVE_UPDATE)
-    private Set<ScheduleEvent> relatedEvents = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private Set<Participant> participants = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @Cascade(SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
@@ -81,11 +75,7 @@ public class User implements Serializable {
     }
 
     public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+        return Collections.unmodifiableSet(roles);
     }
 
     public String getEmail() {
@@ -127,45 +117,94 @@ public class User implements Serializable {
     }
 
     public void addOwnEvent(ScheduleEvent event) {
-        this.ownEvents.add(event);
-        event.setOwner(this);
+        if (event != null && !ownEvents.contains(event)) {
+            this.ownEvents.add(event);
+            event.setOwner(this);
+        }
     }
 
     public void removeOwnEvent(ScheduleEvent event) {
-        this.ownEvents.remove(event);
-        event.setOwner(null);
+        if (event != null && !ownEvents.isEmpty()) {
+            this.ownEvents = ownEvents.stream()
+                    .filter(e -> !e.getId().equals(event.getId()))
+                    .collect(Collectors.toSet());
+            event.setOwner(null);
+        }
     }
 
-    public void addRelatedEvent(ScheduleEvent event) {
-        this.relatedEvents.add(event);
-        event.getParticipants().add(this);
+    public Set<ScheduleEvent> getOwnEvents() {
+        return Collections.unmodifiableSet(ownEvents);
     }
 
-    public void removeRelatedEvent(ScheduleEvent event) {
-        this.relatedEvents.remove(event);
-        event.getParticipants().remove(this);
+    public Set<Participant> getParticipants() {
+        return Collections.unmodifiableSet(participants);
+    }
+
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setUser(this);
+    }
+
+    public void removeParticipant(Participant participant) {
+        if (participant != null) {
+            participants.remove(participant);
+            participant.setUser(null);
+        }
+    }
+
+    // private getters to Sets instead of public immutable collection
+    private Set<Role> getRolesForHash() {
+        return roles;
+    }
+
+    private Set<ScheduleEvent> getOwnEventsForHash() {
+        return ownEvents;
+    }
+
+    private Set<Participant> getParticipantsForHash() {
+        return participants;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(email, user.email);
+
+        if (!(o instanceof User)) return false;
+
+        final User user = (User) o;
+
+        return new org.apache.commons.lang3.builder.EqualsBuilder()
+                .append(getId(), user.getId())
+                .append(getEmail(), user.getEmail())
+                .append(getPassword(), user.getPassword())
+                .append(getRolesForHash(), user.getRolesForHash())
+                .append(getOwnEventsForHash().size(), user.getOwnEventsForHash().size())
+                .append(getParticipantsForHash(), user.getParticipantsForHash())
+                .append(getVerificationKey(), user.getVerificationKey())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(email);
+        return new org.apache.commons.lang3.builder.HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getEmail())
+                .append(getPassword())
+                .append(getRolesForHash())
+                .append(getOwnEventsForHash().size())
+                .append(getParticipantsForHash())
+                .append(getVerificationKey())
+                .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", roles=" + roles.stream().map(Role::getName).collect(Collectors.joining(",")) +
-                ", verificationKey=" + (verificationKey != null ? verificationKey.getValue() : "") +
-                '}';
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("id=").append(id);
+        sb.append(", email='").append(email).append('\'');
+        sb.append(", roles=").append(getRoles().stream().map(Role::getName).collect(Collectors.joining(",")));
+        sb.append(", verificationKey=").append(verificationKey);
+        sb.append('}');
+        return sb.toString();
     }
 }
