@@ -5,6 +5,7 @@ import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,6 +50,7 @@ import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOC
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 
 @Controller
+@Transactional
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
@@ -139,13 +142,16 @@ public class TeacherController {
             List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
                     .limit(ChronoUnit.DAYS.between(start, end))
                     .collect(Collectors.toList());
+            // TODO simplify
             for (LocalDate date : dates) {
                 scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
-                    Optional.ofNullable(event.getParticipants()).ifPresent(participants -> {
-                        participants.forEach(participant -> {
-                            Optional.ofNullable(participant.getVerificationKey()).ifPresent(key -> {
-                                if (key.getPerson().getClass() == Student.class) {
-                                    Optional.ofNullable(conversionService.convert(key.getPerson(), StudentDTO.class))
+                    event.getParticipants().stream()
+                            .map(Participant::getUser)
+                            .map(User::getVerificationKey)
+                            .map(VerificationKey::getPerson)
+                            .forEach(person -> {
+                                if (person.getClass() == Student.class) {
+                                    Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
                                             .ifPresent(studentDTO -> {
                                                 studentDTO.setOptionalData(
                                                         event.getStartOfEvent()
@@ -155,7 +161,7 @@ public class TeacherController {
                                                 students.add(studentDTO);
                                             });
                                 } else {
-                                    Optional.ofNullable(conversionService.convert(key.getPerson(), PersonDTO.class))
+                                    Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
                                             .ifPresent(guestDTO -> {
                                                 guestDTO.setOptionalData(
                                                         event.getStartOfEvent()
@@ -166,8 +172,6 @@ public class TeacherController {
                                             });
                                 }
                             });
-                        });
-                    });
                 });
             }
 
@@ -238,7 +242,7 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
         if (optionalUser != null && optionalUser.isPresent() && event != null) {
-            scheduleService.deleteEvent(eventId);
+            scheduleService.deleteEventById(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -307,7 +311,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEvent(event.getId());
+                scheduleService.cancelEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -350,7 +354,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEvent(event.getId());
+                scheduleService.cancelEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -437,7 +441,7 @@ public class TeacherController {
             Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
-                    .ifPresent(user -> userService.saveOrUpdate(
+                    .ifPresent(user -> userService.save(
                             userService.assignNewRolesByKey(user, user.getVerificationKey())));
         }
 
@@ -470,7 +474,7 @@ public class TeacherController {
         Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.createAndAddNewKeyAndPerson(user);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                 });
 
         modelAndView = displayTeacherProfile(teacherDTO);

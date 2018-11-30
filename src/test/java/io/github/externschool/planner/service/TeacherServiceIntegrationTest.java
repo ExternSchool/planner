@@ -11,17 +11,17 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
 public class TeacherServiceIntegrationTest {
     @Autowired private SchoolSubjectService subjectService;
@@ -44,50 +44,54 @@ public class TeacherServiceIntegrationTest {
             subject.setTitle(name);
             teacher.addSubject(subject);
             StudyPlan plan = new StudyPlan(GradeLevel.LEVEL_3, subject);
-            subject.addPlan(plan);
+            plan.setSubject(subject);
 
             subjects.add(subject);
             plans.add(plan);
             teachers.add(teacher);
+
+            subjectService.saveOrUpdateSubject(subject);
+            planService.saveOrUpdatePlan(plan);
+            teacherService.saveOrUpdateTeacher(teacher);
         }
     }
 
     @Test
-    public void shouldReturnAllTeachers_whenFindAllTeachers() {
-        int initialSize = Optional.ofNullable(teacherService.findAllTeachers()).orElse(Collections.emptyList()).size();
-        subjects.forEach(subjectService::saveOrUpdateSubject);
-        teachers.forEach(teacherService::saveOrUpdateTeacher);
+    public void shouldReturnSameTeachers_whenUpdateTeachers() {
+        List<Teacher> allTeachers = teacherService.findAllTeachers();
+        int initialSize = allTeachers.size();
 
+        teachers.forEach(teacherService::saveOrUpdateTeacher);
         List<Teacher> actualTeachers = teacherService.findAllTeachers();
 
         assertThat(actualTeachers)
                 .isNotEmpty()
-                .hasSize(initialSize + teachers.size())
-                .containsAll(teachers);
+                .hasSize(initialSize)
+                .containsExactlyInAnyOrderElementsOf(allTeachers);
     }
 
     @Test
-    public void shouldReturnAllSubjects_whenFindAllSubjects() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                .orElse(Collections.emptyList()).size();
-        subjects.forEach(subjectService::saveOrUpdateSubject);
+    public void shouldReturnSameSubjects_whenUpdateSubjects() {
+        List<SchoolSubject> allSubjects = subjectService.findAllByOrderByTitle();
+        int initialSize = allSubjects.size();
 
+        subjects.forEach(subjectService::saveOrUpdateSubject);
         List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
 
         assertThat(actualSubjects)
                 .isNotEmpty()
-                .hasSize(initialSize + subjects.size())
-                .containsAll(subjects);
+                .hasSize(initialSize)
+                .containsExactlyInAnyOrderElementsOf(allSubjects);
     }
 
     @Test
     public void shouldRemoveFromTeachers_whenDeleteSubject() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                .orElse(Collections.emptyList()).size();
+        List<SchoolSubject> allSubjects = subjectService.findAllByOrderByTitle();
+        int initialSize = allSubjects.size();
         subjects.forEach(subjectService::saveOrUpdateSubject);
         teachers.forEach(teacherService::saveOrUpdateTeacher);
         SchoolSubject subjectToRemove = subjects.get(0);
-        subjects.remove(subjectToRemove);
+        allSubjects.remove(subjectToRemove);
 
         subjectService.deleteSubjectById(subjectToRemove.getId());
         List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
@@ -95,13 +99,12 @@ public class TeacherServiceIntegrationTest {
 
         assertThat(actualSubjects)
                 .isNotEmpty()
-                .containsAll(subjects)
-                .hasSize(initialSize + subjects.size());
+                .containsExactlyInAnyOrderElementsOf(allSubjects)
+                .hasSize(initialSize - 1);
 
-        actualTeachers.forEach(teacher -> {
+        actualTeachers.forEach(teacher ->
             assertThat(teacher.getSubjects())
-                    .doesNotContain(subjectToRemove);
-        });
+                    .doesNotContain(subjectToRemove));
     }
 
     @Test
@@ -119,20 +122,20 @@ public class TeacherServiceIntegrationTest {
                 .isNotEmpty()
                 .containsAll(teachers);
 
-        actualSubjects.forEach(subject -> {
+        actualSubjects.forEach(subject ->
             assertThat(subject.getTeachers())
-                    .doesNotContain(teacher);
-        });
+                    .doesNotContain(teacher));
     }
 
     @Test
     public void shouldRemovePlans_whenDeleteSubject() {
-        int initialSize = Optional.ofNullable(subjectService.findAllByOrderByTitle())
-                .orElse(Collections.emptyList()).size();
-        subjects.forEach(subjectService::saveOrUpdateSubject);
-        plans.forEach(planService::saveOrUpdatePlan);
-        SchoolSubject subjectToRemove = subjects.get(0);
-        subjects.remove(subjectToRemove);
+        List<SchoolSubject> allSubjects = subjectService.findAllByOrderByTitle();
+        List<Teacher> allTeachers = teacherService.findAllTeachers();
+        List<StudyPlan> allPlans = planService.findAll();
+        int initialSize = allSubjects.size();
+        SchoolSubject subjectToRemove = allSubjects.get(0);
+        allSubjects.remove(subjectToRemove);
+        Set<StudyPlan> plansToRemove = subjectToRemove.getPlans();
 
         subjectService.deleteSubjectById(subjectToRemove.getId());
         List<SchoolSubject> actualSubjects = subjectService.findAllByOrderByTitle();
@@ -140,19 +143,21 @@ public class TeacherServiceIntegrationTest {
 
         assertThat(actualSubjects)
                 .isNotEmpty()
-                .containsAll(subjects)
-                .hasSize(initialSize + subjects.size());
+                .containsExactlyInAnyOrderElementsOf(allSubjects)
+                .hasSize(initialSize - 1);
 
-        actualPlans.forEach(plan -> {
+        actualPlans.forEach(plan ->
             assertThat(plan.getSubject())
-                    .isNotEqualTo(subjectToRemove);
-        });
+                    .isNotEqualTo(subjectToRemove));
+
+        assertThat(actualPlans)
+                .doesNotContainAnyElementsOf(plansToRemove);
     }
 
     @After
     public void tearDown() {
-        plans.stream().filter(Objects::nonNull).forEach(planService::deletePlan);
-        subjects.stream().filter(Objects::nonNull).map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
-        teachers.stream().filter(Objects::nonNull).map(Teacher::getId).forEach(teacherService::deleteTeacherById);
+        plans.forEach(planService::deletePlan);
+        subjects.stream().map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
+        teachers.stream().map(Teacher::getId).forEach(teacherService::deleteTeacherById);
     }
 }

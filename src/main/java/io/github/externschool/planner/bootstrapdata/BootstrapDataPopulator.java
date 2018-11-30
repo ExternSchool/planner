@@ -93,7 +93,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         createScheduleEventType();
 
         User admin = userService.createUser("q@q", "q", "ROLE_ADMIN");
-        admin = userService.saveOrUpdate(admin);
+        admin = userService.save(admin);
         Person adminPerson = new Person();
         adminPerson.setLastName("Admin");
         adminPerson.setFirstName("Admin");
@@ -105,7 +105,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         admin.addVerificationKey(key);
         verificationKeyService.saveOrUpdateKey(key);
         personService.saveOrUpdatePerson(adminPerson);
-        userService.saveOrUpdate(admin);
+        userService.save(admin);
 
         User presetTeacher = userService.createUser("t@t", "t", "ROLE_TEACHER");
         presetTeacher.addRole(roleService.getRoleByName("ROLE_OFFICER"));
@@ -122,7 +122,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         teacher.addVerificationKey(key);
         presetTeacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
-        userService.saveOrUpdate(presetTeacher);
+        userService.save(presetTeacher);
 
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -138,7 +138,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         presetStudentProfile.addVerificationKey(key);
         presetStudent.setVerificationKey(key);
         studentService.saveOrUpdateStudent(presetStudentProfile);
-        userService.saveOrUpdate(presetStudent);
+        userService.save(presetStudent);
 
         User presetGuest = userService.createUser("u@u", "u", "ROLE_GUEST");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
@@ -151,7 +151,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         presetGuestProfile.addVerificationKey(key);
         presetGuest.addVerificationKey(key);
         personService.saveOrUpdatePerson(presetGuestProfile);
-        userService.saveOrUpdate(presetGuest);
+        userService.save(presetGuest);
 
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         teacher = createTeacher(new Person(
@@ -249,7 +249,7 @@ public class BootstrapDataPopulator implements InitializingBean {
             planRepository.save(plan);
 
             teacher.addSubject(subject);
-            subject.addPlan(plan);
+            plan.setSubject(subject);
         }
 
         return teacher;

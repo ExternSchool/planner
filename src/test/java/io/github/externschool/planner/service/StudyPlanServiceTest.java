@@ -5,7 +5,6 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Student;
-import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class StudyPlanServiceTest {
     @Mock private StudyPlanRepository planRepository;
-    @Mock private CourseRepository courseRepository;
+    @Mock private CourseService courseService;
     private StudyPlanService planService;
 
     private StudyPlan expectedPlan;
@@ -39,7 +38,7 @@ public class StudyPlanServiceTest {
 
     @Before
     public void setUp() {
-        planService = new StudyPlanServiceImpl(planRepository, courseRepository);
+        planService = new StudyPlanServiceImpl(planRepository, courseService);
 
         subject = new SchoolSubject();
         subject.setId(1L);
@@ -135,7 +134,9 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldRemovePlanFromSubject_whenDeletePlan() {
-        Mockito.when(courseRepository.findAllById_PlanIdOrderByTitle(expectedPlan.getId()))
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        Mockito.when(courseService.findAllByPlanId(expectedPlan.getId()))
                 .thenReturn(Arrays.asList(expectedCourse, anotherCourse));
 
         planService.deletePlan(expectedPlan);
@@ -148,13 +149,13 @@ public class StudyPlanServiceTest {
 
     @Test
     public void shouldDeleteCourses_whenDeletePlan() {
-        Mockito.when(courseRepository.findAllById_PlanIdOrderByTitle(expectedPlan.getId()))
+        Mockito.when(planRepository.findStudyPlanById(expectedPlan.getId()))
+                .thenReturn(expectedPlan);
+        Mockito.when(courseService.findAllByPlanId(expectedPlan.getId()))
                 .thenReturn(Arrays.asList(expectedCourse, anotherCourse));
 
         planService.deletePlan(expectedPlan);
 
-        verify(courseRepository, times(1)).delete(expectedCourse);
-        verify(courseRepository, times(1)).delete(anotherCourse);
         verify(planRepository, times(1)).delete(expectedPlan);
     }
 

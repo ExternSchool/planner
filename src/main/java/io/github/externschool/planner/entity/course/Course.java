@@ -1,14 +1,11 @@
 package io.github.externschool.planner.entity.course;
 
 import io.github.externschool.planner.entity.profile.Teacher;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -21,8 +18,7 @@ import java.util.Objects;
 public class Course implements Serializable {
     @EmbeddedId private CoursePK id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 

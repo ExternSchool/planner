@@ -9,7 +9,7 @@ import io.github.externschool.planner.exceptions.RoleNotFoundException;
 public interface UserService {
     User findUserByEmail(String email);
 
-    User saveOrUpdate(User user);
+    User save(User user);
 
     void deleteUser(User user);
 

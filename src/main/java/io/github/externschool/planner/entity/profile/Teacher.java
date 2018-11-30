@@ -3,12 +3,11 @@ package io.github.externschool.planner.entity.profile;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -17,6 +16,7 @@ import javax.persistence.Table;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "teacher")
@@ -24,15 +24,13 @@ public class Teacher extends Person {
     @Column(name = "officer")
     private String officer;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToMany
     @JoinTable(name = "teacher_subject",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private Set<SchoolSubject> subjects = new HashSet<>();
 
-    @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @OneToMany(mappedBy = "teacher")
     @Column(name = "courses")
     private Set<Course> courses = new HashSet<>();
 
@@ -89,14 +87,16 @@ public class Teacher extends Person {
     public void addSubject(SchoolSubject subject) {
         if (subject != null && !subjects.contains(subject)) {
             subjects.add(subject);
-            subject.getTeachers().add(this);
+            subject.addTeacher(this);
         }
     }
 
     public void removeSubject(SchoolSubject subject) {
-        if (subject != null && subjects.contains(subject)) {
-            subjects.remove(subject);
-            subject.getTeachers().remove(this);
+        if (subject != null && !subjects.isEmpty()) {
+            this.subjects = subjects.stream()
+                    .filter(s -> !s.getId().equals(subject.getId()))
+                    .collect(Collectors.toSet());
+            subject.removeTeacher(this);
         }
     }
 
@@ -121,19 +121,27 @@ public class Teacher extends Person {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+
+        if (!(o instanceof Teacher)) return false;
 
         Teacher teacher = (Teacher) o;
 
-        return officer != null ? officer.equals(teacher.officer) : teacher.officer == null;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(o))
+                .append(getOfficer(), teacher.getOfficer())
+                .append(getSubjects(), teacher.getSubjects())
+                .append(getCourses(), teacher.getCourses())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (officer != null ? officer.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(getOfficer())
+                .append(getSubjects())
+                .append(getCourses())
+                .toHashCode();
     }
 
     @Override
