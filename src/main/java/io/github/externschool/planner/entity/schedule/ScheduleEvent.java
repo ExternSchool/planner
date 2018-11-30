@@ -5,8 +5,6 @@ import io.github.externschool.planner.entity.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,14 +13,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,17 +64,15 @@ public class ScheduleEvent {
     @Column(name = "is_accomplished")
     private Boolean isAccomplished;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToOne
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     private Set<Participant> participants = new HashSet<>();
 
     public ScheduleEvent() {}
@@ -266,33 +260,34 @@ public class ScheduleEvent {
                 .append(getEndOfEvent())
                 .append(getCreatedAt())
                 .append(getModifiedAt())
-                .append(isOpen)
-                .append(isCancelled)
-                .append(isAccomplished)
+                .append(isOpen())
+                .append(isCancelled())
+                .append(isAccomplished())
                 .append(getOwner() != null ? 31 : 0)
                 .append(getType())
-                .append(getParticipants())
+                .append(getParticipants().size())
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("title", title)
-                .append("description", description)
-                .append("location", location)
-                .append("startOfEvent", startOfEvent)
-                .append("endOfEvent", endOfEvent)
-                .append("createdAt", createdAt)
-                .append("modifiedAt", modifiedAt)
-                .append("isOpen", isOpen)
-                .append("isCancelled", isCancelled)
-                .append("isAccomplished", isAccomplished)
+        ToStringBuilder sb = new ToStringBuilder(this)
+                .append("id", getId())
+                .append("title", getTitle())
+                .append("description", getDescription())
+                .append("location", getLocation())
+                .append("startOfEvent", getStartOfEvent())
+                .append("endOfEvent", getEndOfEvent())
+                .append("createdAt", getCreatedAt())
+                .append("modifiedAt", getModifiedAt())
+                .append("isOpen", isOpen())
+                .append("isCancelled", isCancelled())
+                .append("isAccomplished", isAccomplished())
                 .append("owner", Optional.ofNullable(getOwner()).map(User::getEmail).orElse(""))
-                .append("type", type)
-                .append("participants", getParticipants().size())
-                .toString();
+                .append("type", Optional.ofNullable(getType()).map(ScheduleEventType::getName).orElse("Not defined"))
+                .append("participants", getParticipants().size());
+
+        return sb.toString();
     }
 
     public static ScheduleEventBuilder builder() {
@@ -387,7 +382,7 @@ public class ScheduleEvent {
                     this.isCancelled,
                     this.isAccomplished
             );
-            this.owner.addOwnEvent(event);
+            Optional.ofNullable(this.owner).ifPresent(o -> o.addOwnEvent(event));
 
             return event;
         }

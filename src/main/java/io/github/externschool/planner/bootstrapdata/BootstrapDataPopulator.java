@@ -249,7 +249,7 @@ public class BootstrapDataPopulator implements InitializingBean {
             planRepository.save(plan);
 
             teacher.addSubject(subject);
-            subject.addPlan(plan);
+            plan.setSubject(subject);
         }
 
         return teacher;

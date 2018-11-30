@@ -21,6 +21,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GuestControllerTest {
@@ -123,8 +125,11 @@ public class GuestControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenPostId() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
         mockMvc.perform(post("/guest/" + person.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
@@ -136,8 +141,11 @@ public class GuestControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
         mockMvc.perform(post("/guest/" + person.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/"));
@@ -193,7 +201,7 @@ public class GuestControllerTest {
     }
 
     @Test
-    @WithMockUser(username = userName)
+    @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionCancelAdmin() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);

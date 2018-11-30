@@ -23,6 +23,7 @@ import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
 
 @Service
+@Transactional
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
     private final StudentRepository studentRepository;
@@ -78,11 +79,11 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.save(course);
     }
 
-    @Transactional
     @Override
     public void deleteCourse(final Course course) {
         if (courseRepository.findById_StudentIdAndId_PlanId(course.getStudentId(), course.getPlanId()) != null) {
             Optional.ofNullable(course.getTeacher()).ifPresent(teacher -> teacher.removeCourse(course));
+
             courseRepository.delete(course);
         }
     }
@@ -91,18 +92,15 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public String getCourseTitleAndTeacherByCourse(Course course) {
         return Optional.of(planRepository.findStudyPlanById(course.getPlanId()))
-                .filter(Objects::nonNull)
                 .map(StudyPlan::getTitle)
-                .filter(t -> t != null && !t.equals(""))
+                .filter(t -> !t.equals("") && !t.isEmpty())
                 .orElse(UK_COURSE_NO_TITLE)
                 + " - "
                 + Optional.ofNullable(course.getTeacher())
-                .filter(Objects::nonNull)
                 .map(Teacher::getShortName)
                 .orElse(UK_COURSE_NO_TEACHER);
     }
 
-    @Transactional
     @Override
     public List<Course> selectCoursesForStudent(final Student student) {
         List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());

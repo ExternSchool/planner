@@ -26,9 +26,9 @@ public interface ScheduleService {
 
     List<ScheduleEvent> getEventsByOwner(User owner);
 
-    void cancelEvent(long id);
+    void cancelEventById(long id);
 
-    void deleteEvent(long id);
+    void deleteEventById(long id);
 
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 

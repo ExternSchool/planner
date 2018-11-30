@@ -4,7 +4,6 @@ import io.github.externschool.planner.entity.profile.Person;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,10 +23,10 @@ public class VerificationKey {
     @Column(name = "value")
     private final String value = UUID.randomUUID().toString();
 
-    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "verificationKey")
     private User user;
 
-    @OneToOne(mappedBy = "verificationKey", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "verificationKey")
     private Person person;
 
     public VerificationKey() {
@@ -77,6 +76,6 @@ public class VerificationKey {
 
     @Override
     public String toString() {
-        return value != null ? value : "";
+        return value;
     }
 }

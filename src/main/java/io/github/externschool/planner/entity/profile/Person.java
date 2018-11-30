@@ -1,8 +1,6 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.VerificationKey;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,8 +25,7 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "key_id")
     private VerificationKey verificationKey;
 

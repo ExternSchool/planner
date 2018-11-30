@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -49,6 +50,7 @@ import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOC
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 
 @Controller
+@Transactional
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
@@ -140,6 +142,7 @@ public class TeacherController {
             List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
                     .limit(ChronoUnit.DAYS.between(start, end))
                     .collect(Collectors.toList());
+            // TODO simplify
             for (LocalDate date : dates) {
                 scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
                     event.getParticipants().stream()
@@ -239,7 +242,7 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
         if (optionalUser != null && optionalUser.isPresent() && event != null) {
-            scheduleService.deleteEvent(eventId);
+            scheduleService.deleteEventById(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -308,7 +311,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEvent(event.getId());
+                scheduleService.cancelEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -351,7 +354,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEvent(event.getId());
+                scheduleService.cancelEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");

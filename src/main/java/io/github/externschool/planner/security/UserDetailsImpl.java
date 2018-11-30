@@ -1,14 +1,18 @@
 package io.github.externschool.planner.security;
 
 import io.github.externschool.planner.entity.User;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Transactional
 public class UserDetailsImpl implements UserDetails {
 
     private static final long serialVersionUID = 1L;
@@ -81,36 +85,39 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+
+        if (!(o instanceof UserDetailsImpl)) return false;
 
         UserDetailsImpl that = (UserDetailsImpl) o;
 
-        if (accountNonExpired != that.accountNonExpired) return false;
-        if (accountNonLocked != that.accountNonLocked) return false;
-        if (credentialsNonExpired != that.credentialsNonExpired) return false;
-        if (enabled != that.enabled) return false;
-        if (user != null ? !user.equals(that.user) : that.user != null) return false;
-        if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-        return authorities != null ? authorities.equals(that.authorities) : that.authorities == null;
+        return new EqualsBuilder()
+                .append(isAccountNonExpired(), that.isAccountNonExpired())
+                .append(isAccountNonLocked(), that.isAccountNonLocked())
+                .append(isCredentialsNonExpired(), that.isCredentialsNonExpired())
+                .append(isEnabled(), that.isEnabled())
+                .append(getUser(), that.getUser())
+                .append(getPassword(), that.getPassword())
+                .append(getUsername(), that.getUsername())
+                .append(getAuthorities(), that.getAuthorities())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = user != null ? user.hashCode() : 0;
-        result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (authorities != null ? authorities.hashCode() : 0);
-        result = 31 * result + (accountNonExpired ? 1 : 0);
-        result = 31 * result + (accountNonLocked ? 1 : 0);
-        result = 31 * result + (credentialsNonExpired ? 1 : 0);
-        result = 31 * result + (enabled ? 1 : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+                .append(getPassword() != null ? getPassword() : 0)
+                .append(getUsername() != null ? getUsername() : 0)
+                .append(getAuthorities() != null ? getAuthorities() : 0)
+                .append(isAccountNonExpired())
+                .append(isAccountNonLocked())
+                .append(isCredentialsNonExpired())
+                .append(isEnabled())
+                .toHashCode();
     }
 
-    //copied from org.springframework.security.core.userdetails.User;
+    //taken from org.springframework.security.core.userdetails.User;
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString()).append(": ");

@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
@@ -23,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
@@ -43,14 +45,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
-//        (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class StudyPlanControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private StudyPlanService planService;
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private UserService userService;
+    @Autowired private RoleService roleService;
     @Autowired VerificationKeyService keyService;
     private StudyPlanController controller;
 

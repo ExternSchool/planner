@@ -36,6 +36,7 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
  * @author Benkoff (mailto.benkoff@gmail.com)
  */
 @Service
+@Transactional
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleEventRepository eventRepository;
@@ -57,12 +58,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     /**
      * @deprecated
      * Use createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes)
-     * @param owner
-     * @param eventReq
      * @return ScheduleEvent
      */
-    @Override
     @Deprecated
+    @Override
     public ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq) {
 
         //TODO need case when event with this type is not found
@@ -83,7 +82,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         return this.eventRepository.save(newEvent);
     }
 
-    @Transactional
     @Override
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
 
@@ -103,11 +101,11 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .build();
         eventRepository.save(newEvent);
         owner.addOwnEvent(newEvent);
-        userRepository.save(owner);
 
         return newEvent;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ScheduleEvent getEventById(long id) {
         return eventRepository.getOne(id);
@@ -134,7 +132,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void cancelEvent(long id) {
+    public void cancelEventById(long id) {
         eventRepository.findById(id).ifPresent(event -> {
             event.setCancelled(true);
             event.setOpen(false);
@@ -144,12 +142,14 @@ public class ScheduleServiceImpl implements ScheduleService {
         });
     }
 
-    @Transactional
     @Override
-    public void deleteEvent(long id) {
+    public void deleteEventById(long id) {
         eventRepository.findById(id).ifPresent(event -> {
             event.getParticipants().forEach(this::removeParticipant);
-            Optional.ofNullable(event.getOwner()).ifPresent(owner -> removeOwner(owner, event));
+            Optional.ofNullable(event.getOwner()).ifPresent(owner -> {
+                removeOwner(owner, event);
+                eventRepository.save(event);
+            });
 
             eventRepository.deleteById(id);
         });
@@ -161,18 +161,15 @@ public class ScheduleServiceImpl implements ScheduleService {
             canUserHandleEventForType(owner, event.getType());
 
             owner.addOwnEvent(event);
-            userRepository.save(owner);
             eventRepository.save(event);
         }
         return event;
     }
 
-    @Transactional
     @Override
     public void removeOwner(final User owner, final ScheduleEvent event) {
         if (owner != null && event != null && event.getOwner() == owner) {
             owner.removeOwnEvent(event);
-            userRepository.save(owner);
             eventRepository.save(event);
         }
     }
@@ -189,9 +186,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             event.setModifiedAt(LocalDateTime.now());
 
             participantRepository.save(participant);
-            userRepository.save(user);
             eventRepository.save(event);
-            Optional.ofNullable(event.getOwner()).ifPresent(userRepository::save);
         }
 
         return event;
@@ -203,11 +198,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         participantRepository.findById(participant.getId()).ifPresent(p -> {
             Optional.ofNullable(participant.getUser()).ifPresent(user -> {
                 user.removeParticipant(participant);
-                userRepository.save(user);
+                participantRepository.save(participant);
             });
             Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
                 event.removeParticipant(participant);
-                eventRepository.save(event);
+                participantRepository.save(participant);
             });
             participantRepository.delete(participant);
         });

@@ -1,17 +1,11 @@
 package io.github.externschool.planner.converter;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
-import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import org.springframework.core.convert.converter.Converter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Set;
 
 public class ScheduleEventToScheduleEventDTO implements Converter<ScheduleEvent, ScheduleEventDTO> {
     @Override

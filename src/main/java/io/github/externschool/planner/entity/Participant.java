@@ -3,12 +3,8 @@ package io.github.externschool.planner.entity;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -24,16 +20,14 @@ public class Participant implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToOne
     @JoinTable(
             name = "participant_user",
             joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")})
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Cascade(CascadeType.SAVE_UPDATE)
+    @ManyToOne
     @JoinTable(
             name = "participant_event",
             joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
@@ -61,7 +55,7 @@ public class Participant implements Serializable {
     }
 
     // use User class addParticipant() method
-    public void setUser(User user) {
+    void setUser(User user) {
         this.user = user;
     }
 
@@ -96,7 +90,7 @@ public class Participant implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Participant{");
+        final StringBuilder sb = new StringBuilder("Participant{");
         sb.append("id=").append(id);
         sb.append('}');
         return sb.toString();

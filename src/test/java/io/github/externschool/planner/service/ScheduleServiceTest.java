@@ -214,7 +214,7 @@ public class ScheduleServiceTest {
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
 
-        scheduleService.cancelEvent(id);
+        scheduleService.cancelEventById(id);
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
 
         assertThat(actualEvent)
@@ -243,7 +243,7 @@ public class ScheduleServiceTest {
                 .isEqualTo(anEvent)
                 .hasFieldOrPropertyWithValue("owner", anEvent.getOwner());
 
-        scheduleService.deleteEvent(id);
+        scheduleService.deleteEventById(id);
         actualEvent = scheduleService.getEventById(id);
 
         assertThat(actualEvent)
@@ -354,6 +354,29 @@ public class ScheduleServiceTest {
 
         assertThat(participant)
                 .hasFieldOrPropertyWithValue("user", user);
+    }
+
+    @Test
+    public void shouldChangeEventModifiedAt_whenAddParticipantToOpenEvent() {
+        long id = 100500L;
+        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        anEvent.setId(id);
+        anEvent.setOpen(true);
+        User user = new User("participant@email.com", "pass");
+
+        when(this.eventRepository.getOne(id))
+                .thenReturn(anEvent);
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent.getModifiedAt())
+                .isNull();
+
+        actualEvent = scheduleService.addParticipant(user, actualEvent);
+
+        assertThat(actualEvent.getModifiedAt())
+                .isNotNull()
+                .isInstanceOf(LocalDateTime.class);
     }
 
     @Test

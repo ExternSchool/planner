@@ -105,7 +105,8 @@ public class PersonServiceTest {
 
     @Test
     public void shouldDeletePerson_whenDelete() {
-        Mockito.when(personRepository.findById(firstPerson.getId()))
+        Mockito.when(personRepository.findPersonById(firstPerson.getId()))
+                .thenReturn(firstPerson)
                 .thenReturn(null);
         Mockito.when(userRepository.findByEmail(user.getEmail()))
                 .thenReturn(null);

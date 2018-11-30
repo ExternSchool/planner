@@ -1,7 +1,6 @@
 package io.github.externschool.planner.entity;
 
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,8 +20,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hibernate.annotations.CascadeType.SAVE_UPDATE;
-
 @Entity
 @Table(name = "user")
 public class User implements Serializable {
@@ -37,22 +34,19 @@ public class User implements Serializable {
     @Column(name = "password", nullable = false, length = 60)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role", referencedColumnName = "name"))
     private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "owner")
-    @Cascade(SAVE_UPDATE)
     private Set<ScheduleEvent> ownEvents = new HashSet<>();
 
     @OneToMany(mappedBy = "user")
-    @Cascade(SAVE_UPDATE)
     private Set<Participant> participants = new HashSet<>();
 
     @OneToOne(fetch = FetchType.LAZY)
-    @Cascade(SAVE_UPDATE)
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
@@ -123,12 +117,14 @@ public class User implements Serializable {
     }
 
     public void addOwnEvent(ScheduleEvent event) {
-        this.ownEvents.add(event);
-        event.setOwner(this);
+        if (event != null && !ownEvents.contains(event)) {
+            this.ownEvents.add(event);
+            event.setOwner(this);
+        }
     }
 
     public void removeOwnEvent(ScheduleEvent event) {
-        if (event != null) {
+        if (event != null && !ownEvents.isEmpty()) {
             this.ownEvents = ownEvents.stream()
                     .filter(e -> !e.getId().equals(event.getId()))
                     .collect(Collectors.toSet());
@@ -203,12 +199,10 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("User{");
+        final StringBuilder sb = new StringBuilder("User{");
         sb.append("id=").append(id);
         sb.append(", email='").append(email).append('\'');
         sb.append(", roles=").append(getRoles().stream().map(Role::getName).collect(Collectors.joining(",")));
-        sb.append(", ownEvents=").append(getOwnEvents().size());
-        sb.append(", participation=").append(getParticipants().size());
         sb.append(", verificationKey=").append(verificationKey);
         sb.append('}');
         return sb.toString();

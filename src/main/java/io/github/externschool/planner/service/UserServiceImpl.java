@@ -13,7 +13,6 @@ import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
-import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
@@ -58,15 +58,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
     @Override
     public void deleteUser(final User user) {
-        if (user != null) {
+        if (user != null && findUserByEmail(user.getEmail()) != null) {
             if (user.getVerificationKey() != null) {
                 user.removeVerificationKey();
             }
             for (ScheduleEvent event : user.getOwnEvents()) {
-                scheduleService.deleteEvent(event.getId());
+                scheduleService.deleteEventById(event.getId());
             }
             for (Participant participant : user.getParticipants()) {
                 scheduleService.removeParticipant(participant);
@@ -145,7 +144,6 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Transactional
     @Override
     public void createAndAddNewKeyAndPerson(User user) {
         //TODO Remove key and person saves when Cascade fixed

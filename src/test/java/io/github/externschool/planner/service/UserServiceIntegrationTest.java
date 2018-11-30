@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -25,6 +26,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
 public class UserServiceIntegrationTest {
     @Autowired private UserRepository userRepository;
@@ -121,6 +123,36 @@ public class UserServiceIntegrationTest {
                 .isEmpty();
 
         userService.deleteUser(owner);
+    }
+
+    @Test
+    public void shouldChangeEventModifiedAt_whenAddParticipantToOpenEvent() {
+        User owner = userService.createUser("new@email.com", "pass", "ROLE_ADMIN");
+        userService.save(owner);
+        ScheduleEvent anEvent = ScheduleEvent.builder()
+                .withOwner(owner)
+                .withTitle("An Event")
+                .withDescription("Description")
+                .withStartDateTime(LocalDateTime.now())
+                .withEndDateTime(LocalDateTime.now().plus(Period.of(0, 0, 1)))
+                .withOpenStatus(true)
+                .build();
+        anEvent = eventRepository.save(anEvent);
+        Long id = anEvent.getId();
+
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+        LocalDateTime modifiedAt = actualEvent.getModifiedAt();
+
+        assertThat(modifiedAt)
+                .isNull();
+
+        scheduleService.addParticipant(expectedUser, actualEvent);
+        actualEvent = scheduleService.getEventById(actualEvent.getId());
+        modifiedAt = actualEvent.getModifiedAt();
+
+        assertThat(modifiedAt)
+                .isNotNull()
+                .isInstanceOf(LocalDateTime.class);
     }
 
     @After
