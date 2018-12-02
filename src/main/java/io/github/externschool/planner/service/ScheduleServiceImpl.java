@@ -36,17 +36,17 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleEventRepository eventRepository;
-    private final ScheduleEventTypeRepository eventTypeRepo;
+    private final ScheduleEventTypeRepository eventTypeRepository;
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
 
     @Autowired
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
-                               final ScheduleEventTypeRepository eventTypeRepo,
+                               final ScheduleEventTypeRepository eventTypeRepository,
                                final UserRepository userRepository,
                                final ParticipantRepository participantRepository) {
         this.eventRepository = eventRepository;
-        this.eventTypeRepo = eventTypeRepo;
+        this.eventTypeRepository = eventTypeRepository;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
     }
@@ -61,7 +61,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq) {
 
         //TODO need case when event with this type is not found
-        ScheduleEventType type = this.eventTypeRepo.findByName(eventReq.getEventType());
+        ScheduleEventType type = this.eventTypeRepository.findByName(eventReq.getEventType());
 
         canUserHandleEventForType(owner, type);
 
@@ -82,7 +82,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
 
         // TODO need case when event with this type is not found
-        ScheduleEventType type = this.eventTypeRepo.findByName(eventDTO.getEventType());
+        ScheduleEventType type = this.eventTypeRepository.findByName(eventDTO.getEventType());
         canUserHandleEventForType(owner, type);
 
         ScheduleEvent newEvent = ScheduleEvent.builder()
@@ -136,6 +136,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             // TODO move here cancelling notification from Teacher Controller
         });
+    }
+
+    @Override
+    public List<ScheduleEvent> getEventsByType(final ScheduleEventType type) {
+        ScheduleEventType eventType = eventTypeRepository.findByName(type.getName());
+
+        return eventRepository.findAllByType(eventType);
     }
 
     @Override

@@ -9,7 +9,9 @@ import java.util.Optional;
 public interface ScheduleEventTypeService {
     Optional<ScheduleEventType> getEventTypeById(Long id);
 
-    ScheduleEventType saveEventType(ScheduleEventType eventType);
+    ScheduleEventType saveOrUpdateEventType(ScheduleEventType eventType);
+
+    void deleteEventType(ScheduleEventType eventType);
 
     List<ScheduleEventType> loadEventTypes();
 

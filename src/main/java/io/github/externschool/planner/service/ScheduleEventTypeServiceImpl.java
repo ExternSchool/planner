@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -27,12 +28,30 @@ public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
 
     @Override
     public Optional<ScheduleEventType> getEventTypeById(final Long id) {
-        return eventTypeRepository.findById(id);
+        return Optional.ofNullable(id).flatMap(eventTypeRepository::findById);
     }
 
     @Override
-    public ScheduleEventType saveEventType(final ScheduleEventType eventType) {
-        return eventTypeRepository.save(eventType);
+    public ScheduleEventType saveOrUpdateEventType(final ScheduleEventType eventType) {
+        ScheduleEventType eventTypeToSave = Optional.ofNullable(eventTypeRepository.findByName(eventType.getName()))
+                .map(storedEventType -> {
+                    storedEventType.setName(eventType.getName());
+                    storedEventType.setCountOfParticipant(eventType.getCountOfParticipant());
+                    new ArrayList<>(storedEventType.getOwners()).forEach(storedEventType::removeOwner);
+                    new ArrayList<>(storedEventType.getParticipants()).forEach(storedEventType::removeParticipant);
+                    eventType.getOwners().forEach(storedEventType::addOwner);
+                    eventType.getParticipants().forEach(storedEventType::addParticipant);
+
+                    return storedEventType;
+                })
+                .orElse(eventType);
+
+        return eventTypeRepository.save(eventTypeToSave);
+    }
+
+    @Override
+    public void deleteEventType(final ScheduleEventType eventType) {
+        eventTypeRepository.delete(eventType);
     }
 
     @Override

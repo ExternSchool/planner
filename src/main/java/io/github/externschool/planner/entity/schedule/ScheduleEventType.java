@@ -99,6 +99,18 @@ public class ScheduleEventType {
         return participants;
     }
 
+    public Set<Role> removeOwner(Role owner) {
+        owners.remove(owner);
+
+        return owners;
+    }
+
+    public Set<Role> removeParticipant(Role participant) {
+        participants.remove(participant);
+
+        return participants;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

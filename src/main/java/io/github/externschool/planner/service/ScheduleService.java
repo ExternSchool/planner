@@ -5,6 +5,7 @@ import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +26,8 @@ public interface ScheduleService {
     List<ScheduleEvent> getActualEventsByOwnerAndDate(User owner, LocalDate date);
 
     List<ScheduleEvent> getEventsByOwner(User owner);
+
+    List<ScheduleEvent> getEventsByType(ScheduleEventType type);
 
     void cancelEventById(long id);
 

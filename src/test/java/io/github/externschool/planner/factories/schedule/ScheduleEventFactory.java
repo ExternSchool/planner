@@ -18,7 +18,7 @@ import static io.github.externschool.planner.factories.schedule.ScheduleEventTyp
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
  */
 public final class ScheduleEventFactory {
-    private static final Long EVENT_ID = 1L;
+    private static final Long EVENT_ID = 3L;
     private static final String EVENT_TITLE = "TestEvent";
     private static final String EVENT_DESCRIPTION = "TestDescription";
     private static final String EVENT_LOCATION = "TestLocation";

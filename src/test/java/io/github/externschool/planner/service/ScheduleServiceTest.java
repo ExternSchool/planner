@@ -181,7 +181,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnListEvents_whenGetEventsByOwner() {
+    public void shouldReturnListOfEvents_whenGetEventsByOwner() {
         ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         eventOne.setId(2L);
         ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
@@ -193,6 +193,28 @@ public class ScheduleServiceTest {
                 .thenReturn(expectedEvents);
 
         List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
+    @Test
+    public void shouldReturnListOfEvents_whenGetEventsByType() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        ScheduleEventType type = new ScheduleEventType("Type", 1);
+        eventOne.setType(type);
+        eventTwo.setType(type);
+
+        Mockito.when(eventTypeRepo.findByName("Type"))
+                .thenReturn(type);
+        Mockito.when(eventRepository.findAllByType(type))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByType(type);
 
         assertThat(actualEvents)
                 .isNotNull()

@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScheduleEventTypeServiceTest {
@@ -46,12 +48,48 @@ public class ScheduleEventTypeServiceTest {
         ScheduleEventType expectedType = new ScheduleEventType("Type", 1);
         when(eventTypeRepository.save(expectedType))
                 .thenReturn(expectedType);
+        when(eventTypeRepository.findByName(expectedType.getName()))
+                .thenReturn(null);
 
-        ScheduleEventType actualType = eventTypeService.saveEventType(expectedType);
+        ScheduleEventType actualType = eventTypeService.saveOrUpdateEventType(expectedType);
 
         assertThat(actualType)
                 .isNotNull()
                 .isEqualTo(expectedType);
+    }
+
+    @Test
+    public void shouldReturnUpdatedEventType_whenSaveUpdateEventType() {
+        Role role = new Role();
+        ScheduleEventType storedType = new ScheduleEventType("Type", 1);
+        storedType.setId(1L);
+        ScheduleEventType typeToSave = new ScheduleEventType("Type", 99);
+        typeToSave.setId(2L);
+        typeToSave.addOwner(role);
+        ScheduleEventType expectedType = new ScheduleEventType("Type", 99);
+        expectedType.setId(1L);
+        expectedType.addOwner(role);
+
+        when(eventTypeRepository.findByName(storedType.getName()))
+                .thenReturn(storedType);
+        when(eventTypeRepository.save(expectedType))
+                .thenReturn(expectedType);
+
+        ScheduleEventType actualType = eventTypeService.saveOrUpdateEventType(typeToSave);
+
+        assertThat(actualType)
+                .isNotNull()
+                .isEqualToComparingFieldByFieldRecursively(expectedType);
+        System.out.println(expectedType);
+    }
+
+    @Test
+    public void shouldInvokeOnce_whenDeleteEventType() {
+        ScheduleEventType expectedType = new ScheduleEventType("Type", 1);
+
+        eventTypeService.deleteEventType(expectedType);
+
+        verify(eventTypeRepository, times(1)).delete(expectedType);
     }
 
     @Test

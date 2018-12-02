@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Teacher Schedule</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
@@ -59,7 +59,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[0]}"
@@ -94,7 +94,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 1 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[1]}"
@@ -129,7 +129,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 2 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[2]}"
@@ -164,7 +164,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 3 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[3]}"
@@ -199,7 +199,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + 4 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[4]}"
@@ -242,7 +242,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 0 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[0]}"
@@ -277,7 +277,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 1 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[1]}"
@@ -312,7 +312,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 2 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[2]}"
@@ -347,7 +347,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 3 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[3]}"
@@ -382,7 +382,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-3"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + 4 + '\');'"
                                         type="button">
-                                    Скасувати
+                                    Видалити
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[4]}"
