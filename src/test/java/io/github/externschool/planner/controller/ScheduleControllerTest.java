@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
@@ -22,12 +23,13 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
 
 import static io.github.externschool.planner.factories.UserFactory.USER_EMAIL;
-import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -58,21 +60,41 @@ public class ScheduleControllerTest {
     }
 
     @Test
-    @WithMockUser(value = "user@email.com", roles = "TEACHER")
+    @WithMockUser(roles = "ADMIN")
     public void shouldDisplayForm_whenCreateScheduleEventType() throws Exception {
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        eventType.addOwner(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
+        eventType.addParticipant(RolesFactory.createRoleEntity(RolesFactory.ROLE_NOT_ALLOWED_CREATE_EVENT));
 
-        when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
+        MultiValueMap modelMap = new LinkedMultiValueMap<>();
+        modelMap.add("name", eventType.getName());
+        modelMap.add("amountOfParticipants", eventType.getAmountOfParticipants());
+        modelMap.add("owners", eventType.getOwners());
+        modelMap.add("participants", eventType.getParticipants());
 
-        this.mockMvc.perform(get("/schedule-events/type/"))
+        when(eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
+
+        this.mockMvc.perform(get("/events/type/"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("newEvent", "eventTypes"))
-                .andExpect(model().attribute("eventTypes", hasItem(eventType)))
+                .andExpect(model().attributeExists("ownersRoles", "participantsRoles", "eventType", "eventTypes"))
                 .andExpect(view().name("event/event_type"));
     }
 
     @Test
-    @WithMockUser("user@email.com")
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndView_whenProcessNewEventTypeAddition() throws Exception {
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+
+        when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
+
+        this.mockMvc.perform(get("/events/type/"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("ownersRoles", "participantsRoles", "eventType", "eventTypes"))
+                .andExpect(view().name("event/event_type"));
+    }
+
+    @Test
+    @WithMockUser(value = "admin@email.com", roles = "ADMIN")
     public void shouldRedirectToListEvent_afterSuccessfulCreateEventType() throws Exception {
         ScheduleEventReq req = ScheduleEventFactory.createScheduleEventReq();
 
@@ -83,7 +105,7 @@ public class ScheduleControllerTest {
         when(scheduleService.createEvent(user, req)).thenReturn(event);
 
         mockMvc.perform(
-                post("/schedule-events/type")
+                post("/events/type")
                         .param("title", req.getTitle())
                         .param("description", req.getDescription())
                         .param("location", req.getLocation())
@@ -93,7 +115,7 @@ public class ScheduleControllerTest {
                         .with(csrf())
         )
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/schedule-events"));
+                .andExpect(redirectedUrl("/events"));
     }
 
     // TODO add tests for the validation checking

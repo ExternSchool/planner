@@ -37,7 +37,11 @@
 
 <!-- Begin page content -->
 <main role="main" class="container-fluid">
-    <h4 class="font-weight-normal mb-1" th:inline="text"><small>Розклад вчителя (працівника): [[${teacher.getShortName()}]]</small></h4>
+    <h4 class="font-weight-normal mb-1" th:inline="text">
+        <small>
+            Розклад вчителя (працівника): [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
+        </small>
+    </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
@@ -622,7 +626,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalNewTitle">Створення нового розкладу</h5>
+                <h5 class="modal-title" id="modalNewTitle">Створення нової події</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -633,14 +637,14 @@
                       th:object="${newEvent}" class="form" id="formNewEvent">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <input class="form-control" type="time" placeholder="start of event" id="startOfEvent"
+                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
                         <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
                             <option th:each="type : ${eventTypes}"
                                     th:value="${type.name}"
                                     th:text="${type.name}">
-                                Event Type
+                                Тип події
                             </option>
                         </select>
                     </div>

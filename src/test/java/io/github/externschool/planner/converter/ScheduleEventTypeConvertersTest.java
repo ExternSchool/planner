@@ -38,7 +38,7 @@ public class ScheduleEventTypeConvertersTest {
         ScheduleEventTypeDTO expectedDTO = new ScheduleEventTypeDTO(
                 eventType.getId(),
                 eventType.getName(),
-                eventType.getCountOfParticipant(),
+                eventType.getAmountOfParticipants(),
                 new ArrayList<>(eventType.getOwners()),
                 new ArrayList<>(eventType.getParticipants()));
 

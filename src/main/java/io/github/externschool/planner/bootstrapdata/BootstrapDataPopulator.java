@@ -124,6 +124,23 @@ public class BootstrapDataPopulator implements InitializingBean {
         teacherService.saveOrUpdateTeacher(teacher);
         userService.save(presetTeacher);
 
+        User inCharge = userService.createUser("extern.school@gmail.com", "!Qwert", "ROLE_ADMIN");
+        inCharge = userService.save(inCharge);
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Teacher inChargeTeacher = createTeacher(
+                new Person(null,
+                        "",
+                        "",
+                        "Адміністратор",
+                        "(044) 257-10-28"),
+                key,
+                "",
+                Collections.singletonList("Написання контрольних робіт"));
+        inChargeTeacher.addVerificationKey(key);
+        inCharge.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(inChargeTeacher);
+        userService.save(inCharge);
+
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Student presetStudentProfile = new Student(new Person(73L,
@@ -190,6 +207,28 @@ public class BootstrapDataPopulator implements InitializingBean {
                 GradeLevel.LEVEL_11);
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
+
+        /*
+        SchoolSubject control = inChargeTeacher.getSubjects().stream().findAny().get();
+        Arrays.asList(GradeLevel.LEVEL_5,
+                GradeLevel.LEVEL_6,
+                GradeLevel.LEVEL_7,
+                GradeLevel.LEVEL_8,
+                GradeLevel.LEVEL_9,
+                GradeLevel.LEVEL_10,
+                GradeLevel.LEVEL_11).forEach(gradeLevel -> {
+            StudyPlan plan = new StudyPlan(gradeLevel, control);
+            plan.setSubject(control);
+            plan.setHoursPerSemesterOne(0);
+            plan.setHoursPerSemesterTwo(0);
+            plan.setWorksPerSemesterOne(1);
+            plan.setWorksPerSemesterTwo(1);
+            plan.setTitle(plan.getTitle());
+            planRepository.save(plan);
+            plan.setSubject(control);
+        });
+        inChargeTeacher.addSubject(control);
+         */
 
         List<StudyPlan> plans = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
         for (StudyPlan plan : plans) {

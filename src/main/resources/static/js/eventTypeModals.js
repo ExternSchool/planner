@@ -2,7 +2,7 @@
 
 function openDeleteEventTypeModal(id) {
     $.ajax({
-        url: "/schedule-events/type/" + id + "/modal",
+        url: "/events/type/" + id + "/modal",
         success: function (data) {
             $("#deleteEventTypeHolder").html(data);
             $("#deleteEventTypeModal").modal("show");

@@ -30,7 +30,7 @@
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
-    <form th:action="@{/schedule-events/type/add}" method="post">
+    <form th:action="@{/events/type/add}" method="post">
         <div class="input-group input-group-sm mb-1">
             <div class="input-group-prepend">
                 <span class="input-group-text">Введіть назву події</span>
@@ -43,7 +43,7 @@
         </div>
     </form>
     <fieldset>
-        <form th:method="post" th:action="@{/schedule-events/type/}" th:object="${eventType}" class="form" id="form">
+        <form th:method="post" th:action="@{/events/type/}" th:object="${eventType}" class="form" id="form">
             <input type="hidden" th:field="*{id}"/>
 
             <div class="table-responsive" th:if="${not #lists.isEmpty(eventTypes)}">
@@ -75,7 +75,7 @@
                             <td class="text-center" th:text="${type.getCountOfParticipant()}">Кількість</td>
 
                             <td class="text-right">
-                                <a th:href="@{/schedule-events/type/{id}(id=${type.id})}">
+                                <a th:href="@{/events/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </button>
@@ -118,14 +118,14 @@
                             <td class="text-center">
                                 <input class="form-control" placeholder="від 1 до 50" id="count" type="number"
                                        min="1" max="50"
-                                       th:field="*{countOfParticipant}" required>
+                                       th:field="*{amountOfParticipants}" required>
                             </td>
                             <td class="text-right">
                                 <button class="btn btn-outline-success btn-sm" type="submit"
                                         name="action" id="save" value="save">Зберегти</button>
                             </td>
                             <td class="text-right">
-                                <a th:href="@{/schedule-events/type/}">
+                                <a th:href="@{/events/type/}">
                                     <button class="btn btn-outline-secondary btn-sm" type="button">Скасувати</button>
                                 </a>
                             </td>
@@ -180,7 +180,7 @@
                     Повернутися до редагування
                 </button>
                 <div th:if="${eventType.id != null}">
-                    <a th:href="@{/schedule-events/type/{id}/delete(id=${eventType.id})}"
+                    <a th:href="@{/events/type/{id}/delete(id=${eventType.id})}"
                        class="btn btn-primary">
                         Так, вилучити!
                     </a>

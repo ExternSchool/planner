@@ -36,7 +36,7 @@ public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
         ScheduleEventType eventTypeToSave = Optional.ofNullable(eventTypeRepository.findByName(eventType.getName()))
                 .map(storedEventType -> {
                     storedEventType.setName(eventType.getName());
-                    storedEventType.setCountOfParticipant(eventType.getCountOfParticipant());
+                    storedEventType.setAmountOfParticipants(eventType.getAmountOfParticipants());
                     new ArrayList<>(storedEventType.getOwners()).forEach(storedEventType::removeOwner);
                     new ArrayList<>(storedEventType.getParticipants()).forEach(storedEventType::removeParticipant);
                     eventType.getOwners().forEach(storedEventType::addOwner);

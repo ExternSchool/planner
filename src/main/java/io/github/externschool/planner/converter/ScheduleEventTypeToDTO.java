@@ -15,7 +15,7 @@ public class ScheduleEventTypeToDTO implements Converter<ScheduleEventType, Sche
         return new ScheduleEventTypeDTO(
                 eventType.getId(),
                 eventType.getName(),
-                eventType.getCountOfParticipant(),
+                eventType.getAmountOfParticipants(),
                 new ArrayList<>(eventType.getOwners()),
                 new ArrayList<>(eventType.getParticipants()));
     }

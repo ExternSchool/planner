@@ -31,57 +31,34 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_E
 @Controller
 @Transactional
 @Secured("ROLE_ADMIN")
-@RequestMapping("/schedule-events")
+@RequestMapping("/events")
 public class ScheduleController {
 
     private final ScheduleEventTypeService eventTypeService;
     private final ScheduleService scheduleService;
-    private final UserService userService;
-    @Autowired private ConversionService conversionService;
-    @Autowired private RoleService roleService;
+    private final ConversionService conversionService;
+    private final RoleService roleService;
 
     @Autowired
     public ScheduleController(
             final ScheduleEventTypeService eventTypeService,
             final ScheduleService scheduleService,
-            final UserService userService) {
+            final ConversionService conversionService,
+            final RoleService roleService) {
         this.eventTypeService = eventTypeService;
         this.scheduleService = scheduleService;
-        this.userService = userService;
+        this.conversionService = conversionService;
+        this.roleService = roleService;
     }
 
     @GetMapping("/type/")
-    public ModelAndView displayScheduleEventTypes(final ModelMap model) {
+    public ModelAndView displayScheduleEventTypesList(final ModelMap model) {
 
         return prepareModelAndView(null, model);
     }
 
-    private ModelAndView prepareModelAndView(Long typeId, final ModelMap model) {
-        ModelAndView modelAndView = new ModelAndView("event/event_type");
-        model.addAttribute("ownersRoles", roleService.getAllRoles().stream()
-                .filter(role -> !role.getName().equals("ROLE_GUEST"))
-                .collect(Collectors.toList()));
-        model.addAttribute("participantsRoles", roleService.getAllRoles().stream()
-                .filter(role -> !role.getName().equals("ROLE_ADMIN"))
-                .collect(Collectors.toList()));
-        model.addAttribute("eventTypes",
-                eventTypeService.getAllEventTypesSorted().stream()
-                        .map(eventType -> conversionService.convert(eventType, ScheduleEventTypeDTO.class))
-                        .collect(Collectors.toList()));
-        ScheduleEventTypeDTO defaultEventTypeDTO = new ScheduleEventTypeDTO(null, "", 1,
-                Collections.singletonList(roleService.getRoleByName("ROLE_TEACHER")),
-                Collections.singletonList(roleService.getRoleByName("ROLE_STUDENT")));
-        model.addAttribute("eventType",
-                eventTypeService.getEventTypeById(typeId)
-                        .map(t -> conversionService.convert(t, ScheduleEventTypeDTO.class))
-                        .orElse(defaultEventTypeDTO));
-        modelAndView.addObject(model);
-
-        return modelAndView;
-    }
-
     @PostMapping("/type/add")
-    public ModelAndView processEventTypeListActionAdd(@ModelAttribute("new_name") String name, ModelMap model) {
+    public ModelAndView processNewEventTypeAddition(@ModelAttribute("new_name") String name, ModelMap model) {
         try {
             if (name.isEmpty()) {
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE);
@@ -99,7 +76,7 @@ public class ScheduleController {
         newEventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
         eventTypeService.saveOrUpdateEventType(newEventType);
 
-        return new ModelAndView("redirect:/schedule-events/type/");
+        return new ModelAndView("redirect:/events/type/");
     }
 
     @PostMapping(value = "/type/", params = "action=save")
@@ -113,7 +90,7 @@ public class ScheduleController {
 
         eventTypeService.saveOrUpdateEventType(conversionService.convert(req, ScheduleEventType.class));
 
-        return new ModelAndView("redirect:/schedule-events/type/", model);
+        return new ModelAndView("redirect:/events/type/", model);
     }
 
     @GetMapping("/type/{id}")
@@ -147,9 +124,33 @@ public class ScheduleController {
 
     @GetMapping("/type/{id}/delete")
     public ModelAndView processDeleteEventType(@PathVariable("id") Long id, ModelMap model) {
-        ModelAndView modelAndView = new ModelAndView("redirect:/schedule-events/type/", model);
+        ModelAndView modelAndView = new ModelAndView("redirect:/events/type/", model);
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);
         eventType.ifPresent(eventTypeService::deleteEventType);
+
+        return modelAndView;
+    }
+
+    private ModelAndView prepareModelAndView(Long typeId, final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("event/event_type");
+        model.addAttribute("ownersRoles", roleService.getAllRoles().stream()
+                .filter(role -> !role.getName().equals("ROLE_GUEST"))
+                .collect(Collectors.toList()));
+        model.addAttribute("participantsRoles", roleService.getAllRoles().stream()
+                .filter(role -> !role.getName().equals("ROLE_ADMIN"))
+                .collect(Collectors.toList()));
+        model.addAttribute("eventTypes",
+                eventTypeService.getAllEventTypesSorted().stream()
+                        .map(eventType -> conversionService.convert(eventType, ScheduleEventTypeDTO.class))
+                        .collect(Collectors.toList()));
+        ScheduleEventTypeDTO defaultEventTypeDTO = new ScheduleEventTypeDTO(null, "", 1,
+                Collections.singletonList(roleService.getRoleByName("ROLE_TEACHER")),
+                Collections.singletonList(roleService.getRoleByName("ROLE_STUDENT")));
+        model.addAttribute("eventType",
+                eventTypeService.getEventTypeById(typeId)
+                        .map(t -> conversionService.convert(t, ScheduleEventTypeDTO.class))
+                        .orElse(defaultEventTypeDTO));
+        modelAndView.addObject(model);
 
         return modelAndView;
     }

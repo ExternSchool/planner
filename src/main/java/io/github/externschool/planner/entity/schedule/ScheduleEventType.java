@@ -31,8 +31,8 @@ public class ScheduleEventType {
     @Column(nullable = false, updatable = false, unique = true)
     private String name;
 
-    @Column(name = "count_participant")
-    private Integer countOfParticipant;
+    @Column(name = "participants_amount")
+    private Integer amountOfParticipants;
 
     @ManyToMany
     @JoinTable(
@@ -50,9 +50,9 @@ public class ScheduleEventType {
 
     public ScheduleEventType() {}
 
-    public ScheduleEventType(final String name, final Integer countOfParticipant) {
+    public ScheduleEventType(final String name, final Integer amountOfParticipants) {
         this.name = name;
-        this.countOfParticipant = countOfParticipant;
+        this.amountOfParticipants = amountOfParticipants;
     }
 
     public Long getId() {
@@ -71,12 +71,12 @@ public class ScheduleEventType {
         this.name = name;
     }
 
-    public Integer getCountOfParticipant() {
-        return countOfParticipant;
+    public Integer getAmountOfParticipants() {
+        return amountOfParticipants;
     }
 
-    public void setCountOfParticipant(Integer countOfParticipant) {
-        this.countOfParticipant = countOfParticipant;
+    public void setAmountOfParticipants(Integer amountOfParticipants) {
+        this.amountOfParticipants = amountOfParticipants;
     }
 
     public Set<Role> getOwners() {
@@ -118,13 +118,13 @@ public class ScheduleEventType {
         final ScheduleEventType that = (ScheduleEventType) o;
         return Objects.equals(getId(), that.getId()) &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getCountOfParticipant(), that.getCountOfParticipant());
+                Objects.equals(getAmountOfParticipants(), that.getAmountOfParticipants());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(getId(), getName(), getCountOfParticipant());
+        return Objects.hash(getId(), getName(), getAmountOfParticipants());
     }
 
     @Override
@@ -132,7 +132,7 @@ public class ScheduleEventType {
         final StringBuilder sb = new StringBuilder("ScheduleEventType{");
         sb.append("id=").append(id);
         sb.append(", name='").append(name).append('\'');
-        sb.append(", countOfParticipant=").append(countOfParticipant);
+        sb.append(", amountOfParticipants=").append(amountOfParticipants);
         sb.append(", owners=").append(getOwners().size());
         sb.append(", participants=").append(getParticipants().size());
         sb.append('}');
