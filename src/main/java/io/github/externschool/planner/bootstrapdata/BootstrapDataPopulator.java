@@ -257,18 +257,16 @@ public class BootstrapDataPopulator implements InitializingBean {
     
     private void createScheduleEventType() {
         ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
+        eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         this.eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
+        eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         this.eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_OFFICER"));
+        eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
         this.eventTypeRepository.save(eventType);
     }
 

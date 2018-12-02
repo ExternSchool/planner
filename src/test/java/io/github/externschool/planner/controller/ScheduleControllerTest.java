@@ -38,9 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -62,21 +59,21 @@ public class ScheduleControllerTest {
 
     @Test
     @WithMockUser(value = "user@email.com", roles = "TEACHER")
-    public void shouldDisplayFormCreateNewScheduleEvent() throws Exception {
+    public void shouldDisplayForm_whenCreateScheduleEventType() throws Exception {
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
 
         when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
 
-        this.mockMvc.perform(get("/schedule-events/new"))
+        this.mockMvc.perform(get("/schedule-events/type/"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("newEvent", "eventTypes"))
                 .andExpect(model().attribute("eventTypes", hasItem(eventType)))
-                .andExpect(view().name("scheduleEvents/formCreateScheduleEvent"));
+                .andExpect(view().name("event/event_type"));
     }
 
     @Test
     @WithMockUser("user@email.com")
-    public void shouldRedirectToListEventAfterSuccessfulCreateNewEvent() throws Exception {
+    public void shouldRedirectToListEvent_afterSuccessfulCreateEventType() throws Exception {
         ScheduleEventReq req = ScheduleEventFactory.createScheduleEventReq();
 
         User user = UserFactory.createUser();
@@ -86,7 +83,7 @@ public class ScheduleControllerTest {
         when(scheduleService.createEvent(user, req)).thenReturn(event);
 
         mockMvc.perform(
-                post("/schedule-events/new")
+                post("/schedule-events/type")
                         .param("title", req.getTitle())
                         .param("description", req.getDescription())
                         .param("location", req.getLocation())
@@ -100,7 +97,4 @@ public class ScheduleControllerTest {
     }
 
     // TODO add tests for the validation checking
-    // TODO add tests and implementation for displaying list events for current user
-    // TODO add tests and implementation for displaying list events for all users
-    // TODO add conversion service that loads event type by event type name
 }

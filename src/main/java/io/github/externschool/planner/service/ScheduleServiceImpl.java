@@ -31,10 +31,6 @@ import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmail.com)
- */
 @Service
 @Transactional
 public class ScheduleServiceImpl implements ScheduleService {
@@ -235,7 +231,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         if (user != null && type != null) {
             for (Role role : user.getRoles()) {
-                if (type.getCreators().contains(role)) {
+                if (type.getOwners().contains(role)) {
                     return;
                 }
             }

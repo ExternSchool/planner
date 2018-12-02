@@ -14,6 +14,7 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,7 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
 @Controller
+@Transactional
 public class UserController {
     private final UserService userService;
     private final VerificationKeyService keyService;
@@ -58,7 +60,8 @@ public class UserController {
         User user;
         try {
             if (bindingResult.hasErrors()) {
-                if((bindingResult.getFieldErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
+                String result = (bindingResult.getFieldErrors().get(0)).getDefaultMessage();
+                if(result != null && result.contains("verificationKey")) {
                     throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
@@ -75,8 +78,8 @@ public class UserController {
                 }
                 if (key.getPerson() != null && key.getPerson().getClass() != Person.class) {
                     user.addVerificationKey(key);
-                    userService.assignNewRolesByKey(user, key);
                     userService.save(user);
+                    userService.assignNewRolesByKey(user, key);
                 }
             }
         } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {

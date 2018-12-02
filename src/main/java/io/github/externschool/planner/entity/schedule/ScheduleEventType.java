@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -35,10 +36,10 @@ public class ScheduleEventType {
 
     @ManyToMany
     @JoinTable(
-            name = "event_type_creator_role",
+            name = "event_type_owner_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
-    private Set<Role> creators = new HashSet<>();
+    private Set<Role> owners = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -78,11 +79,23 @@ public class ScheduleEventType {
         this.countOfParticipant = countOfParticipant;
     }
 
-    public Set<Role> getCreators() {
-        return creators;
+    public Set<Role> getOwners() {
+        return Collections.unmodifiableSet(owners);
     }
 
     public Set<Role> getParticipants() {
+        return Collections.unmodifiableSet(participants);
+    }
+
+    public Set<Role> addOwner(Role owner) {
+        owners.add(owner);
+
+        return owners;
+    }
+
+    public Set<Role> addParticipant(Role participant) {
+        participants.add(participant);
+
         return participants;
     }
 
@@ -104,10 +117,12 @@ public class ScheduleEventType {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("ScheduleEventType{");
+        final StringBuilder sb = new StringBuilder("ScheduleEventType{");
         sb.append("id=").append(id);
         sb.append(", name='").append(name).append('\'');
         sb.append(", countOfParticipant=").append(countOfParticipant);
+        sb.append(", owners=").append(getOwners().size());
+        sb.append(", participants=").append(getParticipants().size());
         sb.append('}');
         return sb.toString();
     }
