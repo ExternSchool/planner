@@ -17,6 +17,8 @@ public interface UserService {
 
     User createUser(String email, String password, String role) throws EmailExistsException;
 
+    Boolean userHasRole(User user, String role);
+
     User assignNewRole(User user, String role) throws RoleNotFoundException;
 
     User assignNewRolesByKey(User user, VerificationKey key) throws RoleNotFoundException;

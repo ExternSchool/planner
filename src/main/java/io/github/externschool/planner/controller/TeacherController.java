@@ -6,6 +6,7 @@ import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Participant;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Student;
@@ -428,7 +429,7 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (isAdmin(principal)
+        if (isPrincipalAdmin(principal)
                 && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
             if (teacherDTO.getVerificationKey() == null) {
                 teacherDTO.setVerificationKey(new VerificationKey());
@@ -438,12 +439,11 @@ public class TeacherController {
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 
-        if (isAdmin(principal)) {
+        if (isPrincipalAdmin(principal)) {
             Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
-                    .ifPresent(user -> userService.save(
-                            userService.assignNewRolesByKey(user, user.getVerificationKey())));
+                    .ifPresent(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
         }
 
         return redirectByRole(principal);
@@ -484,10 +484,35 @@ public class TeacherController {
         return modelAndView;
     }
 
+    @Secured("ROLE_ADMIN")
+    @PostMapping(value = "/{id}/admin")
+    public ModelAndView processTeacherProfileFormActionAdmin(@PathVariable("id") Long id,
+                                                                Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        if (id == null) {
+            return modelAndView;
+        }
+        Teacher teacher = teacherService.findTeacherById(id);
+        Optional.ofNullable(teacher.getVerificationKey())
+                .map(VerificationKey::getUser)
+                .ifPresent(user -> {
+                    Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+                    if (user.getRoles().contains(roleAdmin)) {
+                        user.removeRole(roleAdmin);
+                    } else {
+                        user.addRole(roleAdmin);
+                    }
+                });
+        modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
+
+        return modelAndView;
+    }
+
     private ModelAndView displayTeacherProfile(TeacherDTO teacherDTO) {
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile",
-                "teacher", teacherDTO);
+        ModelAndView modelAndView =
+                new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
+        modelAndView.addObject("isAdmin", isTeacherAdmin(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
         return modelAndView;
@@ -499,7 +524,7 @@ public class TeacherController {
                 .orElse(false);
     }
 
-    private Boolean isAdmin(Principal principal) {
+    private Boolean isPrincipalAdmin(Principal principal) {
         return Optional.ofNullable(principal)
                 .map(p -> userService.findUserByEmail(p.getName()))
                 .map(User::getRoles)
@@ -507,8 +532,17 @@ public class TeacherController {
                 .orElse(Boolean.FALSE);
     }
 
+    private Boolean isTeacherAdmin(TeacherDTO teacherDTO) {
+        return Optional.ofNullable(teacherDTO.getId())
+                .map(teacherService::findTeacherById)
+                .map(Teacher::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(user -> userService.userHasRole(user, "ROLE_ADMIN"))
+                .orElse(false);
+    }
+
     private ModelAndView redirectByRole(Principal principal) {
-        if (isAdmin(principal)) {
+        if (isPrincipalAdmin(principal)) {
             return new ModelAndView("redirect:/teacher/");
         }
 
