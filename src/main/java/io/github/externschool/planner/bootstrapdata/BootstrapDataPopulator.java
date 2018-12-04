@@ -124,6 +124,23 @@ public class BootstrapDataPopulator implements InitializingBean {
         teacherService.saveOrUpdateTeacher(teacher);
         userService.save(presetTeacher);
 
+        User inCharge = userService.createUser("extern.school@gmail.com", "!Qwert", "ROLE_ADMIN");
+        inCharge = userService.save(inCharge);
+        key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+        Teacher inChargeTeacher = createTeacher(
+                new Person(null,
+                        "",
+                        "",
+                        "Адміністратор",
+                        "(044) 257-10-28"),
+                key,
+                "",
+                Collections.singletonList("Написання контрольних робіт"));
+        inChargeTeacher.addVerificationKey(key);
+        inCharge.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(inChargeTeacher);
+        userService.save(inCharge);
+
         User presetStudent = userService.createUser("s@s", "s", "ROLE_STUDENT");
         key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
         Student presetStudentProfile = new Student(new Person(73L,
@@ -257,19 +274,20 @@ public class BootstrapDataPopulator implements InitializingBean {
     
     private void createScheduleEventType() {
         ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
-        this.eventTypeRepository.save(eventType);
+        eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
+        eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
+        eventType = eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_TEACHER"));
-        this.eventTypeRepository.save(eventType);
+        eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
+        eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
+        eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
+        eventType = eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_ADMIN"));
-        eventType.getCreators().add(roleService.getRoleByName("ROLE_OFFICER"));
-        this.eventTypeRepository.save(eventType);
+        eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
+        eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
+        eventType = eventTypeRepository.save(eventType);
     }
 
     private void createScheduleEventsWithSetOfUsers(final User owner,

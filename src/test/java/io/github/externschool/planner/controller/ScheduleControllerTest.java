@@ -1,15 +1,13 @@
 package io.github.externschool.planner.controller;
 
-import io.github.externschool.planner.dto.ScheduleEventReq;
-import io.github.externschool.planner.entity.User;
-import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.dto.ScheduleEventTypeDTO;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
-import io.github.externschool.planner.factories.UserFactory;
-import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
-import io.github.externschool.planner.service.UserService;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,89 +16,168 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
-import static io.github.externschool.planner.factories.UserFactory.USER_EMAIL;
-import static org.hamcrest.Matchers.hasItem;
+import static io.github.externschool.planner.util.Constants.UK_ROLE_NAMES;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser(roles = "ADMIN")
 public class ScheduleControllerTest {
     @Autowired WebApplicationContext webApplicationContext;
-    @Mock private UserService userService;
-    @MockBean private ScheduleService scheduleService;
     @MockBean private ScheduleEventTypeService eventTypeService;
+    @Mock private ScheduleService scheduleService;
+    @Mock private ConversionService conversionService;
+    @Autowired private RoleService roleService;
 
-    private MockMvc mockMvc;
+    private ScheduleController scheduleController;
+    @Autowired private MockMvc mockMvc;
+
+    private MultiValueMap modelMap;
+    private ScheduleEventTypeDTO eventTypeDTO;
+    private ScheduleEventType eventType;
 
     @Before
     public void setUp() {
+        scheduleController = new ScheduleController(eventTypeService,scheduleService, conversionService, roleService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
                 .build();
+
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        Role roleGuest = roleService.getRoleByName("ROLE_GUEST");
+
+        eventTypeDTO = new ScheduleEventTypeDTO();
+        eventTypeDTO.setId(100L);
+        eventTypeDTO.setName("TestType");
+        eventTypeDTO.setAmountOfParticipants(1);
+        eventTypeDTO.setOwners(Collections.singletonList(roleAdmin));
+        eventTypeDTO.setParticipants(Arrays.asList(roleAdmin, roleGuest));
+
+        eventType = new ScheduleEventType();
+        eventType.setId(eventTypeDTO.getId());
+        eventType.setName(eventTypeDTO.getName());
+        eventType.setAmountOfParticipants(eventTypeDTO.getAmountOfParticipants());
+        eventTypeDTO.getOwners().forEach(eventType::addOwner);
+        eventTypeDTO.getParticipants().forEach(eventType::addParticipant);
+
+        modelMap = new LinkedMultiValueMap<>();
+        modelMap.add("id", eventTypeDTO.getId().toString());
+        modelMap.add("name", eventTypeDTO.getName());
+        modelMap.add("amountOfParticipants", eventTypeDTO.getAmountOfParticipants().toString());
+        modelMap.add("owners", UK_ROLE_NAMES.get(roleAdmin.getName()));
+        modelMap.add("participants", UK_ROLE_NAMES.get(roleAdmin.getName()));
+        modelMap.add("participants", UK_ROLE_NAMES.get(roleGuest.getName()));
+
+        when(conversionService.convert(eventTypeDTO, ScheduleEventType.class))
+                .thenReturn(eventType);
+        when(conversionService.convert(eventType, ScheduleEventTypeDTO.class))
+                .thenReturn(eventTypeDTO);
+        when(eventTypeService.getAllEventTypesSorted())
+                .thenReturn(Collections.singletonList(eventType));
+        when(eventTypeService.getEventTypeById(eventType.getId()))
+                .thenReturn(Optional.of(eventType));
     }
 
     @Test
-    @WithMockUser(value = "user@email.com", roles = "TEACHER")
-    public void shouldDisplayFormCreateNewScheduleEvent() throws Exception {
+    public void shouldDisplayForm_whenDisplayEventTypesList() throws Exception {
+
+        mockMvc.perform(get("/events/type/"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("ownersRoles", "participantsRoles", "eventType", "eventTypes"))
+                .andExpect(view().name("event/event_type"));
+    }
+
+    @Test
+    public void shouldReturnModelAndView_whenProcessEventTypeAddForm() throws Exception {
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
 
         when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
 
-        this.mockMvc.perform(get("/schedule-events/new"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("newEvent", "eventTypes"))
-                .andExpect(model().attribute("eventTypes", hasItem(eventType)))
-                .andExpect(view().name("scheduleEvents/formCreateScheduleEvent"));
+        mockMvc.perform(post("/events/type/add")
+                .param("new_name", "name"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/events/type/"));
     }
 
     @Test
-    @WithMockUser("user@email.com")
-    public void shouldRedirectToListEventAfterSuccessfulCreateNewEvent() throws Exception {
-        ScheduleEventReq req = ScheduleEventFactory.createScheduleEventReq();
-
-        User user = UserFactory.createUser();
-        when(userService.findUserByEmail(USER_EMAIL)).thenReturn(user);
-
-        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        when(scheduleService.createEvent(user, req)).thenReturn(event);
-
-        mockMvc.perform(
-                post("/schedule-events/new")
-                        .param("title", req.getTitle())
-                        .param("description", req.getDescription())
-                        .param("location", req.getLocation())
-                        .param("startOfEvent", req.getStartOfEvent().toString())
-                        .param("endOfEvent", req.getEndOfEvent().toString())
-                        .param("eventType", req.getEventType())
-                        .with(csrf())
-        )
+    public void shouldRedirect_whenValidData_withProcessEventTypeEditForm() throws Exception {
+        mockMvc.perform(post("/events/type/")
+                .param("action", "save")
+                .params(modelMap))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/schedule-events"));
+                .andExpect(view().name("redirect:/events/type/"));
     }
 
-    // TODO add tests for the validation checking
-    // TODO add tests and implementation for displaying list events for current user
-    // TODO add tests and implementation for displaying list events for all users
-    // TODO add conversion service that loads event type by event type name
+    @Test
+    public void shouldReturnSamePage_whenValidationFail_withProcessEventTypeEditForm() throws Exception {
+        modelMap.remove("name");
+        mockMvc.perform(post("/events/type/")
+                .param("action", "save")
+                .params(modelMap))
+                .andExpect(status().isOk())
+                .andExpect(view().name("event/event_type"));
+    }
+
+    @Test
+    public void shouldReturnModelAndView_whenDisplayEventTypeIdForm() throws Exception {
+        mockMvc.perform(get("/events/type/" + eventType.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("event/event_type"))
+                .andExpect(model()
+                        .attributeExists("ownersRoles", "participantsRoles", "eventType", "eventTypes"))
+                .andExpect(model()
+                        .attribute("eventType",
+                                Matchers.hasProperty("id",
+                                        Matchers.equalTo(eventType.getId()))))
+                .andExpect(model()
+                        .attribute("eventType",
+                                Matchers.hasProperty("name",
+                                        Matchers.equalTo(eventType.getName()))))
+                .andExpect(model()
+                        .attribute("eventType",
+                                Matchers.hasProperty("amountOfParticipants",
+                                        Matchers.equalTo(eventType.getAmountOfParticipants()))));
+    }
+
+    @Test
+    public void shouldRedirect_whenInvalidId_toDisplayEventTypeIdForm() throws Exception {
+        mockMvc.perform(get("/events/type/" + 0L))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/events/type/"));
+    }
+
+    @Test
+    public void shouldReturnModelAndView_whenDisplayDeleteEventTypeModal() throws Exception {
+        mockMvc.perform(get("/events/type/" + eventType.getId() + "/modal"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("event/event_type :: deleteEventType"));
+    }
+
+    @Test
+    public void shouldRedirect_whenProcessDeleteEventType() throws Exception {
+        mockMvc.perform(get("/events/type/" + eventType.getId() + "/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/events/type/"));
+    }
 }

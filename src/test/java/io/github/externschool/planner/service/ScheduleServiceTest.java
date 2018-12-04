@@ -40,10 +40,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmail.com)
- */
 public class ScheduleServiceTest {
     @Mock private ScheduleEventRepository eventRepository;
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
@@ -74,7 +70,7 @@ public class ScheduleServiceTest {
         Mockito.doAnswer(AdditionalAnswers.returnsFirstArg()).when(this.eventRepository).save(any(ScheduleEvent.class));
 
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
-        eventType.getCreators().add(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
+        eventType.addOwner(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
         when(this.eventTypeRepo.findByName(eq(eventReq.getEventType()))).thenReturn(eventType);
 
         ScheduleEvent event = this.scheduleService.createEvent(user, eventReq);
@@ -86,7 +82,7 @@ public class ScheduleServiceTest {
     }
 
     @Test(expected = UserCannotHandleEventException.class)
-    public void shouldCreateNewScheduleEventIfUserInValidForThisEventType() {
+    public void shouldThrowException_whenUserInvalidForThisEventType() {
         User user = UserFactory.createUser();
         ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
 
@@ -105,9 +101,9 @@ public class ScheduleServiceTest {
         User user = expectedEvent.getOwner();
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         Role allowedRole = new Role(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
-        type.getCreators().add(allowedRole);
+        type.addOwner(allowedRole);
 
-        assertThat(type.getCreators())
+        assertThat(type.getOwners())
                 .contains(allowedRole);
 
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
@@ -185,7 +181,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnListEvents_whenGetEventsByOwner() {
+    public void shouldReturnListOfEvents_whenGetEventsByOwner() {
         ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         eventOne.setId(2L);
         ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
@@ -197,6 +193,28 @@ public class ScheduleServiceTest {
                 .thenReturn(expectedEvents);
 
         List<ScheduleEvent> actualEvents = scheduleService.getEventsByOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
+    @Test
+    public void shouldReturnListOfEvents_whenGetEventsByType() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        ScheduleEventType type = new ScheduleEventType("Type", 1);
+        eventOne.setType(type);
+        eventTwo.setType(type);
+
+        Mockito.when(eventTypeRepo.findByName("Type"))
+                .thenReturn(type);
+        Mockito.when(eventRepository.findAllByType(type))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getEventsByType(type);
 
         assertThat(actualEvents)
                 .isNotNull()
@@ -269,7 +287,7 @@ public class ScheduleServiceTest {
 
         assertThat(actualEvent.getOwner())
                 .isNull();
-        assertThat(actualEvent.getType().getCreators())
+        assertThat(actualEvent.getType().getOwners())
                 .doesNotContain(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
 
         scheduleService.addOwner(owner, actualEvent);
@@ -284,7 +302,7 @@ public class ScheduleServiceTest {
         anEvent.setOwner(null);
         owner.removeOwnEvent(anEvent);
         Role allowedRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
-        anEvent.getType().getCreators().add(allowedRole);
+        anEvent.getType().addOwner(allowedRole);
 
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
@@ -293,7 +311,7 @@ public class ScheduleServiceTest {
 
         assertThat(actualEvent.getOwner())
                 .isNull();
-        assertThat(actualEvent.getType().getCreators())
+        assertThat(actualEvent.getType().getOwners())
                 .contains(allowedRole);
 
         scheduleService.addOwner(owner, actualEvent);
