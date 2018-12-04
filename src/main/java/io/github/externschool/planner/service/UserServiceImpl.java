@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -91,6 +92,17 @@ public class UserServiceImpl implements UserService {
         assignNewRole(user, role);
 
         return user;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Boolean userHasRole(final User user, final String role) {
+        return Optional.ofNullable(user)
+                .map(User::getEmail)
+                .map(this::findUserByEmail)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName(role)))
+                .orElse(false);
     }
 
     @Override

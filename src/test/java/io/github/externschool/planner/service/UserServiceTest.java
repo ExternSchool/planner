@@ -124,6 +124,25 @@ public class UserServiceTest {
         verify(userRepository, times(1)).delete(expectedUser);
     }
 
+    @Test
+    public void shouldReturnTrue_whenUserHasRole() {
+        Boolean shouldBeTrue = userService.userHasRole(expectedUser, role.getName());
+
+        assertThat(shouldBeTrue)
+                .isNotNull()
+                .isInstanceOf(Boolean.class)
+                .isEqualTo(true);
+    }
+
+    @Test
+    public void shouldReturnFalse_whenUserHasNoRole() {
+        Boolean shouldBeFalse = userService.userHasRole(expectedUser, "ROLE_ADMIN");
+
+        assertThat(shouldBeFalse)
+                .isNotNull()
+                .isInstanceOf(Boolean.class)
+                .isEqualTo(false);
+    }
 
     @Test(expected = EmailExistsException.class)
     public void shouldThrowEmailExistsException_IfUserExists() {

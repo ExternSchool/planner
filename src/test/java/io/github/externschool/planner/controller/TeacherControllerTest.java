@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -397,6 +398,47 @@ public class TeacherControllerTest {
                 .andExpect(model().attribute("teacher",
                         Matchers.hasProperty("verificationKey",
                                 Matchers.not(key))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldAddAdmin_whenPostTeacherProfileFormActionAdmin() throws Exception {
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        Role roleTeacher = teacher.getVerificationKey().getUser().getRoles().stream().findAny().orElse(null);
+
+        assertThat(teacher.getVerificationKey().getUser().getRoles())
+                .hasSize(1)
+                .doesNotContain(roleAdmin);
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.hasProperty("roles",
+                                                Matchers.contains(roleAdmin, roleTeacher))))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldRemoveAdmin_whenPostTeacherProfileFormActionAdmin() throws Exception {
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        Role roleTeacher = user.getRoles().stream().findAny().orElse(null);
+        user.addRole(roleAdmin);
+        user = userService.save(user);
+        assertThat(teacher.getVerificationKey().getUser().getRoles())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(roleAdmin, roleTeacher);
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.hasProperty("roles",
+                                                Matchers.contains(roleTeacher))))));
     }
 
     @After
