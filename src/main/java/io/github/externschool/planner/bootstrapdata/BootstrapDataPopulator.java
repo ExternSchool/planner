@@ -208,28 +208,6 @@ public class BootstrapDataPopulator implements InitializingBean {
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
 
-        /*
-        SchoolSubject control = inChargeTeacher.getSubjects().stream().findAny().get();
-        Arrays.asList(GradeLevel.LEVEL_5,
-                GradeLevel.LEVEL_6,
-                GradeLevel.LEVEL_7,
-                GradeLevel.LEVEL_8,
-                GradeLevel.LEVEL_9,
-                GradeLevel.LEVEL_10,
-                GradeLevel.LEVEL_11).forEach(gradeLevel -> {
-            StudyPlan plan = new StudyPlan(gradeLevel, control);
-            plan.setSubject(control);
-            plan.setHoursPerSemesterOne(0);
-            plan.setHoursPerSemesterTwo(0);
-            plan.setWorksPerSemesterOne(1);
-            plan.setWorksPerSemesterTwo(1);
-            plan.setTitle(plan.getTitle());
-            planRepository.save(plan);
-            plan.setSubject(control);
-        });
-        inChargeTeacher.addSubject(control);
-         */
-
         List<StudyPlan> plans = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
         for (StudyPlan plan : plans) {
             Course course = new Course(student.getId(), plan.getId());
