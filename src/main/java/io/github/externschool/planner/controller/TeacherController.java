@@ -259,7 +259,8 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
-            model.addAttribute("eventTypes", typeService.loadEventTypes());
+            model.addAttribute("eventTypes",
+                    typeService.getAllEventTypesByUserRoles(user));
             model.addAttribute(
                     "newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());

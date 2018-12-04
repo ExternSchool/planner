@@ -1,9 +1,21 @@
 package io.github.externschool.planner.util;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public final class Constants {
+    public static final Map<String, String> UK_ROLE_NAMES;
+    static {
+        UK_ROLE_NAMES = new HashMap<>();
+        UK_ROLE_NAMES.put("ROLE_ADMIN", "Адміністратор");
+        UK_ROLE_NAMES.put("ROLE_GUEST", "Відвідувач");
+        UK_ROLE_NAMES.put("ROLE_OFFICER", "Посадовець");
+        UK_ROLE_NAMES.put("ROLE_STUDENT", "Учень");
+        UK_ROLE_NAMES.put("ROLE_TEACHER", "Вчитель");
+    }
+
     public static final String UK_GENDER_MALE = "чол.";
     public static final String UK_GENDER_FEMALE = "жін.";
 
@@ -24,6 +36,7 @@ public final class Constants {
     public static final String UK_FORM_INVALID_KEY_MESSAGE = "Введено недійсний ключ!";
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Помилка вводу даних!";
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
+    public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
 
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";

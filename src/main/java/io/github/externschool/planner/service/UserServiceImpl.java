@@ -146,7 +146,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createAndAddNewKeyAndPerson(User user) {
-        //TODO Remove key and person saves when Cascade fixed
         VerificationKey key = new VerificationKey();
         keyRepository.save(key);
         Person person = new Person();
