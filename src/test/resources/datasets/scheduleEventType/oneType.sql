@@ -1,1 +1,1 @@
-insert into schedule_event_type (id,name,count_participant) values (2,'TestEventType',1);
+insert into schedule_event_type (id,name,participants_amount) values (2,'TestEventType',1);

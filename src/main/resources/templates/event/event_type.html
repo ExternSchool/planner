@@ -44,7 +44,7 @@
     </form>
     <fieldset>
         <form th:method="post" th:action="@{/events/type/}" th:object="${eventType}" class="form" id="form">
-            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="${eventType.id}"/>
 
             <div class="table-responsive" th:if="${not #lists.isEmpty(eventTypes)}">
                 <table class="col-lg-12 table table-sm table-hover">
@@ -72,7 +72,7 @@
                                     <li th:each="item : ${type.getParticipants()}" th:text="${{item}}">Роль</li>
                                 </ul>
                             </td>
-                            <td class="text-center" th:text="${type.getCountOfParticipant()}">Кількість</td>
+                            <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
 
                             <td class="text-right">
                                 <a th:href="@{/events/type/{id}(id=${type.id})}">

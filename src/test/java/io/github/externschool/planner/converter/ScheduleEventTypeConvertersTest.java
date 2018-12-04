@@ -58,7 +58,7 @@ public class ScheduleEventTypeConvertersTest {
                 Collections.singletonList(roleService.getAllRoles().get(0)),
                 roleService.getAllRoles());
 
-        ScheduleEventType expectedType = new ScheduleEventType(typeDTO.getName(), typeDTO.getCountOfParticipant());
+        ScheduleEventType expectedType = new ScheduleEventType(typeDTO.getName(), typeDTO.getAmountOfParticipants());
         expectedType.setId(typeDTO.getId());
         expectedType.addOwner(roleService.getAllRoles().get(0));
         roleService.getAllRoles().forEach(expectedType::addParticipant);

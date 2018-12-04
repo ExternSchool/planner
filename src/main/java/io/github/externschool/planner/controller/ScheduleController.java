@@ -6,15 +6,17 @@ import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
-import io.github.externschool.planner.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.Errors;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,11 +35,15 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_E
 @Secured("ROLE_ADMIN")
 @RequestMapping("/events")
 public class ScheduleController {
-
     private final ScheduleEventTypeService eventTypeService;
     private final ScheduleService scheduleService;
     private final ConversionService conversionService;
     private final RoleService roleService;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+    }
 
     @Autowired
     public ScheduleController(
@@ -52,13 +58,13 @@ public class ScheduleController {
     }
 
     @GetMapping("/type/")
-    public ModelAndView displayScheduleEventTypesList(final ModelMap model) {
+    public ModelAndView displayEventTypesList(final ModelMap model) {
 
         return prepareModelAndView(null, model);
     }
 
     @PostMapping("/type/add")
-    public ModelAndView processNewEventTypeAddition(@ModelAttribute("new_name") String name, ModelMap model) {
+    public ModelAndView processEventTypeAddForm(@ModelAttribute("new_name") String name, ModelMap model) {
         try {
             if (name.isEmpty()) {
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE);
@@ -80,12 +86,12 @@ public class ScheduleController {
     }
 
     @PostMapping(value = "/type/", params = "action=save")
-    public ModelAndView processFormEditScheduleEventType(@Valid final ScheduleEventTypeDTO req,
-                                                     final ModelMap model,
-                                                     final Errors bindingResult) {
+    public ModelAndView processEventTypeditForm(@ModelAttribute("eventType") @Valid ScheduleEventTypeDTO req,
+                                                     final BindingResult bindingResult,
+                                                     final ModelMap model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("eventType", req);
-            return new ModelAndView("event/event_type", model);
+            return prepareModelAndView(req.getId(), model);
         }
 
         eventTypeService.saveOrUpdateEventType(conversionService.convert(req, ScheduleEventType.class));
@@ -94,12 +100,12 @@ public class ScheduleController {
     }
 
     @GetMapping("/type/{id}")
-    public ModelAndView displayEditEventType(@PathVariable("id") Long id, ModelMap model) {
-        ModelAndView modelAndView = new ModelAndView("event/event_type");
+    public ModelAndView displayEventTypedIdForm(@PathVariable("id") Long id, ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/events/type/");
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);
         if(eventType.isPresent()) {
             ScheduleEventType type = eventType.get();
-            modelAndView.addObject(prepareModelAndView(type.getId(), model).getModel());
+            modelAndView = prepareModelAndView(type.getId(), model);
         }
 
         return modelAndView;
