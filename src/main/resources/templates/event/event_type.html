@@ -30,7 +30,7 @@
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
-    <form th:action="@{/events/type/add}" method="post">
+    <form th:action="@{/event/type/add}" method="post">
         <div class="input-group input-group-sm mb-1">
             <div class="input-group-prepend">
                 <span class="input-group-text">Введіть назву події</span>
@@ -43,7 +43,7 @@
         </div>
     </form>
     <fieldset>
-        <form th:method="post" th:action="@{/events/type/}" th:object="${eventType}" class="form" id="form">
+        <form th:method="post" th:action="@{/event/type/}" th:object="${eventType}" class="form" id="form">
             <input type="hidden" th:field="${eventType.id}"/>
 
             <div class="table-responsive" th:if="${not #lists.isEmpty(eventTypes)}">
@@ -75,7 +75,7 @@
                             <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
 
                             <td class="text-right">
-                                <a th:href="@{/events/type/{id}(id=${type.id})}">
+                                <a th:href="@{/event/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </button>
@@ -125,7 +125,7 @@
                                         name="action" id="save" value="save">Зберегти</button>
                             </td>
                             <td class="text-right">
-                                <a th:href="@{/events/type/}">
+                                <a th:href="@{/event/type/}">
                                     <button class="btn btn-outline-secondary btn-sm" type="button">Скасувати</button>
                                 </a>
                             </td>
@@ -180,7 +180,7 @@
                     Повернутися до редагування
                 </button>
                 <div th:if="${eventType.id != null}">
-                    <a th:href="@{/events/type/{id}/delete(id=${eventType.id})}"
+                    <a th:href="@{/event/type/{id}/delete(id=${eventType.id})}"
                        class="btn btn-primary">
                         Так, вилучити!
                     </a>
