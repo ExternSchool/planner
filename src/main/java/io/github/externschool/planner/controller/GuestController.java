@@ -1,22 +1,28 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleService;
+import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,6 +33,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,6 +53,8 @@ public class GuestController {
     private final VerificationKeyService keyService;
     private final RoleService roleService;
     private final UserService userService;
+    @Autowired private TeacherService teacherService;
+    @Autowired private ScheduleService scheduleService;
 
     public GuestController(final PersonService personService,
                            final ConversionService conversionService,
@@ -111,9 +122,6 @@ public class GuestController {
                         .filter(message -> message.contains("verificationKey"))
                         .ifPresent(r -> {throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);});
 
-//                if((bindingResult.getAllErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
-//                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
-//                }
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
 
@@ -157,9 +165,61 @@ public class GuestController {
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @PostMapping(value = "/update", params = "action=cancel")
-    public ModelAndView processFormPersonProfileActionCancel(Principal principal) {
+    public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
 
         return redirectByRole(userService.findUserByEmail(principal.getName()));
+    }
+
+    @GetMapping("/officer/schedule/")
+    public ModelAndView displayOfficersList(final ModelMap model, final Principal principal) {
+
+        /*
+        Optional.ofNullable(teacherService.findAllOfficers().get(0))
+                        .map(Teacher::getId)
+                        .orElse(null)
+         */
+        return prepareModelAndView(null, model);
+    }
+
+    private ModelAndView prepareModelAndView(Long officerId, final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
+
+        List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
+        List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
+        List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
+        List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
+
+        Optional<User> optionalUser = getOptionalUser(officerId);
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            currentWeek.forEach(date ->
+                    currentWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+            nextWeek.forEach(date ->
+                    nextWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+        } else {
+            currentWeek.forEach(date -> currentWeekEvents.add(Collections.EMPTY_LIST));
+            nextWeek.forEach(date -> nextWeekEvents.add(Collections.EMPTY_LIST));
+        }
+
+        modelAndView.addObject("officers", teacherService.findAllOfficers());
+        modelAndView.addObject("currentWeek", currentWeek);
+        modelAndView.addObject("nextWeek", nextWeek);
+        modelAndView.addObject("currentWeekEvents", currentWeekEvents);
+        modelAndView.addObject("nextWeekEvents", nextWeekEvents);
+
+        return modelAndView;
+    }
+
+    private Optional<User> getOptionalUser(final Long id) {
+        return Optional.ofNullable(teacherService.findTeacherById(id))
+                .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
+                .orElse(null);
+    }
+
+    private List<ScheduleEventDTO> convertToDTO(List<ScheduleEvent> events) {
+        return events.stream()
+                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                .collect(Collectors.toList());
     }
 
     private ModelAndView redirectByRole(User user) {

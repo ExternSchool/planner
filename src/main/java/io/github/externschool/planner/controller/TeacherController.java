@@ -429,7 +429,7 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (isPrincipalAdmin(principal)
+        if (isPrincipalAnAdmin(principal)
                 && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
             if (teacherDTO.getVerificationKey() == null) {
                 teacherDTO.setVerificationKey(new VerificationKey());
@@ -439,7 +439,7 @@ public class TeacherController {
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
 
-        if (isPrincipalAdmin(principal)) {
+        if (isPrincipalAnAdmin(principal)) {
             Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
@@ -512,7 +512,7 @@ public class TeacherController {
         ModelAndView modelAndView =
                 new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
-        modelAndView.addObject("isAdmin", isTeacherAdmin(teacherDTO));
+        modelAndView.addObject("isAdmin", isTeacherAnAdmin(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
         return modelAndView;
@@ -524,7 +524,7 @@ public class TeacherController {
                 .orElse(false);
     }
 
-    private Boolean isPrincipalAdmin(Principal principal) {
+    private Boolean isPrincipalAnAdmin(Principal principal) {
         return Optional.ofNullable(principal)
                 .map(p -> userService.findUserByEmail(p.getName()))
                 .map(User::getRoles)
@@ -532,7 +532,7 @@ public class TeacherController {
                 .orElse(Boolean.FALSE);
     }
 
-    private Boolean isTeacherAdmin(TeacherDTO teacherDTO) {
+    private Boolean isTeacherAnAdmin(TeacherDTO teacherDTO) {
         return Optional.ofNullable(teacherDTO.getId())
                 .map(teacherService::findTeacherById)
                 .map(Teacher::getVerificationKey)
@@ -542,7 +542,7 @@ public class TeacherController {
     }
 
     private ModelAndView redirectByRole(Principal principal) {
-        if (isPrincipalAdmin(principal)) {
+        if (isPrincipalAnAdmin(principal)) {
             return new ModelAndView("redirect:/teacher/");
         }
 

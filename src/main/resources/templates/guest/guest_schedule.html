@@ -60,28 +60,20 @@
                         <table class="col-lg-12 table table-sm table-hover">
                             <thead>
                             <tr>
-                                <th class="text-left">Прізвище</th>
-                                <th class="text-left">Ім'я</th>
-                                <th class="text-left">По-батькові</th>
+                                <th class="text-left">П.І.Б.</th>
+                                <th class="text-left">Посада</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <div th:each="officer : ${officers}">
-                                <a th:href="@{/guest/officer/{id}/schedule(id=${officer.id})}">
-                                    <tr>
-                                        <td class="text-left" th:text="${officer.getLastName()}">Прізвище</td>
-                                        <td class="text-left" th:text="${officer.getFirstName()}">Ім'я</td>
-                                        <td class="text-left" th:text="${officer.getPatronymicName()}">По-батькові</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-left" th:text="${officer.getOfficer()}">
-                                            <small>
-                                                Посада за розкладом
-                                            </small>
-                                        </td>
-                                    </tr>
-                                </a>
-                            </div>
+                                <tr th:each="officer : ${officers}"
+                                    th:onclick="'javascript:rowClicked(\'' + ${officer.getId()} + '\');'">
+                                    <td class="text-left" th:text="${officer.getShortName()}">П.І.Б.</td>
+                                    <td class="text-left" th:text="${officer.getOfficer()}">
+                                        <!--<small>-->
+                                        Адміністративна посада
+                                        <!--</small>-->
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -273,183 +265,183 @@
         </div>
         <div class="card bg-light mb-2" style="min-width: 20rem;">
             <div class="card-header">Наступний тиждень</div>
-            <div class="card-body text-left">
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Понеділок
-                            <span class="float-right">
-                                <button th:if="${not #lists.isEmpty(nextWeekEvents[0])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3"
-                                        th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 0 + '\');'"
-                                        type="button">
-                                    Видалити
-                                </button>
-                                <span class="float-right badge badge-info badge-pill"
-                                      th:value="${nextWeek[0]}"
-                                      th:text="${#temporals.format(nextWeek[0], 'dd/MM')}">
-                                        дата
-                                    </span>
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[0])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[0]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Вівторок
-                            <span class="float-right">
-                                <button th:if="${not #lists.isEmpty(nextWeekEvents[1])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3"
-                                        th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 1 + '\');'"
-                                        type="button">
-                                    Видалити
-                                </button>
-                                <span class="float-right badge badge-info badge-pill"
-                                      th:value="${nextWeek[1]}"
-                                      th:text="${#temporals.format(nextWeek[1], 'dd/MM')}">
-                                        дата
-                                    </span>
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[1])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[1]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Середа
-                            <span class="float-right">
-                                <button th:if="${not #lists.isEmpty(nextWeekEvents[2])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3"
-                                        th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 2 + '\');'"
-                                        type="button">
-                                    Видалити
-                                </button>
-                                <span class="float-right badge badge-info badge-pill"
-                                      th:value="${nextWeek[2]}"
-                                      th:text="${#temporals.format(nextWeek[2], 'dd/MM')}">
-                                        дата
-                                    </span>
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[2])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[2]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Четвер
-                            <span class="float-right">
-                                <button th:if="${not #lists.isEmpty(nextWeekEvents[3])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3"
-                                        th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 3 + '\');'"
-                                        type="button">
-                                    Видалити
-                                </button>
-                                <span class="float-right badge badge-info badge-pill"
-                                      th:value="${nextWeek[3]}"
-                                      th:text="${#temporals.format(nextWeek[3], 'dd/MM')}">
-                                        дата
-                                    </span>
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[3])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[3]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>П'ятниця
-                            <span class="float-right">
-                                <button th:if="${not #lists.isEmpty(nextWeekEvents[4])}"
-                                        class="float-left btn btn-sm btn-outline-danger mr-3"
-                                        th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 4 + '\');'"
-                                        type="button">
-                                    Видалити
-                                </button>
-                                <span class="float-right badge badge-info badge-pill"
-                                      th:value="${nextWeek[4]}"
-                                      th:text="${#temporals.format(nextWeek[4], 'dd/MM')}">
-                                        дата
-                                    </span>
-                            </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[4])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[4]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <!--<div class="card-body text-left">-->
+                <!--<div>-->
+                    <!--<div class="card-title text-left">-->
+                        <!--<h5>Понеділок-->
+                            <!--<span class="float-right">-->
+                                <!--<button th:if="${not #lists.isEmpty(nextWeekEvents[0])}"-->
+                                        <!--class="float-left btn btn-sm btn-outline-danger mr-3"-->
+                                        <!--th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 0 + '\');'"-->
+                                        <!--type="button">-->
+                                    <!--Видалити-->
+                                <!--</button>-->
+                                <!--<span class="float-right badge badge-info badge-pill"-->
+                                      <!--th:value="${nextWeek[0]}"-->
+                                      <!--th:text="${#temporals.format(nextWeek[0], 'dd/MM')}">-->
+                                        <!--дата-->
+                                    <!--</span>-->
+                            <!--</span>-->
+                        <!--</h5>-->
+                    <!--</div>-->
+                    <!--<div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[0])}">-->
+                        <!--<table class="col-lg-12 table table-sm table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                                <!--<th class="text-left" style="width: 6ch">Час</th>-->
+                                <!--<th class="text-left">Подія</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr th:each="evnt : ${nextWeekEvents[0]}">-->
+                                <!--<td class="text-left" th:text="${evnt.getStartTime()}">Час</td>-->
+                                <!--<td class="text-left" th:text="${evnt.getDescription()}">Подія</td>-->
+                            <!--</tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<div class="card-title text-left">-->
+                        <!--<h5>Вівторок-->
+                            <!--<span class="float-right">-->
+                                <!--<button th:if="${not #lists.isEmpty(nextWeekEvents[1])}"-->
+                                        <!--class="float-left btn btn-sm btn-outline-danger mr-3"-->
+                                        <!--th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 1 + '\');'"-->
+                                        <!--type="button">-->
+                                    <!--Видалити-->
+                                <!--</button>-->
+                                <!--<span class="float-right badge badge-info badge-pill"-->
+                                      <!--th:value="${nextWeek[1]}"-->
+                                      <!--th:text="${#temporals.format(nextWeek[1], 'dd/MM')}">-->
+                                        <!--дата-->
+                                    <!--</span>-->
+                            <!--</span>-->
+                        <!--</h5>-->
+                    <!--</div>-->
+                    <!--<div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[1])}">-->
+                        <!--<table class="col-lg-12 table table-sm table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                                <!--<th class="text-left" style="width: 6ch">Час</th>-->
+                                <!--<th class="text-left">Подія</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr th:each="evnt : ${nextWeekEvents[1]}">-->
+                                <!--<td class="text-left" th:text="${evnt.getStartTime()}">Час</td>-->
+                                <!--<td class="text-left" th:text="${evnt.getDescription()}">Подія</td>-->
+                            <!--</tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<div class="card-title text-left">-->
+                        <!--<h5>Середа-->
+                            <!--<span class="float-right">-->
+                                <!--<button th:if="${not #lists.isEmpty(nextWeekEvents[2])}"-->
+                                        <!--class="float-left btn btn-sm btn-outline-danger mr-3"-->
+                                        <!--th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 2 + '\');'"-->
+                                        <!--type="button">-->
+                                    <!--Видалити-->
+                                <!--</button>-->
+                                <!--<span class="float-right badge badge-info badge-pill"-->
+                                      <!--th:value="${nextWeek[2]}"-->
+                                      <!--th:text="${#temporals.format(nextWeek[2], 'dd/MM')}">-->
+                                        <!--дата-->
+                                    <!--</span>-->
+                            <!--</span>-->
+                        <!--</h5>-->
+                    <!--</div>-->
+                    <!--<div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[2])}">-->
+                        <!--<table class="col-lg-12 table table-sm table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                                <!--<th class="text-left" style="width: 6ch">Час</th>-->
+                                <!--<th class="text-left">Подія</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr th:each="evnt : ${nextWeekEvents[2]}">-->
+                                <!--<td class="text-left" th:text="${evnt.getStartTime()}">Час</td>-->
+                                <!--<td class="text-left" th:text="${evnt.getDescription()}">Подія</td>-->
+                            <!--</tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<div class="card-title text-left">-->
+                        <!--<h5>Четвер-->
+                            <!--<span class="float-right">-->
+                                <!--<button th:if="${not #lists.isEmpty(nextWeekEvents[3])}"-->
+                                        <!--class="float-left btn btn-sm btn-outline-danger mr-3"-->
+                                        <!--th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 3 + '\');'"-->
+                                        <!--type="button">-->
+                                    <!--Видалити-->
+                                <!--</button>-->
+                                <!--<span class="float-right badge badge-info badge-pill"-->
+                                      <!--th:value="${nextWeek[3]}"-->
+                                      <!--th:text="${#temporals.format(nextWeek[3], 'dd/MM')}">-->
+                                        <!--дата-->
+                                    <!--</span>-->
+                            <!--</span>-->
+                        <!--</h5>-->
+                    <!--</div>-->
+                    <!--<div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[3])}">-->
+                        <!--<table class="col-lg-12 table table-sm table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                                <!--<th class="text-left" style="width: 6ch">Час</th>-->
+                                <!--<th class="text-left">Подія</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr th:each="evnt : ${nextWeekEvents[3]}">-->
+                                <!--<td class="text-left" th:text="${evnt.getStartTime()}">Час</td>-->
+                                <!--<td class="text-left" th:text="${evnt.getDescription()}">Подія</td>-->
+                            <!--</tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div>-->
+                    <!--<div class="card-title text-left">-->
+                        <!--<h5>П'ятниця-->
+                            <!--<span class="float-right">-->
+                                <!--<button th:if="${not #lists.isEmpty(nextWeekEvents[4])}"-->
+                                        <!--class="float-left btn btn-sm btn-outline-danger mr-3"-->
+                                        <!--th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + 4 + '\');'"-->
+                                        <!--type="button">-->
+                                    <!--Видалити-->
+                                <!--</button>-->
+                                <!--<span class="float-right badge badge-info badge-pill"-->
+                                      <!--th:value="${nextWeek[4]}"-->
+                                      <!--th:text="${#temporals.format(nextWeek[4], 'dd/MM')}">-->
+                                        <!--дата-->
+                                    <!--</span>-->
+                            <!--</span>-->
+                        <!--</h5>-->
+                    <!--</div>-->
+                    <!--<div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[4])}">-->
+                        <!--<table class="col-lg-12 table table-sm table-hover">-->
+                            <!--<thead>-->
+                            <!--<tr>-->
+                                <!--<th class="text-left" style="width: 6ch">Час</th>-->
+                                <!--<th class="text-left">Подія</th>-->
+                            <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                            <!--<tr th:each="evnt : ${nextWeekEvents[4]}">-->
+                                <!--<td class="text-left" th:text="${evnt.getStartTime()}">Час</td>-->
+                                <!--<td class="text-left" th:text="${evnt.getDescription()}">Подія</td>-->
+                            <!--</tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="card-footer">
                 <small class="text-muted">Останнє оновлення: 2018-10-27</small>
             </div>
@@ -470,45 +462,45 @@
 <!-- /ModalHolder -->
 
 <!-- Modal -->
-<div class="modal fade" id="newScheduleModal" role="dialog" th:fragment="newSchedule">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalNewTitle">Створення нової події</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-justify">
-                <form th:method="post"
-                      th:action="@{/officer/{id}/new-schedule/{day}/add(id=${officer.id}, day=${thisDay})}"
-                      th:object="${newEvent}" class="form" id="formNewEvent">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
-                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
-                        </div>
-                        <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
-                            <option th:each="type : ${eventTypes}"
-                                    th:value="${type.name}"
-                                    th:text="${type.name}">
-                                Тип події
-                            </option>
-                        </select>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Скасувати
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            Додати нову подію
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<!--<div class="modal fade" id="newScheduleModal" role="dialog" th:fragment="newSchedule">-->
+    <!--<div class="modal-dialog modal-dialog-centered" role="document">-->
+        <!--<div class="modal-content">-->
+            <!--<div class="modal-header">-->
+                <!--<h5 class="modal-title" id="modalNewTitle">Створення нової події</h5>-->
+                <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
+                    <!--<span aria-hidden="true">&times;</span>-->
+                <!--</button>-->
+            <!--</div>-->
+            <!--<div class="modal-body text-justify">-->
+                <!--<form th:method="post"-->
+                      <!--th:action="@{/officer/{id}/new-schedule/{day}/add(id=${officer.id}, day=${thisDay})}"-->
+                      <!--th:object="${newEvent}" class="form" id="formNewEvent">-->
+                    <!--<div class="input-group mb-3">-->
+                        <!--<div class="input-group-prepend">-->
+                            <!--<input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"-->
+                                   <!--min="9:00" max="20:00" th:field="${newEvent.startTime}" required>-->
+                        <!--</div>-->
+                        <!--<select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">-->
+                            <!--<option th:each="type : ${eventTypes}"-->
+                                    <!--th:value="${type.name}"-->
+                                    <!--th:text="${type.name}">-->
+                                <!--Тип події-->
+                            <!--</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">-->
+                            <!--Скасувати-->
+                        <!--</button>-->
+                        <!--<button type="submit" class="btn btn-primary">-->
+                            <!--Додати нову подію-->
+                        <!--</button>-->
+                    <!--</div>-->
+                <!--</form>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
 
 
 <div class="modal fade" id="reserveEventModal" role="dialog" th:fragment="deleteCurrentWeekDay">
@@ -535,10 +527,12 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Ні, дякую
                 </button>
+                <span th:if="${officer != null}">
                 <a th:href="@{/officer/{id}/current-week/{day}/delete(id=${officer.id}, day=${thisDay})}"
                    class="btn btn-primary">
                     Так, скасувати!
                 </a>
+                </span>
             </div>
         </div>
     </div>
@@ -568,17 +562,19 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Ні, дякую
                 </button>
+                <span th:if="${officer != null}">
                 <a th:href="@{/officer/{id}/next-week/{day}/delete(id=${officer.id}, day=${thisDay})}"
                    class="btn btn-primary">
                     Так, скасувати!
                 </a>
+                </span>
             </div>
         </div>
     </div>
 </div>
 <!-- / Modal -->
 
-<script src="/js/gestOfficerScheduleModals.js"></script>
+<script src="/js/guestSchedule.js"></script>
 
 </body>
 </html>

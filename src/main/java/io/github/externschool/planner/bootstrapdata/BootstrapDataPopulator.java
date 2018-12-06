@@ -85,6 +85,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     public void afterPropertiesSet() {
         Teacher noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        noTeacher.setOfficer("");
         VerificationKey keyNoTeacher = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(keyNoTeacher);
         noTeacher.addVerificationKey(keyNoTeacher);

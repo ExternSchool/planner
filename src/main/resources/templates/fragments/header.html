@@ -22,6 +22,18 @@
                 </li>
 
                 <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/officer/schedule/">Розклади</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                        <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
+                           href="#">Записи</a>
+                    </div>
+                </li>
+                <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
                            href="/guest/">Гості</a>

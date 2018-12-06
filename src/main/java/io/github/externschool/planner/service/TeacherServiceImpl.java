@@ -87,4 +87,11 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.deleteById(id);
         }
     }
+
+    @Override
+    public List<Teacher> findAllOfficers() {
+        return teacherRepository.findAllByOrderByLastName().stream()
+                .filter(teacher -> teacher.getOfficer() != null && !teacher.getOfficer().isEmpty())
+                .collect(Collectors.toList());
+    }
 }

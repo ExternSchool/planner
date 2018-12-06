@@ -221,6 +221,21 @@ public class GuestControllerTest {
                 .andExpect(view().name("redirect:/"));
     }
 
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnForm_whenDisplayOfficersList() throws Exception {
+        mockMvc.perform(get("/guest/officer/schedule/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officers",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents"));
+    }
+
     @After
     public void tearDown() {
         personService.deletePerson(person);

@@ -1,5 +1,10 @@
 'use strict';
 
+
+function rowClicked(id) {
+    location.href = "/guest/officer/" + id + "/schedule";
+}
+
 function openReserveEventModal(id, event) {
     $.ajax({
         url: "guest/officer/" + id + "/event/" + event + "/reserve",
