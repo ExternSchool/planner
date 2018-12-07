@@ -52,15 +52,14 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     /**
-     * @deprecated
-     * Use createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes)
+     * Creates and saves a new event
+     *
      * @return ScheduleEvent
+     * @deprecated Replaced by {@link #createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes)}
      */
     @Deprecated
     @Override
     public ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq) {
-
-        //TODO need case when event with this type is not found
         ScheduleEventType type = this.eventTypeRepository.findByName(eventReq.getEventType());
 
         canUserHandleEventForType(owner, type);
@@ -81,8 +80,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
 
-        // TODO need case when event with this type is not found
-        ScheduleEventType type = this.eventTypeRepository.findByName(eventDTO.getEventType());
+        ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
         canUserHandleEventForType(owner, type);
 
         ScheduleEvent newEvent = ScheduleEvent.builder()

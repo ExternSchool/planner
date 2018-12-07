@@ -181,6 +181,14 @@ public class GuestController {
         return prepareModelAndView(null, model);
     }
 
+    @GetMapping("/officer/{id}/schedule")
+    public ModelAndView displayOfficerSchedule(@PathVariable("id") Long id,
+                                               final ModelMap model,
+                                               final Principal principal) {
+
+        return prepareModelAndView(id, model);
+    }
+
     private ModelAndView prepareModelAndView(Long officerId, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
 
@@ -188,6 +196,7 @@ public class GuestController {
         List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
         List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
         List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
+
 
         Optional<User> optionalUser = getOptionalUser(officerId);
         if (optionalUser != null && optionalUser.isPresent()) {

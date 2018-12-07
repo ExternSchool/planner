@@ -30,7 +30,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
-                           href="#">Записи</a>
+                           href="#">Призначені зустрічі</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -60,7 +60,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
                         <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
-                           href="#">Записи</a>
+                           href="#">Призначені зустрічі</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -120,7 +120,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'events'}? 'nav-link active' : 'nav-link'"
-                           href="/events/type/">Події</a>
+                           href="/event/type/">Події</a>
                     </div>
                 </li>
             </ul>

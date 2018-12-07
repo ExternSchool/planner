@@ -342,8 +342,7 @@ public class StudentController {
             dto.ifPresent(d -> d.setOptionalData(
                     Optional.ofNullable(course.getPlanId())
                             .map(planService::findById)
-                            .map(StudyPlan::getSubject)
-                            .map(SchoolSubject::getTitle)
+                            .map(StudyPlan::getTitle)
                             .orElse("")));
             dto.ifPresent(resultList::add);
         }
