@@ -133,6 +133,7 @@ public class TeacherController {
             standardWeek.forEach(date ->
                     standardWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
 
+
             modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
             modelAndView.addObject("currentWeek", currentWeek);
             modelAndView.addObject("nextWeek", nextWeek);

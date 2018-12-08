@@ -47,6 +47,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ScheduleEvent saveEvent(ScheduleEvent scheduleEvent) {
+        return eventRepo.save(scheduleEvent);
+    }
+
+    @Override
     public ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq) {
 
         //TODO need case when event with this type is not found

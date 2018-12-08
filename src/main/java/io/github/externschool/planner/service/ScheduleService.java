@@ -13,6 +13,9 @@ import java.util.List;
  * @author Benkoff (mailto.benkoff@gmail.com)
  */
 public interface ScheduleService {
+
+    ScheduleEvent saveEvent(ScheduleEvent scheduleEvent);
+
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
 
     ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);

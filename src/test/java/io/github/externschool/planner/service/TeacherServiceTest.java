@@ -7,6 +7,7 @@ import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +33,10 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class TeacherServiceTest {
     @Mock private TeacherRepository teacherRepository;
+    @Mock private ScheduleEventRepository scheduleEventRepository;
     @Mock private VerificationKeyRepository keyRepository;
     private TeacherService teacherService;
+    private ScheduleService scheduleService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -40,7 +44,8 @@ public class TeacherServiceTest {
 
     @Before
     public void setUp() {
-        teacherService = new TeacherServiceImpl(teacherRepository, keyRepository);
+        teacherService = new TeacherServiceImpl(teacherRepository, scheduleEventRepository,
+                keyRepository, scheduleService);
 
         expectedTeacher = new Teacher();
         expectedTeacher.setLastName("LastName");
@@ -190,5 +195,12 @@ public class TeacherServiceTest {
         Stream.of(courseOne, courseTwo).forEach(course ->
                 assertThat(course.getTeacher())
                         .isNull());
+    }
+
+    @Test
+    public void shouldUpdateTeacherSchedule(){
+        DayOfWeek firstDay = DayOfWeek.MONDAY;
+
+
     }
 }

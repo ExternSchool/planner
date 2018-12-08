@@ -3,9 +3,13 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
+import io.github.externschool.planner.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,14 +21,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
-    private final TeacherRepository teacherRepository;
-    private final VerificationKeyRepository keyRepository;
+    private final   TeacherRepository teacherRepository;
+    private final   VerificationKeyRepository keyRepository;
+    private final   ScheduleService scheduleService;
 
     @Autowired
     public TeacherServiceImpl(final TeacherRepository teacherRepository,
-                              final VerificationKeyRepository keyRepository) {
+                              ScheduleEventRepository scheduleEventRepository, final VerificationKeyRepository keyRepository, ScheduleService scheduleService) {
         this.teacherRepository = teacherRepository;
         this.keyRepository = keyRepository;
+        this.scheduleService = scheduleService;
     }
 
     @Override
@@ -71,5 +77,29 @@ public class TeacherServiceImpl implements TeacherService {
             });
             teacherRepository.deleteById(id);
         });
+    }
+
+    @Override
+    @Scheduled(cron = "0 0 01 ? * SAT")
+    public void updateTeacherSchedule(){
+
+        List<Teacher> teachers = findAllTeachers();
+
+        for (Teacher teacher: teachers
+             ) {
+            for (int i = 0; i < 5; i++) {
+
+                List<ScheduleEvent> events = scheduleService
+                                            .getEventsByOwnerAndDate(teacher.getVerificationKey().getUser()
+                                            , Constants.FIRST_MONDAY_OF_EPOCH.plusDays(i));
+
+                for (ScheduleEvent event: events
+                     ) {
+                    ScheduleEvent nextEvent = event;
+                    nextEvent.setStartOfEvent(scheduleService.getNextWeekFirstDay().atStartOfDay());
+                    scheduleService.saveEvent(nextEvent);
+                }
+            }
+        }
     }
 }
