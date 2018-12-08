@@ -11,6 +11,7 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,8 +42,8 @@ public class UserServiceTest {
     @Mock private RoleService roleService;
     @Mock private VerificationKeyRepository keyRepository;
     @Mock private PersonRepository personRepository;
-    @Mock private ScheduleService scheduleService;
     @Autowired private PasswordEncoder passwordEncoder;
+    @Mock private ScheduleService scheduleService;
     private UserService userService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
@@ -112,21 +113,36 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldDeleteEvents_WhenDeleteUser() {
+    public void shouldCancelEvents_WhenDeleteUser() {
         long id1 = 100500L;
         long id2 = 100501L;
         ScheduleEvent eventOne = ScheduleEvent.builder().withOwner(expectedUser).withId(id1).build();
         ScheduleEvent eventTwo = ScheduleEvent.builder().withOwner(expectedUser).withId(id2).build();
-        Mockito.when(scheduleService.getEventsByOwner(expectedUser))
-                .thenReturn(Arrays.asList(eventOne, eventTwo));
 
         userService.deleteUser(expectedUser);
 
-        verify(scheduleService, times(1)).deleteEvent(id1);
-        verify(scheduleService, times(1)).deleteEvent(id2);
         verify(userRepository, times(1)).delete(expectedUser);
     }
 
+    @Test
+    public void shouldReturnTrue_whenUserHasRole() {
+        Boolean shouldBeTrue = userService.userHasRole(expectedUser, role.getName());
+
+        assertThat(shouldBeTrue)
+                .isNotNull()
+                .isInstanceOf(Boolean.class)
+                .isEqualTo(true);
+    }
+
+    @Test
+    public void shouldReturnFalse_whenUserHasNoRole() {
+        Boolean shouldBeFalse = userService.userHasRole(expectedUser, "ROLE_ADMIN");
+
+        assertThat(shouldBeFalse)
+                .isNotNull()
+                .isInstanceOf(Boolean.class)
+                .isEqualTo(false);
+    }
 
     @Test(expected = EmailExistsException.class)
     public void shouldThrowEmailExistsException_IfUserExists() {

@@ -2,11 +2,14 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
-import io.github.externschool.planner.exceptions.UserCannotCreateEventException;
+import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +25,38 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmail.com)
- */
 @Service
 @Transactional
 public class ScheduleServiceImpl implements ScheduleService {
 
-    private final ScheduleEventRepository eventRepo;
-    private final ScheduleEventTypeRepository eventTypeRepo;
+    private final ScheduleEventRepository eventRepository;
+    private final ScheduleEventTypeRepository eventTypeRepository;
+    private final ParticipantRepository participantRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ScheduleServiceImpl(final ScheduleEventRepository eventRepo,
-                               final ScheduleEventTypeRepository eventTypeRepo) {
-        this.eventRepo = eventRepo;
-        this.eventTypeRepo = eventTypeRepo;
+    public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
+                               final ScheduleEventTypeRepository eventTypeRepository,
+                               final UserRepository userRepository,
+                               final ParticipantRepository participantRepository) {
+        this.eventRepository = eventRepository;
+        this.eventTypeRepository = eventTypeRepository;
+        this.userRepository = userRepository;
+        this.participantRepository = participantRepository;
     }
 
+    /**
+     * @deprecated
+     * Use createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes)
+     * @return ScheduleEvent
+     */
+    @Deprecated
     @Override
     public ScheduleEvent saveEvent(ScheduleEvent scheduleEvent) {
         return eventRepo.save(scheduleEvent);
@@ -55,9 +66,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq) {
 
         //TODO need case when event with this type is not found
-        ScheduleEventType type = this.eventTypeRepo.findByName(eventReq.getEventType());
+        ScheduleEventType type = this.eventTypeRepository.findByName(eventReq.getEventType());
 
-        canUserCreateEventForType(owner, type);
+        canUserHandleEventForType(owner, type);
 
         ScheduleEvent newEvent = ScheduleEvent.builder()
                 .withTitle(eventReq.getTitle())
@@ -69,15 +80,15 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .withType(type)
                 .build();
 
-        return this.eventRepo.save(newEvent);
+        return this.eventRepository.save(newEvent);
     }
 
     @Override
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
 
         // TODO need case when event with this type is not found
-        ScheduleEventType type = this.eventTypeRepo.findByName(eventDTO.getEventType());
-        canUserCreateEventForType(owner, type);
+        ScheduleEventType type = this.eventTypeRepository.findByName(eventDTO.getEventType());
+        canUserHandleEventForType(owner, type);
 
         ScheduleEvent newEvent = ScheduleEvent.builder()
                 .withTitle(eventDTO.getTitle())
@@ -89,27 +100,120 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .withOpenStatus(eventDTO.getOpen())
                 .withType(type)
                 .build();
+        eventRepository.save(newEvent);
+        owner.addOwnEvent(newEvent);
 
-        return this.eventRepo.save(newEvent);
+        return newEvent;
     }
 
-    @Override
-    public ScheduleEvent addParticipant(final User participant, ScheduleEvent event) {
-
-        // TODO check for user rights to participate in this event
-        // TODO add number of users by type verification
-        if (participant != null && event != null && event.isOpen()) {
-            Set<User> participants = new HashSet<>(event.getParticipants());
-            participants.add(participant);
-            event.setParticipants(participants);
-        }
-
-        return this.eventRepo.save(event);
-    }
-
+    @Transactional(readOnly = true)
     @Override
     public ScheduleEvent getEventById(long id) {
-        return eventRepo.getOne(id);
+        return eventRepository.getOne(id);
+    }
+
+    @Override
+    public ScheduleEvent saveEvent(final ScheduleEvent event) {
+        return eventRepository.save(event);
+    }
+
+    @Override
+    public List<ScheduleEvent> getActualEventsByOwnerAndDate(final User owner, final LocalDate date) {
+        return eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                owner,
+                date.atStartOfDay(),
+                date.atTime(LocalTime.MAX)).stream()
+                .filter(event -> !event.isCancelled())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ScheduleEvent> getEventsByOwner(User owner) {
+        return eventRepository.findAllByOwner(owner);
+    }
+
+    @Override
+    public void cancelEventById(long id) {
+        eventRepository.findById(id).ifPresent(event -> {
+            event.setCancelled(true);
+            event.setOpen(false);
+            event.setModifiedAt(LocalDateTime.now());
+
+            // TODO move here cancelling notification from Teacher Controller
+        });
+    }
+
+    @Override
+    public List<ScheduleEvent> getEventsByType(final ScheduleEventType type) {
+        ScheduleEventType eventType = eventTypeRepository.findByName(type.getName());
+
+        return eventRepository.findAllByType(eventType);
+    }
+
+    @Override
+    public void deleteEventById(long id) {
+        eventRepository.findById(id).ifPresent(event -> {
+            event.getParticipants().forEach(this::removeParticipant);
+            Optional.ofNullable(event.getOwner()).ifPresent(owner -> {
+                removeOwner(owner, event);
+                eventRepository.save(event);
+            });
+
+            eventRepository.deleteById(id);
+        });
+    }
+
+    @Override
+    public ScheduleEvent addOwner(final User owner, final ScheduleEvent event) {
+        if (owner != null && event != null && event.getOwner() == null) {
+            canUserHandleEventForType(owner, event.getType());
+
+            owner.addOwnEvent(event);
+            eventRepository.save(event);
+        }
+        return event;
+    }
+
+    @Override
+    public void removeOwner(final User owner, final ScheduleEvent event) {
+        if (owner != null && event != null && event.getOwner() == owner) {
+            owner.removeOwnEvent(event);
+            eventRepository.save(event);
+        }
+    }
+
+    @Override
+    public ScheduleEvent addParticipant(User user, ScheduleEvent event) {
+
+        // TODO check for user rights to participate in this event
+        // TODO set number of users by event type
+        if (user != null && event != null && event.isOpen()) {
+            Participant participant = new Participant(user, event);
+            user.addParticipant(participant);
+            event.addParticipant(participant);
+            event.setModifiedAt(LocalDateTime.now());
+
+            participantRepository.save(participant);
+            eventRepository.save(event);
+        }
+
+        return event;
+    }
+
+    @Transactional
+    @Override
+    public void removeParticipant(final Participant participant) {
+        participantRepository.findById(participant.getId()).ifPresent(p -> {
+            Optional.ofNullable(participant.getUser()).ifPresent(user -> {
+                user.removeParticipant(participant);
+                participantRepository.save(participant);
+            });
+            Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
+                event.removeParticipant(participant);
+                participantRepository.save(participant);
+            });
+            participantRepository.delete(participant);
+        });
     }
 
     @Override
@@ -135,33 +239,19 @@ public class ScheduleServiceImpl implements ScheduleService {
         return getCurrentWeekFirstDay().plus(Period.of(0, 0, 7));
     }
 
-    private void canUserCreateEventForType(User user, ScheduleEventType type) {
+    private void canUserHandleEventForType(User user, ScheduleEventType type) {
 
-        for (Role role : user.getRoles()) {
-            if (type.getCreators().contains(role)) {
-                return;
+        if (user != null && type != null) {
+            for (Role role : user.getRoles()) {
+                if (type.getOwners().contains(role)) {
+                    return;
+                }
             }
         }
 
-        throw new UserCannotCreateEventException(
-                String.format("The user %s is not allowed to create this type of event", user.getEmail())
-        );
-    }
-
-    @Override
-    public List<ScheduleEvent> getEventsByOwnerAndDate(final User owner, final LocalDate date) {
-        return eventRepo.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner,
-                date.atStartOfDay(),
-                date.atTime(LocalTime.MAX));
-    }
-
-    @Override
-    public List<ScheduleEvent> getEventsByOwner(User owner) {
-        return eventRepo.findAllByOwner(owner);
-    }
-
-    @Override
-    public void deleteEvent(long id) {
-        eventRepo.deleteById(id);
+        throw new UserCannotHandleEventException(
+                String.format("The user %s is not allowed to create or own %s type of event",
+                        user != null ? user.getEmail() : "NULL",
+                        type != null ? type.getName() : "NULL"));
     }
 }

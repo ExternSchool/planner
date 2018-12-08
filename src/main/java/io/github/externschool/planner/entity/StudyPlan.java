@@ -1,19 +1,18 @@
 package io.github.externschool.planner.entity;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.Objects;
 
 @Entity(name = "Plan")
 @Table(name = "plan")
@@ -27,9 +26,8 @@ public class StudyPlan {
     @Enumerated
     private GradeLevel gradeLevel;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "subject", foreignKey = @ForeignKey(name = "SUBJECT_FK"))
-    @Cascade(CascadeType.SAVE_UPDATE)
     private SchoolSubject subject;
 
     private String title;
@@ -89,7 +87,15 @@ public class StudyPlan {
     }
 
     public void setSubject(final SchoolSubject subject) {
-        this.subject = subject;
+        if (subject != null) {
+            this.subject = subject;
+            subject.addPlan(this);
+        }
+    }
+
+    public void removeSubject() {
+        subject.removePlan(this);
+        this.subject = null;
     }
 
     public String getTitle() {
@@ -133,40 +139,50 @@ public class StudyPlan {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final StudyPlan plan = (StudyPlan) o;
-        return Objects.equals(id, plan.id) &&
-                gradeLevel == plan.gradeLevel &&
-                Objects.equals(subject, plan.subject) &&
-                Objects.equals(title, plan.title) &&
-                Objects.equals(hoursPerSemesterOne, plan.hoursPerSemesterOne) &&
-                Objects.equals(hoursPerSemesterTwo, plan.hoursPerSemesterTwo) &&
-                Objects.equals(worksPerSemesterOne, plan.worksPerSemesterOne) &&
-                Objects.equals(worksPerSemesterTwo, plan.worksPerSemesterTwo);
+
+        if (!(o instanceof StudyPlan)) return false;
+
+        StudyPlan studyPlan = (StudyPlan) o;
+
+        return new EqualsBuilder()
+                .append(getId(), studyPlan.getId())
+                .append(getGradeLevel(), studyPlan.getGradeLevel())
+                .append(getSubject(), studyPlan.getSubject())
+                .append(getTitle(), studyPlan.getTitle())
+                .append(getHoursPerSemesterOne(), studyPlan.getHoursPerSemesterOne())
+                .append(getHoursPerSemesterTwo(), studyPlan.getHoursPerSemesterTwo())
+                .append(getWorksPerSemesterOne(), studyPlan.getWorksPerSemesterOne())
+                .append(getWorksPerSemesterTwo(), studyPlan.getWorksPerSemesterTwo())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gradeLevel,
-                hoursPerSemesterOne,
-                hoursPerSemesterTwo,
-                worksPerSemesterOne,
-                worksPerSemesterTwo);
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getGradeLevel())
+                .append(getSubject())
+                .append(getTitle())
+                .append(getHoursPerSemesterOne())
+                .append(getHoursPerSemesterTwo())
+                .append(getWorksPerSemesterOne())
+                .append(getWorksPerSemesterTwo())
+                .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "StudyPlan{" +
-                "id=" + id +
-                ", title=" + title +
-                ", gradeLevel=" + gradeLevel +
-                ", subject=" + subject +
-                ", hrsOne=" + hoursPerSemesterOne +
-                ", hrsTwo=" + hoursPerSemesterTwo +
-                ", examOne=" + worksPerSemesterOne +
-                ", examTwo=" + worksPerSemesterTwo +
-                '}';
+        return new ToStringBuilder(this)
+                .append("id", id)
+                .append("gradeLevel", gradeLevel)
+                .append("subject", getSubject() != null ? getSubject().getTitle() : "No Title")
+                .append("title", title)
+                .append("hoursPerSemesterOne", hoursPerSemesterOne)
+                .append("hoursPerSemesterTwo", hoursPerSemesterTwo)
+                .append("worksPerSemesterOne", worksPerSemesterOne)
+                .append("worksPerSemesterTwo", worksPerSemesterTwo)
+                .toString();
     }
 }

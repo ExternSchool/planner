@@ -1,8 +1,10 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
+import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import io.github.externschool.planner.util.CollatorHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,17 +13,23 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     private final SchoolSubjectRepository subjectRepository;
     private final StudyPlanService planService;
+    private final TeacherRepository teacherRepository;
 
     @Autowired
-    public SchoolSubjectServiceImpl(final SchoolSubjectRepository subjectRepository, final StudyPlanService planService) {
+    public SchoolSubjectServiceImpl(final SchoolSubjectRepository subjectRepository,
+                                    final StudyPlanService planService,
+                                    final TeacherRepository teacherRepository) {
         this.subjectRepository = subjectRepository;
         this.planService = planService;
+        this.teacherRepository = teacherRepository;
     }
 
     @Transactional(readOnly = true)
@@ -58,21 +66,19 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
         return subjectRepository.save(schoolSubject);
     }
 
-    @Transactional
     @Override
     public void deleteSubjectById(Long id) {
         SchoolSubject subject = subjectRepository.findById(id).orElse(null);
         if (subject != null) {
-            if (subject.getPlans() != null) {
-                subject.getPlans().forEach(plan -> {
-                    subject.removePlan(plan);
-                    planService.deletePlan(plan);
-                });
+            Set<Teacher> teachers = subject.getTeachers();
+            for (Teacher teacher : teachers) {
+                teacher.removeSubject(subject);
+                teacherRepository.save(teacher);
             }
-            if (subject.getTeachers() != null) {
-                for (Teacher teacher : subject.getTeachers()) {
-                    teacher.removeSubject(subject);
-                }
+            Set<StudyPlan> plans = subject.getPlans();
+            for (StudyPlan plan : plans) {
+                plan.removeSubject();
+                planService.deletePlan(plan);
             }
 
             subjectRepository.delete(subject);

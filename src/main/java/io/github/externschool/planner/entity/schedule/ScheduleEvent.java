@@ -1,6 +1,10 @@
 package io.github.externschool.planner.entity.schedule;
 
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,13 +13,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -33,7 +37,7 @@ public class ScheduleEvent {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 5000)
+    @Column(length = 500)
     private String description;
 
     @Column
@@ -60,21 +64,16 @@ public class ScheduleEvent {
     @Column(name = "is_accomplished")
     private Boolean isAccomplished;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
-    @ManyToMany
-    @JoinTable(
-            name = "event_participant",
-            joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")}
-    )
-    private Set<User> participants = new HashSet<>();
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
+    private Set<Participant> participants = new HashSet<>();
 
     public ScheduleEvent() {}
 
@@ -84,7 +83,6 @@ public class ScheduleEvent {
                           final String location,
                           final User owner,
                           final ScheduleEventType type,
-                          final Set<User> participants,
                           final LocalDateTime startOfEvent,
                           final LocalDateTime endOfEvent,
                           final LocalDateTime createdAt,
@@ -98,7 +96,6 @@ public class ScheduleEvent {
         this.location = location;
         this.owner = owner;
         this.type = type;
-        this.participants = participants;
         this.startOfEvent = startOfEvent;
         this.endOfEvent = endOfEvent;
         this.createdAt = createdAt;
@@ -156,12 +153,18 @@ public class ScheduleEvent {
         this.type = type;
     }
 
-    public Set<User> getParticipants() {
+    public Set<Participant> getParticipants() {
         return Collections.unmodifiableSet(participants);
     }
 
-    public void setParticipants(Set<User> participants) {
-        this.participants = new HashSet<>(participants);
+    public void addParticipant(Participant participant) {
+        participants.add(participant);
+        participant.setEvent(this);
+    }
+
+    public void removeParticipant(Participant participant) {
+        participants.remove(participant);
+        participant.setEvent(null);
     }
 
     public LocalDateTime getStartOfEvent() {
@@ -221,42 +224,70 @@ public class ScheduleEvent {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        ScheduleEvent event = (ScheduleEvent) o;
+        if (!(o instanceof ScheduleEvent)) return false;
 
-        return id != null ? id.equals(event.id) : event.id == null;
+        final ScheduleEvent event = (ScheduleEvent) o;
+
+        return new EqualsBuilder()
+                .append(getId(), event.getId())
+                .append(getTitle(), event.getTitle())
+                .append(getDescription(), event.getDescription())
+                .append(getLocation(), event.getLocation())
+                .append(getStartOfEvent(), event.getStartOfEvent())
+                .append(getEndOfEvent(), event.getEndOfEvent())
+                .append(getCreatedAt(), event.getCreatedAt())
+                .append(getModifiedAt(), event.getModifiedAt())
+                .append(isOpen, event.isOpen)
+                .append(isCancelled, event.isCancelled)
+                .append(isAccomplished, event.isAccomplished)
+                .append(getOwner(), event.getOwner())
+                .append(getType(), event.getType())
+                .append(getParticipants(), event.getParticipants())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getTitle())
+                .append(getDescription())
+                .append(getLocation())
+                .append(getStartOfEvent())
+                .append(getEndOfEvent())
+                .append(getCreatedAt())
+                .append(getModifiedAt())
+                .append(isOpen())
+                .append(isCancelled())
+                .append(isAccomplished())
+                .append(getOwner() != null ? 31 : 0)
+                .append(getType())
+                .append(getParticipants().size())
+                .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "ScheduleEvent{" +
-                "id=" + (id != null ? id.toString() : "") +
-                ", title='" + paramToString(title) + '\'' +
-                ", description='" + paramToString(description) + '\'' +
-                ", location='" + paramToString(location) + '\'' +
-                ", startOfEvent=" + paramToString(startOfEvent) +
-                ", endOfEvent=" + paramToString(endOfEvent) +
-                ", createdAt=" + paramToString(createdAt) +
-                ", modifiedAt=" + paramToString(modifiedAt) +
-                ", isOpen=" + paramToString(isOpen) +
-                ", isCancelled=" + paramToString(isCancelled) +
-                ", isAccomplished=" + paramToString(isAccomplished) +
-                ", owner=" + paramToString(owner) +
-                ", type=" + (type != null ? type.getId() : "") +
-                ", participants=" + paramToString(participants) +
-                '}';
-    }
+        ToStringBuilder sb = new ToStringBuilder(this)
+                .append("id", getId())
+                .append("title", getTitle())
+                .append("description", getDescription())
+                .append("location", getLocation())
+                .append("startOfEvent", getStartOfEvent())
+                .append("endOfEvent", getEndOfEvent())
+                .append("createdAt", getCreatedAt())
+                .append("modifiedAt", getModifiedAt())
+                .append("isOpen", isOpen())
+                .append("isCancelled", isCancelled())
+                .append("isAccomplished", isAccomplished())
+                .append("owner", Optional.ofNullable(getOwner()).map(User::getEmail).orElse(""))
+                .append("type", Optional.ofNullable(getType()).map(ScheduleEventType::getName).orElse("Not defined"))
+                .append("participants", getParticipants().size());
 
-    private String paramToString(Object param) {
-        return (param != null ? param.toString() : "");
+        return sb.toString();
     }
 
     public static ScheduleEventBuilder builder() {
@@ -270,7 +301,6 @@ public class ScheduleEvent {
         private String location;
         private User owner;
         private ScheduleEventType type;
-        private Set<User> participants = new HashSet<>();
         private LocalDateTime startOfEvent;
         private LocalDateTime endOfEvent;
         private LocalDateTime createdAt = LocalDateTime.now();
@@ -301,18 +331,13 @@ public class ScheduleEvent {
             return this;
         }
 
-        public ScheduleEventBuilder withOwner(final User person) {
-            this.owner = person;
+        public ScheduleEventBuilder withOwner(final User user) {
+            this.owner = user;
             return this;
         }
 
         public ScheduleEventBuilder withType(final ScheduleEventType eventType) {
             this.type = eventType;
-            return this;
-        }
-
-        public ScheduleEventBuilder withParticipants(final Set<User> participants) {
-            this.participants = participants;
             return this;
         }
 
@@ -342,14 +367,13 @@ public class ScheduleEvent {
         }
 
         public ScheduleEvent build() {
-            return new ScheduleEvent(
+            ScheduleEvent event = new ScheduleEvent(
                     this.id,
                     this.title,
                     this.description,
                     this.location,
                     this.owner,
                     this.type,
-                    this.participants,
                     this.startOfEvent,
                     this.endOfEvent,
                     this.createdAt,
@@ -358,6 +382,9 @@ public class ScheduleEvent {
                     this.isCancelled,
                     this.isAccomplished
             );
+            Optional.ofNullable(this.owner).ifPresent(o -> o.addOwnEvent(event));
+
+            return event;
         }
     }
 }

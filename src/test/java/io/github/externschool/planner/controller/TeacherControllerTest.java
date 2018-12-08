@@ -2,6 +2,8 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -26,6 +28,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
@@ -49,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
 public class TeacherControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
@@ -60,6 +64,7 @@ public class TeacherControllerTest {
     @Autowired private RoleService roleService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ScheduleEventTypeService typeService;
+    @Autowired private EmailService emailService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -81,7 +86,8 @@ public class TeacherControllerTest {
                 userService,
                 roleService,
                 scheduleService,
-                typeService);
+                typeService,
+                emailService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -107,7 +113,7 @@ public class TeacherControllerTest {
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_TEACHER");
         user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -118,9 +124,6 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnTeacherListTemplate_WhenGetRequestRootWithAdminRole() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
-
         mockMvc.perform(get("/teacher/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_list"))
@@ -147,7 +150,28 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "TEACHER")
-    public void shouldRedirect_WhenShowTeacherScheduleToTeacher() throws Exception {
+    public void shouldRedirect_WhenDisplayTeacherVisitorsToTeacher() throws Exception {
+        mockMvc.perform(get("/teacher/visitors"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/visitors"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_WhenDisplayTeacherVisitors() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/visitors"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attributeExists("visitors"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
+    public void shouldRedirect_WhenDisplayTeacherScheduleToTeacher() throws Exception {
         mockMvc.perform(get("/teacher/schedule"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
@@ -173,8 +197,6 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherEventDelete() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withEventType(typeService.loadEventTypes().get(0).getName())
                 .withDate(LocalDate.now())
@@ -186,8 +208,6 @@ public class TeacherControllerTest {
                 .build();
         event = scheduleService.createEventWithDuration(user, dto, 30);
         long id = event.getId();
-
-        // TODO complete when Controller method is finished
 
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/event/" + id + "/delete"))
                 .andExpect(status().is3xxRedirection())
@@ -224,8 +244,6 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
-        // TODO complete when Controller method is finished
-
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
@@ -247,8 +265,6 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
-        // TODO complete when Controller method is finished
-
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
@@ -258,8 +274,6 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherScheduleModalFormAddEvent() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(0))
                 .withDescription(typeService.loadEventTypes().get(0).getName())
@@ -276,8 +290,6 @@ public class TeacherControllerTest {
                 .params(map))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-
-        event = scheduleService.getEventsByOwnerAndDate(user, newEvent.getDate()).get(0);
     }
 
     @Test
@@ -309,7 +321,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
@@ -332,7 +344,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminGetRequestCancelUpdate() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/teacher/update"))
                 .andExpect(status().is3xxRedirection())
@@ -351,7 +363,8 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
+
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
@@ -387,6 +400,46 @@ public class TeacherControllerTest {
                                 Matchers.not(key))));
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldAddAdmin_whenPostTeacherProfileFormActionAdmin() throws Exception {
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        Role roleTeacher = teacher.getVerificationKey().getUser().getRoles().stream().findAny().orElse(null);
+
+        assertThat(teacher.getVerificationKey().getUser().getRoles())
+                .hasSize(1)
+                .doesNotContain(roleAdmin);
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.hasProperty("roles",
+                                                Matchers.contains(roleAdmin, roleTeacher))))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldRemoveAdmin_whenPostTeacherProfileFormActionAdmin() throws Exception {
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        Role roleTeacher = user.getRoles().stream().findAny().orElse(null);
+        user.addRole(roleAdmin);
+        user = userService.save(user);
+        assertThat(teacher.getVerificationKey().getUser().getRoles())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(roleAdmin, roleTeacher);
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.hasProperty("roles",
+                                                Matchers.contains(roleTeacher))))));
+    }
 
     @After
     public void tearDown() {

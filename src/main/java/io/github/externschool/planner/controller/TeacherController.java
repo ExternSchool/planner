@@ -1,9 +1,15 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
+import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Participant;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.service.RoleService;
@@ -17,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,16 +35,23 @@ import org.springframework.web.servlet.ModelAndView;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 
 @Controller
+@Transactional
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
@@ -48,6 +62,7 @@ public class TeacherController {
     private final RoleService roleService;
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService typeService;
+    private final EmailService emailService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -57,7 +72,8 @@ public class TeacherController {
                              final UserService userService,
                              final RoleService roleService,
                              final ScheduleService scheduleService,
-                             final ScheduleEventTypeService typeService) {
+                             final ScheduleEventTypeService typeService,
+                             final EmailService emailService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
@@ -66,6 +82,7 @@ public class TeacherController {
         this.roleService = roleService;
         this.scheduleService = scheduleService;
         this.typeService = typeService;
+        this.emailService = emailService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -99,6 +116,75 @@ public class TeacherController {
     }
 
     @Secured("ROLE_TEACHER")
+    @GetMapping("/visitors")
+    public ModelAndView displayTeacherVisitorsToTeacher(final Principal principal) {
+        final User user = userService.findUserByEmail(principal.getName());
+        Long id = user.getVerificationKey().getPerson().getId();
+
+        return new ModelAndView("redirect:/teacher/" + id + "/visitors");
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/visitors")
+    public ModelAndView displayTeacherVisitors(@PathVariable("id") Long id,
+                                               final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        Optional<User> optionalUser = getOptionalUser(id);
+
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            Teacher teacher = teacherService.findTeacherById(id);
+            TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
+            List<StudentDTO> students = new ArrayList<>();
+            List<PersonDTO> visitors = new ArrayList<>();
+
+            LocalDate start = LocalDate.now();
+            LocalDate end = scheduleService.getNextWeekFirstDay().plusDays(6);
+            List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
+                    .limit(ChronoUnit.DAYS.between(start, end))
+                    .collect(Collectors.toList());
+            // TODO simplify
+            for (LocalDate date : dates) {
+                scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
+                    event.getParticipants().stream()
+                            .map(Participant::getUser)
+                            .map(User::getVerificationKey)
+                            .map(VerificationKey::getPerson)
+                            .forEach(person -> {
+                                if (person.getClass() == Student.class) {
+                                    Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
+                                            .ifPresent(studentDTO -> {
+                                                studentDTO.setOptionalData(
+                                                        event.getStartOfEvent()
+                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                                                                + " "
+                                                                + event.getDescription());
+                                                students.add(studentDTO);
+                                            });
+                                } else {
+                                    Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
+                                            .ifPresent(guestDTO -> {
+                                                guestDTO.setOptionalData(
+                                                        event.getStartOfEvent()
+                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                                                                + " "
+                                                                + event.getDescription());
+                                                visitors.add(guestDTO);
+                                            });
+                                }
+                            });
+                });
+            }
+
+            modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
+            modelAndView.addObject("students", students);
+            modelAndView.addObject("visitors", visitors);
+        }
+
+        return modelAndView;
+    }
+
+    @Secured("ROLE_TEACHER")
     @GetMapping("/schedule")
     public ModelAndView displayTeacherScheduleToTeacher(final Principal principal) {
         final User user = userService.findUserByEmail(principal.getName());
@@ -118,7 +204,8 @@ public class TeacherController {
             User user = optionalUser.get();
             TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-            List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
+            List<LocalDate> currentWeek = scheduleService
+                    .getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
             List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
             // standard week schedule has no real date to start, so FIRST_MONDAY_OF_EPOCH is used
             List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(FIRST_MONDAY_OF_EPOCH);
@@ -127,11 +214,11 @@ public class TeacherController {
             List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
 
             currentWeek.forEach(date ->
-                    currentWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    currentWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
             nextWeek.forEach(date ->
-                    nextWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    nextWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
             standardWeek.forEach(date ->
-                    standardWeekEvents.add(convertToDTO(scheduleService.getEventsByOwnerAndDate(user, date))));
+                    standardWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
 
 
             modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
@@ -157,9 +244,7 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
         if (optionalUser != null && optionalUser.isPresent() && event != null) {
-            // TODO remove an event from Standard Schedule
-            System.out.println("\n\n" + "DELETE an event from Standard Schedule, id:" + eventId + "\n\n");
-
+            scheduleService.deleteEventById(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -176,7 +261,8 @@ public class TeacherController {
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
-            model.addAttribute("eventTypes", typeService.loadEventTypes());
+            model.addAttribute("eventTypes",
+                    typeService.getAllEventTypesByUserRoles(user));
             model.addAttribute(
                     "newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
@@ -186,7 +272,8 @@ public class TeacherController {
             model.addAttribute("thisDay", dayOfWeek);
             model.addAttribute(
                     "thisDayEvents",
-                    convertToDTO(scheduleService.getEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
+                    convertToDTO(scheduleService
+                            .getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))));
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
         }
 
@@ -220,10 +307,15 @@ public class TeacherController {
                                                            final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
-            // TODO remove all events from Current Week Schedule
-            System.out.println("\n\n" + "DELETE all events from Current Week Schedule, date:" +
-                    scheduleService.getCurrentWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+        if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
+            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+                    optionalUser.get(),
+                    scheduleService.getCurrentWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
+            Executor executor = Executors.newSingleThreadExecutor();
+            events.forEach(event -> {
+                executor.execute(() -> emailService.sendCancelEventMail(event));
+                scheduleService.cancelEventById(event.getId());
+            });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
@@ -258,10 +350,15 @@ public class TeacherController {
                                                         final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent() && dayOfWeek >= 0 && dayOfWeek < 5) {
-            // TODO remove all events from Next Week Schedule
-            System.out.println("\n\n" + "DELETE all events from Next Week Schedule, date:" +
-                    scheduleService.getNextWeekFirstDay().plusDays(dayOfWeek).toString() + "\n\n");
+        if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
+            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+                    optionalUser.get(),
+                    scheduleService.getNextWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
+            Executor executor = Executors.newSingleThreadExecutor();
+            events.forEach(event -> {
+                executor.execute(() -> emailService.sendCancelEventMail(event));
+                scheduleService.cancelEventById(event.getId());
+            });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
@@ -333,7 +430,8 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null) {
+        if (isPrincipalAdmin(principal)
+                && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
             if (teacherDTO.getVerificationKey() == null) {
                 teacherDTO.setVerificationKey(new VerificationKey());
             }
@@ -341,6 +439,13 @@ public class TeacherController {
         }
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
+
+        if (isPrincipalAdmin(principal)) {
+            Optional.ofNullable(teacher)
+                    .map(Teacher::getVerificationKey)
+                    .map(VerificationKey::getUser)
+                    .ifPresent(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+        }
 
         return redirectByRole(principal);
     }
@@ -371,7 +476,7 @@ public class TeacherController {
         Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.createAndAddNewKeyAndPerson(user);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                 });
 
         modelAndView = displayTeacherProfile(teacherDTO);
@@ -380,10 +485,35 @@ public class TeacherController {
         return modelAndView;
     }
 
+    @Secured("ROLE_ADMIN")
+    @PostMapping(value = "/{id}/admin")
+    public ModelAndView processTeacherProfileFormActionAdmin(@PathVariable("id") Long id,
+                                                                Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        if (id == null) {
+            return modelAndView;
+        }
+        Teacher teacher = teacherService.findTeacherById(id);
+        Optional.ofNullable(teacher.getVerificationKey())
+                .map(VerificationKey::getUser)
+                .ifPresent(user -> {
+                    Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+                    if (user.getRoles().contains(roleAdmin)) {
+                        user.removeRole(roleAdmin);
+                    } else {
+                        user.addRole(roleAdmin);
+                    }
+                });
+        modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
+
+        return modelAndView;
+    }
+
     private ModelAndView displayTeacherProfile(TeacherDTO teacherDTO) {
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_profile",
-                "teacher", teacherDTO);
+        ModelAndView modelAndView =
+                new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
         modelAndView.addObject("isNew", isNew(teacherDTO));
+        modelAndView.addObject("isAdmin", isTeacherAdmin(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
         return modelAndView;
@@ -395,16 +525,26 @@ public class TeacherController {
                 .orElse(false);
     }
 
-    private ModelAndView redirectByRole(Principal principal) {
-        if (principal != null) {
-            User user = userService.findUserByEmail(principal.getName());
-            if (user != null && user.getEmail() != null) {
-                User userFound = userService.findUserByEmail(user.getEmail());
-                if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+    private Boolean isPrincipalAdmin(Principal principal) {
+        return Optional.ofNullable(principal)
+                .map(p -> userService.findUserByEmail(p.getName()))
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
+                .orElse(Boolean.FALSE);
+    }
 
-                    return new ModelAndView("redirect:/teacher/");
-                }
-            }
+    private Boolean isTeacherAdmin(TeacherDTO teacherDTO) {
+        return Optional.ofNullable(teacherDTO.getId())
+                .map(teacherService::findTeacherById)
+                .map(Teacher::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(user -> userService.userHasRole(user, "ROLE_ADMIN"))
+                .orElse(false);
+    }
+
+    private ModelAndView redirectByRole(Principal principal) {
+        if (isPrincipalAdmin(principal)) {
+            return new ModelAndView("redirect:/teacher/");
         }
 
         return new ModelAndView("redirect:/");
@@ -420,5 +560,9 @@ public class TeacherController {
         return events.stream()
                 .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private boolean isWorkingDay(int dayOfWeek) {
+        return dayOfWeek >= 0 && dayOfWeek < 5;
     }
 }

@@ -9,13 +9,15 @@ import io.github.externschool.planner.exceptions.RoleNotFoundException;
 public interface UserService {
     User findUserByEmail(String email);
 
-    User saveOrUpdate(User user);
+    User save(User user);
 
     void deleteUser(User user);
 
     User createNewUser(UserDTO userDTO) throws EmailExistsException;
 
     User createUser(String email, String password, String role) throws EmailExistsException;
+
+    Boolean userHasRole(User user, String role);
 
     User assignNewRole(User user, String role) throws RoleNotFoundException;
 

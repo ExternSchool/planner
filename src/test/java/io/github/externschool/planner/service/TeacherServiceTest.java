@@ -5,6 +5,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
@@ -35,6 +36,7 @@ public class TeacherServiceTest {
     @Mock private TeacherRepository teacherRepository;
     @Mock private ScheduleEventRepository scheduleEventRepository;
     @Mock private VerificationKeyRepository keyRepository;
+    @Mock private CourseRepository courseRepository;
     private TeacherService teacherService;
     private ScheduleService scheduleService;
 
@@ -44,8 +46,7 @@ public class TeacherServiceTest {
 
     @Before
     public void setUp() {
-        teacherService = new TeacherServiceImpl(teacherRepository, scheduleEventRepository,
-                keyRepository, scheduleService);
+
 
         expectedTeacher = new Teacher();
         expectedTeacher.setLastName("LastName");

@@ -33,6 +33,7 @@
     <fieldset>
         <form class="form mb-0" th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" id="form">
             <input type="hidden" th:field="${isNew}"/>
+            <input type="hidden" th:field="${isAdmin}"/>
             <input type="hidden" th:field="*{id}"/>
             <input type="hidden" th:field="*{courses}"/>
             <div class="form-row mb-0">
@@ -59,35 +60,25 @@
                     </div>
                     <div class="form-group mb-0">
                         <label for="patronymicName" class="col-form-label float-left">Непедагогічна посада (якщо є)</label>
-                        <input class="form-control" type="text" placeholder="Посада"
+                        <input class="form-control" type="text" placeholder="Посади немає"
                                th:field="*{officer}" id="position"
                                th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                     </div>
                     <div class="row">
                         <div class="form-group col-lg-6 mb-3">
                             <label for="phone" class="col-form-label float-left">Номер телефона</label>
-                            <input class="form-control" type="tel" placeholder="Формат: (999)999-9999"
-                                   pattern='[\(]\d{3}[\)]\d{3}[\-]\d{4}' title='Формат: (999)999-9999'
+                            <input class="form-control" type="tel" placeholder="Державний або місцевий формат"
+                                   pattern="^(([ \.\-])?)?([\(]{1}[0-9]{2,3}[\)])?([0-9 \.\-]{7,10})$" title='Зразки:(044)123-45-67, (044) 123 45 67, 123-4567 і т.ін.'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                         <div class="form-group col-lg-6 mb-0">
-                        </div>
-                    </div>
-                    <input type="hidden" th:field="${teacher.verificationKey}"
-                           th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                    <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                        <div class="input-group mb-0">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="key-label">Ключ</span>
-                            </div>
-                            <input type="hidden" th:field="${teacher.verificationKey}"/>
-                            <input class="form-control" type="text" id="key" th:field="${teacher.verificationKey.value}" readonly
-                                   placeholder="для автентифікації облікового запису">
-                            <div class="input-group-append">
-                                <!-- Button trigger modal -->
-                                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalKey"
-                                        th:disabled="${isNew}" type="button">
-                                    Згенерувати новий ключ
+                            <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')
+                            && teacher.getVerificationKey() != null && teacher.getVerificationKey().getUser() != null}">
+                                <label for="setAdmin" class="col-form-label float-left">Права Адміністратора</label>
+                                <button class="btn btn-outline-success btn-block"  name="setAdmin" id="setAdmin"
+                                        data-toggle="modal" data-target="#modalAdmin" type="button"
+                                        th:text="${isAdmin} ? 'Скасувати права' : 'Надати права'">
+                                    Змінити права
                                 </button>
                             </div>
                         </div>
@@ -99,7 +90,7 @@
                             Навчальні предмети (утримуйте Ctrl, щоб вибрати декілька)</label>
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
-                                    th:field="*{schoolSubjects}" size="14"
+                                    th:field="*{schoolSubjects}" size="11"
                                     th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                                 <option th:each="subject : ${allSubjects}"
                                         th:value="${{subject}}"
@@ -109,19 +100,40 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group row mb-0">
-                        <div class="col-md-4 mb-0">
-                            <a href="/teacher/update">
-                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
-                                    Скасувати
+                    <input type="hidden" th:field="${teacher.verificationKey}"
+                           th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        <div class="input-group mb-0">
+                            <!--<div class="input-group-prepend">-->
+                                <!--<span class="input-group-text" id="key-label">Ключ</span>-->
+                            <!--</div>-->
+                            <input type="hidden" th:field="${teacher.verificationKey}"/>
+                            <input class="form-control" type="text" id="key" th:field="${teacher.verificationKey.value}" readonly
+                                   placeholder="Ключ для автентифікації облікового запису">
+                            <div class="input-group-append">
+                                <!-- Button trigger modal -->
+                                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalKey"
+                                        th:disabled="${isNew}" type="button">
+                                    Згенерувати новий ключ
                                 </button>
-                            </a>
+                            </div>
                         </div>
-                        <div class="col-md-8 mb-0">
-                            <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
-                                Зберегти зміни
+                    </div>
+                </div>
+                <div class="col-lg-3 mb-0">
+                </div>
+                <div class="col-lg-6 form-group row mb-0">
+                    <div class="col-md-4 mb-0">
+                        <a href="/teacher/update">
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                Скасувати
                             </button>
-                        </div>
+                        </a>
+                    </div>
+                    <div class="col-md-8 mb-0">
+                        <button class="btn btn-primary btn-block"  name="action" value="save" type="submit">
+                            Зберегти зміни
+                        </button>
                     </div>
                 </div>
             </div>
@@ -167,6 +179,41 @@
                     </button>
                     <button type="submit" class="btn btn-primary" name="action" id="newKey" value="newKey">
                         Так, згенерувати!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAdmin" tabindex="-1" role="dialog" aria-labelledby="modalAdminTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdminLongTitle">Модіфікація прав Адміністратора</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <p>
+                    Адміністратор має право переглядати, змінювати, додавати та вилучати дані, що
+                    стосуються користувачів, навчальних планів і досягнень, розкладів, подій,
+                    іншої інформації, що міститься в системі.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте змінити права Адміністратора?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/{id}/admin(id=${teacher.id})}"
+                      id="formAdmin">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <button type="submit" class="btn btn-primary" name="modalAdminButton" id="modalAdminButton"
+                            th:text="${isAdmin} ? 'Так, Скасувати права' : 'Так, Надати права'">
+                        Так, змінити!
                     </button>
                 </form>
             </div>

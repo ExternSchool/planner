@@ -52,6 +52,7 @@ public class StudentDTO extends PersonDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         StudentDTO that = (StudentDTO) o;
         return gradeLevel == that.gradeLevel &&
                 Objects.equals(dateOfBirth, that.dateOfBirth) &&
@@ -61,7 +62,6 @@ public class StudentDTO extends PersonDTO {
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(dateOfBirth, gender, address, gradeLevel);
+        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel);
     }
 }

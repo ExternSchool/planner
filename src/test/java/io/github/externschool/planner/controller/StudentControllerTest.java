@@ -105,20 +105,21 @@ public class StudentControllerTest {
 
         StudentDTO studentDTO = conversionService.convert(student, StudentDTO.class);
         map = new LinkedMultiValueMap<>();
-        map.add("id", Optional.ofNullable(studentDTO).map(s -> s.getId().toString()).orElse(""));
-        map.add("lastName", studentDTO.getLastName());
-        map.add("firstName", studentDTO.getFirstName());
-        map.add("patronymicName", studentDTO.getPatronymicName());
-        map.add("gender", conversionService.convert(studentDTO.getGender(), String.class));
-        map.add("dateOfBirth", conversionService.convert(studentDTO.getDateOfBirth(), String.class));
-        map.add("grade", String.valueOf(studentDTO.getGradeLevel()));
-        map.add("phoneNumber", studentDTO.getPhoneNumber());
-        map.add("address", studentDTO.getAddress());
-        map.add("verificationKey", studentDTO.getVerificationKey().getValue());
-
+        if (studentDTO != null) {
+            map.add("id", studentDTO.getId().toString());
+            map.add("lastName", studentDTO.getLastName());
+            map.add("firstName", studentDTO.getFirstName());
+            map.add("patronymicName", studentDTO.getPatronymicName());
+            map.add("gender", conversionService.convert(studentDTO.getGender(), String.class));
+            map.add("dateOfBirth", conversionService.convert(studentDTO.getDateOfBirth(), String.class));
+            map.add("grade", String.valueOf(studentDTO.getGradeLevel()));
+            map.add("phoneNumber", studentDTO.getPhoneNumber());
+            map.add("address", studentDTO.getAddress());
+            map.add("verificationKey", studentDTO.getVerificationKey().getValue());
+        }
         user = userService.createUser(userName,"pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         teacher = new Teacher();
         teacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -147,6 +148,64 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnStudentListTemplate_whenGetStudentListByGrade() throws Exception {
+        mockMvc.perform(get("/student/grade/3"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("gradeLevel",
+                                        Matchers.equalTo(3)))));
+    }
+
+    @Test
+    @WithMockUser(username = "teacher", roles = "TEACHER")
+    public void shouldReturnStudentListTemplate_whenGetStudentWithTeacherRole() throws Exception {
+        VerificationKey key = new VerificationKey();
+        keyService.saveOrUpdateKey(key);
+        User userTeacher = userService.createUser("teacher", "hhh", "ROLE_TEACHER");
+        userTeacher.addVerificationKey(key);
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        userService.save(userTeacher);
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        course.setTeacher(teacher);
+        courseService.saveOrUpdateCourse(course);
+
+        mockMvc.perform(get("/student/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))));
+    }
+
+    @Test
+    @WithMockUser(username = "teacher2", roles = "TEACHER")
+    public void shouldReturnStudentListTemplate_whenGetStudentListByGradeWithTeacherRole() throws Exception {
+        VerificationKey key = new VerificationKey();
+        keyService.saveOrUpdateKey(key);
+        User userTeacher = userService.createUser("teacher2", "hhh", "ROLE_TEACHER");
+        userTeacher.addVerificationKey(key);
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        userService.save(userTeacher);
+        plan = new StudyPlan();
+        planService.saveOrUpdatePlan(plan);
+        String title = "New Plan for Course";
+        course = new Course(student.getId(), plan.getId());
+        course.setTitle(title);
+        course.setTeacher(teacher);
+        courseService.saveOrUpdateCourse(course);
+
         mockMvc.perform(get("/student/grade/3"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_list"))
@@ -219,7 +278,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenGetPlanWithWrongId() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/student/0/plan"))
                 .andExpect(status().is3xxRedirection())
@@ -312,7 +371,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
@@ -353,7 +412,7 @@ public class StudentControllerTest {
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenGetUpdateCancelAdmin() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.saveOrUpdate(user);
+        userService.save(user);
 
         mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
                 .andExpect(status().is3xxRedirection())

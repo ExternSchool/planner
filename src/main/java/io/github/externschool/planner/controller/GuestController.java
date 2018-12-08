@@ -16,6 +16,7 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -28,12 +29,14 @@ import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
 @Controller
+@Transactional
 @RequestMapping("/guest")
 public class GuestController {
     private final PersonService personService;
@@ -104,9 +107,13 @@ public class GuestController {
                                                            Principal principal) {
         try {
             if (bindingResult.hasErrors()) {
-                if((bindingResult.getAllErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
-                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
-                }
+                Optional.ofNullable((bindingResult.getAllErrors().get(0)).getDefaultMessage())
+                        .filter(message -> message.contains("verificationKey"))
+                        .ifPresent(r -> {throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);});
+
+//                if((bindingResult.getAllErrors().get(0)).getDefaultMessage().contains("verificationKey")) {
+//                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
+//                }
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
 
@@ -124,7 +131,7 @@ public class GuestController {
                     personService.deletePerson(persistedPerson);
                     user.addVerificationKey(newKey);
                     userService.assignNewRolesByKey(user, newKey);
-                    userService.saveOrUpdate(user);
+                    userService.save(user);
                     if (userService.findUserByEmail(principal.getName())
                             .getRoles()
                             .contains(roleService.getRoleByName("ROLE_ADMIN"))) {

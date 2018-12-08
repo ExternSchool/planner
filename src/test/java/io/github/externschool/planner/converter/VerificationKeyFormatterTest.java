@@ -34,7 +34,7 @@ public class VerificationKeyFormatterTest {
     }
 
     @Test
-    public void shouldReturnSameDate_whenRunnedParsePrint() throws ParseException {
+    public void shouldReturnSameKey_whenRunParsePrint() throws ParseException {
         Locale locale = new Locale("uk");
 
         VerificationKey actualKey = formatter.parse(formatter.print(key, locale), locale);

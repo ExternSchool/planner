@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.ScheduleEventReq;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.factories.RolesFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,19 +18,19 @@ import static io.github.externschool.planner.factories.schedule.ScheduleEventTyp
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
  */
 public final class ScheduleEventFactory {
+    private static final Long EVENT_ID = 3L;
+    private static final String EVENT_TITLE = "TestEvent";
+    private static final String EVENT_DESCRIPTION = "TestDescription";
+    private static final String EVENT_LOCATION = "TestLocation";
+    private static final LocalDate EVENT_DATE = LocalDate.of(2018, 6, 7);
+    private static final LocalTime EVENT_START_TIME = LocalTime.of(8, 11);
+    private static final LocalTime EVENT_END_TIME = LocalTime.of(10, 11);
+
     private ScheduleEventFactory() {}
-
-    public static final Long EVENT_ID = 1L;
-    public static final String EVENT_TITLE = "TestEvent";
-    public static final String EVENT_DESCRIPTION = "TestDescription";
-    public static final String EVENT_LOCATION = "TestLocation";
-    public static final LocalDate EVENT_DATE = LocalDate.of(2018, 6, 7);
-    public static final LocalTime EVENT_START_TIME = LocalTime.of(8, 11);
-    public static final LocalTime EVENT_END_TIME = LocalTime.of(10, 11);
-
 
     public static ScheduleEvent createNewScheduleEventWithoutParticipants() {
         User owner = createUser();
+        owner.addRole(RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT));
         ScheduleEventType type = createScheduleEventType();
         return ScheduleEvent
                 .builder()

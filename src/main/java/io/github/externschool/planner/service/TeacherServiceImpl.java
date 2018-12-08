@@ -2,8 +2,9 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Teacher;
-import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
@@ -17,10 +18,13 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TeacherServiceImpl implements TeacherService {
+
     private final   TeacherRepository teacherRepository;
     private final   VerificationKeyRepository keyRepository;
     private final   ScheduleService scheduleService;
@@ -31,7 +35,6 @@ public class TeacherServiceImpl implements TeacherService {
         this.teacherRepository = teacherRepository;
         this.keyRepository = keyRepository;
         this.scheduleService = scheduleService;
-    }
 
     @Override
     public Teacher findTeacherById(Long id) {
@@ -65,18 +68,26 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherRepository.save(teacher);
     }
 
-    @Transactional
     @Override
     public void deleteTeacherById(Long id) {
-        Optional.ofNullable(teacherRepository.findTeacherById(id)).ifPresent(teacher -> {
-            new HashSet<>(teacher.getCourses()).forEach(teacher::removeCourse);
-            new HashSet<>(teacher.getSubjects()).forEach(teacher::removeSubject);
+        Teacher teacher = teacherRepository.findTeacherById(id);
+        if(teacher != null) {
+            Set<Course> courses = new HashSet<>(teacher.getCourses());
+            for (Course course : courses) {
+                teacher.removeCourse(course);
+                courseRepository.save(course);
+            }
+            Set<SchoolSubject> subjects = new HashSet<>(teacher.getSubjects());
+            for (SchoolSubject subject : subjects) {
+                teacher.removeSubject(subject);
+                teacherRepository.save(teacher);
+            }
             Optional.ofNullable(teacher.getVerificationKey()).ifPresent(key -> {
                 Optional.ofNullable(key.getUser()).ifPresent(User::removeVerificationKey);
                 keyRepository.delete(key);
             });
             teacherRepository.deleteById(id);
-        });
+        }
     }
 
     @Override

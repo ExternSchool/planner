@@ -1,11 +1,13 @@
 package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.UserRepository;
@@ -19,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
@@ -53,20 +55,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User saveOrUpdate(User user) {
+    public User save(User user) {
         return userRepository.save(user);
     }
 
-    @Transactional
     @Override
     public void deleteUser(final User user) {
-        if (user != null) {
+        if (user != null && findUserByEmail(user.getEmail()) != null) {
             if (user.getVerificationKey() != null) {
                 user.removeVerificationKey();
             }
-            scheduleService.getEventsByOwner(user).stream()
-                    .filter(Objects::nonNull)
-                    .forEach(e -> scheduleService.deleteEvent(e.getId()));
+            for (ScheduleEvent event : user.getOwnEvents()) {
+                scheduleService.deleteEventById(event.getId());
+            }
+            for (Participant participant : user.getParticipants()) {
+                scheduleService.removeParticipant(participant);
+            }
 
             userRepository.delete(user);
         }
@@ -88,6 +92,17 @@ public class UserServiceImpl implements UserService {
         assignNewRole(user, role);
 
         return user;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Boolean userHasRole(final User user, final String role) {
+        return Optional.ofNullable(user)
+                .map(User::getEmail)
+                .map(this::findUserByEmail)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName(role)))
+                .orElse(false);
     }
 
     @Override
@@ -132,6 +147,8 @@ public class UserServiceImpl implements UserService {
                 Teacher teacher = (Teacher) key.getPerson();
                 if (!teacher.getOfficer().isEmpty()) {
                     user = assignNewRole(user, "ROLE_OFFICER");
+                } else {
+                    user.removeRole(roleService.getRoleByName("ROLE_OFFICER"));
                 }
             }
         }
@@ -139,17 +156,15 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    @Transactional
     @Override
     public void createAndAddNewKeyAndPerson(User user) {
-        //TODO Remove key and person saves when Cascade fixed
         VerificationKey key = new VerificationKey();
         keyRepository.save(key);
         Person person = new Person();
         person.addVerificationKey(key);
         personRepository.save(person);
         user.addVerificationKey(key);
-        saveOrUpdate(user);
+        save(user);
         assignNewRolesByKey(user, key);
     }
 
