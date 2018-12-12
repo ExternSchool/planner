@@ -224,6 +224,7 @@ public class GuestController {
         List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
         List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
         TeacherDTO officerTeacher = new TeacherDTO();
+        Optional<ScheduleEventDTO> reservedEvent = Optional.empty();
 
         Optional<User> optionalUser = getOptionalUser(officerId);
         if (optionalUser != null && optionalUser.isPresent()) {
@@ -231,7 +232,26 @@ public class GuestController {
             officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
             currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(user, date)));
             nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(user, date)));
-
+            //TODO Guest only. Add Admin's reserve in favor of the Guest processing
+//            reservedEvent = userService.findUserByEmail(principal.getName()).getParticipants().stream()
+//                    .map(Participant::getEvent)
+//                    .filter(e -> e.getOwner().equals(user))
+//                    .findAny()
+//                    .map(e -> conversionService.convert(e, ScheduleEventDTO.class));
+//            Set<Participant> ps = userService.findUserByEmail(principal.getName()).getParticipants();
+//            for (Participant participant : ps) {
+//                ScheduleEvent event = participant.getEvent();
+//                if (event.getOwner().equals(user)) {
+//                    reservedEvent = Optional.ofNullable(conversionService.convert(event, ScheduleEventDTO.class));
+//                    break;
+//                }
+//            }
+            User userParticipant = userService.findUserByEmail(principal.getName());
+            List<ScheduleEvent> events = scheduleService.getEventsByOwner(user);
+            reservedEvent = events.stream()
+                    .filter(event -> scheduleService.getParticipantByUserAndEvent(userParticipant, event).isPresent())
+                    .map(e -> conversionService.convert(e, ScheduleEventDTO.class))
+                    .findFirst();
         } else {
             currentWeek.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeek.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
@@ -247,15 +267,16 @@ public class GuestController {
         modelAndView.addObject("minDate", LocalDate.now().plus(MIN_DAYS_BEFORE_RESERVE));
         modelAndView.addObject("minTime", LocalTime.now().plus(MIN_HOURS_BEFORE_RESERVE));
         modelAndView.addObject("event",
-                ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                        .withDate(FIRST_MONDAY_OF_EPOCH)
-                        .withStartTime(LocalTime.MIN)
-                        .withEventType(UK_EVENT_TYPE_NOT_DEFINED)
-                        .withDescription(UK_EVENT_TYPE_NOT_DEFINED)
-                        .withTitle(UK_EVENT_TYPE_NOT_DEFINED)
-                        .withCreated(LocalDateTime.now())
-                        .withIsOpen(true)
-                        .build());
+                reservedEvent
+                        .orElse(ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                                .withDate(FIRST_MONDAY_OF_EPOCH)
+                                .withStartTime(LocalTime.MIN)
+                                .withEventType(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withDescription(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withTitle(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withCreated(LocalDateTime.now())
+                                .withIsOpen(true)
+                                .build()));
 
         return modelAndView;
     }

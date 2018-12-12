@@ -128,7 +128,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnEvent_whenGetById() {
+    public void shouldReturnEvent_whenGetEventById() {
         long id = 100500L;
         ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         expectedEvent.setId(id);
@@ -144,7 +144,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnEvent_whenSave() {
+    public void shouldReturnEvent_whenSaveEvent() {
         long id = 100500L;
         ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         expectedEvent.setId(id);
@@ -415,6 +415,16 @@ public class ScheduleServiceTest {
                 .isEmpty();
         assertThat(user.getParticipants())
                 .isEmpty();
+    }
+
+    @Test
+    public void shouldReturnValue_whenGetParticipantByUserAndEvent() {
+        // TODO
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenGetParticipantByUserAndEvent() {
+        // TODO
     }
 
     @Test

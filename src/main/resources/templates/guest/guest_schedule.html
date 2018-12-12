@@ -173,10 +173,15 @@
                                 <td class="text-right">
                                     <span th:if="${minTime < evnt.getStartTime() && minDate < evnt.getDate() && evnt.isOpen
                                                 && (event == null || evnt.id != event.id)}">
-                                    <a th:onclick="'javascript:openReserveEventModal(\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn badge badge-success">
-                                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
-                                    </a>
+                                        <a th:onclick="'javascript:openReserveEventModal(\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                            class="btn badge badge-success">
+                                            <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                        </a>
+                                    </span>
+                                    <span th:if="${evnt.id == event.id}">
+                                        <a th:onclick="'javascript:openCancelReservationModal(\'' + ${evnt.getId()} + '\');'">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </a>
                                     </span>
                                 </td>
                             </tr>

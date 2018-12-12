@@ -176,24 +176,29 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public Participant addParticipant(User user, ScheduleEvent event) {
-        Participant participant = null;
+    public Optional<Participant> addParticipant(User user, ScheduleEvent event) {
+        Optional<Participant> optionalParticipant = Optional.empty();
         // TODO check for user rights to participate in this event
         // TODO set number of users by event type
         if (user != null && event != null && event.isOpen()) {
-            participant = new Participant(user, event);
+            Participant participant = new Participant(user, event);
             user.addParticipant(participant);
             event.addParticipant(participant);
             event.setModifiedAt(LocalDateTime.now());
+            optionalParticipant = Optional.of(participant);
 
             participantRepository.save(participant);
             eventRepository.save(event);
         }
 
-        return participant;
+        return optionalParticipant;
     }
 
-    @Transactional
+    @Override
+    public Optional<Participant> getParticipantByUserAndEvent(final User user, final ScheduleEvent event) {
+        return participantRepository.findParticipantByUserAndEvent(user, event);
+    }
+
     @Override
     public void removeParticipant(final Participant participant) {
         participantRepository.findById(participant.getId()).ifPresent(p -> {

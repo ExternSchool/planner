@@ -9,6 +9,7 @@ import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
@@ -37,7 +38,9 @@ public interface ScheduleService {
 
     void removeOwner(User owner, ScheduleEvent event);
 
-    Participant addParticipant(User user, ScheduleEvent event);
+    Optional<Participant> addParticipant(User user, ScheduleEvent event);
+
+    Optional<Participant> getParticipantByUserAndEvent(User user, ScheduleEvent event);
 
     void removeParticipant(Participant participant);
 
