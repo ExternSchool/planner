@@ -37,7 +37,7 @@ public interface ScheduleService {
 
     void removeOwner(User owner, ScheduleEvent event);
 
-    ScheduleEvent addParticipant(User user, ScheduleEvent event);
+    Participant addParticipant(User user, ScheduleEvent event);
 
     void removeParticipant(Participant participant);
 

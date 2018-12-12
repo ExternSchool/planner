@@ -109,7 +109,7 @@ public class UserServiceIntegrationTest {
                 .withOpenStatus(true)
                 .build();
         eventRepository.save(expectedEvent);
-        expectedEvent = scheduleService.addParticipant(expectedUser, expectedEvent);
+        scheduleService.addParticipant(expectedUser, expectedEvent);
 
         userService.deleteUser(expectedUser);
         List<ScheduleEvent> actualEvents = eventRepository.findAllByOwner(owner);

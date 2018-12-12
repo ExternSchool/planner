@@ -36,14 +36,14 @@ public class ScheduleEventType {
 
     @ManyToMany
     @JoinTable(
-            name = "event_type_owner_role",
+            name = "schedule_event_type_owner_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<Role> owners = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
-            name = "event_type_participant_role",
+            name = "schedule_event_type_participant_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<Role> participants = new HashSet<>();

@@ -63,12 +63,12 @@
                         <div th:if="${type.id != eventType.id}">
                             <td class="text-left" th:text="${type.getName()}">Назва події</td>
                             <td class="text-left">
-                                <ul>
+                                <ul class="list-unstyled mb-0">
                                     <li th:each="item : ${type.getOwners()}" th:text="${{item}}">Роль</li>
                                 </ul>
                             </td>
                             <td class="text-left">
-                                <ul>
+                                <ul class="list-unstyled mb-0">
                                     <li th:each="item : ${type.getParticipants()}" th:text="${{item}}">Роль</li>
                                 </ul>
                             </td>

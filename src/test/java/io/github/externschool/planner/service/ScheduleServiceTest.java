@@ -359,7 +359,7 @@ public class ScheduleServiceTest {
                 .thenReturn(anEvent);
 
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
         Participant participant = new ArrayList<>(actualEvent.getParticipants()).get(0);
 
         assertThat(actualEvent.getParticipants())
@@ -390,7 +390,7 @@ public class ScheduleServiceTest {
         assertThat(actualEvent.getModifiedAt())
                 .isNull();
 
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
 
         assertThat(actualEvent.getModifiedAt())
                 .isNotNull()
@@ -409,7 +409,7 @@ public class ScheduleServiceTest {
                 .thenReturn(anEvent);
 
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
 
         assertThat(actualEvent.getParticipants())
                 .isEmpty();

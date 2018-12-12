@@ -2,17 +2,20 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
+import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
@@ -34,13 +37,18 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
+import static io.github.externschool.planner.util.Constants.MIN_DAYS_BEFORE_RESERVE;
+import static io.github.externschool.planner.util.Constants.MIN_HOURS_BEFORE_RESERVE;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
@@ -55,6 +63,7 @@ public class GuestController {
     private final UserService userService;
     @Autowired private TeacherService teacherService;
     @Autowired private ScheduleService scheduleService;
+    @Autowired private ScheduleEventTypeService scheduleEventTypeService;
 
     public GuestController(final PersonService personService,
                            final ConversionService conversionService,
@@ -173,12 +182,7 @@ public class GuestController {
     @GetMapping("/officer/schedule/")
     public ModelAndView displayOfficersList(final ModelMap model, final Principal principal) {
 
-        /*
-        Optional.ofNullable(teacherService.findAllOfficers().get(0))
-                        .map(Teacher::getId)
-                        .orElse(null)
-         */
-        return prepareModelAndView(null, model);
+        return prepareModelAndView(null, model, principal);
     }
 
     @GetMapping("/officer/{id}/schedule")
@@ -186,37 +190,86 @@ public class GuestController {
                                                final ModelMap model,
                                                final Principal principal) {
 
-        return prepareModelAndView(id, model);
+        return prepareModelAndView(id, model, principal);
     }
 
-    private ModelAndView prepareModelAndView(Long officerId, final ModelMap model) {
+    @GetMapping("/officer/{id}/event/{event}/reserve")
+    public ModelAndView displayNewReservationModal(@PathVariable("id") Long officerId,
+                                                   @PathVariable("event") int eventId,
+                                                   ModelMap model,
+                                                   final Principal principal) {
+        ModelAndView modelAndView = prepareModelAndView(officerId, model, principal);
+        modelAndView.addObject("event",
+                conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
+        modelAndView.setViewName("guest/guest_schedule :: reserveEvent");
+
+        return modelAndView;
+    }
+
+    @GetMapping("/officer/{id}/event/{event}/add")
+    public ModelAndView processNewReservationModal(@PathVariable("id") Long officerId,
+                                                   @PathVariable("event") int eventId,
+                                                   ModelMap model,
+                                                   final Principal principal) {
+        System.out.println("Creating Reservation");
+
+        return prepareModelAndView(officerId, model, principal);
+    }
+
+    private ModelAndView prepareModelAndView(Long officerId, final ModelMap model, final Principal principal) {
         ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
 
         List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
         List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
         List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
         List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
-
+        TeacherDTO officerTeacher = new TeacherDTO();
 
         Optional<User> optionalUser = getOptionalUser(officerId);
         if (optionalUser != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
-            currentWeek.forEach(date ->
-                    currentWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
-            nextWeek.forEach(date ->
-                    nextWeekEvents.add(convertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+            officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
+            currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(user, date)));
+            nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(user, date)));
+
         } else {
-            currentWeek.forEach(date -> currentWeekEvents.add(Collections.EMPTY_LIST));
-            nextWeek.forEach(date -> nextWeekEvents.add(Collections.EMPTY_LIST));
+            currentWeek.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
+            nextWeek.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
         }
 
+        modelAndView.addObject("officer", officerTeacher);
         modelAndView.addObject("officers", teacherService.findAllOfficers());
         modelAndView.addObject("currentWeek", currentWeek);
         modelAndView.addObject("nextWeek", nextWeek);
         modelAndView.addObject("currentWeekEvents", currentWeekEvents);
         modelAndView.addObject("nextWeekEvents", nextWeekEvents);
+        // min date and time before new appointments
+        modelAndView.addObject("minDate", LocalDate.now().plus(MIN_DAYS_BEFORE_RESERVE));
+        modelAndView.addObject("minTime", LocalTime.now().plus(MIN_HOURS_BEFORE_RESERVE));
+        modelAndView.addObject("event",
+                ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                        .withDate(FIRST_MONDAY_OF_EPOCH)
+                        .withStartTime(LocalTime.MIN)
+                        .withEventType(UK_EVENT_TYPE_NOT_DEFINED)
+                        .withDescription(UK_EVENT_TYPE_NOT_DEFINED)
+                        .withTitle(UK_EVENT_TYPE_NOT_DEFINED)
+                        .withCreated(LocalDateTime.now())
+                        .withIsOpen(true)
+                        .build());
 
         return modelAndView;
+    }
+
+    private List<ScheduleEventDTO> getEventsAvailableToGuest(User user, LocalDate date) {
+        Role role = roleService.getRoleByName("ROLE_GUEST");
+        List<ScheduleEventType> availableTypes = scheduleEventTypeService.loadEventTypes().stream()
+                .filter(type -> type.getParticipants().contains(role))
+                .collect(Collectors.toList());
+
+        return convertEventsToDTO(
+                scheduleService.getActualEventsByOwnerAndDate(user, date).stream()
+                        .filter(event -> availableTypes.contains(event.getType()))
+                        .collect(Collectors.toList()));
     }
 
     private Optional<User> getOptionalUser(final Long id) {
@@ -225,7 +278,7 @@ public class GuestController {
                 .orElse(null);
     }
 
-    private List<ScheduleEventDTO> convertToDTO(List<ScheduleEvent> events) {
+    private List<ScheduleEventDTO> convertEventsToDTO(List<ScheduleEvent> events) {
         return events.stream()
                 .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                 .collect(Collectors.toList());

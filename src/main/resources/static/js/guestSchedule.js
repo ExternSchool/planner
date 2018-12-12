@@ -6,8 +6,9 @@ function rowClicked(id) {
 }
 
 function openReserveEventModal(id, event) {
+    console.log("openReserveEventModal: " + id + ":" + event);
     $.ajax({
-        url: "guest/officer/" + id + "/event/" + event + "/reserve",
+        url: "/guest/officer/" + id + "/event/" + event + "/reserve",
         success: function (data) {
             $("#reserveEventModalHolder").html(data);
             $("#reserveEventModal").modal("show");
@@ -17,7 +18,7 @@ function openReserveEventModal(id, event) {
 
 function openCancelReservationModal(id, event) {
     $.ajax({
-        url: "guest/officer/" + id + "/event/" + event + "/cancel",
+        url: "/guest/officer/" + id + "/event/" + event + "/cancel",
         success: function (data) {
             $("#cancelReservationModalHolder").html(data);
             $("#cancelReservationModal").modal("show");

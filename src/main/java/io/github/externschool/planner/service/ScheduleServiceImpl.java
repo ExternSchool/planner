@@ -176,12 +176,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public ScheduleEvent addParticipant(User user, ScheduleEvent event) {
-
+    public Participant addParticipant(User user, ScheduleEvent event) {
+        Participant participant = null;
         // TODO check for user rights to participate in this event
         // TODO set number of users by event type
         if (user != null && event != null && event.isOpen()) {
-            Participant participant = new Participant(user, event);
+            participant = new Participant(user, event);
             user.addParticipant(participant);
             event.addParticipant(participant);
             event.setModifiedAt(LocalDateTime.now());
@@ -190,7 +190,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             eventRepository.save(event);
         }
 
-        return event;
+        return participant;
     }
 
     @Transactional
