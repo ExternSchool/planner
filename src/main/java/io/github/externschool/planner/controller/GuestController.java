@@ -211,7 +211,32 @@ public class GuestController {
                                                    @PathVariable("event") int eventId,
                                                    ModelMap model,
                                                    final Principal principal) {
+        // TODO REPLACE with implementation
         System.out.println("Creating Reservation");
+
+        return prepareModelAndView(officerId, model, principal);
+    }
+
+    @GetMapping("/officer/{id}/event/{event}/cancel")
+    public ModelAndView displayCancelReservationModal(@PathVariable("id") Long officerId,
+                                                      @PathVariable("event") int eventId,
+                                                      ModelMap model,
+                                                      final Principal principal) {
+        ModelAndView modelAndView = prepareModelAndView(officerId, model, principal);
+        modelAndView.addObject("event",
+                conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
+        modelAndView.setViewName("guest/guest_schedule :: cancelReservation");
+
+        return modelAndView;
+    }
+
+    @GetMapping("/officer/{id}/event/{event}/delete")
+    public ModelAndView processCancelReservationModal(@PathVariable("id") Long officerId,
+                                                      @PathVariable("event") int eventId,
+                                                      ModelMap model,
+                                                      final Principal principal) {
+        // TODO REPLACE with implementation
+        System.out.println("Cancelling Reservation");
 
         return prepareModelAndView(officerId, model, principal);
     }
@@ -233,19 +258,6 @@ public class GuestController {
             currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(user, date)));
             nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(user, date)));
             //TODO Guest only. Add Admin's reserve in favor of the Guest processing
-//            reservedEvent = userService.findUserByEmail(principal.getName()).getParticipants().stream()
-//                    .map(Participant::getEvent)
-//                    .filter(e -> e.getOwner().equals(user))
-//                    .findAny()
-//                    .map(e -> conversionService.convert(e, ScheduleEventDTO.class));
-//            Set<Participant> ps = userService.findUserByEmail(principal.getName()).getParticipants();
-//            for (Participant participant : ps) {
-//                ScheduleEvent event = participant.getEvent();
-//                if (event.getOwner().equals(user)) {
-//                    reservedEvent = Optional.ofNullable(conversionService.convert(event, ScheduleEventDTO.class));
-//                    break;
-//                }
-//            }
             User userParticipant = userService.findUserByEmail(principal.getName());
             List<ScheduleEvent> events = scheduleService.getEventsByOwner(user);
             reservedEvent = events.stream()

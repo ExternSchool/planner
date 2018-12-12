@@ -11,10 +11,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmail.com)
- */
 public interface ScheduleService {
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
 

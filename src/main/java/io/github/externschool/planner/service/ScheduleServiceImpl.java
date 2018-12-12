@@ -131,8 +131,6 @@ public class ScheduleServiceImpl implements ScheduleService {
             event.setCancelled(true);
             event.setOpen(false);
             event.setModifiedAt(LocalDateTime.now());
-
-            // TODO move here cancelling notification from Teacher Controller
         });
     }
 

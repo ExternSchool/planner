@@ -167,7 +167,9 @@
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
                                         <li th:text="${evnt.getTitle()}">Подія</li>
-                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}">Опис події</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
                                     </ul>
                                 </td>
                                 <td class="text-right">
@@ -210,7 +212,29 @@
                             <tbody>
                             <tr th:each="evnt : ${currentWeekEvents[3]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right">
+                                    <span th:if="${minTime < evnt.getStartTime() && minDate < evnt.getDate() && evnt.isOpen
+                                                && (event == null || evnt.id != event.id)}">
+                                        <a th:onclick="'javascript:openReserveEventModal(\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                           class="btn badge badge-success">
+                                            <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                        </a>
+                                    </span>
+                                    <span th:if="${evnt.id == event.id}">
+                                        <a th:onclick="'javascript:openCancelReservationModal(\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                           class="btn badge badge-danger">
+                                            <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                        </a>
+                                    </span>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -460,18 +484,38 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelReservationModalTitle">Скасування зустрічі</h5>
+                <h5 class="modal-title" id="cancelReservationModalTitle">Скасування участі в події</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body text-center">
                 <p>
-                    Виконання цієї дії приведе до скасування призначеної зустрічі<br>
-                    з ******* в понеділок, **/**/20**, об **:00
-                </p>
-                <p>
-                    Ви впевнені, що бажаєте скасувати попередню резервацію?
+                    Подія:
+                    <span style="white-space: pre;" th:text=" ${event.title}">
+                        назва події
+                    </span>
+                    <br>
+                    Опис:
+                    <span style="white-space: pre;" th:text=" ${event.description}">
+                        опис події
+                    </span>
+                    <br>
+                    Організатор:
+                    <span style="white-space: pre;" th:text="${officer.getShortName()}">
+                        організатор зустрічі
+                    </span>
+                    <br>
+                    Дата та час:
+                    <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
+                        дата зустрічі
+                    </span>
+                    о
+                    <span style="white-space: pre;" th:text="${event.getStartTime()}">
+                        час зустрічі
+                    </span>
+                    <br><br>
+                    Ви впевнені, що бажаєте скасувати призначену зустріч?
                 </p>
             </div>
             <div class="modal-footer">
@@ -479,7 +523,7 @@
                     Ні, дякую
                 </button>
                 <span th:if="${officer != null}">
-                <a th:href="@{/officer/{id}/next-week/{day}/delete(id=${officer.id}, day=${thisDay})}"
+                <a th:href="@{/guest/officer/{id}/event/{eventId}/delete(id=${officer.id}, eventId=${event.id})}"
                    class="btn btn-primary">
                     Так, скасувати!
                 </a>

@@ -223,7 +223,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         List<User> studentEventsUsers = new ArrayList<>();
         studentEventsUsers.add(presetStudent);
         List<User> guestEventsUsers = new ArrayList<>();
-//        guestEventsUsers.add(presetGuest);
+        guestEventsUsers.add(presetGuest);
 
         createScheduleEventsWithSetOfUsers(
                 presetTeacher,
@@ -345,7 +345,7 @@ public class BootstrapDataPopulator implements InitializingBean {
         scheduleService.createEventWithDuration(owner, eventThree, duration);
 
         LocalTime allEventsStartTime = eventOne.getStartTime().plus(5, ChronoUnit.HOURS);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             LocalTime startTime = allEventsStartTime.plus(i * duration, ChronoUnit.MINUTES);
             ScheduleEventDTO eventFour = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                     .withDate(date)
@@ -379,6 +379,10 @@ public class BootstrapDataPopulator implements InitializingBean {
                     eventFour.getTitle(),
                     LocalDateTime.now());
             scheduleService.createEventWithDuration(owner, previousEvent, duration);
+        }
+
+        for(User user : guests) {
+            scheduleService.addParticipant(user, event);
         }
     }
 }
