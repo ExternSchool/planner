@@ -40,17 +40,23 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
-import static io.github.externschool.planner.util.Constants.MIN_DAYS_BEFORE_RESERVE;
-import static io.github.externschool.planner.util.Constants.MIN_HOURS_BEFORE_RESERVE;
+import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_FRIDAY;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_MONDAY;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_THIRSDAY;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_TUESAY;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_WEDNESDAY;
 
 @Controller
 @Transactional
@@ -179,26 +185,41 @@ public class GuestController {
         return redirectByRole(userService.findUserByEmail(principal.getName()));
     }
 
+    @Secured("ROLE_GUEST")
     @GetMapping("/officer/schedule/")
-    public ModelAndView displayOfficersList(final ModelMap model, final Principal principal) {
+    public ModelAndView displayOfficersListToGuest(final ModelMap model, final Principal principal) {
+        Long guestId = Optional.ofNullable(userService.findUserByEmail(principal.getName()))
+                .map(User::getVerificationKey)
+                .map(VerificationKey::getPerson)
+                .map(Person::getId)
+                .orElse(null);
 
-        return prepareModelAndView(null, model, principal);
+        return prepareModelAndView(guestId, null, model);
     }
 
-    @GetMapping("/officer/{id}/schedule")
-    public ModelAndView displayOfficerSchedule(@PathVariable("id") Long id,
-                                               final ModelMap model,
-                                               final Principal principal) {
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{gid}/officer/schedule/")
+    public ModelAndView displayOfficersListToAdmin(@PathVariable("gid") Long guestId, final ModelMap model) {
 
-        return prepareModelAndView(id, model, principal);
+        return prepareModelAndView(guestId, null, model);
     }
 
-    @GetMapping("/officer/{id}/event/{event}/reserve")
-    public ModelAndView displayNewReservationModal(@PathVariable("id") Long officerId,
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @GetMapping("/{gid}/officer/{id}/schedule")
+    public ModelAndView displayOfficerSchedule(@PathVariable("gid") Long guestId,
+                                               @PathVariable("id") Long officerId,
+                                               final ModelMap model) {
+
+        return prepareModelAndView(guestId, officerId, model);
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @GetMapping("/{gid}/officer/{id}/event/{event}/reserve")
+    public ModelAndView displayNewReservationModal(@PathVariable("gid") Long guestId,
+                                                   @PathVariable("id") Long officerId,
                                                    @PathVariable("event") int eventId,
-                                                   ModelMap model,
-                                                   final Principal principal) {
-        ModelAndView modelAndView = prepareModelAndView(officerId, model, principal);
+                                                   ModelMap model) {
+        ModelAndView modelAndView = prepareModelAndView(guestId, officerId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
         modelAndView.setViewName("guest/guest_schedule :: reserveEvent");
@@ -206,23 +227,27 @@ public class GuestController {
         return modelAndView;
     }
 
-    @GetMapping("/officer/{id}/event/{event}/add")
-    public ModelAndView processNewReservationModal(@PathVariable("id") Long officerId,
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @GetMapping("/{gid}/officer/{id}/event/{event}/add")
+    public ModelAndView processNewReservationModal(@PathVariable("gid") Long guestId,
+                                                   @PathVariable("id") Long officerId,
                                                    @PathVariable("event") int eventId,
                                                    ModelMap model,
                                                    final Principal principal) {
         // TODO REPLACE with implementation
         System.out.println("Creating Reservation");
 
-        return prepareModelAndView(officerId, model, principal);
+        return redirectEventByRole(userService.findUserByEmail(principal.getName()));
     }
 
-    @GetMapping("/officer/{id}/event/{event}/cancel")
-    public ModelAndView displayCancelReservationModal(@PathVariable("id") Long officerId,
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @GetMapping("/{gid}/officer/{id}/event/{event}/cancel")
+    public ModelAndView displayCancelReservationModal(@PathVariable("gid") Long guestId,
+                                                      @PathVariable("id") Long officerId,
                                                       @PathVariable("event") int eventId,
                                                       ModelMap model,
                                                       final Principal principal) {
-        ModelAndView modelAndView = prepareModelAndView(officerId, model, principal);
+        ModelAndView modelAndView = prepareModelAndView(guestId, officerId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
         modelAndView.setViewName("guest/guest_schedule :: cancelReservation");
@@ -230,38 +255,46 @@ public class GuestController {
         return modelAndView;
     }
 
-    @GetMapping("/officer/{id}/event/{event}/delete")
-    public ModelAndView processCancelReservationModal(@PathVariable("id") Long officerId,
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @GetMapping("/{gid}/officer/{id}/event/{event}/delete")
+    public ModelAndView processCancelReservationModal(@PathVariable("gid") Long guestId,
+                                                      @PathVariable("id") Long officerId,
                                                       @PathVariable("event") int eventId,
                                                       ModelMap model,
                                                       final Principal principal) {
         // TODO REPLACE with implementation
         System.out.println("Cancelling Reservation");
 
-        return prepareModelAndView(officerId, model, principal);
+
+        return redirectEventByRole(userService.findUserByEmail(principal.getName()));
     }
 
-    private ModelAndView prepareModelAndView(Long officerId, final ModelMap model, final Principal principal) {
+    private ModelAndView prepareModelAndView(final Long guestId, final Long officerId, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
 
+        // TODO Add invalid guestId error checking
         List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
         List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
         List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
         List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
         TeacherDTO officerTeacher = new TeacherDTO();
+        PersonDTO guestPerson = conversionService.convert(personService.findPersonById(guestId), PersonDTO.class);
         Optional<ScheduleEventDTO> reservedEvent = Optional.empty();
 
-        Optional<User> optionalUser = getOptionalUser(officerId);
-        if (optionalUser != null && optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        Optional<User> optionalOfficerUser = getOptionalOfficerUser(officerId);
+        Optional<User> optionalGuestUser = getOptionalGuestUser(guestId);
+        if (officerId != null
+                && optionalGuestUser.isPresent()
+                && optionalOfficerUser.isPresent()) {
+            User officerUser = optionalOfficerUser.get();
+            User guestUser = optionalGuestUser.get();
             officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
-            currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(user, date)));
-            nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(user, date)));
-            //TODO Guest only. Add Admin's reserve in favor of the Guest processing
-            User userParticipant = userService.findUserByEmail(principal.getName());
-            List<ScheduleEvent> events = scheduleService.getEventsByOwner(user);
+
+            currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
+            nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
+            List<ScheduleEvent> events = scheduleService.getEventsByOwner(officerUser);
             reservedEvent = events.stream()
-                    .filter(event -> scheduleService.getParticipantByUserAndEvent(userParticipant, event).isPresent())
+                    .filter(event -> scheduleService.getParticipantByUserAndEvent(guestUser, event).isPresent())
                     .map(e -> conversionService.convert(e, ScheduleEventDTO.class))
                     .findFirst();
         } else {
@@ -269,15 +302,22 @@ public class GuestController {
             nextWeek.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
         }
 
+        modelAndView.addObject("guest", guestPerson);
         modelAndView.addObject("officer", officerTeacher);
         modelAndView.addObject("officers", teacherService.findAllOfficers());
+        modelAndView.addObject("weekDays", Arrays.asList(
+                UK_WEEK_DAYS_MONDAY,
+                UK_WEEK_DAYS_TUESAY,
+                UK_WEEK_DAYS_WEDNESDAY,
+                UK_WEEK_DAYS_THIRSDAY,
+                UK_WEEK_DAYS_FRIDAY));
         modelAndView.addObject("currentWeek", currentWeek);
         modelAndView.addObject("nextWeek", nextWeek);
         modelAndView.addObject("currentWeekEvents", currentWeekEvents);
         modelAndView.addObject("nextWeekEvents", nextWeekEvents);
         // min date and time before new appointments
-        modelAndView.addObject("minDate", LocalDate.now().plus(MIN_DAYS_BEFORE_RESERVE));
-        modelAndView.addObject("minTime", LocalTime.now().plus(MIN_HOURS_BEFORE_RESERVE));
+        modelAndView.addObject("latestDate", LocalDate.now().plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT));
+        modelAndView.addObject("latestTime", LocalTime.now().plus(HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT));
         modelAndView.addObject("event",
                 reservedEvent
                         .orElse(ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
@@ -305,9 +345,15 @@ public class GuestController {
                         .collect(Collectors.toList()));
     }
 
-    private Optional<User> getOptionalUser(final Long id) {
+    private Optional<User> getOptionalOfficerUser(final Long id) {
         return Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
+                .orElse(null);
+    }
+
+    private Optional<User> getOptionalGuestUser(final Long id) {
+        return Optional.ofNullable(personService.findPersonById(id))
+                .map(guest -> Optional.ofNullable(guest.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
     }
 
@@ -315,6 +361,18 @@ public class GuestController {
         return events.stream()
                 .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private ModelAndView redirectEventByRole(User user) {
+        if (userService.findUserByEmail(user.getEmail())
+                .getRoles()
+                .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+
+            // TODO check this path
+            return new ModelAndView("redirect:/guest/");
+        }
+
+        return new ModelAndView("redirect:/guest/officer/schedule/");
     }
 
     private ModelAndView redirectByRole(User user) {

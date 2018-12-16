@@ -18,6 +18,8 @@ public final class Constants {
         UK_ROLE_NAMES.put("ROLE_TEACHER", "Вчитель");
     }
 
+    public static final Locale LOCALE = new Locale("uk", "UA");
+
     public static final String UK_GENDER_MALE = "чол.";
     public static final String UK_GENDER_FEMALE = "жін.";
 
@@ -52,13 +54,17 @@ public final class Constants {
     public static final String UK_EVENT_TYPE_PRINCIPAL = "Прийом директора";
     public static final String UK_EVENT_TYPE_TEST = "Написання контрольної роботи";
 
-    public static final Locale LOCALE = new Locale("uk", "UA");
+    public static final String UK_WEEK_DAYS_MONDAY = "Понеділок";
+    public static final String UK_WEEK_DAYS_TUESAY = "Вівторок";
+    public static final String UK_WEEK_DAYS_WEDNESDAY = "Середа";
+    public static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
+    public static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
 
     // need to point start date for standard events schema
     public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
-    // used to set pre-reserve period of time when it's impossible to join an event as participant already
-    public static final Duration MIN_DAYS_BEFORE_RESERVE = Duration.ofDays(0);
-    public static final Duration MIN_HOURS_BEFORE_RESERVE = Duration.ofHours(1);
+    // period of time when it's already late to join as participant to an incoming event
+    public static final Duration DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofDays(0);
+    public static final Duration HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofHours(1);
     // mailing service text messages
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =

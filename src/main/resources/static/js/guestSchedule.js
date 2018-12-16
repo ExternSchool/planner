@@ -1,14 +1,13 @@
 'use strict';
 
 
-function rowClicked(id) {
-    location.href = "/guest/officer/" + id + "/schedule";
+function rowClicked(guestId, officerId) {
+    location.href = "/guest/" + guestId + "/officer/" + officerId + "/schedule";
 }
 
-function openReserveEventModal(id, event) {
-    console.log("openReserveEventModal: " + id + ":" + event);
+function openReserveEventModal(guestId, officerId, event) {
     $.ajax({
-        url: "/guest/officer/" + id + "/event/" + event + "/reserve",
+        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/reserve",
         success: function (data) {
             $("#reserveEventModalHolder").html(data);
             $("#reserveEventModal").modal("show");
@@ -16,9 +15,9 @@ function openReserveEventModal(id, event) {
     });
 }
 
-function openCancelReservationModal(id, event) {
+function openCancelReservationModal(guestId, officerId, event) {
     $.ajax({
-        url: "/guest/officer/" + id + "/event/" + event + "/cancel",
+        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/cancel",
         success: function (data) {
             $("#cancelReservationModalHolder").html(data);
             $("#cancelReservationModal").modal("show");
