@@ -313,7 +313,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEventById(event.getId());
+                scheduleService.cancelEventByIdAndSave(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -356,7 +356,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEventById(event.getId());
+                scheduleService.cancelEventByIdAndSave(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");

@@ -4,6 +4,7 @@ import io.github.externschool.planner.entity.Role;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,14 +35,14 @@ public class ScheduleEventType {
     @Column(name = "participants_amount")
     private Integer amountOfParticipants;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "schedule_event_type_owner_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<Role> owners = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "schedule_event_type_participant_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},

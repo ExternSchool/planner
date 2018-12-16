@@ -27,6 +27,7 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -44,6 +45,7 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSON
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PSYCHOLOGIST;
 
 @Service
+@Transactional
 @ExcludeFromTests
 public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
@@ -230,7 +232,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                 studentEventsUsers,
                 guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
-                        ? LocalDate.now().plusDays(-2L)
+                        ? scheduleService.getCurrentWeekFirstDay()
                         : LocalDate.now());
 
         createScheduleEventsWithSetOfUsers(
@@ -238,7 +240,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                 studentEventsUsers,
                 guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
-                        ? LocalDate.now().plusDays(5L)
+                        ? scheduleService.getNextWeekFirstDay()
                         : LocalDate.now().plusDays(7L));
     }
 
@@ -279,18 +281,19 @@ public class BootstrapDataPopulator implements InitializingBean {
         ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
         eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-        eventType = eventTypeRepository.save(eventType);
+        eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
         eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
         eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-        eventType = eventTypeRepository.save(eventType);
+        eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
+        eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
         eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
-        eventType = eventTypeRepository.save(eventType);
+        eventTypeRepository.save(eventType);
     }
 
     private void createScheduleEventsWithSetOfUsers(final User owner,

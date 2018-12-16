@@ -5,22 +5,22 @@ function rowClicked(guestId, officerId) {
     location.href = "/guest/" + guestId + "/officer/" + officerId + "/schedule";
 }
 
-function openReserveEventModal(guestId, officerId, event) {
+function openSubscribeEventModal(guestId, officerId, event) {
     $.ajax({
-        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/reserve",
+        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/subscribe",
         success: function (data) {
-            $("#reserveEventModalHolder").html(data);
-            $("#reserveEventModal").modal("show");
+            $("#subscribeEventModalHolder").html(data);
+            $("#subscribeEventModal").modal("show");
         }
     });
 }
 
-function openCancelReservationModal(guestId, officerId, event) {
+function openCancelSubscriptionModal(guestId, officerId, event) {
     $.ajax({
         url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/cancel",
         success: function (data) {
-            $("#cancelReservationModalHolder").html(data);
-            $("#cancelReservationModal").modal("show");
+            $("#cancelSubscriptionModalHolder").html(data);
+            $("#cancelSubscriptionModal").modal("show");
         }
     });
 }

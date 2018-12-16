@@ -41,6 +41,8 @@ public final class Constants {
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Помилка вводу даних!";
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
+    public static final String UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE =
+            "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
@@ -64,7 +66,7 @@ public final class Constants {
     public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
     // period of time when it's already late to join as participant to an incoming event
     public static final Duration DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofDays(0);
-    public static final Duration HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofHours(1);
+    public static final Duration HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofHours(0);
     // mailing service text messages
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =

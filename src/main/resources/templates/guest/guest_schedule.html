@@ -117,15 +117,14 @@
                                     </ul>
                                 </td>
                                 <td class="text-right">
-                                <span th:if="${(latestTime < evnt.getStartTime() && latestDate < evnt.getDate()) && evnt.isOpen
-                                            && evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openReserveEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                <span th:if="${evnt.id != event.id}">
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn badge badge-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                     <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openCancelReservationModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn badge badge-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -144,17 +143,20 @@
         <div class="card bg-light mb-2" style="min-width: 20rem;">
             <div class="card-header">Наступний тиждень</div>
             <div class="card-body text-left">
-                <div>
+                <div th:each="dayNum : ${#numbers.sequence( 0, 4)}">
                     <div class="card-title text-left">
-                        <h5>Понеділок
+                        <h5>
+                        <span th:text="${weekDays[dayNum]}">
+                            День тижня
+                        </span>
                             <span class="float-right badge badge-info badge-pill"
-                                  th:value="${nextWeek[0]}"
-                                  th:text="${#temporals.format(nextWeek[0], 'dd/MM')}">
-                                        дата
-                                    </span>
+                                  th:value="${nextWeek[dayNum]}"
+                                  th:text="${#temporals.format(nextWeek[dayNum], 'dd/MM')}">
+                            дата
+                        </span>
                         </h5>
                     </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[0])}">
+                    <div class="table-responsive mb-0" th:if="${not #lists.isEmpty(nextWeekEvents[dayNum])}">
                         <table class="col-lg-12 table table-sm table-hover">
                             <thead>
                             <tr>
@@ -163,117 +165,30 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[0]}">
+                            <tr th:each="evnt : ${nextWeekEvents[dayNum]}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Вівторок
-                            <span class="float-right badge badge-info badge-pill"
-                                  th:value="${nextWeek[1]}"
-                                  th:text="${#temporals.format(nextWeek[1], 'dd/MM')}">
-                                        дата
-                                    </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[1])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[1]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Середа
-                            <span class="float-right badge badge-info badge-pill"
-                                  th:value="${nextWeek[2]}"
-                                  th:text="${#temporals.format(nextWeek[2], 'dd/MM')}">
-                                        дата
-                                    </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[2])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[2]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>Четвер
-                            <span class="float-right badge badge-info badge-pill"
-                                  th:value="${nextWeek[3]}"
-                                  th:text="${#temporals.format(nextWeek[3], 'dd/MM')}">
-                                        дата
-                                    </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[3])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[3]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <div class="card-title text-left">
-                        <h5>П'ятниця
-                            <span class="float-right badge badge-info badge-pill"
-                                  th:value="${nextWeek[4]}"
-                                  th:text="${#temporals.format(nextWeek[4], 'dd/MM')}">
-                                        дата
-                                    </span>
-                        </h5>
-                    </div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(nextWeekEvents[4])}">
-                        <table class="col-lg-12 table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th class="text-left" style="width: 6ch">Час</th>
-                                <th class="text-left">Подія</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="evnt : ${nextWeekEvents[4]}">
-                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
-                                <td class="text-left" th:text="${evnt.getDescription()}">Подія</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right">
+                                <span th:if="${evnt.id != event.id}">
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn badge badge-success">
+                                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                <span th:if="${evnt.id == event.id}">
+                                    <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn badge badge-danger">
+                                        <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                </td>
                             </tr>
                             </tbody>
                         </table>
@@ -295,109 +210,116 @@
 </footer>
 
 <!-- ModalHolder -->
-<div id="reserveEventModalHolder"></div>
-<div id="cancelReservationModalHolder"></div>
+<div id="subscribeEventModalHolder"></div>
+<div id="cancelSubscriptionModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
-<div class="modal fade" id="reserveEventModal" role="dialog" th:fragment="reserveEvent">
+<div class="modal fade" id="subscribeEventModal" role="dialog" th:fragment="subscribeEvent">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="reserveEventModalTitle">Резервація часу</h5>
+                <h5 class="modal-title" id="subscribeEventModalTitle">Резервація часу</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body text-center">
-                <p>
+
+            <form th:method="post"
+                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/add(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:object="${event.id}" class="form" id="formSubscribe">
+                <div class="modal-body text-center">
+                    <p>
                     <span th:text=" ${event.title}">
                         назва події
                     </span>
-                    <br>
-                    <span th:text=" ${event.description}">
+                        <br>
+                        <span th:text=" ${event.description}">
                         опис події
                     </span>
-                    <br>
-                    <br>
-                    <span th:text="${officer.getShortName()}">
+                        <br>
+                        <br>
+                        <span th:text="${officer.getShortName()}">
                         організатор зустрічі
                     </span>
-                    <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
+                        <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
                         дата зустрічі
                     </span>
-                    о
-                    <span style="white-space: pre;" th:text="${event.getStartTime()}">
+                        о
+                        <span style="white-space: pre;" th:text="${event.getStartTime()}">
                         час зустрічі
                     </span>
-                    <br>
-                    Зарезервувати вибраний час для зустрічі?
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Ні, дякую
-                </button>
-                <span th:if="${officer != null}">
-                <a th:href="@{/guest/{uid}/officer/{id}/event/{eventId}/add(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
-                   class="btn btn-primary">
-                    Так, резервувати!
-                </a>
+                        <br>
+                        Зарезервувати вибраний час для зустрічі?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <span th:if="${officer != null}">
+                         <button type="submit" class="btn btn-primary">
+                             Так, резервувати!
+                         </button>
                 </span>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="cancelReservationModal" role="dialog" th:fragment="cancelReservation">
+<div class="modal fade" id="cancelSubscriptionModal" role="dialog" th:fragment="cancelSubscription">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelReservationModalTitle">Скасування участі в події</h5>
+                <h5 class="modal-title" id="cancelSubscriptionModalTitle">Скасування участі в події</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body text-center">
-                <p>
-                    Подія:
-                    <span style="white-space: pre;" th:text=" ${event.title}">
+            <form th:method="post"
+                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/delete(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:object="${event.id}" class="form" id="formUnsubscribe">
+                <div class="modal-body text-center">
+                    <p>
+                        Подія:
+                        <span style="white-space: pre;" th:text=" ${event.title}">
                         назва події
                     </span>
-                    <br>
-                    Опис:
-                    <span style="white-space: pre;" th:text=" ${event.description}">
+                        <br>
+                        Опис:
+                        <span style="white-space: pre;" th:text=" ${event.description}">
                         опис події
                     </span>
-                    <br>
-                    Організатор:
-                    <span style="white-space: pre;" th:text="${officer.getShortName()}">
+                        <br>
+                        Організатор:
+                        <span style="white-space: pre;" th:text="${officer.getShortName()}">
                         організатор зустрічі
                     </span>
-                    <br>
-                    Дата та час:
-                    <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
+                        <br>
+                        Дата та час:
+                        <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
                         дата зустрічі
                     </span>
-                    о
-                    <span style="white-space: pre;" th:text="${event.getStartTime()}">
+                        о
+                        <span style="white-space: pre;" th:text="${event.getStartTime()}">
                         час зустрічі
                     </span>
-                    <br><br>
-                    Ви впевнені, що бажаєте скасувати призначену зустріч?
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Ні, дякую
-                </button>
-                <span th:if="${officer != null}">
-                <a th:href="@{/guest/{uid}/officer/{id}/event/{eventId}/delete(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
-                   class="btn btn-primary">
-                    Так, скасувати!
-                </a>
-                </span>
-            </div>
+                        <br><br>
+                        Ви впевнені, що бажаєте скасувати призначену зустріч?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <span th:if="${officer != null}">
+                         <button type="submit" class="btn btn-primary">
+                             Так, скасувати!
+                         </button>
+                    </span>
+                </div>
+            </form>
         </div>
     </div>
 </div>

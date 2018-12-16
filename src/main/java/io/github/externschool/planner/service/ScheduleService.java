@@ -24,9 +24,13 @@ public interface ScheduleService {
 
     List<ScheduleEvent> getEventsByOwner(User owner);
 
+    List<ScheduleEvent> getEventsByOwnerStartingBetweenDates(User owner, LocalDate firstDate, LocalDate lastDate);
+
     List<ScheduleEvent> getEventsByType(ScheduleEventType type);
 
-    void cancelEventById(long id);
+    void cancelEventByIdAndSave(long id);
+
+    void findEventByIdSetOpenAndSave(long id, boolean state);
 
     void deleteEventById(long id);
 
@@ -36,7 +40,7 @@ public interface ScheduleService {
 
     Optional<Participant> addParticipant(User user, ScheduleEvent event);
 
-    Optional<Participant> getParticipantByUserAndEvent(User user, ScheduleEvent event);
+    Optional<Participant> findParticipantByUserAndEvent(User user, ScheduleEvent event);
 
     void removeParticipant(Participant participant);
 

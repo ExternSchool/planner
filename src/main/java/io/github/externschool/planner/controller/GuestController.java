@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -13,6 +14,7 @@ import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
+import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
@@ -41,17 +43,20 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_FRIDAY;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_MONDAY;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_THIRSDAY;
@@ -214,59 +219,78 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/event/{event}/reserve")
-    public ModelAndView displayNewReservationModal(@PathVariable("gid") Long guestId,
+    @GetMapping("/{gid}/officer/{id}/event/{event}/subscribe")
+    public ModelAndView displayNewSubscriptionModal(@PathVariable("gid") Long guestId,
                                                    @PathVariable("id") Long officerId,
-                                                   @PathVariable("event") int eventId,
+                                                   @PathVariable("event") Long eventId,
                                                    ModelMap model) {
         ModelAndView modelAndView = prepareModelAndView(guestId, officerId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
-        modelAndView.setViewName("guest/guest_schedule :: reserveEvent");
+        modelAndView.setViewName("guest/guest_schedule :: subscribeEvent");
 
         return modelAndView;
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/event/{event}/add")
-    public ModelAndView processNewReservationModal(@PathVariable("gid") Long guestId,
+    @PostMapping("/{gid}/officer/{id}/event/{event}/add")
+    public ModelAndView processNewEventSubscriptionModal(@PathVariable("gid") Long guestId,
                                                    @PathVariable("id") Long officerId,
-                                                   @PathVariable("event") int eventId,
-                                                   ModelMap model,
-                                                   final Principal principal) {
-        // TODO REPLACE with implementation
-        System.out.println("Creating Reservation");
+                                                   @PathVariable("event") Long eventId,
+                                                   ModelMap model) {
+        ModelAndView modelAndView =
+                new ModelAndView("redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule", model);
+        try {
+            subscribeScheduleEvent(guestId, eventId);
+        } catch (UserCannotHandleEventException e) {
+            modelAndView = prepareModelAndView(guestId, officerId, model);
+            modelAndView.addObject("error", e.getMessage());
+        }
 
-        return redirectEventByRole(userService.findUserByEmail(principal.getName()));
+        return modelAndView;
+    }
+
+    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(guestId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+        }
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @GetMapping("/{gid}/officer/{id}/event/{event}/cancel")
-    public ModelAndView displayCancelReservationModal(@PathVariable("gid") Long guestId,
+    public ModelAndView displayCancelSubscriptionModal(@PathVariable("gid") Long guestId,
                                                       @PathVariable("id") Long officerId,
-                                                      @PathVariable("event") int eventId,
+                                                      @PathVariable("event") Long eventId,
                                                       ModelMap model,
                                                       final Principal principal) {
         ModelAndView modelAndView = prepareModelAndView(guestId, officerId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
-        modelAndView.setViewName("guest/guest_schedule :: cancelReservation");
+        modelAndView.setViewName("guest/guest_schedule :: cancelSubscription");
 
         return modelAndView;
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/event/{event}/delete")
-    public ModelAndView processCancelReservationModal(@PathVariable("gid") Long guestId,
+    @PostMapping("/{gid}/officer/{id}/event/{event}/delete")
+    public ModelAndView processCancelSubscriptionModal(@PathVariable("gid") Long guestId,
                                                       @PathVariable("id") Long officerId,
-                                                      @PathVariable("event") int eventId,
-                                                      ModelMap model,
-                                                      final Principal principal) {
-        // TODO REPLACE with implementation
-        System.out.println("Cancelling Reservation");
+                                                      @PathVariable("event") Long eventId,
+                                                      ModelMap model) {
+        User guestUser = Optional.ofNullable(personService.findPersonById(guestId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        ScheduleEvent event = scheduleService.getEventById(eventId);
+        scheduleService.findParticipantByUserAndEvent(guestUser, event).ifPresent(scheduleService::removeParticipant);
+        scheduleService.findEventByIdSetOpenAndSave(eventId, true);
 
-
-        return redirectEventByRole(userService.findUserByEmail(principal.getName()));
+        return new ModelAndView("redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule/", model);
     }
 
     private ModelAndView prepareModelAndView(final Long guestId, final Long officerId, final ModelMap model) {
@@ -279,7 +303,7 @@ public class GuestController {
         List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
         TeacherDTO officerTeacher = new TeacherDTO();
         PersonDTO guestPerson = conversionService.convert(personService.findPersonById(guestId), PersonDTO.class);
-        Optional<ScheduleEventDTO> reservedEvent = Optional.empty();
+        Optional<ScheduleEventDTO> subscribedEvent = Optional.empty();
 
         Optional<User> optionalOfficerUser = getOptionalOfficerUser(officerId);
         Optional<User> optionalGuestUser = getOptionalGuestUser(guestId);
@@ -290,13 +314,28 @@ public class GuestController {
             User guestUser = optionalGuestUser.get();
             officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
 
-            currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
-            nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
-            List<ScheduleEvent> events = scheduleService.getEventsByOwner(officerUser);
-            reservedEvent = events.stream()
-                    .filter(event -> scheduleService.getParticipantByUserAndEvent(guestUser, event).isPresent())
-                    .map(e -> conversionService.convert(e, ScheduleEventDTO.class))
-                    .findFirst();
+            subscribedEvent = scheduleService.getEventsByOwnerStartingBetweenDates(
+                    officerUser,
+                    LocalDate.now(),
+                    nextWeek.get(nextWeek.size() - 1))
+                    .stream()
+                        .map(ScheduleEvent::getParticipants)
+                        .flatMap(Set::stream)
+                        .filter(participant -> participant.getUser().equals(guestUser))
+                        .findFirst()
+                        .map(Participant::getEvent)
+                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class));
+            // when user has any subscribed event no more available to subscribe events are shown
+            if (subscribedEvent.isPresent()) {
+                ScheduleEventDTO eventDTO = subscribedEvent.get();
+                currentWeek.forEach(date -> currentWeekEvents.add(
+                        date.isEqual(eventDTO.getDate()) ? Collections.singletonList(eventDTO) : new ArrayList<>()));
+                nextWeek.forEach(date -> nextWeekEvents.add(
+                        date.isEqual(eventDTO.getDate()) ? Collections.singletonList(eventDTO) : new ArrayList<>()));
+            } else {
+                currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
+                nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
+            }
         } else {
             currentWeek.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeek.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
@@ -315,11 +354,8 @@ public class GuestController {
         modelAndView.addObject("nextWeek", nextWeek);
         modelAndView.addObject("currentWeekEvents", currentWeekEvents);
         modelAndView.addObject("nextWeekEvents", nextWeekEvents);
-        // min date and time before new appointments
-        modelAndView.addObject("latestDate", LocalDate.now().plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT));
-        modelAndView.addObject("latestTime", LocalTime.now().plus(HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT));
         modelAndView.addObject("event",
-                reservedEvent
+                subscribedEvent
                         .orElse(ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                                 .withDate(FIRST_MONDAY_OF_EPOCH)
                                 .withStartTime(LocalTime.MIN)
@@ -339,10 +375,15 @@ public class GuestController {
                 .filter(type -> type.getParticipants().contains(role))
                 .collect(Collectors.toList());
 
-        return convertEventsToDTO(
-                scheduleService.getActualEventsByOwnerAndDate(user, date).stream()
-                        .filter(event -> availableTypes.contains(event.getType()))
-                        .collect(Collectors.toList()));
+        return scheduleService.getActualEventsByOwnerAndDate(user, date).stream()
+                .filter(event -> availableTypes.contains(event.getType()))
+                .filter(ScheduleEvent::isOpen)
+                .filter(event -> event.getStartOfEvent().isAfter(LocalDateTime.now()
+                        // min date and time before new appointments
+                        .plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT)
+                        .plus(HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT)))
+                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                .collect(Collectors.toList());
     }
 
     private Optional<User> getOptionalOfficerUser(final Long id) {
@@ -355,12 +396,6 @@ public class GuestController {
         return Optional.ofNullable(personService.findPersonById(id))
                 .map(guest -> Optional.ofNullable(guest.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
-    }
-
-    private List<ScheduleEventDTO> convertEventsToDTO(List<ScheduleEvent> events) {
-        return events.stream()
-                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
-                .collect(Collectors.toList());
     }
 
     private ModelAndView redirectEventByRole(User user) {
