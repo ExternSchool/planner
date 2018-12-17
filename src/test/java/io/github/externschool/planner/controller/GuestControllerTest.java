@@ -6,6 +6,9 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
+import io.github.externschool.planner.service.ScheduleService;
+import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
@@ -28,6 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,6 +52,9 @@ public class GuestControllerTest {
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
+    @Autowired private TeacherService teacherService;
+    @Autowired private ScheduleService scheduleService;
+    @Autowired private ScheduleEventTypeService typeService;
     private GuestController controller;
     private MockMvc mockMvc;
 
@@ -59,7 +66,15 @@ public class GuestControllerTest {
 
     @Before
     public void setup(){
-        controller = new GuestController(personService, conversionService, keyService, roleService, userService);
+        controller = new GuestController(
+                personService,
+                conversionService,
+                keyService,
+                roleService,
+                userService,
+                teacherService,
+                scheduleService,
+                typeService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -234,6 +249,106 @@ public class GuestControllerTest {
                                 "nextWeek",
                                 "currentWeekEvents",
                                 "nextWeekEvents"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenDisplaySubscriptionsToGuest() {
+//        @GetMapping("/subscriptions") -> "guest/guest_subscriptions"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayOfficersListToAdmin() {
+//        @PostMapping("/{gid}/officer/schedule") -> prepareModelAndView
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayOfficerScheduleWithAdmin() {
+//   @GetMapping("/{gid}/officer/{id}/schedule") -> prepareModelAndView
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenDisplayOfficerScheduleWithGuest() {
+//   @GetMapping("/{gid}/officer/{id}/schedule") -> prepareModelAndView
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayNewSubscriptionModalWithAdmin() {
+//   @GetMapping("/{gid}/officer/{id}/event/{event}/subscribe") -> prepareModelAndView
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenDisplayNewSubscriptionModalWithGuest() {
+//   @GetMapping("/{gid}/officer/{id}/event/{event}/subscribe") -> prepareModelAndView
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenProcessNewEventSubscriptionModalWithAdmin() {
+//   @PostMapping("/{gid}/officer/{id}/event/{event}/add") ->
+//        redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenProcessNewEventSubscriptionModalWithGuest() {
+//   @PostMapping("/{gid}/officer/{id}/event/{event}/add") ->
+//        redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayCancelSubscriptionModalWithAdmin() {
+//   @GetMapping("/{gid}/officer/{id}/event/{event}/cancel") -> "guest/guest_schedule :: cancelSubscription"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenDisplayCancelSubscriptionModalWithGuest() {
+//   @GetMapping("/{gid}/officer/{id}/event/{event}/cancel") -> "guest/guest_schedule :: cancelSubscription"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnMaV_whenProcessCancelSubscriptionModalWithAdmin() {
+//   @PostMapping("/{gid}/officer/{id}/event/{event}/delete") ->
+//                "redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule/"
+        assertThat(false)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenProcessCancelSubscriptionModalWithGuest() {
+//   @PostMapping("/{gid}/officer/{id}/event/{event}/delete") ->
+//                "redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule/"
+        assertThat(false)
+                .isEqualTo(true);
     }
 
     @After

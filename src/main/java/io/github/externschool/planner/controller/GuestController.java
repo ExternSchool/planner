@@ -69,20 +69,27 @@ public class GuestController {
     private final VerificationKeyService keyService;
     private final RoleService roleService;
     private final UserService userService;
-    @Autowired private TeacherService teacherService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private ScheduleEventTypeService scheduleEventTypeService;
+    private final TeacherService teacherService;
+    private final ScheduleService scheduleService;
+    private final ScheduleEventTypeService scheduleEventTypeService;
 
+    @Autowired
     public GuestController(final PersonService personService,
                            final ConversionService conversionService,
                            final VerificationKeyService keyService,
                            final RoleService roleService,
-                           final UserService userService) {
+                           final UserService userService,
+                           final TeacherService teacherService,
+                           final ScheduleService scheduleService,
+                           final ScheduleEventTypeService scheduleEventTypeService) {
         this.personService = personService;
         this.conversionService = conversionService;
         this.keyService = keyService;
         this.userService = userService;
         this.roleService = roleService;
+        this.teacherService = teacherService;
+        this.scheduleService = scheduleService;
+        this.scheduleEventTypeService = scheduleEventTypeService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -262,17 +269,6 @@ public class GuestController {
         return modelAndView;
     }
 
-    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
-        User user = Optional.ofNullable(personService.findPersonById(guestId))
-                .map(Person::getVerificationKey)
-                .map(VerificationKey::getUser)
-                .orElse(null);
-        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
-        if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
-        }
-    }
-
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @GetMapping("/{gid}/officer/{id}/event/{event}/cancel")
     public ModelAndView displayCancelSubscriptionModal(@PathVariable("gid") Long guestId,
@@ -303,6 +299,17 @@ public class GuestController {
         scheduleService.findEventByIdSetOpenAndSave(eventId, true);
 
         return new ModelAndView("redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule/", model);
+    }
+
+    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(guestId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+        }
     }
 
     private ModelAndView prepareModelAndView(final Long guestId, final Long officerId, final ModelMap model) {
