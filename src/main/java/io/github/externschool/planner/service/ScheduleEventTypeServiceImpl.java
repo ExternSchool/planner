@@ -31,12 +31,14 @@ public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
         return Optional.ofNullable(id).flatMap(eventTypeRepository::findById);
     }
 
+    //TODO refactor to meet conversionService.convert(...)
     @Override
     public ScheduleEventType saveOrUpdateEventType(final ScheduleEventType eventType) {
         ScheduleEventType eventTypeToSave = Optional.ofNullable(eventTypeRepository.findByName(eventType.getName()))
                 .map(storedEventType -> {
                     storedEventType.setName(eventType.getName());
                     storedEventType.setAmountOfParticipants(eventType.getAmountOfParticipants());
+                    storedEventType.setDurationInMinutes(eventType.getDurationInMinutes());
                     new ArrayList<>(storedEventType.getOwners()).forEach(storedEventType::removeOwner);
                     new ArrayList<>(storedEventType.getParticipants()).forEach(storedEventType::removeParticipant);
                     eventType.getOwners().forEach(storedEventType::addOwner);

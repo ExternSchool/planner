@@ -78,6 +78,7 @@ public class ScheduleController {
         }
 
         ScheduleEventType newEventType = new ScheduleEventType(name, 1);
+        newEventType.setDurationInMinutes(45);
         newEventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         newEventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
         eventTypeService.saveOrUpdateEventType(newEventType);
@@ -128,7 +129,7 @@ public class ScheduleController {
         return modelAndView;
     }
 
-    @GetMapping("/type/{id}/delete")
+    @PostMapping("/type/{id}/delete")
     public ModelAndView processDeleteEventType(@PathVariable("id") Long id, ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("redirect:/event/type/", model);
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);

@@ -176,7 +176,7 @@ public class ScheduleControllerTest {
 
     @Test
     public void shouldRedirect_whenProcessDeleteEventType() throws Exception {
-        mockMvc.perform(get("/event/type/" + eventType.getId() + "/delete"))
+        mockMvc.perform(post("/event/type/" + eventType.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/event/type/"));
     }

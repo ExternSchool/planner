@@ -640,18 +640,28 @@
                 <form th:method="post"
                       th:action="@{/teacher/{id}/new-schedule/{day}/add(id=${teacher.id}, day=${thisDay})}"
                       th:object="${newEvent}" class="form" id="formNewEvent">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
+                    <div class="floating mb-3">
+                        <div class="form-group mb-0">
+                            <label for="startOfEvent">Початок події: </label>
                             <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
-                        <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
-                            <option th:each="type : ${eventTypes}"
-                                    th:value="${type.name}"
-                                    th:text="${type.name}">
-                                Тип події
-                            </option>
-                        </select>
+                        <div class="form-group mb-0">
+                            <label for="eventType">Тип події: </label>
+                            <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Тип події
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="eventDescription">Опис події: </label>
+                            <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescription"
+                                      th:field="*{description}">Опис події
+                            </textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -715,6 +725,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Ні, дякую
                 </button>
+                <!--TODO replace for Post -->
                 <a th:href="@{/teacher/{id}/current-week/{day}/delete(id=${teacher.id}, day=${thisDay})}"
                    class="btn btn-primary">
                     Так, скасувати!

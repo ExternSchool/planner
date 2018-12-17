@@ -74,7 +74,7 @@
                                 </ul>
                             </td>
                             <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
-                            <td class="text-center" th:text="${type.getAmountOfParticipants()}">Хвилини</td>
+                            <td class="text-center" th:text="${type.getDurationInMinutes()}">Хвилини</td>
                             <td class="text-right">
                                 <a th:href="@{/event/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
@@ -117,14 +117,14 @@
                                 </select>
                             </td>
                             <td class="text-center">
-                                <input class="form-control" placeholder="від 1 до 50" id="count" type="number"
+                                <input class="form-control" placeholder="1..50" id="count" type="number"
                                        min="1" max="50"
                                        th:field="*{amountOfParticipants}" required>
                             </td>
                             <td class="text-center">
-                                <input class="form-control" placeholder="від 1 до 120" id="duration" type="number"
-                                       min="1" max="120"
-                                       th:field="*{amountOfParticipants}" required>
+                                <input class="form-control" placeholder="1..600" id="duration" type="number"
+                                       min="1" max="600"
+                                       th:field="${eventType.durationInMinutes}" required>
                             </td>
                             <td class="text-right">
                                 <button class="btn btn-outline-success btn-sm" type="submit"
@@ -185,12 +185,13 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Повернутися до редагування
                 </button>
-                <div th:if="${eventType.id != null}">
-                    <a th:href="@{/event/type/{id}/delete(id=${eventType.id})}"
-                       class="btn btn-primary">
-                        Так, вилучити!
-                    </a>
-                </div>
+                <span th:if="${eventType.id != null}">
+                    <form th:method="post" th:action="@{/event/type/{id}/delete(id=${eventType.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, вилучити!
+                        </button>
+                    </form>
+                </span>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@ package io.github.externschool.planner.util;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -62,6 +63,9 @@ public final class Constants {
     public static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
     public static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
 
+
+    public static final Integer DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE = 45;
+    public static final LocalTime DEFAULT_TIME_OF_WORKING_DAY_BEGINNING = LocalTime.of(9, 0);
     // need to point start date for standard events schema
     public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
     // period of time when it's already late to join as participant to an incoming event
