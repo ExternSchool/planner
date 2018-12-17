@@ -28,7 +28,6 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -37,11 +36,12 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
 @Service
 @Transactional
 public class ScheduleServiceImpl implements ScheduleService {
-
     private final ScheduleEventRepository eventRepository;
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Autowired
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
@@ -197,17 +197,15 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public Optional<Participant> addParticipant(User user, ScheduleEvent event) {
+    public Optional<Participant> addParticipant(final User user, final ScheduleEvent event) {
         Optional<Participant> optionalParticipant = Optional.empty();
-        if (user != null
-                && event != null
-                && event.isOpen()) {
+
+        lock.lock();
+        if (user != null && event != null && event.isOpen()) {
             canUserParticipateInEventForType(user, event.getType());
             int maximum = event.getType().getAmountOfParticipants();
-
-            ReentrantLock lock = new ReentrantLock();
             try {
-                if (lock.tryLock(5, TimeUnit.SECONDS) && event.getParticipants().size() < maximum) {
+                if (event.getParticipants().size() < maximum) {
                     Participant participant = new Participant(user, event);
                     if (event.getParticipants().size() >= maximum) {
                         event.setOpen(false);
@@ -216,8 +214,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                     optionalParticipant = Optional.ofNullable(participantRepository.save(participant));
                     eventRepository.save(event);
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             } finally {
                 lock.unlock();
             }
@@ -238,23 +234,21 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public void removeParticipant(final Participant participant) {
-        ReentrantLock lock = new ReentrantLock();
+
+        lock.lock();
         try {
-            if (lock.tryLock(5, TimeUnit.SECONDS)) {
-                participantRepository.findById(participant.getId()).ifPresent(p -> {
-                    Optional.ofNullable(participant.getUser()).ifPresent(user -> {
-                        user.removeParticipant(participant);
-                        participantRepository.save(participant);
+            participantRepository.findById(participant.getId())
+                    .ifPresent(p -> {
+                        Optional.ofNullable(participant.getUser()).ifPresent(user -> {
+                            user.removeParticipant(participant);
+                            participantRepository.save(participant);
+                        });
+                        Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
+                            event.removeParticipant(participant);
+                            participantRepository.save(participant);
+                        });
+                        participantRepository.delete(participant);
                     });
-                    Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
-                        event.removeParticipant(participant);
-                        participantRepository.save(participant);
-                    });
-                    participantRepository.delete(participant);
-                });
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         } finally {
             lock.unlock();
         }
@@ -286,7 +280,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         return getCurrentWeekFirstDay().plus(Period.of(0, 0, 7));
     }
 
-    private void canUserOwnAnEventForType(User user, ScheduleEventType type) {
+    private void canUserOwnAnEventForType(final User user, final ScheduleEventType type) {
         if (user != null && type != null) {
             for (Role role : user.getRoles()) {
                 if (type.getOwners().contains(role)) {
@@ -300,7 +294,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                         type != null ? type.getName() : "NULL"));
     }
 
-    private void canUserParticipateInEventForType(User user, ScheduleEventType type) {
+    private void canUserParticipateInEventForType(final User user, final ScheduleEventType type) {
         if (user != null && type != null) {
             for (Role role : user.getRoles()) {
                 if (type.getParticipants().contains(role)) {
