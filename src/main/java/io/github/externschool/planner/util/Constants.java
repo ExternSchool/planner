@@ -3,7 +3,9 @@ package io.github.externschool.planner.util;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -58,11 +60,19 @@ public final class Constants {
     public static final String UK_EVENT_TYPE_TEST = "Написання контрольної роботи";
 
     public static final String UK_WEEK_DAYS_MONDAY = "Понеділок";
-    public static final String UK_WEEK_DAYS_TUESAY = "Вівторок";
+    public static final String UK_WEEK_DAYS_TUESDAY = "Вівторок";
     public static final String UK_WEEK_DAYS_WEDNESDAY = "Середа";
     public static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
     public static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
-
+    public static final List<String> UK_WEEK_WORKING_DAYS;
+    static {
+        UK_WEEK_WORKING_DAYS = Arrays.asList(
+                UK_WEEK_DAYS_MONDAY,
+                UK_WEEK_DAYS_TUESDAY,
+                UK_WEEK_DAYS_WEDNESDAY,
+                UK_WEEK_DAYS_THIRSDAY,
+                UK_WEEK_DAYS_FRIDAY);
+    }
 
     public static final Integer DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE = 45;
     public static final LocalTime DEFAULT_TIME_OF_WORKING_DAY_BEGINNING = LocalTime.of(9, 0);

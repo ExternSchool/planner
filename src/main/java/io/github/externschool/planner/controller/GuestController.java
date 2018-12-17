@@ -43,8 +43,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,11 +58,7 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DE
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE;
-import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_FRIDAY;
-import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_MONDAY;
-import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_THIRSDAY;
-import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_TUESAY;
-import static io.github.externschool.planner.util.Constants.UK_WEEK_DAYS_WEDNESDAY;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
 @Transactional
@@ -313,13 +309,17 @@ public class GuestController {
         ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
 
         // TODO Add invalid guestId error checking
-        List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
-        List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
-        List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
-        List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
+        LocalDate currentWeekFirstDay = scheduleService.getCurrentWeekFirstDay();
+        LocalDate nextWeekFirstDay = scheduleService.getNextWeekFirstDay();
+        List<LocalDate> currentWeek = scheduleService.getWeekStartingFirstDay(currentWeekFirstDay);
+        List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(nextWeekFirstDay);
+        List<List<ScheduleEvent>> currentWeekEvents = new ArrayList<>();
+        List<List<ScheduleEvent>> nextWeekEvents = new ArrayList<>();
         TeacherDTO officerTeacher = new TeacherDTO();
         PersonDTO guestPerson = conversionService.convert(personService.findPersonById(guestId), PersonDTO.class);
-        Optional<ScheduleEventDTO> subscribedEvent = Optional.empty();
+        Optional<ScheduleEvent> subscribedEvent = Optional.empty();
+        Optional<LocalDateTime> mostRecentUpdate = Optional.empty();
+        int incomingEventsNumber = 0;
 
         Optional<User> optionalOfficerUser = getOptionalOfficerUser(officerId);
         Optional<User> optionalGuestUser = getOptionalGuestUser(guestId);
@@ -330,28 +330,42 @@ public class GuestController {
             User guestUser = optionalGuestUser.get();
             officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
 
-            subscribedEvent = scheduleService.getEventsByOwnerStartingBetweenDates(
+            // when user has any subscribed event no more events available to subscribe are shown
+            List<ScheduleEvent> allCurrentEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
                     officerUser,
                     LocalDate.now(),
-                    nextWeek.get(nextWeek.size() - 1))
-                    .stream()
+                    currentWeekFirstDay.plusDays(14));
+            subscribedEvent = allCurrentEvents.stream()
                         .map(ScheduleEvent::getParticipants)
                         .flatMap(Set::stream)
                         .filter(participant -> participant.getUser().equals(guestUser))
                         .findFirst()
-                        .map(Participant::getEvent)
-                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class));
-            // when user has any subscribed event no more available to subscribe events are shown
+                        .map(Participant::getEvent);
             if (subscribedEvent.isPresent()) {
-                ScheduleEventDTO eventDTO = subscribedEvent.get();
+                ScheduleEvent singleEvent = subscribedEvent.get();
                 currentWeek.forEach(date -> currentWeekEvents.add(
-                        date.isEqual(eventDTO.getDate()) ? Collections.singletonList(eventDTO) : new ArrayList<>()));
+                        date.isEqual(singleEvent.getStartOfEvent().toLocalDate())
+                                ? Collections.singletonList(singleEvent)
+                                : Collections.emptyList()));
                 nextWeek.forEach(date -> nextWeekEvents.add(
-                        date.isEqual(eventDTO.getDate()) ? Collections.singletonList(eventDTO) : new ArrayList<>()));
+                        date.isEqual(singleEvent.getStartOfEvent().toLocalDate())
+                                ? Collections.singletonList(singleEvent)
+                                : Collections.emptyList()));
             } else {
                 currentWeek.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
                 nextWeek.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
             }
+            List<ScheduleEvent> incomingEvents = filterEventsAvailableToGuest(
+                    guestUser,
+                    scheduleService.getEventsByOwnerStartingBetweenDates(
+                            officerUser,
+                            currentWeekFirstDay,
+                            currentWeekFirstDay.plusDays(14)));
+            mostRecentUpdate = incomingEvents.stream()
+                    .map(ScheduleEvent::getModifiedAt)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.naturalOrder());
+            incomingEventsNumber = incomingEvents.size();
         } else {
             currentWeek.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeek.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
@@ -360,18 +374,16 @@ public class GuestController {
         modelAndView.addObject("guest", guestPerson);
         modelAndView.addObject("officer", officerTeacher);
         modelAndView.addObject("officers", teacherService.findAllOfficers());
-        modelAndView.addObject("weekDays", Arrays.asList(
-                UK_WEEK_DAYS_MONDAY,
-                UK_WEEK_DAYS_TUESAY,
-                UK_WEEK_DAYS_WEDNESDAY,
-                UK_WEEK_DAYS_THIRSDAY,
-                UK_WEEK_DAYS_FRIDAY));
+        modelAndView.addObject("weekDays", UK_WEEK_WORKING_DAYS);
         modelAndView.addObject("currentWeek", currentWeek);
         modelAndView.addObject("nextWeek", nextWeek);
-        modelAndView.addObject("currentWeekEvents", currentWeekEvents);
-        modelAndView.addObject("nextWeekEvents", nextWeekEvents);
+        modelAndView.addObject("currentWeekEvents", convertListOfListsToDTO(currentWeekEvents));
+        modelAndView.addObject("nextWeekEvents", convertListOfListsToDTO(nextWeekEvents));
+        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+        modelAndView.addObject("eventsNumber", incomingEventsNumber);
         modelAndView.addObject("event",
                 subscribedEvent
+                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                         .orElse(ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                                 .withDate(FIRST_MONDAY_OF_EPOCH)
                                 .withStartTime(LocalTime.MIN)
@@ -385,21 +397,33 @@ public class GuestController {
         return modelAndView;
     }
 
-    private List<ScheduleEventDTO> getEventsAvailableToGuest(User user, LocalDate date) {
+    private List<List<ScheduleEventDTO>> convertListOfListsToDTO(List<List<ScheduleEvent>> list) {
+        return list.stream()
+                .map(l -> l.stream()
+                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                        .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
+    private List<ScheduleEvent> filterEventsAvailableToGuest(User guest, List<ScheduleEvent> events) {
         Role role = roleService.getRoleByName("ROLE_GUEST");
         List<ScheduleEventType> availableTypes = scheduleEventTypeService.loadEventTypes().stream()
                 .filter(type -> type.getParticipants().contains(role))
                 .collect(Collectors.toList());
 
-        return scheduleService.getActualEventsByOwnerAndDate(user, date).stream()
+        return events.stream()
                 .filter(event -> availableTypes.contains(event.getType()))
                 .filter(ScheduleEvent::isOpen)
                 .filter(event -> event.getStartOfEvent().isAfter(LocalDateTime.now()
                         // min date and time before new appointments
                         .plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT)
                         .plus(HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT)))
-                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private List<ScheduleEvent> getEventsAvailableToGuest(User user, LocalDate date) {
+
+        return filterEventsAvailableToGuest(user, scheduleService.getActualEventsByOwnerAndDate(user, date));
     }
 
     private Optional<User> getOptionalOfficerUser(final Long id) {
@@ -412,18 +436,6 @@ public class GuestController {
         return Optional.ofNullable(personService.findPersonById(id))
                 .map(guest -> Optional.ofNullable(guest.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
-    }
-
-    private ModelAndView redirectEventByRole(User user) {
-        if (userService.getUserByEmail(user.getEmail())
-                .getRoles()
-                .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
-
-            // TODO check this path
-            return new ModelAndView("redirect:/guest/");
-        }
-
-        return new ModelAndView("redirect:/guest/officer/schedule/");
     }
 
     private ModelAndView redirectByRole(User user) {
