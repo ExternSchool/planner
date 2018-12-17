@@ -183,7 +183,6 @@ public class TeacherController {
             modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
             modelAndView.addObject("students", students);
             modelAndView.addObject("guests", guests);
-            modelAndView.addObject("teacherId", teacher.getId());
         }
 
         return modelAndView;

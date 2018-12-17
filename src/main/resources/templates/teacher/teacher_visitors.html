@@ -105,7 +105,7 @@
                     <td class="text-left" th:text="${guest.getOptionalData()}">Дата, час, назва та опис події</td>
                     <td class="text-right">
                         <span sec:authorize="hasRole('ROLE_ADMIN')">
-                            <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${guest.id}, id=${teacherId})}"
+                            <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${guest.id}, id=${teacher.id})}"
                                class="btn badge badge-info">
                                 <i class="far fa-calendar-check" style="color: white" aria-hidden="true"></i>
                             </a>

@@ -26,7 +26,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal" th:inline="text"><small>Типи подій</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Типи подій</small></h4>
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
@@ -54,6 +54,7 @@
                         <th class="text-left">Організатори події</th>
                         <th class="text-left">Учасники події</th>
                         <th class="text-left" style="width: 15ch">Макс.учасників</th>
+                        <th class="text-left" style="width: 15ch">Тривалість, хв</th>
                         <th class="text-right" style="width: 10ch">Змінити</th>
                         <th class="text-right" style="width: 10ch">Видалити</th>
                     </tr>
@@ -73,7 +74,7 @@
                                 </ul>
                             </td>
                             <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
-
+                            <td class="text-center" th:text="${type.getAmountOfParticipants()}">Хвилини</td>
                             <td class="text-right">
                                 <a th:href="@{/event/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
@@ -118,6 +119,11 @@
                             <td class="text-center">
                                 <input class="form-control" placeholder="від 1 до 50" id="count" type="number"
                                        min="1" max="50"
+                                       th:field="*{amountOfParticipants}" required>
+                            </td>
+                            <td class="text-center">
+                                <input class="form-control" placeholder="від 1 до 120" id="duration" type="number"
+                                       min="1" max="120"
                                        th:field="*{amountOfParticipants}" required>
                             </td>
                             <td class="text-right">

@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal" th:inline="text"><small>Річні навчальні плани</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Річні навчальні плани</small></h4>
     <fieldset>
         <form th:action="@{/plan/}" th:object="${plan}" th:method="POST">
             <input type="hidden" th:field="${plan}"/>

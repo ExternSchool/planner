@@ -71,10 +71,9 @@ public final class Constants {
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";
-    //TODO Add ACTUAL LINK to this service
     public static final String APPOINTMENT_CANCELLATION_PROPOSAL =
             "Будь ласка, скористайтеся цим посиланням для призначення нової зустрічі в зручний для Вас час: "
-            + "https://extern.kiev.ua";
+            + "https://extern.com.ua";
     public static final String APPOINTMENT_CANCELLATION_SIGNATURE = "З повагою,\nАдміністрація Школи Екстернів";
 
     private Constants() {
