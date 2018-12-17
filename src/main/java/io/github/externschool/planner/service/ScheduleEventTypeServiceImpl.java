@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
-
     private final ScheduleEventTypeRepository eventTypeRepository;
 
     @Autowired

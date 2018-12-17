@@ -5,6 +5,7 @@ import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -41,6 +42,7 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,6 +56,7 @@ import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_OF_WORK
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
 @Transactional
@@ -213,28 +216,44 @@ public class TeacherController {
             User user = optionalUser.get();
             TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
-            List<LocalDate> currentWeek = scheduleService
-                    .getWeekStartingFirstDay(scheduleService.getCurrentWeekFirstDay());
-            List<LocalDate> nextWeek = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
+            LocalDate currentWeekFirstDay = scheduleService.getCurrentWeekFirstDay();
+            List<LocalDate> currentWeekDates = scheduleService.getWeekStartingFirstDay(currentWeekFirstDay);
+            List<LocalDate> nextWeekDates = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
             // standard week schedule has no real date to start, so FIRST_MONDAY_OF_EPOCH is used
             List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(FIRST_MONDAY_OF_EPOCH);
             List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
 
-            currentWeek.forEach(date ->
-                    currentWeekEvents.add(convertListToListDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
-            nextWeek.forEach(date ->
-                    nextWeekEvents.add(convertListToListDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+            currentWeekDates.forEach(date ->
+                    currentWeekEvents.add(
+                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+            nextWeekDates.forEach(date ->
+                    nextWeekEvents.add(
+                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
             standardWeek.forEach(date ->
-                    standardWeekEvents.add(convertListToListDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+                    standardWeekEvents.add(
+                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+
+            List<ScheduleEvent> incomingEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
+                            user,
+                            currentWeekFirstDay,
+                            currentWeekFirstDay.plusDays(14));
+            Optional<LocalDateTime> mostRecentUpdate = incomingEvents.stream()
+                    .map(ScheduleEvent::getModifiedAt)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.naturalOrder());
+            long incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
 
             modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
-            modelAndView.addObject("currentWeek", currentWeek);
-            modelAndView.addObject("nextWeek", nextWeek);
+            modelAndView.addObject("weekDays", UK_WEEK_WORKING_DAYS);
+            modelAndView.addObject("currentWeek", currentWeekDates);
+            modelAndView.addObject("nextWeek", nextWeekDates);
             modelAndView.addObject("currentWeekEvents", currentWeekEvents);
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
             modelAndView.addObject("standardWeekEvents", standardWeekEvents);
+            modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+            modelAndView.addObject("eventsNumber", incomingEventsNumber);
             modelAndView.addObject("newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
         }
@@ -364,16 +383,23 @@ public class TeacherController {
             List<ScheduleEvent> actualEvents =
                     scheduleService.getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
             Optional<ScheduleEvent> latestEvent = actualEvents.stream().reduce((first, second) -> second);
+            LocalDate dateToStartNextEvent = latestEvent.map(event -> Optional.ofNullable(event.getEndOfEvent())
+                    .map(LocalDateTime::toLocalDate)
+                    .orElse(event.getStartOfEvent().toLocalDate()))
+                    .orElse(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
             LocalTime timeToStartNextEvent = latestEvent.map(event -> Optional.ofNullable(event.getEndOfEvent())
                     .map(LocalDateTime::toLocalTime)
                     .orElse(event.getStartOfEvent().toLocalTime()
                             .plusMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE)))
                     .orElse(DEFAULT_TIME_OF_WORKING_DAY_BEGINNING);
-            model.addAttribute("thisDayEvents", convertListToListDTO(actualEvents));
+            model.addAttribute("thisDayEvents", addDescriptionAndConvertToDTO(actualEvents));
             model.addAttribute(
                     "newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                            .withDate(dateToStartNextEvent)
                             .withStartTime(timeToStartNextEvent)
+                            .withEventType(latestEvent.map(ScheduleEvent::getType).toString())
+                            .withEventType(latestEvent.map(ScheduleEvent::getDescription).toString())
                             .build());
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
         }
@@ -578,9 +604,33 @@ public class TeacherController {
                 .orElse(null);
     }
 
-    private List<ScheduleEventDTO> convertListToListDTO(List<ScheduleEvent> events) {
+    private List<ScheduleEventDTO> addDescriptionAndConvertToDTO(final List<ScheduleEvent> events) {
+
         return events.stream()
-                .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                .map(event -> {
+                    StringBuilder description = new StringBuilder(event.getDescription());
+                    event.getParticipants().stream()
+                            .limit(3)
+                            .map(Participant::getUser)
+                            .map(User::getVerificationKey)
+                            .map(VerificationKey::getPerson)
+                            .filter(Objects::nonNull)
+                            .forEach(person -> {
+                                description
+                                        .append(description.length() > 0 ? ", " : "")
+                                        .append(person.getShortName());
+                                if(person instanceof Student) {
+                                    GradeLevel gradeLevel = ((Student)person).getGradeLevel();
+                                    description
+                                            .append(", ")
+                                            .append(gradeLevel.getValue())
+                                            .append(" кл.");
+                                }
+                            });
+                    ScheduleEventDTO eventDTO = conversionService.convert(event, ScheduleEventDTO.class);
+                    Optional.ofNullable(eventDTO).ifPresent(dto -> dto.setDescription(description.toString()));
+                    return eventDTO;
+                })
                 .collect(Collectors.toList());
     }
 
