@@ -45,8 +45,8 @@ public class SpringSecurityConfigTest {
         mockMvc.perform(get("/guest/"))
                 .andExpect(authenticated())
                 .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_list"))
-                .andExpect(model().attributeExists("persons"));
+                .andExpect(view().name("guest/guest_list"))
+                .andExpect(model().attributeExists("guests"));
     }
 
     @Test

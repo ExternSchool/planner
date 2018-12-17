@@ -58,7 +58,7 @@ public class UserControllerTest {
     public void shouldReturnsSuccessTemplate_WhenGetRequestAuthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_list"))
+                .andExpect(view().name("guest/guest_list"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Guest List")));
     }

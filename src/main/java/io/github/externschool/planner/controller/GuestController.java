@@ -1,5 +1,6 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.dto.ParticipantDTO;
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
@@ -92,7 +93,7 @@ public class GuestController {
     @GetMapping("/")
     public ModelAndView showGuestList(){
         Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
-        List<PersonDTO> persons = personService.findAllByOrderByName().stream()
+        List<PersonDTO> guests = personService.findAllByOrderByName().stream()
                 .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
                 .filter(Objects::nonNull)
                 .filter(p -> (p.getVerificationKey() == null)
@@ -102,13 +103,13 @@ public class GuestController {
                         .contains(roleAdmin)))
                 .collect(Collectors.toList());
 
-        return new ModelAndView("guest/person_list", "persons", persons);
+        return new ModelAndView("guest/guest_list", "guests", guests);
     }
 
     @Secured("ROLE_GUEST")
     @GetMapping("/profile")
     public ModelAndView showFormPersonProfile(final Principal principal) {
-        final User user = userService.findUserByEmail(principal.getName());
+        final User user = userService.getUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
         PersonDTO personDTO =  conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
@@ -160,7 +161,7 @@ public class GuestController {
                     user.addVerificationKey(newKey);
                     userService.assignNewRolesByKey(user, newKey);
                     userService.save(user);
-                    if (userService.findUserByEmail(principal.getName())
+                    if (userService.getUserByEmail(principal.getName())
                             .getRoles()
                             .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
                         return new ModelAndView("redirect:/guest/");
@@ -180,20 +181,20 @@ public class GuestController {
             return modelAndView;
         }
 
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
 
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
     @Secured("ROLE_GUEST")
-    @GetMapping("/officer/schedule/")
+    @GetMapping("/officer/schedule")
     public ModelAndView displayOfficersListToGuest(final ModelMap model, final Principal principal) {
-        Long guestId = Optional.ofNullable(userService.findUserByEmail(principal.getName()))
+        Long guestId = Optional.ofNullable(userService.getUserByEmail(principal.getName()))
                 .map(User::getVerificationKey)
                 .map(VerificationKey::getPerson)
                 .map(Person::getId)
@@ -202,8 +203,23 @@ public class GuestController {
         return prepareModelAndView(guestId, null, model);
     }
 
+    @Secured("ROLE_GUEST")
+    @GetMapping("/subscriptions")
+    public ModelAndView displaySubscriptionsToGuest(final ModelMap model, final Principal principal) {
+        Optional<User> user = Optional.ofNullable(userService.getUserByEmail(principal.getName()));
+        ModelAndView modelAndView = new ModelAndView("guest/guest_subscriptions", model);
+        modelAndView.addObject("participants",
+                user.isPresent()
+                ? scheduleService.getParticipantsByUser(user.get()).stream()
+                    .map(p -> conversionService.convert(p, ParticipantDTO.class))
+                    .collect(Collectors.toList())
+                : Collections.EMPTY_LIST);
+
+        return modelAndView;
+    }
+
     @Secured("ROLE_ADMIN")
-    @GetMapping("/{gid}/officer/schedule/")
+    @PostMapping("/{gid}/officer/schedule")
     public ModelAndView displayOfficersListToAdmin(@PathVariable("gid") Long guestId, final ModelMap model) {
 
         return prepareModelAndView(guestId, null, model);
@@ -399,7 +415,7 @@ public class GuestController {
     }
 
     private ModelAndView redirectEventByRole(User user) {
-        if (userService.findUserByEmail(user.getEmail())
+        if (userService.getUserByEmail(user.getEmail())
                 .getRoles()
                 .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 
@@ -411,7 +427,7 @@ public class GuestController {
     }
 
     private ModelAndView redirectByRole(User user) {
-        if (userService.findUserByEmail(user.getEmail())
+        if (userService.getUserByEmail(user.getEmail())
                 .getRoles()
                 .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 

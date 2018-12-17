@@ -42,6 +42,8 @@ public interface ScheduleService {
 
     Optional<Participant> findParticipantByUserAndEvent(User user, ScheduleEvent event);
 
+    List<Participant> getParticipantsByUser(User user);
+
     void removeParticipant(Participant participant);
 
     LocalDate getCurrentWeekFirstDay();

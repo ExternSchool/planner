@@ -507,6 +507,22 @@ public class ScheduleServiceTest {
     }
 
     @Test
+    public void shouldReturnList_whenGetParticipantsByUser() {
+        long id = 100500L;
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        User user = new User("participant@email.com", "pass");
+        List<Participant> participants = Collections.singletonList(new Participant(user, event));
+
+        when(participantRepository.getAllByUser(user))
+                .thenReturn(participants);
+
+        assertThat(scheduleService.getParticipantsByUser(user))
+                .isNotEmpty()
+                .containsExactly(participants.get(0));
+    }
+
+    @Test
     public void shouldRemoveParticipant_whenRemoveParticipant() {
         long id = 100500L;
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();

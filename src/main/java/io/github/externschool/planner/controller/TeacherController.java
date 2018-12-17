@@ -103,7 +103,7 @@ public class TeacherController {
     @GetMapping("/profile")
     public ModelAndView displayTeacherProfileForTeacher(final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
-        Long id = Optional.ofNullable(userService.findUserByEmail(principal.getName())
+        Long id = Optional.ofNullable(userService.getUserByEmail(principal.getName())
                 .getVerificationKey().getPerson().getId())
                 .orElse(0L);
 
@@ -118,7 +118,7 @@ public class TeacherController {
     @Secured("ROLE_TEACHER")
     @GetMapping("/visitors")
     public ModelAndView displayTeacherVisitorsToTeacher(final Principal principal) {
-        final User user = userService.findUserByEmail(principal.getName());
+        final User user = userService.getUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
 
         return new ModelAndView("redirect:/teacher/" + id + "/visitors");
@@ -136,7 +136,7 @@ public class TeacherController {
             Teacher teacher = teacherService.findTeacherById(id);
             TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
             List<StudentDTO> students = new ArrayList<>();
-            List<PersonDTO> visitors = new ArrayList<>();
+            List<PersonDTO> guests = new ArrayList<>();
 
             LocalDate start = LocalDate.now();
             LocalDate end = scheduleService.getNextWeekFirstDay().plusDays(6);
@@ -158,6 +158,8 @@ public class TeacherController {
                                                         event.getStartOfEvent()
                                                                 .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
                                                                 + " "
+                                                                + event.getTitle()
+                                                                + (event.getDescription().isEmpty() ? "" : ": ")
                                                                 + event.getDescription());
                                                 students.add(studentDTO);
                                             });
@@ -168,8 +170,10 @@ public class TeacherController {
                                                         event.getStartOfEvent()
                                                                 .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
                                                                 + " "
+                                                                + event.getTitle()
+                                                                + (event.getDescription().isEmpty() ? "" : ": ")
                                                                 + event.getDescription());
-                                                visitors.add(guestDTO);
+                                                guests.add(guestDTO);
                                             });
                                 }
                             });
@@ -178,7 +182,8 @@ public class TeacherController {
 
             modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
             modelAndView.addObject("students", students);
-            modelAndView.addObject("visitors", visitors);
+            modelAndView.addObject("guests", guests);
+            modelAndView.addObject("teacherId", teacher.getId());
         }
 
         return modelAndView;
@@ -187,7 +192,7 @@ public class TeacherController {
     @Secured("ROLE_TEACHER")
     @GetMapping("/schedule")
     public ModelAndView displayTeacherScheduleToTeacher(final Principal principal) {
-        final User user = userService.findUserByEmail(principal.getName());
+        final User user = userService.getUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
 
         return new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -472,7 +477,7 @@ public class TeacherController {
                 .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
                 .orElse(new TeacherDTO());
 
-        Optional.ofNullable(userService.findUserByEmail(teacherDTO.getEmail()))
+        Optional.ofNullable(userService.getUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
                     userService.createAndAddNewKeyAndPerson(user);
                     userService.save(user);
@@ -526,7 +531,7 @@ public class TeacherController {
 
     private Boolean isPrincipalAnAdmin(Principal principal) {
         return Optional.ofNullable(principal)
-                .map(p -> userService.findUserByEmail(p.getName()))
+                .map(p -> userService.getUserByEmail(p.getName()))
                 .map(User::getRoles)
                 .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
                 .orElse(Boolean.FALSE);

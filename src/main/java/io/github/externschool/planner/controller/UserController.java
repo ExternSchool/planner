@@ -97,7 +97,7 @@ public class UserController {
     @GetMapping("/init")
     public ModelAndView initiateUserProfileLoading(final Principal principal) {
         ModelAndView modelAndView = new ModelAndView();
-        User user = userService.findUserByEmail(principal.getName());
+        User user = userService.getUserByEmail(principal.getName());
         if (user.getVerificationKey() == null) {
             userService.createAndAddNewKeyAndPerson(user);
             userService.save(user);

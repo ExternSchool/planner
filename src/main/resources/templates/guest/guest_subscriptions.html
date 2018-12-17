@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html lang="uk">
+<head>
+    <title>Guest List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Font Awesome-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <!--Latest minified Bootstrap, JQuery, Moment-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="h3 font-weight-normal" th:inline="text">
+        <small>Призначені зустрічі зі співробітниками школи</small>
+    </h4>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(participants)}">
+        <table class="col-lg-12 table table-sm table-hover">
+            <thead>
+            <tr>
+                <th class="text-left">Дата</th>
+                <th class="text-left">Час</th>
+                <th class="text-left">П.І.Б.</th>
+                <th class="text-left">Назва події</th>
+                <th class="text-left">Опис події</th>
+                <th class="text-right" style="width: 10ch">Розклад</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="participant : ${participants}">
+                <td class="text-left" th:text="${participant.getDate()}">Дата</td>
+                <td class="text-left" th:text="${participant.getTime()}">Час</td>
+                <td class="text-left" th:text="${participant.getOwnerName()}">П.І.Б.</td>
+                <td class="text-left" th:text="${participant.getEventTitle()}">Назва події</td>
+                <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
+                <td class="text-right">
+                    <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
+                       class="btn btn-success">
+                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+</body>
+</html>

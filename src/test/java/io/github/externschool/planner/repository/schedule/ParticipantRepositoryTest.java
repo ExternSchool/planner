@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,6 +104,33 @@ public class ParticipantRepositoryTest {
                 participantRepository.findParticipantByUserAndEvent(user, unexpectedEvent);
 
         assertThat(optionalParticipant)
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldReturnParticipantList_whenGetAllByUser() {
+        Participant participant = new Participant(user, event);
+        participantRepository.save(participant);
+
+        List<Participant> participantList =
+                participantRepository.getAllByUser(user);
+
+        assertThat(participantList)
+                .isNotEmpty()
+                .containsExactly(participant);
+    }
+
+    @Test
+    public void shouldReturnEmptyList_whenGetAllByUser() {
+        Participant participant = new Participant(user, event);
+        participantRepository.save(participant);
+        User unexpectedUser = new User("another@email.test", "pass");
+        userRepository.save(unexpectedUser);
+
+        List<Participant> participantList =
+                participantRepository.getAllByUser(unexpectedUser);
+
+        assertThat(participantList)
                 .isEmpty();
     }
 }

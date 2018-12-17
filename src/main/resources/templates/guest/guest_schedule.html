@@ -42,7 +42,7 @@
         <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
             Відвідувач:
             <span th:text="${guest.getShortName()} + ' '">
-                <strong>П.І.Б.</strong>
+                П.І.Б.
             </span>
         </span>
             Запис на прийом до працівників школи
@@ -103,6 +103,7 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right"> </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -119,13 +120,13 @@
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
                                     <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn badge badge-success">
+                                       class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                     <span th:if="${evnt.id == event.id}">
                                     <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn badge badge-danger">
+                                       class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
@@ -162,6 +163,7 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-right"> </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -178,13 +180,13 @@
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
                                     <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn badge badge-success">
+                                       class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                 <span th:if="${evnt.id == event.id}">
                                     <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn badge badge-danger">
+                                       class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
@@ -219,7 +221,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="subscribeEventModalTitle">Резервація часу</h5>
+                <h5 class="modal-title" id="subscribeEventModalTitle">Призначення зустрічі</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -272,7 +274,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelSubscriptionModalTitle">Скасування участі в події</h5>
+                <h5 class="modal-title" id="cancelSubscriptionModalTitle">Скасування зустрічі</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

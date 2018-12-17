@@ -95,10 +95,10 @@ public class GuestControllerTest {
     public void shouldReturnGuestListTemplate_whenGetGuestWithAdminRole() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_list"))
+                .andExpect(view().name("guest/guest_list"))
                 .andExpect(content().string(Matchers.containsString("Guest List")))
-                .andExpect(model().attributeExists("persons"))
-                .andExpect(model().attribute("persons",
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(model().attribute("guests",
                         Matchers.hasItem(
                                 Matchers.<Person> hasProperty("firstName",
                                         Matchers.equalToIgnoringCase(personName)))));
@@ -239,8 +239,8 @@ public class GuestControllerTest {
     @After
     public void tearDown() {
         personService.deletePerson(person);
-        System.out.println(userService.findUserByEmail(userName));
+        System.out.println(userService.getUserByEmail(userName));
         userService.deleteUser(user);
-        System.out.println(userService.findUserByEmail(userName));
+        System.out.println(userService.getUserByEmail(userName));
     }
 }

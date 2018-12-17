@@ -41,6 +41,11 @@
         <small>
             Розклад вчителя (працівника): [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
         </small>
+        <a class="float-right btn btn-sm btn-outline-info ml-3"
+           th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"
+           th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                Список відвідувачів
+        </a>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">

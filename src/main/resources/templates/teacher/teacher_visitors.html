@@ -41,7 +41,7 @@
                     <th class="text-left">По-батькові</th>
                     <th>Клас</th>
                     <th style="width: 15ch">Телефон</th>
-                    <th class="text-left">Дата Час Предмет</th>
+                    <th class="text-left">Дата, час, назва та опис події</th>
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
                         <!--<th class="text-right" style="width: 10ch">Змінити</th>-->
                         <!--<th class="text-right" style="width: 10ch">Скасувати</th>-->
@@ -78,7 +78,7 @@
             </table>
         </div>
     </div>
-    <div  th:if="${not #lists.isEmpty(visitors)}">
+    <div  th:if="${not #lists.isEmpty(guests)}">
         <h4 class="h3 font-weight-normal" th:inline="text"><small>Гості</small></h4>
         <div class="table-responsive">
             <table class="col-lg-12 table table-sm table-hover">
@@ -88,37 +88,29 @@
                     <th class="text-left">Ім'я</th>
                     <th class="text-left">По-батькові</th>
                     <th style="width: 15ch">Телефон</th>
-                    <th class="text-left">Дата Час Предмет</th>
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <!--<th class="text-right" style="width: 10ch">Змінити</th>-->
-                        <!--<th class="text-right" style="width: 10ch">Скасувати</th>-->
-                    </div>
+                    <th class="text-left">Дата, час, назва та опис події</th>
+                    <th>
+                        <span sec:authorize="hasRole('ROLE_ADMIN')">
+                            Записи
+                        </span>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="visitor : ${visitors}">
-                    <td class="text-left" th:text="${visitor.getLastName()}">Прізвище</td>
-                    <td class="text-left" th:text="${visitor.getFirstName()}">Ім'я</td>
-                    <td class="text-left" th:text="${visitor.getPatronymicName()}">По-батькові</td>
-                    <td th:text="${visitor.getPhoneNumber()}">Телефон</td>
-                    <td class="text-left" th:text="${visitor.getOptionalData()}">Дата, Час, Предмет</td>
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <!--TODO Add Admin edit/delete actions-->
-                        <!--<td class="text-right">-->
-                        <!--<form th:method="post" th:action="@{###{id}(id=${visitor.id})}">-->
-                        <!--<button type="submit" name="edit" value="edit" class="btn badge badge-primary">-->
-                        <!--<i class="fas fa-edit" aria-hidden="true"></i>-->
-                        <!--</button>-->
-                        <!--</form>-->
-                        <!--</td>-->
-                        <!--<td class="text-right">-->
-                        <!--<form th:method="post" th:action="@{###{id}/delete(id=${visitor.id})}">-->
-                        <!--<button type="submit" name="delete" value="delete" class="btn badge badge-danger">-->
-                        <!--<i class="fas fa-trash" aria-hidden="true"></i>-->
-                        <!--</button>-->
-                        <!--</form>-->
-                        <!--</td>-->
-                    </div>
+                <tr th:each="guest : ${guests}">
+                    <td class="text-left" th:text="${guest.getLastName()}">Прізвище</td>
+                    <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
+                    <td class="text-left" th:text="${guest.getPatronymicName()}">По-батькові</td>
+                    <td th:text="${guest.getPhoneNumber()}">Телефон</td>
+                    <td class="text-left" th:text="${guest.getOptionalData()}">Дата, час, назва та опис події</td>
+                    <td class="text-right">
+                        <span sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${guest.id}, id=${teacherId})}"
+                               class="btn badge badge-info">
+                                <i class="far fa-calendar-check" style="color: white" aria-hidden="true"></i>
+                            </a>
+                        </span>
+                    </td>
                 </tr>
                 </tbody>
             </table>

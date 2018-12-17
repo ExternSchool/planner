@@ -24,13 +24,13 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
-                           href="/guest/officer/schedule/">Розклади</a>
+                           href="/guest/officer/schedule">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
-                        <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
-                           href="#">Призначені зустрічі</a>
+                        <a th:class="${activeTab == 'subscriptions'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/subscriptions">Призначені зустрічі</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -125,7 +125,7 @@
                 </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <div sec:authorize="!hasRole('ROLE_ADMIN')">
+                <div sec:authorize="hasRole('ROLE_ADMIN')">
                     <input class="form-control mr-sm-2" type="search" placeholder="Пошук" aria-label="Search">
                     <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
                 </div>

@@ -232,6 +232,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public List<Participant> getParticipantsByUser(final User user) {
+        return participantRepository.getAllByUser(user);
+    }
+
+    @Override
     public void removeParticipant(final Participant participant) {
         ReentrantLock lock = new ReentrantLock();
         try {
