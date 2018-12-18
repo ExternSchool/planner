@@ -7,6 +7,7 @@
 </head>
 <body>
 <div th:fragment="header(activeTab)">
+    <div class="container-fluid">
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
         <a class="navbar-brand" style="font: italic bold 12px/30px Georgia, serif;"
            href="https://externschool.github.io/" target="_blank">Visit Planner</a>
@@ -48,7 +49,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_STUDENT')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="/student/plan">План</a>
+                           href="/student/plan">Учбовий план</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -72,7 +73,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasAnyRole('ROLE_TEACHER')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
-                           href="/teacher/schedule">Розклад</a>
+                           href="/teacher/schedule">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -101,44 +102,46 @@
                 </li>
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:class="${activeTab == 'subject'}? 'nav-link active' : 'nav-link'"
-                           href="/subject/">Предмети</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
-                           href="/plan/">Плани</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link disabled'"
                            href="#">Розклади</a>
                     </div>
                 </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:class="${activeTab == 'events'}? 'nav-link active' : 'nav-link'"
-                           href="/event/type/">Події</a>
+                <li th:class="${activeTab == 'setup'}? 'nav-item dropdown active' : 'nav-item dropdown'"
+                    sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Налаштування
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/subject/">Загальні навчальні предмети</a>
+                        <a class="dropdown-item" href="/plan/">Річні навчальні плани</a>
+                        <a class="dropdown-item" href="/event/type/">Типи подій</a>
+                        <a class="dropdown-item disabled" href="#">Інше</a>
                     </div>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Пошук" aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
-                </div>
-                <div sec:authorize="isAnonymous()">
-                    <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"> Реєстрація</a>
-                    <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"> Увійти</a>
-                </div>
-                <div sec:authorize="isAuthenticated()">
-                    <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"> Вийти</a>
-                </div>
-            </form>
+            <div class="float-right">
+                <form class="form-inline my-2 my-lg-0">
+                    <div class="input-group">
+                        <input type="search" class="form-control mr-sm-0" placeholder="Пошук" aria-label="Search"
+                               sec:authorize="hasRole('ROLE_ADMIN')">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-success my-2 my-sm-0 mr-1" type="submit"
+                                    sec:authorize="hasRole('ROLE_ADMIN')">Пошук</button>
+                        </div>
+                        <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"
+                           sec:authorize="isAuthenticated()"> Вийти</a>
+
+                        <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"
+                        sec:authorize="isAnonymous()"> Реєстрація</a>
+                        <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"
+                        sec:authorize="isAnonymous()"> Увійти</a>
+                    </div>
+                </form>
+            </div>
         </div>
     </nav>
+    </div>
 </div>
 
 </body>
