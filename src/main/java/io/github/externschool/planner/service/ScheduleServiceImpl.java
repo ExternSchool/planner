@@ -146,7 +146,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void cancelEventByIdAndSave(long id) {
+    public void cancelEventByIdAndSave(final long id) {
         eventRepository.findById(id).ifPresent(event -> {
             event.setCancelled(true);
             event.setOpen(false);
@@ -165,7 +165,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void deleteEventById(long id) {
+    public void deleteEventById(final long id) {
         eventRepository.findById(id).ifPresent(event -> {
             event.getParticipants().forEach(this::removeParticipant);
             Optional.ofNullable(event.getOwner()).ifPresent(owner -> {

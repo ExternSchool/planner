@@ -27,10 +27,15 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="mb-3 font-weight-normal" th:inline="text"><small>Відвідувач [[${person.getEmail()}]]</small></h4>
+    <h4 class="mb-0 font-weight-normal" th:inline="text"><small>Відвідувач [[${person.getEmail()}]]</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Місце індикації помилок введення даних
     </small>
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <small class="text-muted mb-2">
+            Для виходу з форми виберіть одну з можливих дій: Скасувати чи Зберегти зміни
+        </small>
+    </div>
     <fieldset>
         <form th:method="post" th:action="@{/guest/update}" th:object="${person}" class="form" id="form">
             <input type="hidden" th:field="${isNew}"/>
