@@ -15,12 +15,12 @@ function openSubscribeEventModal(guestId, officerId, event) {
     });
 }
 
-function openCancelSubscriptionModal(guestId, officerId, event) {
+function openUnsubscribeModal(guestId, officerId, event) {
     $.ajax({
-        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/cancel",
+        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/unsubscribe",
         success: function (data) {
-            $("#cancelSubscriptionModalHolder").html(data);
-            $("#cancelSubscriptionModal").modal("show");
+            $("#unsubscribeModalHolder").html(data);
+            $("#unsubscribeModal").modal("show");
         }
     });
 }

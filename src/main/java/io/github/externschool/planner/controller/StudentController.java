@@ -267,7 +267,7 @@ public class StudentController {
 
         Optional.ofNullable(userService.getUserByEmail(studentDTO.getEmail()))
                 .ifPresent(user -> {
-                    userService.createAndAddNewKeyAndPerson(user);
+                    userService.createNewKeyWithNewPersonAndAddToUser(user);
                     userService.save(user);
                 });
 

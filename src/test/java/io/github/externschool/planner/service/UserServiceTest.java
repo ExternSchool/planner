@@ -259,7 +259,7 @@ public class UserServiceTest {
     public void shouldReturnNewKeyAndPerson_whenCreateAndAddNewKeyAndPerson() {
         User actualUser = new User();
 
-        userService.createAndAddNewKeyAndPerson(actualUser);
+        userService.createNewKeyWithNewPersonAndAddToUser(actualUser);
 
         assertThat(actualUser.getVerificationKey())
                 .isNotNull()

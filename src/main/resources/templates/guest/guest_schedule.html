@@ -47,6 +47,12 @@
         </span>
             Запис на прийом до працівників школи
         </small>
+        <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <a class="float-right btn btn-sm btn-outline-info ml-3"
+           th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
+            Список резервувань
+        </a>
+        </span>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
@@ -125,7 +131,7 @@
                                     </a>
                                 </span>
                                     <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -139,7 +145,7 @@
             </div>
             <div class="card-footer">
                 <small class="text-muted"
-                       th:text="'Останній запис: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '--'}">
+                       th:text="'Останнє оновлення: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '-'}">
                     Останнє оновлення
                 </small>
             </div>
@@ -188,7 +194,7 @@
                                     </a>
                                 </span>
                                 <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openCancelSubscriptionModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -202,7 +208,7 @@
             </div>
             <div class="card-footer">
                 <small class="text-muted"
-                       th:text="'Всього вільних подій в розкладі: ' + ${eventsNumber != null ? eventsNumber : '--'}">
+                       th:text="'Всього вільних подій в розкладі: ' + ${availableEvents}">
                     Кількість доступних подій
                 </small>
             </div>
@@ -219,7 +225,7 @@
 
 <!-- ModalHolder -->
 <div id="subscribeEventModalHolder"></div>
-<div id="cancelSubscriptionModalHolder"></div>
+<div id="unsubscribeModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
@@ -234,7 +240,7 @@
             </div>
 
             <form th:method="post"
-                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/add(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/subscribe(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formSubscribe">
                 <div class="modal-body text-center">
                     <p>
@@ -276,17 +282,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="cancelSubscriptionModal" role="dialog" th:fragment="cancelSubscription">
+<div class="modal fade" id="unsubscribeModal" role="dialog" th:fragment="unsubscribe">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="cancelSubscriptionModalTitle">Скасування зустрічі</h5>
+                <h5 class="modal-title" id="unsubscribeModalTitle">Скасування зустрічі</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form th:method="post"
-                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/delete(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/unsubscribe(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formUnsubscribe">
                 <div class="modal-body text-center">
                     <p>

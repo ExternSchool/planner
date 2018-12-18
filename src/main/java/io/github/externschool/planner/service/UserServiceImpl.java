@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createAndAddNewKeyAndPerson(User user) {
+    public void createNewKeyWithNewPersonAndAddToUser(User user) {
         VerificationKey key = new VerificationKey();
         keyRepository.save(key);
         Person person = new Person();

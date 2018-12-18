@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
-    <title>Guest List</title>
+    <title>Teacher Visitors</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +14,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
 </head>
 
 <body class="text-center">
@@ -32,8 +31,13 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text">
-        <small>Призначені зустрічі зі співробітниками школи</small>
+    <h4 class="font-weight-normal mb-1" th:inline="text">
+        <small>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]].
+            </span>
+            Призначені зустрічі
+        </small>
     </h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(participants)}">
         <table class="col-lg-12 table table-sm table-hover">
@@ -56,7 +60,7 @@
                 <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
                 <td class="text-right">
                     <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
-                       class="btn btn-success">
+                       class="btn btn-info">
                         <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
                     </a>
                 </td>

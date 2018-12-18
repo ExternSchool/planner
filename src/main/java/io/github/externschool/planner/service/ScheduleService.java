@@ -36,7 +36,7 @@ public interface ScheduleService {
 
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
-    void removeOwner(User owner, ScheduleEvent event);
+    void removeOwner(ScheduleEvent event);
 
     Optional<Participant> addParticipant(User user, ScheduleEvent event);
 
@@ -44,7 +44,7 @@ public interface ScheduleService {
 
     List<Participant> getParticipantsByUser(User user);
 
-    void removeParticipant(Participant participant);
+    boolean removeParticipant(Participant participant);
 
     LocalDate getCurrentWeekFirstDay();
 

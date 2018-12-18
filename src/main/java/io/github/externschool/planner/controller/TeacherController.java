@@ -253,7 +253,7 @@ public class TeacherController {
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
             modelAndView.addObject("standardWeekEvents", standardWeekEvents);
             modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
-            modelAndView.addObject("eventsNumber", incomingEventsNumber);
+            modelAndView.addObject("availableEvents", incomingEventsNumber);
             modelAndView.addObject("newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
         }
@@ -383,15 +383,22 @@ public class TeacherController {
             List<ScheduleEvent> actualEvents =
                     scheduleService.getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
             Optional<ScheduleEvent> latestEvent = actualEvents.stream().reduce((first, second) -> second);
-            LocalDate dateToStartNextEvent = latestEvent.map(event -> Optional.ofNullable(event.getEndOfEvent())
-                    .map(LocalDateTime::toLocalDate)
-                    .orElse(event.getStartOfEvent().toLocalDate()))
-                    .orElse(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
-            LocalTime timeToStartNextEvent = latestEvent.map(event -> Optional.ofNullable(event.getEndOfEvent())
-                    .map(LocalDateTime::toLocalTime)
-                    .orElse(event.getStartOfEvent().toLocalTime()
-                            .plusMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE)))
-                    .orElse(DEFAULT_TIME_OF_WORKING_DAY_BEGINNING);
+            LocalDate dateToStartNextEvent =
+                    latestEvent
+                            .map(event -> Optional.ofNullable(event.getEndOfEvent())
+                                    .map(LocalDateTime::toLocalDate)
+                                    .orElse(event.getStartOfEvent().toLocalDate()))
+                            .orElse(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
+            LocalTime timeToStartNextEvent =
+                    latestEvent
+                            .map(event -> Optional.ofNullable(event.getEndOfEvent())
+                                    .map(LocalDateTime::toLocalTime)
+                                    .orElse(Optional.ofNullable(event.getType())
+                                            .map(ScheduleEventType::getDurationInMinutes)
+                                            .map(min -> event.getStartOfEvent().toLocalTime().plusMinutes(min))
+                                            .orElse(event.getStartOfEvent().toLocalTime()
+                                                    .plusMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE))))
+                            .orElse(DEFAULT_TIME_OF_WORKING_DAY_BEGINNING);
             model.addAttribute("thisDayEvents", addDescriptionAndConvertToDTO(actualEvents));
             model.addAttribute(
                     "newEvent",
@@ -523,7 +530,7 @@ public class TeacherController {
 
         Optional.ofNullable(userService.getUserByEmail(teacherDTO.getEmail()))
                 .ifPresent(user -> {
-                    userService.createAndAddNewKeyAndPerson(user);
+                    userService.createNewKeyWithNewPersonAndAddToUser(user);
                     userService.save(user);
                 });
 

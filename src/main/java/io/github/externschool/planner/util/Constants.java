@@ -46,6 +46,8 @@ public final class Constants {
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
     public static final String UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE =
             "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
+    public static final String UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE =
+            "За користувачем не зареєстровано вказану подію. \nСпробуйте ще або зверніться до адміністратора";
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
@@ -59,11 +61,11 @@ public final class Constants {
     public static final String UK_EVENT_TYPE_PRINCIPAL = "Прийом директора";
     public static final String UK_EVENT_TYPE_TEST = "Написання контрольної роботи";
 
-    public static final String UK_WEEK_DAYS_MONDAY = "Понеділок";
-    public static final String UK_WEEK_DAYS_TUESDAY = "Вівторок";
-    public static final String UK_WEEK_DAYS_WEDNESDAY = "Середа";
-    public static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
-    public static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
+    private static final String UK_WEEK_DAYS_MONDAY = "Понеділок";
+    private static final String UK_WEEK_DAYS_TUESDAY = "Вівторок";
+    private static final String UK_WEEK_DAYS_WEDNESDAY = "Середа";
+    private static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
+    private static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
     public static final List<String> UK_WEEK_WORKING_DAYS;
     static {
         UK_WEEK_WORKING_DAYS = Arrays.asList(

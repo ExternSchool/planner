@@ -385,7 +385,7 @@ public class ScheduleServiceTest {
         assertThat(anEvent.getOwner())
                 .isEqualTo(owner);
 
-        scheduleService.removeOwner(owner, anEvent);
+        scheduleService.removeOwner(anEvent);
 
         assertThat(anEvent)
                 .isNotNull()

@@ -109,7 +109,7 @@
             </div>
             <div class="card-footer">
                 <small class="text-muted"
-                       th:text="'Останній запис: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '--'}">
+                       th:text="'Останнє оновлення: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '-'}">
                         Останнє оновлення
                 </small>
             </div>
@@ -166,7 +166,7 @@
             </div>
             <div class="card-footer">
                 <small class="text-muted"
-                       th:text="'Всього вільних подій в розкладі: ' + ${eventsNumber != null ? eventsNumber : '--'}">
+                       th:text="'Всього вільних подій в розкладі: ' + ${availableEvents}">
                     Кількість доступних подій
                 </small>
             </div>
