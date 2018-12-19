@@ -69,8 +69,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Course> findAllByTeacher(final Teacher teacher) {
-        return Optional.ofNullable(courseRepository.findAllByTeacherOrderByTitle(teacher))
+    public List<Course> findAllByTeacherId(final Long teacherId) {
+        return Optional.ofNullable(courseRepository.findAllByTeacher_IdOrderByTitle(teacherId))
                 .orElse(Collections.emptyList());
     }
 

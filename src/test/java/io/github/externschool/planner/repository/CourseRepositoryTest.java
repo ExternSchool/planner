@@ -114,7 +114,7 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnThreeCourses_whenFindAllByTeacher() {
-        List<Course> actualCourses = repository.findAllByTeacherOrderByTitle(teacher);
+        List<Course> actualCourses = repository.findAllByTeacher_IdOrderByTitle(teacher.getId());
 
         assertThat(actualCourses)
                 .containsAll(expectedCourses)

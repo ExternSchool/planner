@@ -44,7 +44,7 @@ public class SchoolSubjectRepositoryIntegrationTest {
             entityManager.persist(subject);
 
             Teacher teacher = new Teacher();
-            teacher.setOfficer(JOBS.get(i));
+            teacher.setOfficial(JOBS.get(i));
             teacher.addSubject(subject);
             entityManager.persist(teacher);
 

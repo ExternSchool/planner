@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import io.github.externschool.planner.util.CollatorHolder;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,7 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     public void deleteSubjectById(Long id) {
         SchoolSubject subject = subjectRepository.findById(id).orElse(null);
         if (subject != null) {
+            Hibernate.initialize(subject);
             Set<Teacher> teachers = subject.getTeachers();
             for (Teacher teacher : teachers) {
                 teacher.removeSubject(subject);

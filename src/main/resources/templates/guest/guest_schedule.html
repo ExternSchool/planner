@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Officer Schedule</title>
+    <title>Official Schedule</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,7 +32,12 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+    </div>
 </header>
 
 <!-- Begin page content -->
@@ -63,7 +68,7 @@
             <div class="card-header">Виберіть працівника для перегляду розкладу</div>
             <div class="card-body text-left">
                 <div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(officers)}">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(officials)}">
                         <table class="col-lg-12 table table-sm table-hover">
                             <thead>
                             <tr>
@@ -72,11 +77,11 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="off : ${officers}"
-                                th:class="${officer.getId() == off.getId()} ? 'table-active' : ''"
+                            <tr th:each="off : ${officials}"
+                                th:class="${official.getId() == off.getId()} ? 'table-active' : ''"
                                 th:onclick="'javascript:rowClicked(\'' + ${guest.id} + '\',\'' + ${off.getId()} + '\');'">
                                 <td class="text-left" th:text="${off.getShortName()}">П.І.Б.</td>
-                                <td class="text-left" th:text="${off.getOfficer()}">
+                                <td class="text-left" th:text="${off.getOfficial()}">
                                     Адміністративна посада
                                 </td>
                             </tr>
@@ -125,13 +130,13 @@
                                 </td>
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                     <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -188,13 +193,13 @@
                                 </td>
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                 <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${officer.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -240,7 +245,7 @@
             </div>
 
             <form th:method="post"
-                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/subscribe(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/subscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formSubscribe">
                 <div class="modal-body text-center">
                     <p>
@@ -253,7 +258,7 @@
                     </span>
                         <br>
                         <br>
-                        <span th:text="${officer.getShortName()}">
+                        <span th:text="${official.getShortName()}">
                         організатор зустрічі
                     </span>
                         <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">
@@ -271,7 +276,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <span th:if="${officer != null}">
+                    <span th:if="${official != null}">
                          <button type="submit" class="btn btn-primary">
                              Так, резервувати!
                          </button>
@@ -292,7 +297,7 @@
                 </button>
             </div>
             <form th:method="post"
-                  th:action="@{/guest/{uid}/officer/{id}/event/{eventId}/unsubscribe(uid=${guest.id}, id=${officer.id}, eventId=${event.id})}"
+                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/unsubscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formUnsubscribe">
                 <div class="modal-body text-center">
                     <p>
@@ -307,7 +312,7 @@
                     </span>
                         <br>
                         Організатор:
-                        <span style="white-space: pre;" th:text="${officer.getShortName()}">
+                        <span style="white-space: pre;" th:text="${official.getShortName()}">
                         організатор зустрічі
                     </span>
                         <br>
@@ -327,7 +332,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <span th:if="${officer != null}">
+                    <span th:if="${official != null}">
                          <button type="submit" class="btn btn-primary">
                              Так, скасувати!
                          </button>

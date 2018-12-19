@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
-<html lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <title>Student Personal Plan</title>
     <meta charset="utf-8">
@@ -22,7 +21,12 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='plan')"></div>
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='plan')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='student')"></div>
+    </div>
 </header>
 
 <!-- Begin page content -->

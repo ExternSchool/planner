@@ -48,7 +48,7 @@ public class StudyPlanController {
 
     @GetMapping("/grade/{level}")
     public ModelAndView displayStudyPlansListByGrade(@PathVariable("level") Integer level) {
-        return displayAllStudyPlansList(level == null ? 0 : level);
+        return prepareModelAndView(level == null ? 0 : level,0L);
     }
 
     @GetMapping("/{id}")

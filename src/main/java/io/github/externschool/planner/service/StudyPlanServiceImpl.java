@@ -4,6 +4,7 @@ import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.repository.StudyPlanRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +65,11 @@ public class StudyPlanServiceImpl implements StudyPlanService {
     @Override
     public void deletePlan(final StudyPlan plan) {
         if (plan != null && planRepository.findStudyPlanById(plan.getId()) != null) {
-            Optional.ofNullable(plan.getSubject()).ifPresent(subject -> plan.removeSubject());
+            Optional.ofNullable(plan.getSubject()).ifPresent(subject -> {
+                Hibernate.initialize(subject);
+                plan.removeSubject();
+                planRepository.save(plan);
+            });
             courseService.findAllByPlanId(plan.getId()).forEach(courseService::deleteCourse);
 
             planRepository.delete(plan);

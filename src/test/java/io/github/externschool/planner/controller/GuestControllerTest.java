@@ -249,13 +249,13 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "GUEST")
-    public void shouldReturnForm_whenDisplayOfficersList() throws Exception {
-        mockMvc.perform(get("/guest/officer/schedule/"))
+    public void shouldReturnForm_whenDisplayOfficialsList() throws Exception {
+        mockMvc.perform(get("/guest/official/schedule/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
                         .attributeExists(
-                                "officers",
+                                "officials",
                                 "currentWeek",
                                 "nextWeek",
                                 "currentWeekEvents",
@@ -288,15 +288,15 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
-    public void shouldReturnNullRecentUpdates_whenDisplayOfficersListToAdmin() throws Exception {
-        mockMvc.perform(post("/guest/" + person.getId() + "/officer/schedule")
+    public void shouldReturnNullRecentUpdates_whenDisplayOfficialsListToAdmin() throws Exception {
+        mockMvc.perform(post("/guest/" + person.getId() + "/official/schedule")
                 .param("action", "cancel"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
                         .attributeExists(
-                                "officer",
-                                "officers",
+                                "official",
+                                "officials",
                                 "weekDays",
                                 "currentWeek",
                                 "nextWeek",
@@ -313,13 +313,13 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
-    public void shouldReturnNonNullRecentUpdates_whenDisplayOfficerScheduleWithAdmin() throws Exception {
+    public void shouldReturnNonNullRecentUpdates_whenDisplayOfficialScheduleWithAdmin() throws Exception {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -342,13 +342,13 @@ public class GuestControllerTest {
         assertThat(event.getModifiedAt())
                 .isNotNull();
 
-        mockMvc.perform(get("/guest/" + person.getId() + "/officer/" + officer.getId() + "/schedule"))
+        mockMvc.perform(get("/guest/" + person.getId() + "/official/" + official.getId() + "/schedule"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
                         .attributeExists(
-                                "officer",
-                                "officers",
+                                "official",
+                                "officials",
                                 "weekDays",
                                 "currentWeek",
                                 "nextWeek",
@@ -364,14 +364,14 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "GUEST")
-    public void shouldReturnNullRecentUpdates_whenDisplayOfficerScheduleWithGuest() throws Exception {
-        mockMvc.perform(get("/guest/" + person.getId() + "/officer/" + person.getId() + "/schedule"))
+    public void shouldReturnNullRecentUpdates_whenDisplayOfficialScheduleWithGuest() throws Exception {
+        mockMvc.perform(get("/guest/" + person.getId() + "/official/" + person.getId() + "/schedule"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
                         .attributeExists(
-                                "officer",
-                                "officers",
+                                "official",
+                                "officials",
                                 "weekDays",
                                 "currentWeek",
                                 "nextWeek",
@@ -393,9 +393,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -416,13 +416,13 @@ public class GuestControllerTest {
         scheduleService.addOwner(eventUser, event);
 
         mockMvc.perform(get("/guest/" + person.getId()
-                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/subscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/subscribe"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule :: subscribeEvent"))
                 .andExpect(model()
                         .attributeExists(
-                                "officer",
-                                "officers",
+                                "official",
+                                "officials",
                                 "weekDays",
                                 "currentWeek",
                                 "nextWeek",
@@ -442,9 +442,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -463,10 +463,10 @@ public class GuestControllerTest {
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
         mockMvc.perform(post("/guest/" + person.getId()
-                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/subscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/subscribe"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/" + person.getId()
-                                + "/officer/" + officer.getId() + "/schedule"));
+                                + "/official/" + official.getId() + "/schedule"));
     }
 
     @Test
@@ -475,9 +475,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -501,8 +501,8 @@ public class GuestControllerTest {
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
 
-        mockMvc.perform(post("/guest/" + person.getId() + "/officer/"
-                        + officer.getId() + "/event/" + wrongEvent.getId() + "/subscribe"))
+        mockMvc.perform(post("/guest/" + person.getId() + "/official/"
+                        + official.getId() + "/event/" + wrongEvent.getId() + "/subscribe"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
@@ -517,9 +517,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -540,13 +540,13 @@ public class GuestControllerTest {
         scheduleService.addOwner(eventUser, event);
 
         mockMvc.perform(get("/guest/" + person.getId()
-                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule :: unsubscribe"))
                 .andExpect(model()
                         .attributeExists(
-                                "officer",
-                                "officers",
+                                "official",
+                                "officials",
                                 "weekDays",
                                 "currentWeek",
                                 "nextWeek",
@@ -566,9 +566,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -588,10 +588,10 @@ public class GuestControllerTest {
         scheduleService.addParticipant(user, event);
 
         mockMvc.perform(post("/guest/" + person.getId()
-                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/" + person.getId()
-                        + "/officer/" + officer.getId() + "/schedule"));
+                        + "/official/" + official.getId() + "/schedule"));
     }
 
     @Test
@@ -600,9 +600,9 @@ public class GuestControllerTest {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");
-        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher official = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventUser.getVerificationKey().getPerson(),
-                "Officer",
+                "Official",
                 new HashSet<>(),
                 new HashSet<>()));
 
@@ -625,8 +625,8 @@ public class GuestControllerTest {
         eventDTO.setEventType(wrongType.getName());
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
-        mockMvc.perform(post("/guest/" + person.getId() + "/officer/"
-                + officer.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe"))
+        mockMvc.perform(post("/guest/" + person.getId() + "/official/"
+                + official.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()

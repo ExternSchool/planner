@@ -20,5 +20,5 @@ public interface TeacherService {
 
     void deleteTeacherById(Long id);
 
-    List<Teacher> findAllOfficers();
+    List<Teacher> findAllOfficials();
 }

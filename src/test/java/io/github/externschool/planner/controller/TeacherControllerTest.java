@@ -107,7 +107,7 @@ public class TeacherControllerTest {
         teacher.setLastName("Last");
         teacher.setPhoneNumber("(000)000-0000");
         teacher.addVerificationKey(key);
-        teacher.setOfficer("Principal");
+        teacher.setOfficial("Principal");
         teacher.addSubject(subject);
         teacherService.saveOrUpdateTeacher(teacher);
 

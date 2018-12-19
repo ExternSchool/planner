@@ -125,10 +125,10 @@ public class CourseServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByTeacher() {
-        Mockito.when(courseRepository.findAllByTeacherOrderByTitle(teacher))
+        Mockito.when(courseRepository.findAllByTeacher_IdOrderByTitle(teacher.getId()))
                 .thenReturn(Collections.singletonList(expectedCourse));
 
-        List<Course> actualCourses = courseService.findAllByTeacher(teacher);
+        List<Course> actualCourses = courseService.findAllByTeacherId(teacher.getId());
 
         assertThat(actualCourses)
                 .isNotEmpty()

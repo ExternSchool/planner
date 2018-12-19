@@ -92,7 +92,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
+    @WithMockUser(username = USER_NAME, roles = "GUEST")
     public void shouldReturnForbidden_whenGetUnauthorized() throws Exception {
         mockMvc.perform(get("/plan/"))
                 .andExpect(status().isForbidden());
@@ -122,8 +122,7 @@ public class StudyPlanControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
-                .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("plans", Matchers.hasSize(4)))
+                .andExpect(model().attributeExists("subjects","plans"))
                 .andExpect(model().attribute("plans",
                         Matchers.hasItem(
                                 Matchers.<StudyPlan> hasProperty("gradeLevel",
@@ -201,12 +200,5 @@ public class StudyPlanControllerTest {
         assertThat(planService.findAll())
                 .hasSize(originalPlansNumber + 3)
                 .doesNotContain(plans.get(0));
-    }
-
-    @After
-    public void tearDown() {
-        plans.stream().filter(Objects::nonNull).forEach(planService::deletePlan);
-        subjects.stream().filter(Objects::nonNull).map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
-        userService.deleteUser(user);
     }
 }
