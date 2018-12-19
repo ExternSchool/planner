@@ -92,7 +92,7 @@ public class StudyPlanControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "GUEST")
+    @WithMockUser(username = USER_NAME, roles = "GUEST")
     public void shouldReturnForbidden_whenGetUnauthorized() throws Exception {
         mockMvc.perform(get("/plan/"))
                 .andExpect(status().isForbidden());
@@ -205,8 +205,9 @@ public class StudyPlanControllerTest {
 
     @After
     public void tearDown() {
-        plans.stream().filter(Objects::nonNull).forEach(planService::deletePlan);
-        subjects.stream().filter(Objects::nonNull).map(SchoolSubject::getId).forEach(subjectService::deleteSubjectById);
+        planService.findAll().forEach(planService::deletePlan);
+        subjectService.findAllByOrderByTitle().forEach(s -> subjectService.deleteSubjectById(s.getId()));
+
         userService.deleteUser(user);
     }
 }
