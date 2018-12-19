@@ -39,7 +39,7 @@ public class TeacherServiceIntegrationTest {
         teachers = new ArrayList<>();
         for (String name : Arrays.asList("Quantum Mechanics", "Algebraic Topology", "Rocket Science")) {
             Teacher teacher = new Teacher();
-            teacher.setOfficer("Teacher of " + name);
+            teacher.setOfficial("Teacher of " + name);
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(name);
             teacher.addSubject(subject);

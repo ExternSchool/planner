@@ -215,8 +215,8 @@ public class GuestController {
     }
 
     @Secured("ROLE_GUEST")
-    @GetMapping("/officer/schedule")
-    public ModelAndView displayOfficersListToGuest(final ModelMap model, final Principal principal) {
+    @GetMapping("/official/schedule")
+    public ModelAndView displayOfficialsListToGuest(final ModelMap model, final Principal principal) {
         Long guestId = Optional.ofNullable(userService.getUserByEmail(principal.getName()))
                 .map(User::getVerificationKey)
                 .map(VerificationKey::getPerson)
@@ -227,28 +227,28 @@ public class GuestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/{gid}/officer/schedule")
-    public ModelAndView displayOfficersListToAdmin(@PathVariable("gid") Long guestId, final ModelMap model) {
+    @PostMapping("/{gid}/official/schedule")
+    public ModelAndView displayOfficialsListToAdmin(@PathVariable("gid") Long guestId, final ModelMap model) {
 
         return prepareScheduleModelAndView(guestId, null, model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/schedule")
-    public ModelAndView displayOfficerSchedule(@PathVariable("gid") Long guestId,
-                                               @PathVariable("id") Long officerId,
+    @GetMapping("/{gid}/official/{id}/schedule")
+    public ModelAndView displayOfficialSchedule(@PathVariable("gid") Long guestId,
+                                               @PathVariable("id") Long officialId,
                                                final ModelMap model) {
 
-        return prepareScheduleModelAndView(guestId, officerId, model);
+        return prepareScheduleModelAndView(guestId, officialId, model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/event/{event}/subscribe")
+    @GetMapping("/{gid}/official/{id}/event/{event}/subscribe")
     public ModelAndView displayNewSubscriptionModal(@PathVariable("gid") Long guestId,
-                                                   @PathVariable("id") Long officerId,
+                                                   @PathVariable("id") Long officialId,
                                                    @PathVariable("event") Long eventId,
                                                    ModelMap model) {
-        ModelAndView modelAndView = prepareScheduleModelAndView(guestId, officerId, model);
+        ModelAndView modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
         modelAndView.setViewName("guest/guest_schedule :: subscribeEvent");
@@ -257,17 +257,17 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @PostMapping("/{gid}/officer/{id}/event/{event}/subscribe")
+    @PostMapping("/{gid}/official/{id}/event/{event}/subscribe")
     public ModelAndView processNewEventSubscriptionModal(@PathVariable("gid") Long guestId,
-                                                   @PathVariable("id") Long officerId,
+                                                   @PathVariable("id") Long officialId,
                                                    @PathVariable("event") Long eventId,
                                                    ModelMap model) {
         ModelAndView modelAndView =
-                new ModelAndView("redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule", model);
+                new ModelAndView("redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
         try {
             subscribeScheduleEvent(guestId, eventId);
         } catch (UserCannotHandleEventException e) {
-            modelAndView = prepareScheduleModelAndView(guestId, officerId, model);
+            modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
             modelAndView.addObject("error", e.getMessage());
         }
 
@@ -275,13 +275,13 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @GetMapping("/{gid}/officer/{id}/event/{event}/unsubscribe")
+    @GetMapping("/{gid}/official/{id}/event/{event}/unsubscribe")
     public ModelAndView displayUnsubscribeModal(@PathVariable("gid") Long guestId,
-                                                      @PathVariable("id") Long officerId,
+                                                      @PathVariable("id") Long officialId,
                                                       @PathVariable("event") Long eventId,
                                                       ModelMap model,
                                                       final Principal principal) {
-        ModelAndView modelAndView = prepareScheduleModelAndView(guestId, officerId, model);
+        ModelAndView modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
         modelAndView.setViewName("guest/guest_schedule :: unsubscribe");
@@ -290,13 +290,13 @@ public class GuestController {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @PostMapping("/{gid}/officer/{id}/event/{event}/unsubscribe")
+    @PostMapping("/{gid}/official/{id}/event/{event}/unsubscribe")
     public ModelAndView processUnsubscribeModal(@PathVariable("gid") Long guestId,
-                                                      @PathVariable("id") Long officerId,
+                                                      @PathVariable("id") Long officialId,
                                                       @PathVariable("event") Long eventId,
                                                       ModelMap model) {
         ModelAndView modelAndView =
-                new ModelAndView("redirect:/guest/" + guestId + "/officer/" + officerId + "/schedule", model);
+                new ModelAndView("redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
 
         User guestUser = Optional.ofNullable(personService.findPersonById(guestId))
                 .map(Person::getVerificationKey)
@@ -310,7 +310,7 @@ public class GuestController {
 
             return modelAndView;
         }
-        modelAndView = prepareScheduleModelAndView(guestId, officerId, model);
+        modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
         modelAndView.addObject("error", UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
 
         return modelAndView;
@@ -327,7 +327,7 @@ public class GuestController {
         }
     }
 
-    private ModelAndView prepareScheduleModelAndView(final Long guestId, final Long officerId, final ModelMap model) {
+    private ModelAndView prepareScheduleModelAndView(final Long guestId, final Long officialId, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("guest/guest_schedule", model);
 
         // TODO Add invalid guestId error checking
@@ -337,24 +337,24 @@ public class GuestController {
         List<LocalDate> nextWeekDates = scheduleService.getWeekStartingFirstDay(nextWeekFirstDay);
         List<List<ScheduleEvent>> currentWeekEvents = new ArrayList<>();
         List<List<ScheduleEvent>> nextWeekEvents = new ArrayList<>();
-        TeacherDTO officerTeacher = new TeacherDTO();
+        TeacherDTO officialTeacher = new TeacherDTO();
         PersonDTO guestPerson = conversionService.convert(personService.findPersonById(guestId), PersonDTO.class);
         Optional<ScheduleEvent> subscribedEvent = Optional.empty();
         Optional<LocalDateTime> mostRecentUpdate = Optional.empty();
         long incomingEventsNumber = 0;
 
-        Optional<User> optionalOfficerUser = getOptionalOfficerUser(officerId);
+        Optional<User> optionalOfficialUser = getOptionalOfficialUser(officialId);
         Optional<User> optionalGuestUser = getOptionalGuestUser(guestId);
-        if (officerId != null
+        if (officialId != null
                 && optionalGuestUser.isPresent()
-                && optionalOfficerUser.isPresent()) {
-            User officerUser = optionalOfficerUser.get();
+                && optionalOfficialUser.isPresent()) {
+            User officialUser = optionalOfficialUser.get();
             User guestUser = optionalGuestUser.get();
-            officerTeacher = conversionService.convert(teacherService.findTeacherById(officerId), TeacherDTO.class);
+            officialTeacher = conversionService.convert(teacherService.findTeacherById(officialId), TeacherDTO.class);
 
             // when user has any subscribed event no more events available to subscribe are shown
             List<ScheduleEvent> allCurrentEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
-                    officerUser,
+                    officialUser,
                     LocalDate.now(),
                     currentWeekFirstDay.plusDays(14));
             subscribedEvent = allCurrentEvents.stream()
@@ -368,13 +368,13 @@ public class GuestController {
                 addByDatesSingletonListToEventsListOfLists(currentWeekDates, currentWeekEvents, singleEvent);
                 addByDatesSingletonListToEventsListOfLists(nextWeekDates, nextWeekEvents, singleEvent);
             } else {
-                currentWeekDates.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
-                nextWeekDates.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officerUser, date)));
+                currentWeekDates.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officialUser, date)));
+                nextWeekDates.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officialUser, date)));
             }
             List<ScheduleEvent> incomingEvents = filterEventsAvailableToGuest(
                     guestUser,
                     scheduleService.getEventsByOwnerStartingBetweenDates(
-                            officerUser,
+                            officialUser,
                             currentWeekFirstDay,
                             currentWeekFirstDay.plusDays(14)));
             mostRecentUpdate = incomingEvents.stream()
@@ -388,8 +388,8 @@ public class GuestController {
         }
 
         modelAndView.addObject("guest", guestPerson);
-        modelAndView.addObject("officer", officerTeacher);
-        modelAndView.addObject("officers", teacherService.findAllOfficers());
+        modelAndView.addObject("official", officialTeacher);
+        modelAndView.addObject("officials", teacherService.findAllOfficials());
         modelAndView.addObject("weekDays", UK_WEEK_WORKING_DAYS);
         modelAndView.addObject("currentWeek", currentWeekDates);
         modelAndView.addObject("nextWeek", nextWeekDates);
@@ -466,7 +466,7 @@ public class GuestController {
         return filterEventsAvailableToGuest(user, scheduleService.getActualEventsByOwnerAndDate(user, date));
     }
 
-    private Optional<User> getOptionalOfficerUser(final Long id) {
+    private Optional<User> getOptionalOfficialUser(final Long id) {
         return Optional.ofNullable(teacherService.findTeacherById(id))
                 .flatMap(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser));
     }

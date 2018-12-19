@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,7 +34,7 @@ public class SchoolSubject {
     @Column(name = "teacher_id")
     private Set<Teacher> teachers = new HashSet<>();
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subject")
     @Column(name = "plan_id")
     private Set<StudyPlan> plans = new HashSet<>();
 

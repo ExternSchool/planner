@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <title>Guest List</title>
     <meta charset="utf-8">
@@ -15,7 +14,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="../css/main.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
 </head>
 
 <body class="text-center">
@@ -52,7 +51,7 @@
                 <td th:text="${guest.getPhoneNumber()}">Phone</td>
                 <td th:text="${guest.getEmail()}">Email</td>
                 <td class="text-right">
-                    <form th:method="post" th:action="@{/guest/{id}/officer/schedule(id=${guest.id})}">
+                    <form th:method="post" th:action="@{/guest/{id}/official/schedule(id=${guest.id})}">
                         <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
                             <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                         </button>

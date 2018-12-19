@@ -89,9 +89,9 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> findAllOfficers() {
+    public List<Teacher> findAllOfficials() {
         return teacherRepository.findAllByOrderByLastName().stream()
-                .filter(teacher -> teacher.getOfficer() != null && !teacher.getOfficer().isEmpty())
+                .filter(teacher -> teacher.getOfficial() != null && !teacher.getOfficial().isEmpty())
                 .collect(Collectors.toList());
     }
 }

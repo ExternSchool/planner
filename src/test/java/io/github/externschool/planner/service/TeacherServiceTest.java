@@ -195,18 +195,18 @@ public class TeacherServiceTest {
     }
 
     @Test
-    public void shouldReturnSingletonList_whenFindAllOfficers() {
+    public void shouldReturnSingletonList_whenFindAllOfficials() {
 
         Teacher anotherTeacher = new Teacher();
         anotherTeacher.setLastName("ZetName");
-        expectedTeacher.setOfficer("Officer");
+        expectedTeacher.setOfficial("Official");
         List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
         List<Teacher> teacherList  = Arrays.asList(expectedTeacher, anotherTeacher);
 
         Mockito.when(teacherRepository.findAllByOrderByLastName())
                 .thenReturn(teacherList);
 
-        List<Teacher> actualList = teacherService.findAllOfficers();
+        List<Teacher> actualList = teacherService.findAllOfficials();
 
         assertThat(actualList)
                 .isNotEmpty()

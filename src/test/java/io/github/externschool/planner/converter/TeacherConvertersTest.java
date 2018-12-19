@@ -38,7 +38,7 @@ public class TeacherConvertersTest {
         String patronymicName = "Johnovich";
         String lastName = "Doe";
         String phoneNumber = "(099)999-9999";
-        String officer = "Principal";
+        String official = "Principal";
         Set<SchoolSubject> schoolSubjects = Stream.of("Quantum Mechanics", "Algebraic Topology")
                 .map(s -> {
                     SchoolSubject subject = new SchoolSubject();
@@ -54,7 +54,7 @@ public class TeacherConvertersTest {
         expectedTeacher.setLastName(lastName);
         expectedTeacher.setPhoneNumber(phoneNumber);
         expectedTeacher.addVerificationKey(verificationKey);
-        expectedTeacher.setOfficer(officer);
+        expectedTeacher.setOfficial(official);
         schoolSubjects.forEach(expectedTeacher::addSubject);
 
         expectedDTO = new TeacherDTO();
@@ -65,7 +65,7 @@ public class TeacherConvertersTest {
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
         expectedDTO.setPhoneNumber(phoneNumber);
-        expectedDTO.setOfficer(officer);
+        expectedDTO.setOfficial(official);
         expectedDTO.setSchoolSubjects(schoolSubjects);
     }
 

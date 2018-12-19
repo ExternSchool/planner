@@ -1,13 +1,13 @@
 'use strict';
 
 
-function rowClicked(guestId, officerId) {
-    location.href = "/guest/" + guestId + "/officer/" + officerId + "/schedule";
+function rowClicked(guestId, officialId) {
+    location.href = "/guest/" + guestId + "/official/" + officialId + "/schedule";
 }
 
-function openSubscribeEventModal(guestId, officerId, event) {
+function openSubscribeEventModal(guestId, officialId, event) {
     $.ajax({
-        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/subscribe",
+        url: "/guest/" + guestId + "/official/" + officialId + "/event/" + event + "/subscribe",
         success: function (data) {
             $("#subscribeEventModalHolder").html(data);
             $("#subscribeEventModal").modal("show");
@@ -15,9 +15,9 @@ function openSubscribeEventModal(guestId, officerId, event) {
     });
 }
 
-function openUnsubscribeModal(guestId, officerId, event) {
+function openUnsubscribeModal(guestId, officialId, event) {
     $.ajax({
-        url: "/guest/" + guestId + "/officer/" + officerId + "/event/" + event + "/unsubscribe",
+        url: "/guest/" + guestId + "/official/" + officialId + "/event/" + event + "/unsubscribe",
         success: function (data) {
             $("#unsubscribeModalHolder").html(data);
             $("#unsubscribeModal").modal("show");

@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 
 public class TeacherDTO extends PersonDTO {
-    private String officer;
+    private String official;
     private Set<SchoolSubject> schoolSubjects = new HashSet<>();
     private Set<Course> courses = new HashSet<>();
 
@@ -23,19 +23,19 @@ public class TeacherDTO extends PersonDTO {
                       final String patronymicName,
                       final String lastName,
                       final String phoneNumber,
-                      final String officer,
+                      final String official,
                       final Set<SchoolSubject> schoolSubjects) {
         super(id, verificationKey, email, firstName, patronymicName, lastName, phoneNumber);
-        this.officer = officer;
+        this.official = official;
         this.schoolSubjects = schoolSubjects;
     }
 
-    public String getOfficer() {
-        return officer;
+    public String getOfficial() {
+        return official;
     }
 
-    public void setOfficer(String officer) {
-        this.officer = officer;
+    public void setOfficial(String official) {
+        this.official = official;
     }
 
     public Set<SchoolSubject> getSchoolSubjects() {
@@ -60,20 +60,20 @@ public class TeacherDTO extends PersonDTO {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         final TeacherDTO that = (TeacherDTO) o;
-        return Objects.equals(officer, that.officer) &&
+        return Objects.equals(official, that.official) &&
                 Objects.equals(schoolSubjects, that.schoolSubjects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), officer, schoolSubjects);
+        return Objects.hash(super.hashCode(), official, schoolSubjects);
     }
 
     @Override
     public String toString() {
         return "TeacherDTO{" +
                 "super=" + super.toString() +
-                "officer=" + officer +
+                "official=" + official +
                 ", schoolSubjects=" + schoolSubjects +
                 '}';
     }

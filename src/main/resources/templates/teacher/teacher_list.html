@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <title>Teachers List</title>
     <meta charset="utf-8">
@@ -53,7 +52,7 @@
                 <td class="text-left" th:text="${teacher.getLastName()}">Прізвище</td>
                 <td class="text-left" th:text="${teacher.getFirstName()}">Ім'я</td>
                 <td class="text-left" th:text="${teacher.getPatronymicName()}">По-батькові</td>
-                <td class="text-left" th:text="${teacher.getOfficer()}">Посада за розкладом</td>
+                <td class="text-left" th:text="${teacher.getOfficial()}">Посада за розкладом</td>
                 <td th:text="${teacher.getPhoneNumber()}">Телефон</td>
                 <td class="" th:text="${teacher.getEmail()}">Email</td>
                 <td class="text-right">

@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -40,8 +41,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
@@ -81,55 +84,60 @@ public class StudentController {
         this.planService = planService;
     }
 
+    /**
+     * Displays List of All Students to Admin and Filtered By Id to Teacher
+     * @param principal principal user
+     * @return ModelAndView
+     * */
     @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
-    @GetMapping({"/"})
-    public ModelAndView displayStudentList(Principal principal) {
-        Teacher teacher = getTeacher(principal).orElse(null);
-        if (isTeacher(principal) && teacher != null) {
-            ModelAndView modelAndView = new ModelAndView(
-                    "student/student_list",
-                    "students", getStudentsByTeacher(teacher));
-            modelAndView.addObject("level", 0);
-
-            return modelAndView;
+    @GetMapping("/")
+    public ModelAndView displayStudentListToPrincipal(Principal principal) {
+        User user = userService.getUserByEmail(principal.getName());
+        if (isTeacher(user)) {
+            Long id = Optional.ofNullable(user)
+                    .map(User::getVerificationKey)
+                    .map(VerificationKey::getPerson)
+                    .map(Person::getId)
+                    .orElse(null);
+            return prepareStudentListModelAndView(id, 0);
         }
 
-        ModelAndView modelAndView = new ModelAndView(
-                "student/student_list",
-                "students", Optional.of(studentService.findAllByOrderByLastName().stream()
-                .map(s -> conversionService.convert(s, StudentDTO.class))
-                .collect(Collectors.toList()))
-                .orElse(Collections.emptyList()));
-        modelAndView.addObject("level", 0);
-
-        return modelAndView;
+        return prepareStudentListModelAndView(null, 0);
     }
 
+    /**
+     * Displays List of Students for All Grade Levels By Teacher Id
+     * @param id Teacher Id
+     * @return ModelAndView
+     */
+    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @GetMapping("/teacher/{id}")
+    public ModelAndView displayAllStudentsListByTeacherId(@PathVariable("id") Long id) {
+        return prepareStudentListModelAndView(id, 0);
+    }
+
+    /**
+     * Displays List of Students for All Teachers By Grade Level
+     * @param level Grade Level
+     * @return ModelAndView
+     */
     @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
     @GetMapping({"/grade/{level}"})
-    public ModelAndView displayStudentListByGrade(@PathVariable("level") Integer level, Principal principal) {
-        Teacher teacher = getTeacher(principal).orElse(null);
-        if (isTeacher(principal) && teacher != null) {
-            ModelAndView modelAndView = new ModelAndView(
-                    "student/student_list",
-                    "students", getStudentsByTeacher(teacher).stream()
-                    .filter(student -> student.getGradeLevel() == level)
-                    .collect(Collectors.toList()));
-            modelAndView.addObject("level", level);
+    public ModelAndView displayStudentListByGrade(@PathVariable("level") Integer level) {
+        return prepareStudentListModelAndView(null, level);
+    }
 
-            return modelAndView;
-        }
-
-        List<StudentDTO> list = Optional.of(studentService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream()
-                .map(s -> conversionService.convert(s, StudentDTO.class))
-                .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
-        ModelAndView modelAndView = new ModelAndView(
-                "student/student_list",
-                "students", list);
-        modelAndView.addObject("level", level);
-
-        return modelAndView;
+    /**
+     * Displays List of Students By Teacher Id and By Grade Level
+     * @param id Teacher Id
+     * @param level Grade Level
+     * @return ModelAndView
+     */
+    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @GetMapping({"/teacher/{id}/grade/{level}"})
+    public ModelAndView displayStudentListByTeacherIdByGrade(@PathVariable("id") Long id,
+                                                             @PathVariable("level") Integer level) {
+        return prepareStudentListModelAndView(id, level);
     }
 
     @Secured("ROLE_STUDENT")
@@ -254,12 +262,19 @@ public class StudentController {
         return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
+    /**
+     * Assigns new Verification Key to the Student whose Id provided
+     * When key change confirmed:
+     *         DTO Receives a NEW KEY which is instantly assigned,
+     *         an old key is removed from user (if present),
+     *         user receives Guest role
+     *
+     * @param id Student Id
+     * @return ModelAndView
+     */
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/new-key")
     public ModelAndView processStudentProfileFormActionNewKey(@PathVariable("id") Long id) {
-        //When key change confirmed:
-        //DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
-        //user receives Guest role
         StudentDTO studentDTO = Optional.ofNullable(studentService.findStudentById(id))
                 .map(student -> conversionService.convert(student, StudentDTO.class))
                 .map(s -> (StudentDTO)keyService.setNewKeyToDTO(s))
@@ -272,6 +287,65 @@ public class StudentController {
                 });
 
         return showStudentProfileForm(studentDTO, true);
+    }
+
+    private ModelAndView prepareStudentListModelAndView(Long teacherId, Integer level) {
+        List<StudentDTO> students = getStudentListByTeacherIdAndGradeLevel(teacherId, level);
+        ModelAndView modelAndView = new ModelAndView(
+                "student/student_list",
+                "students", students);
+        modelAndView.addObject("level", level);
+        modelAndView.addObject("teacherId", teacherId);
+
+        return modelAndView;
+    }
+
+    private List<StudentDTO> getStudentListByTeacherIdAndGradeLevel(Long teacherId, int level) {
+        if (teacherId == null) {
+            List<StudentDTO> allStudents = studentService.findAllStudents().stream()
+                    .sorted(Comparator.comparing(
+                            Student::getLastName,
+                            Comparator.nullsLast(CollatorHolder.getUaCollator())))
+                    .map(student -> conversionService.convert(student, StudentDTO.class))
+                    .collect(Collectors.toList());
+            if (level != 0) {
+                return allStudents.stream()
+                        .filter(student -> level == student.getGradeLevel())
+                        .collect(Collectors.toList());
+            }
+
+            return allStudents;
+        }
+
+        List<StudentDTO> studentsByTeacherId = new ArrayList<>();
+        for (Course course : courseService.findAllByTeacherId(teacherId)) {
+            String title = Optional.ofNullable(course.getPlanId())
+                    .map(planService::findById)
+                    .map(StudyPlan::getSubject)
+                    .map(SchoolSubject::getTitle)
+                    .orElse("");
+            Optional<StudentDTO> optional = Optional.ofNullable(course.getStudentId())
+                    .map(studentService::findStudentById)
+                    .map(student -> conversionService.convert(student, StudentDTO.class));
+            if (optional.isPresent()) {
+                StudentDTO studentDTO = optional.get();
+                studentDTO.setOptionalData(title);
+                studentsByTeacherId.add(studentDTO);
+            }
+        }
+        studentsByTeacherId = studentsByTeacherId.stream()
+                .sorted(Comparator.comparing(
+                        StudentDTO::getLastName,
+                        Comparator.nullsLast(CollatorHolder.getUaCollator())))
+                .collect(Collectors.toList());
+
+        if (level != 0) {
+            return studentsByTeacherId.stream()
+                    .filter(student -> level == student.getGradeLevel())
+                    .collect(Collectors.toList());
+        }
+
+        return studentsByTeacherId;
     }
 
     private ModelAndView redirectByRole(User user) {
@@ -331,29 +405,9 @@ public class StudentController {
         return modelAndView;
     }
 
-    private List<StudentDTO> getStudentsByTeacher(Teacher teacher) {
-        List<Course> courses = courseService.findAllByTeacher(teacher);
-        List<StudentDTO> resultList = new ArrayList<>();
-        for(Course course : courses) {
-            Optional<StudentDTO> dto = Optional.ofNullable(course.getStudentId())
-                    .map(studentService::findStudentById)
-                    .map(student -> conversionService.convert(student, StudentDTO.class));
-            dto.ifPresent(d -> d.setOptionalData(
-                    Optional.ofNullable(course.getPlanId())
-                            .map(planService::findById)
-                            .map(StudyPlan::getTitle)
-                            .orElse("")));
-            dto.ifPresent(resultList::add);
-        }
-        resultList.sort(Comparator.comparing(
-                StudentDTO::getLastName,
-                Comparator.nullsLast(CollatorHolder.getUaCollator())));
-
-        return resultList;
-    }
-
-    private Boolean isTeacher(Principal principal) {
-        return Optional.ofNullable(principal.getName())
+    private Boolean isTeacher(User user) {
+        return Optional.ofNullable(user)
+                .map(User::getEmail)
                 .map(userService::getUserByEmail)
                 .map(User::getRoles)
                 .map(roles -> roles.contains(roleService.getRoleByName("ROLE_TEACHER")))

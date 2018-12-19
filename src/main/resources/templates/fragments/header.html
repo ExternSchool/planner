@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
-<html lang="en">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      lang="en">
 <head>
 </head>
 <body>
@@ -25,7 +25,7 @@
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
-                           href="/guest/officer/schedule">Розклади</a>
+                           href="/guest/official/schedule">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -41,43 +41,43 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                    <div sec:authorize="hasRole('ROLE_GUEST')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
                            href="/guest/profile">Особові дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
                            href="/student/plan">Учбовий план</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
                            href="#">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'reserve'}? 'nav-link active' : 'nav-link'"
                            href="#">Призначені зустрічі</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_STUDENT')">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
                            href="/student/profile">Особові дані</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasAnyRole('ROLE_TEACHER')">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/schedule">Розклади</a>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'visitors'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/visitors">Відвідувачі</a>
                     </div>
@@ -89,7 +89,7 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_TEACHER')">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
                         <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
                            href="/teacher/profile">Особові дані</a>
                     </div>
@@ -100,12 +100,12 @@
                            href="/teacher/">Працівники</a>
                     </div>
                 </li>
-                <li class="nav-item">
-                    <div sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link disabled'"
-                           href="#">Розклади</a>
-                    </div>
-                </li>
+                <!--<li class="nav-item">-->
+                    <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
+                        <!--<a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link disabled'"-->
+                           <!--href="#">Розклади</a>-->
+                    <!--</div>-->
+                <!--</li>-->
                 <li th:class="${activeTab == 'setup'}? 'nav-item dropdown active' : 'nav-item dropdown'"
                     sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
@@ -116,7 +116,7 @@
                         <a class="dropdown-item" href="/subject/">Загальні навчальні предмети</a>
                         <a class="dropdown-item" href="/plan/">Річні навчальні плани</a>
                         <a class="dropdown-item" href="/event/type/">Типи подій</a>
-                        <a class="dropdown-item disabled" href="#">Інше</a>
+                        <!--<a class="dropdown-item disabled" href="#">Інше</a>-->
                     </div>
                 </li>
             </ul>
