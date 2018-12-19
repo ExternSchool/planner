@@ -122,8 +122,7 @@ public class StudyPlanControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
-                .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("plans", Matchers.hasSize(plans.size())))
+                .andExpect(model().attributeExists("subjects","plans"))
                 .andExpect(model().attribute("plans",
                         Matchers.hasItem(
                                 Matchers.<StudyPlan> hasProperty("gradeLevel",
@@ -201,13 +200,5 @@ public class StudyPlanControllerTest {
         assertThat(planService.findAll())
                 .hasSize(originalPlansNumber + 3)
                 .doesNotContain(plans.get(0));
-    }
-
-    @After
-    public void tearDown() {
-        planService.findAll().forEach(planService::deletePlan);
-        subjectService.findAllByOrderByTitle().forEach(s -> subjectService.deleteSubjectById(s.getId()));
-
-        userService.deleteUser(user);
     }
 }
