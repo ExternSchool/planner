@@ -21,19 +21,19 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='events')"></div>
+    <div th:replace="fragments/header :: header(activeTab='setup')"></div>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal" th:inline="text"><small>Типи подій</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Типи подій</small></h4>
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
-    <form th:action="@{/events/type/add}" method="post">
+    <form th:action="@{/event/type/add}" method="post">
         <div class="input-group input-group-sm mb-1">
             <div class="input-group-prepend">
-                <span class="input-group-text">Введіть назву події</span>
+                <span class="input-group-text">Введіть назву типу</span>
             </div>
             <input class="form-control form-control-sm" type="text" id="new_title"
                    placeholder="Назва нового типу події" th:name="new_name" >
@@ -43,7 +43,7 @@
         </div>
     </form>
     <fieldset>
-        <form th:method="post" th:action="@{/events/type/}" th:object="${eventType}" class="form" id="form">
+        <form th:method="post" th:action="@{/event/type/}" th:object="${eventType}" class="form" id="form">
             <input type="hidden" th:field="${eventType.id}"/>
 
             <div class="table-responsive" th:if="${not #lists.isEmpty(eventTypes)}">
@@ -54,6 +54,7 @@
                         <th class="text-left">Організатори події</th>
                         <th class="text-left">Учасники події</th>
                         <th class="text-left" style="width: 15ch">Макс.учасників</th>
+                        <th class="text-left" style="width: 15ch">Тривалість, хв</th>
                         <th class="text-right" style="width: 10ch">Змінити</th>
                         <th class="text-right" style="width: 10ch">Видалити</th>
                     </tr>
@@ -63,19 +64,19 @@
                         <div th:if="${type.id != eventType.id}">
                             <td class="text-left" th:text="${type.getName()}">Назва події</td>
                             <td class="text-left">
-                                <ul>
+                                <ul class="list-unstyled mb-0">
                                     <li th:each="item : ${type.getOwners()}" th:text="${{item}}">Роль</li>
                                 </ul>
                             </td>
                             <td class="text-left">
-                                <ul>
+                                <ul class="list-unstyled mb-0">
                                     <li th:each="item : ${type.getParticipants()}" th:text="${{item}}">Роль</li>
                                 </ul>
                             </td>
                             <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
-
+                            <td class="text-center" th:text="${type.getDurationInMinutes()}">Хвилини</td>
                             <td class="text-right">
-                                <a th:href="@{/events/type/{id}(id=${type.id})}">
+                                <a th:href="@{/event/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </button>
@@ -116,16 +117,21 @@
                                 </select>
                             </td>
                             <td class="text-center">
-                                <input class="form-control" placeholder="від 1 до 50" id="count" type="number"
+                                <input class="form-control" placeholder="1..50" id="count" type="number"
                                        min="1" max="50"
                                        th:field="*{amountOfParticipants}" required>
+                            </td>
+                            <td class="text-center">
+                                <input class="form-control" placeholder="1..600" id="duration" type="number"
+                                       min="1" max="600"
+                                       th:field="${eventType.durationInMinutes}" required>
                             </td>
                             <td class="text-right">
                                 <button class="btn btn-outline-success btn-sm" type="submit"
                                         name="action" id="save" value="save">Зберегти</button>
                             </td>
                             <td class="text-right">
-                                <a th:href="@{/events/type/}">
+                                <a th:href="@{/event/type/}">
                                     <button class="btn btn-outline-secondary btn-sm" type="button">Скасувати</button>
                                 </a>
                             </td>
@@ -179,12 +185,13 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Повернутися до редагування
                 </button>
-                <div th:if="${eventType.id != null}">
-                    <a th:href="@{/events/type/{id}/delete(id=${eventType.id})}"
-                       class="btn btn-primary">
-                        Так, вилучити!
-                    </a>
-                </div>
+                <span th:if="${eventType.id != null}">
+                    <form th:method="post" th:action="@{/event/type/{id}/delete(id=${eventType.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, вилучити!
+                        </button>
+                    </form>
+                </span>
             </div>
         </div>
     </div>

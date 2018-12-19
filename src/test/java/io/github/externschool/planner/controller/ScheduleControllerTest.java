@@ -102,7 +102,7 @@ public class ScheduleControllerTest {
     @Test
     public void shouldDisplayForm_whenDisplayEventTypesList() throws Exception {
 
-        mockMvc.perform(get("/events/type/"))
+        mockMvc.perform(get("/event/type/"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("ownersRoles", "participantsRoles", "eventType", "eventTypes"))
                 .andExpect(view().name("event/event_type"));
@@ -114,25 +114,25 @@ public class ScheduleControllerTest {
 
         when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
 
-        mockMvc.perform(post("/events/type/add")
+        mockMvc.perform(post("/event/type/add")
                 .param("new_name", "name"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/events/type/"));
+                .andExpect(view().name("redirect:/event/type/"));
     }
 
     @Test
     public void shouldRedirect_whenValidData_withProcessEventTypeEditForm() throws Exception {
-        mockMvc.perform(post("/events/type/")
+        mockMvc.perform(post("/event/type/")
                 .param("action", "save")
                 .params(modelMap))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/events/type/"));
+                .andExpect(view().name("redirect:/event/type/"));
     }
 
     @Test
     public void shouldReturnSamePage_whenValidationFail_withProcessEventTypeEditForm() throws Exception {
         modelMap.remove("name");
-        mockMvc.perform(post("/events/type/")
+        mockMvc.perform(post("/event/type/")
                 .param("action", "save")
                 .params(modelMap))
                 .andExpect(status().isOk())
@@ -141,7 +141,7 @@ public class ScheduleControllerTest {
 
     @Test
     public void shouldReturnModelAndView_whenDisplayEventTypeIdForm() throws Exception {
-        mockMvc.perform(get("/events/type/" + eventType.getId()))
+        mockMvc.perform(get("/event/type/" + eventType.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("event/event_type"))
                 .andExpect(model()
@@ -162,22 +162,22 @@ public class ScheduleControllerTest {
 
     @Test
     public void shouldRedirect_whenInvalidId_toDisplayEventTypeIdForm() throws Exception {
-        mockMvc.perform(get("/events/type/" + 0L))
+        mockMvc.perform(get("/event/type/" + 0L))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/events/type/"));
+                .andExpect(view().name("redirect:/event/type/"));
     }
 
     @Test
     public void shouldReturnModelAndView_whenDisplayDeleteEventTypeModal() throws Exception {
-        mockMvc.perform(get("/events/type/" + eventType.getId() + "/modal"))
+        mockMvc.perform(get("/event/type/" + eventType.getId() + "/modal"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("event/event_type :: deleteEventType"));
     }
 
     @Test
     public void shouldRedirect_whenProcessDeleteEventType() throws Exception {
-        mockMvc.perform(get("/events/type/" + eventType.getId() + "/delete"))
+        mockMvc.perform(post("/event/type/" + eventType.getId() + "/delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/events/type/"));
+                .andExpect(view().name("redirect:/event/type/"));
     }
 }

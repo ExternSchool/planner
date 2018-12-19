@@ -7,6 +7,7 @@ import io.github.externschool.planner.converter.GenderEnumFormatter;
 import io.github.externschool.planner.converter.GradeLevelEnumFormatter;
 import io.github.externschool.planner.converter.LocalDateFormatter;
 import io.github.externschool.planner.converter.LocalTimeFormatter;
+import io.github.externschool.planner.converter.ParticipantToParticipantDTO;
 import io.github.externschool.planner.converter.PersonDTOToPerson;
 import io.github.externschool.planner.converter.PersonToPersonDTO;
 import io.github.externschool.planner.converter.RoleFormatter;
@@ -56,6 +57,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addConverter(new ScheduleEventToScheduleEventDTO());
         registry.addConverter(new ScheduleEventTypeToDTO());
         registry.addConverter(new ScheduleEventTypeDTOToEventType());
+        registry.addConverter(new ParticipantToParticipantDTO());
 
         registry.addFormatter(keyFormatter);
         registry.addFormatter(subjectFormatter);

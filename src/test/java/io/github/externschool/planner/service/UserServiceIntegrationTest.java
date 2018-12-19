@@ -3,10 +3,12 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,6 +37,7 @@ public class UserServiceIntegrationTest {
     @Autowired private PersonRepository personRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private ScheduleEventRepository eventRepository;
+    @Autowired private ScheduleEventTypeRepository typeRepository;
     @Autowired private ScheduleService scheduleService;
     private UserService userService;
 
@@ -99,7 +102,9 @@ public class UserServiceIntegrationTest {
     public void shouldDeleteFromParticipants_WhenDeleteUser() {
         User owner = userService.createUser("new@email.com", "pass", "ROLE_ADMIN");
         userService.save(owner);
-
+        ScheduleEventType eventType = new ScheduleEventType("Test Type", 1);
+        eventType.addParticipant(role);
+        typeRepository.save(eventType);
         ScheduleEvent expectedEvent = ScheduleEvent.builder()
                 .withOwner(owner)
                 .withTitle("An Event")
@@ -107,9 +112,10 @@ public class UserServiceIntegrationTest {
                 .withStartDateTime(LocalDateTime.now())
                 .withEndDateTime(LocalDateTime.now().plus(Period.of(0, 0, 1)))
                 .withOpenStatus(true)
+                .withType(eventType)
                 .build();
         eventRepository.save(expectedEvent);
-        expectedEvent = scheduleService.addParticipant(expectedUser, expectedEvent);
+        scheduleService.addParticipant(expectedUser, expectedEvent);
 
         userService.deleteUser(expectedUser);
         List<ScheduleEvent> actualEvents = eventRepository.findAllByOwner(owner);
@@ -129,6 +135,9 @@ public class UserServiceIntegrationTest {
     public void shouldChangeEventModifiedAt_whenAddParticipantToOpenEvent() {
         User owner = userService.createUser("new@email.com", "pass", "ROLE_ADMIN");
         userService.save(owner);
+        ScheduleEventType eventType = new ScheduleEventType("Test Type", 1);
+        eventType.addParticipant(role);
+        typeRepository.save(eventType);
         ScheduleEvent anEvent = ScheduleEvent.builder()
                 .withOwner(owner)
                 .withTitle("An Event")
@@ -136,6 +145,7 @@ public class UserServiceIntegrationTest {
                 .withStartDateTime(LocalDateTime.now())
                 .withEndDateTime(LocalDateTime.now().plus(Period.of(0, 0, 1)))
                 .withOpenStatus(true)
+                .withType(eventType)
                 .build();
         anEvent = eventRepository.save(anEvent);
         Long id = anEvent.getId();

@@ -68,7 +68,7 @@ public class UserController {
             }
             user = userService.createNewUser(userDTO);
             if (userDTO.getVerificationKey() == null) {
-                userService.createAndAddNewKeyAndPerson(user);
+                userService.createNewKeyWithNewPersonAndAddToUser(user);
                 userService.save(user);
             } else {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
@@ -97,9 +97,9 @@ public class UserController {
     @GetMapping("/init")
     public ModelAndView initiateUserProfileLoading(final Principal principal) {
         ModelAndView modelAndView = new ModelAndView();
-        User user = userService.findUserByEmail(principal.getName());
+        User user = userService.getUserByEmail(principal.getName());
         if (user.getVerificationKey() == null) {
-            userService.createAndAddNewKeyAndPerson(user);
+            userService.createNewKeyWithNewPersonAndAddToUser(user);
             userService.save(user);
         }
         if (user.getVerificationKey().getPerson().getPhoneNumber() == null) {

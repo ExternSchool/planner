@@ -4,6 +4,7 @@ import io.github.externschool.planner.entity.Role;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -34,16 +35,19 @@ public class ScheduleEventType {
     @Column(name = "participants_amount")
     private Integer amountOfParticipants;
 
-    @ManyToMany
+    @Column(name = "duration")
+    private Integer durationInMinutes;
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "event_type_owner_role",
+            name = "schedule_event_type_owner_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<Role> owners = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "event_type_participant_role",
+            name = "schedule_event_type_participant_role",
             joinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_name", referencedColumnName = "name")})
     private Set<Role> participants = new HashSet<>();
@@ -77,6 +81,14 @@ public class ScheduleEventType {
 
     public void setAmountOfParticipants(Integer amountOfParticipants) {
         this.amountOfParticipants = amountOfParticipants;
+    }
+
+    public Integer getDurationInMinutes() {
+        return durationInMinutes;
+    }
+
+    public void setDurationInMinutes(final Integer durationInMinutes) {
+        this.durationInMinutes = durationInMinutes;
     }
 
     public Set<Role> getOwners() {
@@ -118,13 +130,14 @@ public class ScheduleEventType {
         final ScheduleEventType that = (ScheduleEventType) o;
         return Objects.equals(getId(), that.getId()) &&
                 Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getAmountOfParticipants(), that.getAmountOfParticipants());
+                Objects.equals(getAmountOfParticipants(), that.getAmountOfParticipants()) &&
+                Objects.equals(getDurationInMinutes(), that.getDurationInMinutes());
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(getId(), getName(), getAmountOfParticipants());
+        return Objects.hash(getId(), getName(), getAmountOfParticipants(), getDurationInMinutes());
     }
 
     @Override
@@ -133,6 +146,7 @@ public class ScheduleEventType {
         sb.append("id=").append(id);
         sb.append(", name='").append(name).append('\'');
         sb.append(", amountOfParticipants=").append(amountOfParticipants);
+        sb.append(", durationInMinutes=").append(durationInMinutes);
         sb.append(", owners=").append(getOwners().size());
         sb.append(", participants=").append(getParticipants().size());
         sb.append('}');

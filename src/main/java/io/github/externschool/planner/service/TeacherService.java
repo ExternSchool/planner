@@ -19,4 +19,6 @@ public interface TeacherService {
     Teacher saveOrUpdateTeacher(Teacher teacher);
 
     void deleteTeacherById(Long id);
+
+    List<Teacher> findAllOfficers();
 }

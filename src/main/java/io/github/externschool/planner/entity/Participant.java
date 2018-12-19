@@ -22,14 +22,14 @@ public class Participant implements Serializable {
 
     @ManyToOne
     @JoinTable(
-            name = "participant_user",
+            name = "user_participant",
             joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")})
     private User user;
 
     @ManyToOne
     @JoinTable(
-            name = "participant_event",
+            name = "schedule_event_participant",
             joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "event_id", referencedColumnName = "id")})
     private ScheduleEvent event;

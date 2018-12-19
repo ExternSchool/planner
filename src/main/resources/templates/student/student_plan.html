@@ -27,7 +27,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 font-weight-normal" th:inline="text"><small>Навчальний план екстерна: [[${studentData}]]</small></h4>
+    <h4 class="font-weight-normal" th:inline="text"><small>Навчальний план екстерна: [[${studentData}]]</small></h4>
     <fieldset>
         <form th:action="@{/student/{sid}/plan/{id}(sid=${studentId}, id=${coursePlanId})}" th:object="${course}"
               th:method="POST">

@@ -23,18 +23,21 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.LOCALE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -128,7 +131,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnEvent_whenGetById() {
+    public void shouldReturnEvent_whenGetEventById() {
         long id = 100500L;
         ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         expectedEvent.setId(id);
@@ -144,7 +147,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnEvent_whenSave() {
+    public void shouldReturnEvent_whenSaveEvent() {
         long id = 100500L;
         ScheduleEvent expectedEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         expectedEvent.setId(id);
@@ -160,16 +163,18 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnListEvents_whenGetEventsByOwnerAndDate() {
+    public void shouldReturnList_whenGetActualEventsByOwnerAndDate() {
         ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        eventOne.setId(2L);
         ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
 
         User owner = new User();
         LocalDate date = LocalDate.of(2018, 6, 7);
         Mockito.when(
-                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, date.atStartOfDay(), date.atTime(LocalTime.MAX)))
+                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        date.atStartOfDay(),
+                        date.atTime(LocalTime.MAX)))
                 .thenReturn(expectedEvents);
 
         List<ScheduleEvent> actualEvents = scheduleService.getActualEventsByOwnerAndDate(owner, date);
@@ -181,7 +186,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnListOfEvents_whenGetEventsByOwner() {
+    public void shouldReturnList_whenGetEventsByOwner() {
         ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         eventOne.setId(2L);
         ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
@@ -200,7 +205,31 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnListOfEvents_whenGetEventsByType() {
+    public void shouldReturnListEvents_whenGetEventsByOwnerStartingBetweenDates() {
+        ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
+
+        User owner = new User();
+        LocalDate firstDate = LocalDate.of(2018, 6, 1);
+        LocalDate lastDate = LocalDate.of(2018, 6, 30);
+        Mockito.when(
+                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        firstDate.atStartOfDay(),
+                        lastDate.atTime(LocalTime.MAX)))
+                .thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents =
+                scheduleService.getEventsByOwnerStartingBetweenDates(owner, firstDate, lastDate);
+
+        assertThat(actualEvents)
+                .isNotNull()
+                .containsSequence(expectedEvents);
+    }
+
+    @Test
+    public void shouldReturnList_whenGetEventsByType() {
         ScheduleEvent eventOne = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         ScheduleEvent eventTwo = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         List<ScheduleEvent> expectedEvents = Arrays.asList(eventOne, eventTwo);
@@ -222,7 +251,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnCancelledEvent_whenCancelEventById() {
+    public void shouldReturnCancelledEvent_whenCancelEventByIdAndSave() {
         long id = 100500L;
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         anEvent.setId(id);
@@ -232,12 +261,32 @@ public class ScheduleServiceTest {
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
 
-        scheduleService.cancelEventById(id);
+        scheduleService.cancelEventByIdAndSave(id);
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
 
         assertThat(actualEvent)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("isCancelled", true);
+    }
+
+    @Test
+    public void shouldReturnOpenEvent_whenfFindEventByIdSetOpenAndSave() {
+        long id = 100500L;
+        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        anEvent.setId(id);
+        anEvent.setOpen(false);
+
+        when(this.eventRepository.findById(id))
+                .thenReturn(Optional.of(anEvent));
+        when(this.eventRepository.getOne(id))
+                .thenReturn(anEvent);
+
+        scheduleService.findEventByIdSetOpenAndSave(id, true);
+        ScheduleEvent actualEvent = scheduleService.getEventById(id);
+
+        assertThat(actualEvent)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("isOpen", true);
     }
 
     @Test
@@ -336,7 +385,7 @@ public class ScheduleServiceTest {
         assertThat(anEvent.getOwner())
                 .isEqualTo(owner);
 
-        scheduleService.removeOwner(owner, anEvent);
+        scheduleService.removeOwner(anEvent);
 
         assertThat(anEvent)
                 .isNotNull()
@@ -350,16 +399,22 @@ public class ScheduleServiceTest {
     @Test
     public void shouldAddParticipant_whenAddParticipantToOpenEvent() {
         long id = 100500L;
+        Role userRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         anEvent.setId(id);
         anEvent.setOpen(true);
+        anEvent.getType().addParticipant(userRole);
         User user = new User("participant@email.com", "pass");
+        user.addRole(userRole);
+        Participant expectedParticipant = new Participant(user, anEvent);
 
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
+        when(participantRepository.save(expectedParticipant))
+                .thenReturn(expectedParticipant);
 
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
         Participant participant = new ArrayList<>(actualEvent.getParticipants()).get(0);
 
         assertThat(actualEvent.getParticipants())
@@ -377,10 +432,13 @@ public class ScheduleServiceTest {
     @Test
     public void shouldChangeEventModifiedAt_whenAddParticipantToOpenEvent() {
         long id = 100500L;
+        Role userRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
         anEvent.setId(id);
         anEvent.setOpen(true);
+        anEvent.getType().addParticipant(userRole);
         User user = new User("participant@email.com", "pass");
+        user.addRole(userRole);
 
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
@@ -390,7 +448,7 @@ public class ScheduleServiceTest {
         assertThat(actualEvent.getModifiedAt())
                 .isNull();
 
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
 
         assertThat(actualEvent.getModifiedAt())
                 .isNotNull()
@@ -409,12 +467,59 @@ public class ScheduleServiceTest {
                 .thenReturn(anEvent);
 
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
-        actualEvent = scheduleService.addParticipant(user, actualEvent);
+        scheduleService.addParticipant(user, actualEvent);
 
         assertThat(actualEvent.getParticipants())
                 .isEmpty();
         assertThat(user.getParticipants())
                 .isEmpty();
+    }
+
+    @Test
+    public void shouldReturnValue_whenFindParticipantByUserAndEvent() {
+        long id = 100500L;
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        User user = new User("participant@email.com", "pass");
+        Optional<Participant> participant = Optional.of(new Participant(user, event));
+
+        when(participantRepository.findParticipantByUserAndEvent(user, event))
+                .thenReturn(participant);
+
+        assertThat(scheduleService.findParticipantByUserAndEvent(user, event))
+                .isNotEmpty()
+                .get()
+                .isEqualToComparingFieldByField(participant.get());
+    }
+
+    @Test
+    public void shouldReturnEmpty_whenFindParticipantByUserAndEvent() {
+        long id = 100500L;
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        User user = new User("wrong@email.com", "pass");
+
+        when(participantRepository.findParticipantByUserAndEvent(user, event))
+                .thenReturn(Optional.empty());
+
+        assertThat(scheduleService.findParticipantByUserAndEvent(user, event))
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldReturnList_whenGetParticipantsByUser() {
+        long id = 100500L;
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        User user = new User("participant@email.com", "pass");
+        List<Participant> participants = Collections.singletonList(new Participant(user, event));
+
+        when(participantRepository.getAllByUser(user))
+                .thenReturn(participants);
+
+        assertThat(scheduleService.getParticipantsByUser(user))
+                .isNotEmpty()
+                .containsExactly(participants.get(0));
     }
 
     @Test
@@ -441,6 +546,13 @@ public class ScheduleServiceTest {
 
     @Test
     public void shouldReturnCurrentWeekFirstDay() {
+        LocalDate date = LocalDate.now();
+        if (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.plusDays(2L);
+        }
+        LocalDate start = date.with(WeekFields.of(LOCALE).dayOfWeek(), 1);
+        LocalDate end = date.with(WeekFields.of(LOCALE).dayOfWeek(), 7);
+
         LocalDate firstDayCurrentWeek = scheduleService.getCurrentWeekFirstDay();
         LocalDate firstDayNextWeek = scheduleService.getNextWeekFirstDay();
 
@@ -448,11 +560,18 @@ public class ScheduleServiceTest {
                 .isNotNull()
                 .isInstanceOf(LocalDate.class)
                 .isBefore(firstDayNextWeek)
-                .isBetween(LocalDate.now().minus(Period.of(0,0,6)), LocalDate.now());
+                .isBetween(start, end);
     }
 
     @Test
     public void shouldReturnNextWeekFirstDay() {
+        LocalDate date = LocalDate.now().plus(Period.of(0, 0, 7));
+        if (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.plusDays(2L);
+        }
+        LocalDate start = date.with(WeekFields.of(LOCALE).dayOfWeek(), 1);
+        LocalDate end = date.with(WeekFields.of(LOCALE).dayOfWeek(), 7);
+
         LocalDate firstDayCurrentWeek = scheduleService.getCurrentWeekFirstDay();
         LocalDate firstDayNextWeek = scheduleService.getNextWeekFirstDay();
 
@@ -460,8 +579,7 @@ public class ScheduleServiceTest {
                 .isNotNull()
                 .isInstanceOf(LocalDate.class)
                 .isAfter(firstDayCurrentWeek)
-                .isBetween(LocalDate.now().plus(Period.of(0, 0, 1)),
-                        LocalDate.now().plus(Period.of(0, 0, 7)));
+                .isBetween(start, end);
     }
 
     @Test
