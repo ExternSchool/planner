@@ -25,7 +25,7 @@
         <div th:replace="fragments/header :: header(activeTab='subscriptions')"></div>
     </div>
     <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-        <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+        <div th:replace="fragments/header :: header(activeTab='guest')"></div>
     </div>
 </header>
 
@@ -59,7 +59,7 @@
                 <td class="text-left" th:text="${participant.getEventTitle()}">Назва події</td>
                 <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
                 <td class="text-right">
-                    <a th:href="@{/guest/{gid}/officer/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
+                    <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
                        class="btn btn-info">
                         <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
                     </a>

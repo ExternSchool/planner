@@ -88,7 +88,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     public void afterPropertiesSet() {
         Teacher noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
-        noTeacher.setOfficer("");
+        noTeacher.setOfficial("");
         VerificationKey keyNoTeacher = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(keyNoTeacher);
         noTeacher.addVerificationKey(keyNoTeacher);
@@ -244,7 +244,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                         : LocalDate.now().plusDays(7L));
     }
 
-    private Teacher createTeacher(Person person, VerificationKey key, String officerName, List<String> subjectsNames) {
+    private Teacher createTeacher(Person person, VerificationKey key, String officialName, List<String> subjectsNames) {
         Teacher teacher = new Teacher(
                 person.getId(),
                 person.getFirstName(),
@@ -252,7 +252,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                 person.getLastName(),
                 person.getPhoneNumber(),
                 key,
-                officerName,
+                officialName,
                 new HashSet<>(),
                 new HashSet<>());
         teacherService.saveOrUpdateTeacher(teacher);

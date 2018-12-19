@@ -32,7 +32,12 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+    </div>
 </header>
 
 <!-- Begin page content -->

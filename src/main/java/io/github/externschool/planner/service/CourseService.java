@@ -15,7 +15,7 @@ public interface CourseService {
 
     List<Course> findAllByPlanId(Long planId);
 
-    List<Course> findAllByTeacher(Teacher teacher);
+    List<Course> findAllByTeacherId(Long teacherId);
 
     Course saveOrUpdateCourse(Course course);
 

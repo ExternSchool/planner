@@ -63,7 +63,7 @@
                     <div class="form-group mb-0">
                         <label for="patronymicName" class="col-form-label float-left">Непедагогічна посада (якщо є)</label>
                         <input class="form-control" type="text" placeholder="Посади немає"
-                               th:field="*{officer}" id="position"
+                               th:field="*{official}" id="position"
                                th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                     </div>
                     <div class="row">
@@ -140,7 +140,7 @@
                 </div>
             </div>
             <div th:each="subject : ${teacher.schoolSubjects}">
-                <input type="text" th:value="${{subject}}" style="display:none;">
+                <input type="text" th:value="${{subject}}" style="display:none;" id="invisibleSubject">
             </div>
         </form>
     </fieldset>

@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "teacher")
 public class Teacher extends Person {
-    @Column(name = "officer")
-    private String officer;
+    @Column(name = "official")
+    private String official;
 
     @ManyToMany
     @JoinTable(name = "teacher_subject",
@@ -43,18 +43,18 @@ public class Teacher extends Person {
                    final String lastName,
                    final String phoneNumber,
                    final VerificationKey verificationKey,
-                   final String officer,
+                   final String official,
                    final Set<SchoolSubject> subjects,
                    final Set<Course> courses) {
         super(id, firstName, patronymicName, lastName, phoneNumber);
         this.addVerificationKey(verificationKey);
-        this.officer = officer;
+        this.official = official;
         this.subjects = subjects;
         this.courses = courses;
     }
 
     public Teacher(final Person person,
-                   final String officer,
+                   final String official,
                    final Set<SchoolSubject> subjects,
                    final Set<Course> courses) {
         this(person.getId(),
@@ -63,17 +63,17 @@ public class Teacher extends Person {
                 person.getLastName(),
                 person.getPhoneNumber(),
                 person.getVerificationKey(),
-                officer,
+                official,
                 subjects,
                 courses);
     }
 
-    public String getOfficer() {
-        return officer;
+    public String getOfficial() {
+        return official;
     }
 
-    public void setOfficer(String officer) {
-        this.officer = officer;
+    public void setOfficial(String official) {
+        this.official = official;
     }
 
     public Set<SchoolSubject> getSubjects() {
@@ -128,7 +128,7 @@ public class Teacher extends Person {
 
         return new EqualsBuilder()
                 .appendSuper(super.equals(o))
-                .append(getOfficer(), teacher.getOfficer())
+                .append(getOfficial(), teacher.getOfficial())
                 .append(getSubjects(), teacher.getSubjects())
                 .append(getCourses(), teacher.getCourses())
                 .isEquals();
@@ -138,7 +138,7 @@ public class Teacher extends Person {
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
                 .appendSuper(super.hashCode())
-                .append(getOfficer())
+                .append(getOfficial())
                 .append(getSubjects())
                 .append(getCourses())
                 .toHashCode();
@@ -148,7 +148,7 @@ public class Teacher extends Person {
     public String toString() {
         return "Teacher{" +
                 "id='" + getId() + '\'' +
-                ", officer='" + officer + '\'' +
+                ", official='" + official + '\'' +
                 '}';
     }
 }

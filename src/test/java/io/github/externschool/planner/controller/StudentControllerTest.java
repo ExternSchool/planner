@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -13,6 +14,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
@@ -62,6 +64,7 @@ public class StudentControllerTest {
     @Autowired private CourseService courseService;
     @Autowired private TeacherService teacherService;
     @Autowired private StudyPlanService planService;
+    @Autowired private SchoolSubjectService subjectService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -74,6 +77,8 @@ public class StudentControllerTest {
     private Course course;
     private StudyPlan plan;
     private Teacher teacher;
+    private User userTeacher;
+    private static final String nameTeacher = "teacher@email.com";
 
     @Before
     public void setup(){
@@ -121,9 +126,28 @@ public class StudentControllerTest {
         user.addVerificationKey(key);
         userService.save(user);
 
+        VerificationKey keyTeacher = new VerificationKey();
+        keyService.saveOrUpdateKey(keyTeacher);
+
+        SchoolSubject subject = new SchoolSubject();
+        subject.setTitle("Subject");
+        subjectService.saveOrUpdateSubject(subject);
+        StudyPlan plan = new StudyPlan(student.getGradeLevel(), subject);
+        planService.saveOrUpdatePlan(plan);
+        Course course = new Course(student.getId(), plan.getId());
+        courseService.saveOrUpdateCourse(course);
+
         teacher = new Teacher();
         teacher.setLastName(UK_COURSE_NO_TEACHER);
+        teacher.addVerificationKey(keyTeacher);
         teacherService.saveOrUpdateTeacher(teacher);
+
+        userTeacher = userService.createUser(nameTeacher,"pass", "ROLE_TEACHER");
+        userTeacher.addVerificationKey(keyTeacher);
+        userService.save(userTeacher);
+
+        course.setTeacher(teacher);
+        courseService.saveOrUpdateCourse(course);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -132,21 +156,98 @@ public class StudentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    public void shouldReturnStudentListTemplate_whenGetStudentWithAdminRole() throws Exception {
+    @WithMockUser(username = nameTeacher, roles = "TEACHER")
+    public void shouldReturnMAV_whenDisplayStudentListToPrincipalTeacherRole() throws Exception {
         mockMvc.perform(get("/student/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_list"))
                 .andExpect(content().string(Matchers.containsString("Student List")))
-                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attributeExists("students",
+                        "level",
+                        "teacherId"))
                 .andExpect(model().attribute("students",
                         Matchers.hasItem(
                                 Matchers.<Student> hasProperty("firstName",
-                                        Matchers.equalToIgnoringCase(firstName)))));
+                                        Matchers.equalToIgnoringCase(firstName)))))
+                .andExpect(model().attribute("teacherId",
+                        teacher.getId()));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
+    public void shouldReturnMAV_whenDisplayStudentListToPrincipalAdminRole() throws Exception {
+        mockMvc.perform(get("/student/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students",
+                        "level"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))))
+                .andExpect(model().attribute("teacherId",
+                        Matchers.nullValue()));
+    }
+
+    @Test
+    @WithMockUser(username = nameTeacher, roles = "TEACHER")
+    public void shouldReturnMAV_whenDisplayAllStudentsListByTeacherIdTeacherRole() throws Exception {
+        mockMvc.perform(get("/student/teacher/" + teacher.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students",
+                        "level",
+                        "teacherId"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))))
+                .andExpect(model().attribute("teacherId",
+                        teacher.getId()));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnMAV_whenDisplayAllStudentsListByTeacherIdAdminRole() throws Exception {
+        mockMvc.perform(get("/student/teacher/" + teacher.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students",
+                        "level",
+                        "teacherId"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))))
+                .andExpect(model().attribute("teacherId",
+                        teacher.getId()));
+    }
+
+    @Test
+    @WithMockUser(roles = {"TEACHER","ADMIN"})
+    public void shouldReturnMAV_whenDisplayStudentListByTeacherIdByGrade() throws Exception {
+        mockMvc.perform(get("/student/teacher/" + teacher.getId() + "/grade/" + student.getGradeLevel().getValue()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students",
+                        "level",
+                        "teacherId"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Student> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(firstName)))))
+                .andExpect(model().attribute("level",
+                        student.getGradeLevel().getValue()))
+                .andExpect(model().attribute("teacherId",
+                        teacher.getId()));
+    }
+
+    @Test
+    @WithMockUser(roles = {"TEACHER","ADMIN"})
     public void shouldReturnStudentListTemplate_whenGetStudentListByGrade() throws Exception {
         mockMvc.perform(get("/student/grade/3"))
                 .andExpect(status().isOk())
@@ -214,7 +315,9 @@ public class StudentControllerTest {
                 .andExpect(model().attribute("students",
                         Matchers.hasItem(
                                 Matchers.<Student> hasProperty("gradeLevel",
-                                        Matchers.equalTo(3)))));
+                                        Matchers.equalTo(3)))))
+                .andExpect(model().attribute("level",
+                                        Matchers.equalTo(3)));
     }
 
     @Test
@@ -454,6 +557,7 @@ public class StudentControllerTest {
     public void tearDown() {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);
+        userService.deleteUser(userTeacher);
         keyService.deleteById(key.getId());
         Optional.ofNullable(plan).ifPresent(p -> planService.deletePlan(p));
         teacherService.deleteTeacherById(teacher.getId());

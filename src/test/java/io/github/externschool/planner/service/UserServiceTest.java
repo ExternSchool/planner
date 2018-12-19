@@ -179,7 +179,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnThreeRolesUser_whenAssignNewRoleOfTeacherOrOfficerOrAdmin() {
+    public void shouldReturnThreeRolesUser_whenAssignNewRoleOfTeacherOrOfficialOrAdmin() {
         final Set<Role> rolesToAssign = Stream.of("ROLE_TEACHER", "ROLE_OFFICER", "ROLE_ADMIN")
                 .map(Role::new)
                 .collect(Collectors.toSet());
@@ -213,10 +213,10 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldAssignTeacherOnlyRole_whenKeyBelongsToTeacherNotOfficer() {
+    public void shouldAssignTeacherOnlyRole_whenKeyBelongsToTeacherNotOfficial() {
         User actualUser = new User();
         Teacher teacher = new Teacher();
-        teacher.setOfficer("");
+        teacher.setOfficial("");
         VerificationKey key = new VerificationKey();
         teacher.addVerificationKey(key);
 
@@ -228,10 +228,10 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldAssignTeacherAndOfficerRole_whenKeyBelongsToTeacherAndOfficer() {
+    public void shouldAssignTeacherAndOfficialRole_whenKeyBelongsToTeacherAndOfficial() {
         User actualUser = new User();
         Teacher teacher = new Teacher();
-        teacher.setOfficer("Officer");
+        teacher.setOfficial("Official");
         VerificationKey key = new VerificationKey();
         teacher.addVerificationKey(key);
 

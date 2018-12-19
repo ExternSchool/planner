@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
-<html lang="uk">
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      lang="uk">
 <head>
     <title>Student List</title>
     <meta charset="utf-8">
@@ -30,35 +30,34 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text"><small>Екстерни</small></h4>
+    <h4 class="font-weight-normal" th:inline="text">
+        <small>
+            Екстерни
+        </small>
+    </h4>
     <div class="form-group mb-0">
         <input type="hidden" th:field="${level}">
         <nav id="selector" aria-label="Grades navigation">
-            <ul class="pagination pagination-sm  float-left mb-1">
+            <ul class="pagination pagination-sm  float-left mb-1" th:if="${teacherId == null}">
                 <li th:class="${level == 0}? 'page-item active' : 'page-item'">
                     <a class="page-link" href="/student/">Всі класи</a></li>
-                <li th:class="${level == 1}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/1"> 1</a></li>
-                <li th:class="${level == 2}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/2"> 2</a></li>
-                <li th:class="${level == 3}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/3"> 3</a></li>
-                <li th:class="${level == 4}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/4"> 4</a></li>
-                <li th:class="${level == 5}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/5"> 5</a></li>
-                <li th:class="${level == 6}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/6"> 6</a></li>
-                <li th:class="${level == 7}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/7"> 7</a></li>
-                <li th:class="${level == 8}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/8"> 8</a></li>
-                <li th:class="${level == 9}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/9"> 9</a></li>
-                <li th:class="${level == 10}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/10">10</a></li>
-                <li th:class="${level == 11}? 'page-item active' : 'page-item'">
-                    <a class="page-link" href="/student/grade/11">11</a></li>
+                <span th:each="lvl : ${#numbers.sequence( 1, 11)}">
+                        <li th:class="${level == lvl}? 'page-item active' : 'page-item'">
+                            <a class="page-link" th:text="${lvl}" th:href="@{/student/grade/{gradLvl}(gradLvl=${lvl})}">
+                                клас</a></li>
+                </span>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">12</a></li>
+            </ul>
+            <ul class="pagination pagination-sm  float-left mb-1" th:if="${teacherId != null}">
+                <li th:class="${level == 0}? 'page-item active' : 'page-item'">
+                    <a class="page-link" th:href="@{/student/teacher/{id}(id=${teacherId})}">Всі класи</a></li>
+                <span th:each="lvl : ${#numbers.sequence( 1, 11)}">
+                        <li th:class="${level == lvl}? 'page-item active' : 'page-item'">
+                            <a class="page-link" th:text="${lvl}"
+                               th:href="@{/student/teacher/{id}/grade/{gradLvl}(id=${teacherId},gradLvl=${lvl})}">
+                                клас</a></li>
+                </span>
                 <li class="page-item disabled">
                     <a class="page-link" href="#">12</a></li>
             </ul>
