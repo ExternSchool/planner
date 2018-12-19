@@ -1,8 +1,9 @@
 'use strict';
 
 function openDeleteEventTypeModal(id) {
+    console.log("Modal event id: " + id);
     $.ajax({
-        url: "/events/type/" + id + "/modal",
+        url: "/event/type/" + id + "/modal",
         success: function (data) {
             $("#deleteEventTypeHolder").html(data);
             $("#deleteEventTypeModal").modal("show");

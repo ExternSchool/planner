@@ -11,6 +11,7 @@ import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
@@ -26,6 +27,7 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +45,7 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSON
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PSYCHOLOGIST;
 
 @Service
+@Transactional
 @ExcludeFromTests
 public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
@@ -85,6 +88,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     public void afterPropertiesSet() {
         Teacher noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        noTeacher.setOfficer("");
         VerificationKey keyNoTeacher = new VerificationKey();
         verificationKeyService.saveOrUpdateKey(keyNoTeacher);
         noTeacher.addVerificationKey(keyNoTeacher);
@@ -228,14 +232,15 @@ public class BootstrapDataPopulator implements InitializingBean {
                 studentEventsUsers,
                 guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
-                        ? LocalDate.now().plusDays(-2L)
+                        ? scheduleService.getCurrentWeekFirstDay()
                         : LocalDate.now());
+
         createScheduleEventsWithSetOfUsers(
                 presetTeacher,
                 studentEventsUsers,
                 guestEventsUsers,
                 LocalDate.now().getDayOfWeek().getValue() == 6 || LocalDate.now().getDayOfWeek().getValue() == 7
-                        ? LocalDate.now().plusDays(5L)
+                        ? scheduleService.getNextWeekFirstDay()
                         : LocalDate.now().plusDays(7L));
     }
 
@@ -276,18 +281,19 @@ public class BootstrapDataPopulator implements InitializingBean {
         ScheduleEventType eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
         eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-        eventType = eventTypeRepository.save(eventType);
+        eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
         eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
         eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-        eventType = eventTypeRepository.save(eventType);
+        eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
+        eventTypeRepository.save(eventType);
 
         eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
         eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
         eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
-        eventType = eventTypeRepository.save(eventType);
+        eventTypeRepository.save(eventType);
     }
 
     private void createScheduleEventsWithSetOfUsers(final User owner,
@@ -300,59 +306,86 @@ public class BootstrapDataPopulator implements InitializingBean {
                     .findAny()
                     .map(SchoolSubject::getTitle)
                     .orElse("UNDEFINED");
+        ScheduleEvent event;
 
-        ScheduleEventDTO eventOne =  ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+        ScheduleEventDTO eventOne = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(LocalTime.of(9,0))
-                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
-                .withDescription(description)
-                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withEventType(UK_EVENT_TYPE_PERSONAL)
+                .withTitle(UK_EVENT_TYPE_PERSONAL)
+                .withDescription("")
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        students.forEach(user -> scheduleService.addParticipant(
-                user,
-                scheduleService.createEventWithDuration(owner, eventOne, duration)));
+        event = scheduleService.createEventWithDuration(owner, eventOne, duration);
+        for(User user : students) {
+            scheduleService.addParticipant(user, event);
+        }
 
         ScheduleEventDTO eventTwo = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(eventOne.getStartTime().plus(duration, ChronoUnit.MINUTES))
-                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
-                .withDescription(UK_EVENT_TYPE_PSYCHOLOGIST)
-                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withEventType(UK_EVENT_TYPE_GROUP)
+                .withTitle(UK_EVENT_TYPE_GROUP)
+                .withDescription(description)
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        students.stream()
-                .findAny()
-                .ifPresent(user -> scheduleService.addParticipant(
-                        user,
-                        scheduleService.createEventWithDuration(owner, eventTwo, duration)));
+        event = scheduleService.createEventWithDuration(owner, eventTwo, duration);
+        for(User user : students) {
+            scheduleService.addParticipant(user, event);
+        }
 
         ScheduleEventDTO eventThree = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(date)
                 .withStartTime(eventTwo.getStartTime().plus(duration, ChronoUnit.MINUTES))
                 .withEventType(UK_EVENT_TYPE_PERSONAL)
-                .withDescription(UK_EVENT_TYPE_PERSONAL)
-                .withTitle(owner.getVerificationKey().getPerson().getShortName())
+                .withTitle(UK_EVENT_TYPE_PERSONAL)
+                .withDescription("")
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
         scheduleService.createEventWithDuration(owner, eventThree, duration);
 
-        ScheduleEventDTO eventFour = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withDate(date)
-                .withStartTime(eventOne.getStartTime().plus(5, ChronoUnit.HOURS))
-                .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
-                .withDescription(UK_EVENT_TYPE_PSYCHOLOGIST)
-                .withTitle(owner.getVerificationKey().getPerson().getShortName())
-                .withCreated(LocalDateTime.now())
-                .withIsOpen(true)
-                .build();
-        guests.stream()
-                .findAny()
-                .ifPresent(user -> scheduleService.addParticipant(
-                        user,
-                        scheduleService.createEventWithDuration(owner, eventFour, duration)));
+        LocalTime allEventsStartTime = eventOne.getStartTime().plus(5, ChronoUnit.HOURS);
+        for (int i = 0; i < 3; i++) {
+            LocalTime startTime = allEventsStartTime.plus(i * duration, ChronoUnit.MINUTES);
+            ScheduleEventDTO eventFour = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                    .withDate(date)
+                    .withStartTime(startTime)
+                    .withDescription("обов'язково для нових учнів школи")
+                    .withIsOpen(true)
+                    .withEventType(UK_EVENT_TYPE_PSYCHOLOGIST)
+                    .withTitle(UK_EVENT_TYPE_PSYCHOLOGIST)
+                    .withCreated(LocalDateTime.now())
+                    .build();
+            event = scheduleService.createEventWithDuration(owner, eventFour, duration);
+
+            ScheduleEventDTO nextEvent = new ScheduleEventDTO(
+                    eventFour.getId(),
+                    eventFour.getDate().plus(1, ChronoUnit.DAYS),
+                    eventFour.getStartTime(),
+                    eventFour.getDescription(),
+                    eventFour.getOpen(),
+                    eventFour.getEventType(),
+                    eventFour.getTitle(),
+                    LocalDateTime.now());
+            scheduleService.createEventWithDuration(owner, nextEvent, duration);
+
+            ScheduleEventDTO previousEvent = new ScheduleEventDTO(
+                    eventFour.getId(),
+                    eventFour.getDate().plus(-1, ChronoUnit.DAYS),
+                    eventFour.getStartTime(),
+                    eventFour.getDescription(),
+                    eventFour.getOpen(),
+                    eventFour.getEventType(),
+                    eventFour.getTitle(),
+                    LocalDateTime.now());
+            scheduleService.createEventWithDuration(owner, previousEvent, duration);
+        }
+
+        for(User user : guests) {
+            scheduleService.addParticipant(user, event);
+        }
     }
 }

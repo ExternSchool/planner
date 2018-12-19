@@ -164,7 +164,7 @@ public class TeacherControllerTest {
                 .andExpect(view().name("teacher/teacher_visitors"))
                 .andExpect(model().attributeExists("teacher"))
                 .andExpect(model().attributeExists("students"))
-                .andExpect(model().attributeExists("visitors"))
+                .andExpect(model().attributeExists("guests"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }

@@ -3,7 +3,6 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
@@ -136,7 +135,7 @@ public class StudentController {
     @Secured("ROLE_STUDENT")
     @GetMapping("/profile")
     public ModelAndView displayFormStudentProfile(final Principal principal) {
-        final User user = userService.findUserByEmail(principal.getName());
+        final User user = userService.getUserByEmail(principal.getName());
         Long id = user.getVerificationKey().getPerson().getId();
         StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
 
@@ -163,7 +162,7 @@ public class StudentController {
     @Secured("ROLE_STUDENT")
     @GetMapping("/plan")
     public ModelAndView displayFormStudentPlanForStudent(final Principal principal) {
-        User user = userService.findUserByEmail(principal.getName());
+        User user = userService.getUserByEmail(principal.getName());
         Student student = studentService.findStudentById(user.getVerificationKey().getPerson().getId());
         List<Course> courses = courseService.selectCoursesForStudent(student);
 
@@ -175,7 +174,7 @@ public class StudentController {
     public ModelAndView showStudentPlanForm(@PathVariable("id") Long id,
                                             final Principal principal) {
         Student student = studentService.findStudentById(id);
-        User user = userService.findUserByEmail(principal.getName());
+        User user = userService.getUserByEmail(principal.getName());
         if (student == null) {
             return redirectByRole(user);
         }
@@ -238,7 +237,7 @@ public class StudentController {
         }
         studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
 
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
@@ -252,7 +251,7 @@ public class StudentController {
             keyService.deleteById(key.getId());
         }
 
-        return redirectByRole(userService.findUserByEmail(principal.getName()));
+        return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
     @Secured("ROLE_ADMIN")
@@ -266,9 +265,9 @@ public class StudentController {
                 .map(s -> (StudentDTO)keyService.setNewKeyToDTO(s))
                 .orElse(new StudentDTO());
 
-        Optional.ofNullable(userService.findUserByEmail(studentDTO.getEmail()))
+        Optional.ofNullable(userService.getUserByEmail(studentDTO.getEmail()))
                 .ifPresent(user -> {
-                    userService.createAndAddNewKeyAndPerson(user);
+                    userService.createNewKeyWithNewPersonAndAddToUser(user);
                     userService.save(user);
                 });
 
@@ -277,7 +276,7 @@ public class StudentController {
 
     private ModelAndView redirectByRole(User user) {
         if (user != null && user.getEmail() != null) {
-            User userFound = userService.findUserByEmail(user.getEmail());
+            User userFound = userService.getUserByEmail(user.getEmail());
             if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 
                 return new ModelAndView("redirect:/student/");
@@ -342,8 +341,7 @@ public class StudentController {
             dto.ifPresent(d -> d.setOptionalData(
                     Optional.ofNullable(course.getPlanId())
                             .map(planService::findById)
-                            .map(StudyPlan::getSubject)
-                            .map(SchoolSubject::getTitle)
+                            .map(StudyPlan::getTitle)
                             .orElse("")));
             dto.ifPresent(resultList::add);
         }
@@ -356,7 +354,7 @@ public class StudentController {
 
     private Boolean isTeacher(Principal principal) {
         return Optional.ofNullable(principal.getName())
-                .map(userService::findUserByEmail)
+                .map(userService::getUserByEmail)
                 .map(User::getRoles)
                 .map(roles -> roles.contains(roleService.getRoleByName("ROLE_TEACHER")))
                 .orElse(Boolean.FALSE);
@@ -364,7 +362,7 @@ public class StudentController {
 
     private Optional<Teacher> getTeacher(Principal principal) {
         return Optional.ofNullable(principal.getName())
-                .map(userService::findUserByEmail)
+                .map(userService::getUserByEmail)
                 .map(User::getVerificationKey)
                 .map(VerificationKey::getPerson)
                 .map(Person::getId)

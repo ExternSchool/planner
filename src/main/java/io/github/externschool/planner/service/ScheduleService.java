@@ -9,11 +9,8 @@ import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- * @author Benkoff (mailto.benkoff@gmail.com)
- */
 public interface ScheduleService {
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
 
@@ -27,19 +24,27 @@ public interface ScheduleService {
 
     List<ScheduleEvent> getEventsByOwner(User owner);
 
+    List<ScheduleEvent> getEventsByOwnerStartingBetweenDates(User owner, LocalDate firstDate, LocalDate lastDate);
+
     List<ScheduleEvent> getEventsByType(ScheduleEventType type);
 
-    void cancelEventById(long id);
+    void cancelEventByIdAndSave(long id);
+
+    void findEventByIdSetOpenAndSave(long id, boolean state);
 
     void deleteEventById(long id);
 
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
-    void removeOwner(User owner, ScheduleEvent event);
+    void removeOwner(ScheduleEvent event);
 
-    ScheduleEvent addParticipant(User user, ScheduleEvent event);
+    Optional<Participant> addParticipant(User user, ScheduleEvent event);
 
-    void removeParticipant(Participant participant);
+    Optional<Participant> findParticipantByUserAndEvent(User user, ScheduleEvent event);
+
+    List<Participant> getParticipantsByUser(User user);
+
+    boolean removeParticipant(Participant participant);
 
     LocalDate getCurrentWeekFirstDay();
 

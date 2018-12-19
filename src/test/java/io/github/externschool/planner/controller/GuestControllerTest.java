@@ -1,11 +1,19 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
+import io.github.externschool.planner.service.ScheduleService;
+import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
@@ -26,8 +34,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Optional;
+
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,6 +63,9 @@ public class GuestControllerTest {
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
     @Autowired private RoleService roleService;
+    @Autowired private TeacherService teacherService;
+    @Autowired private ScheduleService scheduleService;
+    @Autowired private ScheduleEventTypeService typeService;
     private GuestController controller;
     private MockMvc mockMvc;
 
@@ -59,7 +77,15 @@ public class GuestControllerTest {
 
     @Before
     public void setup(){
-        controller = new GuestController(personService, conversionService, keyService, roleService, userService);
+        controller = new GuestController(
+                personService,
+                conversionService,
+                keyService,
+                roleService,
+                userService,
+                teacherService,
+                scheduleService,
+                typeService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -95,10 +121,10 @@ public class GuestControllerTest {
     public void shouldReturnGuestListTemplate_whenGetGuestWithAdminRole() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("guest/person_list"))
+                .andExpect(view().name("guest/guest_list"))
                 .andExpect(content().string(Matchers.containsString("Guest List")))
-                .andExpect(model().attributeExists("persons"))
-                .andExpect(model().attribute("persons",
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(model().attribute("guests",
                         Matchers.hasItem(
                                 Matchers.<Person> hasProperty("firstName",
                                         Matchers.equalToIgnoringCase(personName)))));
@@ -221,11 +247,397 @@ public class GuestControllerTest {
                 .andExpect(view().name("redirect:/"));
     }
 
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnForm_whenDisplayOfficersList() throws Exception {
+        mockMvc.perform(get("/guest/officer/schedule/"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officers",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnMaV_whenDisplaySubscriptionsToGuest() throws Exception {
+        mockMvc.perform(get("/guest/subscriptions"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_subscriptions"))
+                .andExpect(model()
+                        .attributeExists(
+                                "guest",
+                                "participants"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnModelAndView_whenDisplaySubscriptionsToAdmin() throws Exception {
+        mockMvc.perform(get("/guest/" + person.getId() + "/subscriptions"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_subscriptions"))
+                .andExpect(model()
+                        .attributeExists(
+                                "guest",
+                                "participants"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnNullRecentUpdates_whenDisplayOfficersListToAdmin() throws Exception {
+        mockMvc.perform(post("/guest/" + person.getId() + "/officer/schedule")
+                .param("action", "cancel"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officer",
+                                "officers",
+                                "weekDays",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents",
+                                "availableEvents",
+                                "event"))
+                .andExpect(model()
+                        //has to be null since there is no selected schedule yet
+                        .attribute("recentUpdate", Matchers.nullValue()))
+                .andExpect(model()
+                        .attribute("availableEvents", 0L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldReturnNonNullRecentUpdates_whenDisplayOfficerScheduleWithAdmin() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+
+        scheduleService.removeOwner(event);
+        scheduleService.addOwner(eventUser, event);
+        assertThat(event.getModifiedAt())
+                .isNotNull();
+
+        mockMvc.perform(get("/guest/" + person.getId() + "/officer/" + officer.getId() + "/schedule"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officer",
+                                "officers",
+                                "weekDays",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents",
+                                "availableEvents",
+                                "event"))
+                .andExpect(model()
+                        .attribute("recentUpdate", Matchers.notNullValue()))
+                .andExpect(model()
+                        .attribute("availableEvents", 1L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnNullRecentUpdates_whenDisplayOfficerScheduleWithGuest() throws Exception {
+        mockMvc.perform(get("/guest/" + person.getId() + "/officer/" + person.getId() + "/schedule"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officer",
+                                "officers",
+                                "weekDays",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents",
+                                "availableEvents",
+                                "event"))
+                .andExpect(model()
+                        //has to be null since there is no schedule for the person whose id has been provided
+                        //if we provide an existing teacher id, who has any event, here should be non-null value
+                        .attribute("recentUpdate", Matchers.nullValue()))
+                .andExpect(model()
+                        .attribute("availableEvents", 0L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"ADMIN", "GUEST"})
+    public void shouldReturnModelAndView_whenDisplayNewSubscriptionModalWithAdmin() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        scheduleService.removeOwner(event);
+        scheduleService.addOwner(eventUser, event);
+
+        mockMvc.perform(get("/guest/" + person.getId()
+                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/subscribe"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule :: subscribeEvent"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officer",
+                                "officers",
+                                "weekDays",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents",
+                                "availableEvents",
+                                "event"))
+                .andExpect(model()
+                        .attribute("recentUpdate", Matchers.notNullValue()))
+                .andExpect(model()
+                        .attribute("availableEvents", 1L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldRedirect_whenSuccessfulProcessNewEventSubscriptionModal() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+
+        mockMvc.perform(post("/guest/" + person.getId()
+                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/subscribe"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/" + person.getId()
+                                + "/officer/" + officer.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "GUEST")
+    public void shouldReturnModelAndView_whenUnsuccessfulProcessNewEventSubscriptionModal() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+        ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(wrongType::addOwner);
+        typeService.saveOrUpdateEventType(wrongType);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        eventDTO.setEventType(wrongType.getName());
+        ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+
+
+        mockMvc.perform(post("/guest/" + person.getId() + "/officer/"
+                        + officer.getId() + "/event/" + wrongEvent.getId() + "/subscribe"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists("error"))
+                .andExpect(model()
+                        .attribute("error", Matchers.notNullValue()));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
+    public void shouldReturnModelAndView_whenDisplayUnsubscribeModal() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        scheduleService.removeOwner(event);
+        scheduleService.addOwner(eventUser, event);
+
+        mockMvc.perform(get("/guest/" + person.getId()
+                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule :: unsubscribe"))
+                .andExpect(model()
+                        .attributeExists(
+                                "officer",
+                                "officers",
+                                "weekDays",
+                                "currentWeek",
+                                "nextWeek",
+                                "currentWeekEvents",
+                                "nextWeekEvents",
+                                "availableEvents",
+                                "event"))
+                .andExpect(model()
+                        .attribute("recentUpdate", Matchers.notNullValue()))
+                .andExpect(model()
+                        .attribute("availableEvents", 1L));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
+    public void shouldRedirect_whenSuccessfulProcessUnsubscribeModalWithAdmin() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        scheduleService.addParticipant(user, event);
+
+        mockMvc.perform(post("/guest/" + person.getId()
+                + "/officer/" + officer.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/" + person.getId()
+                        + "/officer/" + officer.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
+    public void shouldReturnModelAndView_whenUnsuccessfulProcessUnsubscribeModalWithGuest() throws Exception {
+        User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_OFFICER");
+        Teacher officer = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                "Officer",
+                new HashSet<>(),
+                new HashSet<>()));
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveOrUpdateEventType(type);
+        ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(wrongType::addOwner);
+        typeService.saveOrUpdateEventType(wrongType);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle("Test")
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        eventDTO.setEventType(wrongType.getName());
+        ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+
+        mockMvc.perform(post("/guest/" + person.getId() + "/officer/"
+                + officer.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_schedule"))
+                .andExpect(model()
+                        .attributeExists("error"))
+                .andExpect(model()
+                        .attribute("error", UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE));
+    }
+
     @After
     public void tearDown() {
         personService.deletePerson(person);
-        System.out.println(userService.findUserByEmail(userName));
         userService.deleteUser(user);
-        System.out.println(userService.findUserByEmail(userName));
     }
 }

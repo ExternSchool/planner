@@ -16,6 +16,7 @@ public class ScheduleEventTypeDTO {
     private Long id;
     @NotBlank private String name;
     @Min(1) @Max(50) private Integer amountOfParticipants;
+    @Min(1) @Max(600) private Integer durationInMinutes;
     @NotEmpty private List<Role> owners = new ArrayList<>();
     @NotEmpty private List<Role> participants = new ArrayList<>();
 
@@ -55,6 +56,14 @@ public class ScheduleEventTypeDTO {
 
     public void setAmountOfParticipants(final Integer amountOfParticipants) {
         this.amountOfParticipants = amountOfParticipants;
+    }
+
+    public Integer getDurationInMinutes() {
+        return durationInMinutes;
+    }
+
+    public void setDurationInMinutes(final Integer durationInMinutes) {
+        this.durationInMinutes = durationInMinutes;
     }
 
     public List<Role> getOwners() {

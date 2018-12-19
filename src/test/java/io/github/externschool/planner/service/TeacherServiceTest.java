@@ -193,4 +193,24 @@ public class TeacherServiceTest {
                 assertThat(course.getTeacher())
                         .isNull());
     }
+
+    @Test
+    public void shouldReturnSingletonList_whenFindAllOfficers() {
+
+        Teacher anotherTeacher = new Teacher();
+        anotherTeacher.setLastName("ZetName");
+        expectedTeacher.setOfficer("Officer");
+        List<Teacher> expectedList = Collections.singletonList(expectedTeacher);
+        List<Teacher> teacherList  = Arrays.asList(expectedTeacher, anotherTeacher);
+
+        Mockito.when(teacherRepository.findAllByOrderByLastName())
+                .thenReturn(teacherList);
+
+        List<Teacher> actualList = teacherService.findAllOfficers();
+
+        assertThat(actualList)
+                .isNotEmpty()
+                .containsSequence(expectedList)
+                .doesNotContainSequence(teacherList);
+    }
 }

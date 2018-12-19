@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(readOnly = true)
     @Override
-    public User findUserByEmail(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(final User user) {
-        if (user != null && findUserByEmail(user.getEmail()) != null) {
+        if (user != null && getUserByEmail(user.getEmail()) != null) {
             if (user.getVerificationKey() != null) {
                 user.removeVerificationKey();
             }
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
     public Boolean userHasRole(final User user, final String role) {
         return Optional.ofNullable(user)
                 .map(User::getEmail)
-                .map(this::findUserByEmail)
+                .map(this::getUserByEmail)
                 .map(User::getRoles)
                 .map(roles -> roles.contains(roleService.getRoleByName(role)))
                 .orElse(false);
@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createAndAddNewKeyAndPerson(User user) {
+    public void createNewKeyWithNewPersonAndAddToUser(User user) {
         VerificationKey key = new VerificationKey();
         keyRepository.save(key);
         Person person = new Person();

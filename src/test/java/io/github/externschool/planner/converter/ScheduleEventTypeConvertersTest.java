@@ -34,6 +34,7 @@ public class ScheduleEventTypeConvertersTest {
                 roleService.getRoleByName("ROLE_STUDENT"),
                 roleService.getRoleByName("ROLE_TEACHER"))
                 .forEach(eventType::addParticipant);
+        eventType.setDurationInMinutes(45);
 
         ScheduleEventTypeDTO expectedDTO = new ScheduleEventTypeDTO(
                 eventType.getId(),
@@ -41,6 +42,7 @@ public class ScheduleEventTypeConvertersTest {
                 eventType.getAmountOfParticipants(),
                 new ArrayList<>(eventType.getOwners()),
                 new ArrayList<>(eventType.getParticipants()));
+        expectedDTO.setDurationInMinutes(eventType.getDurationInMinutes());
 
         ScheduleEventTypeDTO actualDTO = conversionService.convert(eventType, ScheduleEventTypeDTO.class);
 
@@ -57,10 +59,12 @@ public class ScheduleEventTypeConvertersTest {
                 2,
                 Collections.singletonList(roleService.getAllRoles().get(0)),
                 roleService.getAllRoles());
+        typeDTO.setDurationInMinutes(45);
 
         ScheduleEventType expectedType = new ScheduleEventType(typeDTO.getName(), typeDTO.getAmountOfParticipants());
         expectedType.setId(typeDTO.getId());
         expectedType.addOwner(roleService.getAllRoles().get(0));
+        expectedType.setDurationInMinutes(45);
         roleService.getAllRoles().forEach(expectedType::addParticipant);
 
         ScheduleEventType actualType = conversionService.convert(typeDTO, ScheduleEventType.class);

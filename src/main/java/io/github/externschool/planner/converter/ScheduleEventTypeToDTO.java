@@ -12,11 +12,14 @@ public class ScheduleEventTypeToDTO implements Converter<ScheduleEventType, Sche
     @Override
     public ScheduleEventTypeDTO convert(final ScheduleEventType eventType) {
 
-        return new ScheduleEventTypeDTO(
+        ScheduleEventTypeDTO typeDTO = new ScheduleEventTypeDTO(
                 eventType.getId(),
                 eventType.getName(),
                 eventType.getAmountOfParticipants(),
                 new ArrayList<>(eventType.getOwners()),
                 new ArrayList<>(eventType.getParticipants()));
+        typeDTO.setDurationInMinutes(eventType.getDurationInMinutes());
+
+        return typeDTO;
     }
 }

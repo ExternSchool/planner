@@ -7,7 +7,7 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 
 public interface UserService {
-    User findUserByEmail(String email);
+    User getUserByEmail(String email);
 
     User save(User user);
 
@@ -23,5 +23,5 @@ public interface UserService {
 
     User assignNewRolesByKey(User user, VerificationKey key) throws RoleNotFoundException;
 
-    void createAndAddNewKeyAndPerson(User user);
+    void createNewKeyWithNewPersonAndAddToUser(User user);
 }

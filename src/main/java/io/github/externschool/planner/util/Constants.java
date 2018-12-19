@@ -1,11 +1,16 @@
 package io.github.externschool.planner.util;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public final class Constants {
+    // role names to display in Ukrainian when selected
     public static final Map<String, String> UK_ROLE_NAMES;
     static {
         UK_ROLE_NAMES = new HashMap<>();
@@ -15,6 +20,8 @@ public final class Constants {
         UK_ROLE_NAMES.put("ROLE_STUDENT", "Учень");
         UK_ROLE_NAMES.put("ROLE_TEACHER", "Вчитель");
     }
+
+    public static final Locale LOCALE = new Locale("uk", "UA");
 
     public static final String UK_GENDER_MALE = "чол.";
     public static final String UK_GENDER_FEMALE = "жін.";
@@ -32,34 +39,57 @@ public final class Constants {
     public static final String UK_GRADE_LEVEL_10 = "10 клас";
     public static final String UK_GRADE_LEVEL_11 = "11 клас";
     public static final String UK_GRADE_LEVEL_12 = "12 клас";
-
+    // error messages
     public static final String UK_FORM_INVALID_KEY_MESSAGE = "Введено недійсний ключ!";
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Помилка вводу даних!";
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
-
+    public static final String UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE =
+            "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
+    public static final String UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE =
+            "За користувачем не зареєстровано вказану подію. \nСпробуйте ще або зверніться до адміністратора";
+    // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
 
+    //TODO Test event types. Remove from Bootstrap Data Populator when DB migration finished
+    public static final String UK_EVENT_TYPE_NOT_DEFINED = "Тип не визначений";
     public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
     public static final String UK_EVENT_TYPE_GROUP = "Групова консультація";
     public static final String UK_EVENT_TYPE_GRADE_BOOK = "Видача залікових книжок";
     public static final String UK_EVENT_TYPE_PSYCHOLOGIST = "Співбесіда з психологом";
     public static final String UK_EVENT_TYPE_PRINCIPAL = "Прийом директора";
     public static final String UK_EVENT_TYPE_TEST = "Написання контрольної роботи";
-    public static final String UK_EVENT_TYPE_COUNCIL = "Педагогічна рада";
 
-    public static final Locale LOCALE = new Locale("uk", "UA");
+    private static final String UK_WEEK_DAYS_MONDAY = "Понеділок";
+    private static final String UK_WEEK_DAYS_TUESDAY = "Вівторок";
+    private static final String UK_WEEK_DAYS_WEDNESDAY = "Середа";
+    private static final String UK_WEEK_DAYS_THIRSDAY = "Четвер";
+    private static final String UK_WEEK_DAYS_FRIDAY = "П'ятниця";
+    public static final List<String> UK_WEEK_WORKING_DAYS;
+    static {
+        UK_WEEK_WORKING_DAYS = Arrays.asList(
+                UK_WEEK_DAYS_MONDAY,
+                UK_WEEK_DAYS_TUESDAY,
+                UK_WEEK_DAYS_WEDNESDAY,
+                UK_WEEK_DAYS_THIRSDAY,
+                UK_WEEK_DAYS_FRIDAY);
+    }
 
+    public static final Integer DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE = 45;
+    public static final LocalTime DEFAULT_TIME_OF_WORKING_DAY_BEGINNING = LocalTime.of(9, 0);
+    // need to point start date for standard events schema
     public static final LocalDate FIRST_MONDAY_OF_EPOCH = LocalDate.of(1970, 1, 5);
-
+    // period of time when it's already late to join as participant to an incoming event
+    public static final Duration DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofDays(0);
+    public static final Duration HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofHours(0);
+    // mailing service text messages
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";
-    //TODO Add ACTUAL LINK to this service
     public static final String APPOINTMENT_CANCELLATION_PROPOSAL =
             "Будь ласка, скористайтеся цим посиланням для призначення нової зустрічі в зручний для Вас час: "
-            + "https://extern.kiev.ua";
+            + "https://extern.com.ua";
     public static final String APPOINTMENT_CANCELLATION_SIGNATURE = "З повагою,\nАдміністрація Школи Екстернів";
 
     private Constants() {

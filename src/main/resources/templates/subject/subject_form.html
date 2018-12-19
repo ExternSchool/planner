@@ -22,12 +22,12 @@
 
 <!--Header content here-->
 <header class="header">
-    <div th:replace="fragments/header :: header(activeTab='subject')"></div>
+    <div th:replace="fragments/header :: header(activeTab='setup')"></div>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="h3 mb-3 font-weight-normal" th:inline="text"><small>Correspondence of Subjects to Study Plans</small></h4>
+    <h4 class="mb-3 font-weight-normal" th:inline="text"><small>Correspondence of Subjects to Study Plans</small></h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>

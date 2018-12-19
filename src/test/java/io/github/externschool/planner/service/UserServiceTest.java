@@ -11,14 +11,12 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
-import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -104,7 +102,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldReturnUser_WhenFindUserByEmail() {
-        User actualUser = userService.findUserByEmail(email);
+        User actualUser = userService.getUserByEmail(email);
 
         assertThat(actualUser)
                 .isNotNull()
@@ -261,7 +259,7 @@ public class UserServiceTest {
     public void shouldReturnNewKeyAndPerson_whenCreateAndAddNewKeyAndPerson() {
         User actualUser = new User();
 
-        userService.createAndAddNewKeyAndPerson(actualUser);
+        userService.createNewKeyWithNewPersonAndAddToUser(actualUser);
 
         assertThat(actualUser.getVerificationKey())
                 .isNotNull()

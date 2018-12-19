@@ -33,7 +33,7 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_E
 @Controller
 @Transactional
 @Secured("ROLE_ADMIN")
-@RequestMapping("/events")
+@RequestMapping("/event")
 public class ScheduleController {
     private final ScheduleEventTypeService eventTypeService;
     private final ScheduleService scheduleService;
@@ -78,15 +78,16 @@ public class ScheduleController {
         }
 
         ScheduleEventType newEventType = new ScheduleEventType(name, 1);
+        newEventType.setDurationInMinutes(45);
         newEventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         newEventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
         eventTypeService.saveOrUpdateEventType(newEventType);
 
-        return new ModelAndView("redirect:/events/type/");
+        return new ModelAndView("redirect:/event/type/");
     }
 
     @PostMapping(value = "/type/", params = "action=save")
-    public ModelAndView processEventTypeditForm(@ModelAttribute("eventType") @Valid ScheduleEventTypeDTO req,
+    public ModelAndView processEventTypeFormSave(@ModelAttribute("eventType") @Valid ScheduleEventTypeDTO req,
                                                      final BindingResult bindingResult,
                                                      final ModelMap model) {
         if (bindingResult.hasErrors()) {
@@ -96,12 +97,12 @@ public class ScheduleController {
 
         eventTypeService.saveOrUpdateEventType(conversionService.convert(req, ScheduleEventType.class));
 
-        return new ModelAndView("redirect:/events/type/", model);
+        return new ModelAndView("redirect:/event/type/", model);
     }
 
     @GetMapping("/type/{id}")
-    public ModelAndView displayEventTypedIdForm(@PathVariable("id") Long id, ModelMap model) {
-        ModelAndView modelAndView = new ModelAndView("redirect:/events/type/");
+    public ModelAndView displayEventTypeForm(@PathVariable("id") Long id, ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("redirect:/event/type/");
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);
         if(eventType.isPresent()) {
             ScheduleEventType type = eventType.get();
@@ -128,9 +129,9 @@ public class ScheduleController {
         return modelAndView;
     }
 
-    @GetMapping("/type/{id}/delete")
+    @PostMapping("/type/{id}/delete")
     public ModelAndView processDeleteEventType(@PathVariable("id") Long id, ModelMap model) {
-        ModelAndView modelAndView = new ModelAndView("redirect:/events/type/", model);
+        ModelAndView modelAndView = new ModelAndView("redirect:/event/type/", model);
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);
         eventType.ifPresent(eventTypeService::deleteEventType);
 
