@@ -123,7 +123,7 @@ public class StudyPlanControllerTest {
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
                 .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("plans", Matchers.hasSize(4)))
+                .andExpect(model().attribute("plans", Matchers.hasSize(plans.size())))
                 .andExpect(model().attribute("plans",
                         Matchers.hasItem(
                                 Matchers.<StudyPlan> hasProperty("gradeLevel",
