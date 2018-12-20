@@ -138,6 +138,30 @@ public class GuestControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnOk_whenShowCreatePersonProfileModal() throws Exception {
+        mockMvc.perform(get("/guest/create"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list :: createAccount"))
+                .andExpect(content().string(Matchers.containsString("createAccountModal")))
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(model().attribute("person",
+                        Matchers.hasProperty("firstName",
+                                Matchers.isEmptyOrNullString())));
+    }
+
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndView_whenProcessCreatePersonProfileModal() throws Exception {
+        mockMvc.perform(post("/guest/create").params(map))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list"))
+                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(model().attributeExists("person", "guests"));
+    }
+
+    @Test
     @WithMockUser(username = userName, roles = "GUEST")
     public void shouldReturnOk_whenGetFormPersonProfile() throws Exception {
         mockMvc.perform(get("/guest/profile"))

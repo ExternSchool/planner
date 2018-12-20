@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
@@ -11,6 +12,7 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -148,6 +151,52 @@ public class UserServiceTest {
 
         thrown.expect(EmailExistsException.class);
         thrown.expectMessage("There is already a user with the email provided");
+    }
+
+    @Test
+    public void shouldReturnNewUser_whenCreateFakeUserWithStudentVerificationKey() {
+        VerificationKey key = new VerificationKey();
+        keyRepository.save(key);
+        Person person = new Person();
+        person.addVerificationKey(key);
+        personRepository.save(person);
+        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+
+        User user = userService.createAndSaveFakeUserWithStudentVerificationKey(key);
+
+        assertThat(user)
+                .isNotNull()
+                .hasFieldOrProperty("id")
+                .hasFieldOrProperty("password")
+                .hasFieldOrPropertyWithValue("email", fakeMail)
+                .hasNoNullFieldsOrPropertiesExcept("id");
+        assertThat(user.getRoles())
+                .containsExactly(roleService.getRoleByName("ROLE_STUDENT"));
+        assertThat(user.getVerificationKey())
+                .hasFieldOrPropertyWithValue("person", person);
+    }
+
+    @Test
+    public void shouldReturnNewUser_whenCreateFakeUserWithGuestVerificationKey() {
+        VerificationKey key = new VerificationKey();
+        keyRepository.save(key);
+        Person person = new Person();
+        person.addVerificationKey(key);
+        personRepository.save(person);
+        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+
+        User user = userService.createAndSaveFakeUserWithGuestVerificationKey(key);
+
+        assertThat(user)
+                .isNotNull()
+                .hasFieldOrProperty("id")
+                .hasFieldOrProperty("password")
+                .hasFieldOrPropertyWithValue("email", fakeMail)
+                .hasNoNullFieldsOrPropertiesExcept("id");
+        assertThat(user.getRoles())
+                .containsExactly(roleService.getRoleByName("ROLE_GUEST"));
+        assertThat(user.getVerificationKey())
+                .hasFieldOrPropertyWithValue("person", person);
     }
 
     @Test

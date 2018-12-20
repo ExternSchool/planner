@@ -17,6 +17,10 @@ public interface UserService {
 
     User createUser(String email, String password, String role) throws EmailExistsException;
 
+    User createAndSaveFakeUserWithStudentVerificationKey(VerificationKey key);
+
+    User createAndSaveFakeUserWithGuestVerificationKey(VerificationKey key);
+
     Boolean userHasRole(User user, String role);
 
     User assignNewRole(User user, String role) throws RoleNotFoundException;
