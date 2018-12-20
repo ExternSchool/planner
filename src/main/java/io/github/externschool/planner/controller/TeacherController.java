@@ -363,6 +363,7 @@ public class TeacherController {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
                 scheduleService.deleteEventById(event.getId());
             });
+//            scheduleService.deleteEventsAfterMailingToParticipants(events);
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }

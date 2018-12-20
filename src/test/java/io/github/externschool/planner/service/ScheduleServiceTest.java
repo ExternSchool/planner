@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -41,6 +42,9 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScheduleServiceTest {
@@ -48,6 +52,7 @@ public class ScheduleServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
     @Mock private UserRepository userRepository;
     @Mock private ParticipantRepository participantRepository;
+    @Mock private EmailService emailService;
     private ScheduleService scheduleService;
 
     @Before
@@ -318,6 +323,27 @@ public class ScheduleServiceTest {
         assertThat(anEvent)
                 .hasFieldOrPropertyWithValue("owner", null)
                 .hasFieldOrPropertyWithValue("participants", Collections.emptySet());
+    }
+
+    @Test
+    public void shouldSendEmail_whenDeleteEventsAfterMailingToParticipants(){
+        long id = 100500L;
+        Role userRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        event.setOpen(true);
+        event.getType().addParticipant(userRole);
+        User user = new User("participant@email.com", "pass");
+//        User participantSkip = new User("participant@x", "pass");
+        user.addRole(userRole);
+        Participant expectedParticipant = new Participant(user, event);
+        event.addParticipant(expectedParticipant);
+        List<ScheduleEvent> events = Collections.singletonList(event);
+
+        scheduleService.deleteEventsAfterMailingToParticipants(events);
+
+        verify(emailService, times(1)).sendCancelEventMail(event);
+        verify(scheduleService, times(1)).deleteEventById(event.getId());
     }
 
     @Test(expected = UserCannotHandleEventException.class)

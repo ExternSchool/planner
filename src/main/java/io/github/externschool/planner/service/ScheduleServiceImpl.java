@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -26,8 +27,11 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -40,6 +44,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
+    @Autowired private EmailService emailService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -175,6 +180,21 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             eventRepository.deleteById(id);
         });
+    }
+
+    @Override
+    public void deleteEventsAfterMailingToParticipants(final List<ScheduleEvent> events) {
+        Executor executor = Executors.newSingleThreadExecutor();
+
+        List<ScheduleEvent> copyToMail = Collections.unmodifiableList(events);
+        lock.lock();
+        try {
+            copyToMail.forEach(event -> executor.execute(() -> emailService
+                                            .sendCancelEventMail(event)));
+        } finally {
+            lock.unlock();
+//            events.forEach(event -> deleteEventById(event.getId()));
+        }
     }
 
     @Override

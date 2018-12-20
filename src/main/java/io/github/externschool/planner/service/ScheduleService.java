@@ -34,6 +34,8 @@ public interface ScheduleService {
 
     void deleteEventById(long id);
 
+    void deleteEventsAfterMailingToParticipants(List<ScheduleEvent> events);
+
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
     void removeOwner(ScheduleEvent event);

@@ -19,6 +19,7 @@ import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLA
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
+import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
 @Service
@@ -34,6 +35,14 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendCancelEventMail(ScheduleEvent scheduleEvent){
         scheduleEvent.getParticipants().stream().filter(Objects::nonNull).forEach(participant -> {
+
+            if (participant.getUser() == null
+                    || participant.getUser().getEmail().split("[@._]")[1].equals(FAKE_MAIL_DOMAIN)) {
+                System.out.println("\n\n\n Skipped to send to: "
+                        + Optional.ofNullable(participant.getUser()).map(User::getEmail).orElse("No user")
+                        + " \n\n\n");
+                return;
+            }
             User eventOwner = scheduleEvent.getOwner();
             String eventOwnersName = Optional.ofNullable(eventOwner.getVerificationKey())
                     .map(VerificationKey::getPerson)
@@ -63,6 +72,7 @@ public class EmailServiceImpl implements EmailService {
             simpleMailMessage.setText(textMessage);
 
             mailSender.send(simpleMailMessage);
+            System.out.println("\n\n\n Mail sent to: " + participant.getUser().getEmail() + " \n\n\n");
         });
     }
 }
