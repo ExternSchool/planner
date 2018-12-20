@@ -20,7 +20,7 @@ public interface ScheduleService {
 
     ScheduleEvent saveEvent(ScheduleEvent event);
 
-    List<ScheduleEvent> getActualEventsByOwnerAndDate(User owner, LocalDate date);
+    List<ScheduleEvent> getNonCancelledEventsByOwnerAndDate(User owner, LocalDate date);
 
     List<ScheduleEvent> getEventsByOwner(User owner);
 
@@ -28,13 +28,13 @@ public interface ScheduleService {
 
     List<ScheduleEvent> getEventsByType(ScheduleEventType type);
 
-    void cancelEventByIdAndSave(long id);
-
-    void findEventByIdSetOpenAndSave(long id, boolean state);
-
     void deleteEventById(long id);
 
-    void deleteEventsAfterMailingToParticipants(List<ScheduleEvent> events);
+    Optional<ScheduleEvent> findEventByIdSetOpenByStateAndSave(long id, boolean state);
+
+    Optional<ScheduleEvent> findEventByIdSetCancelledNotOpenAndSave(long id);
+
+    void cancelEventsAndMailToParticipants(List<ScheduleEvent> events);
 
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 

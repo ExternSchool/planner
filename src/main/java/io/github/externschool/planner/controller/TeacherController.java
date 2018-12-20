@@ -4,7 +4,6 @@ import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
-import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
@@ -46,8 +45,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,7 +67,6 @@ public class TeacherController {
     private final RoleService roleService;
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService typeService;
-    private final EmailService emailService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -80,8 +76,7 @@ public class TeacherController {
                              final UserService userService,
                              final RoleService roleService,
                              final ScheduleService scheduleService,
-                             final ScheduleEventTypeService typeService,
-                             final EmailService emailService) {
+                             final ScheduleEventTypeService typeService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
@@ -90,7 +85,6 @@ public class TeacherController {
         this.roleService = roleService;
         this.scheduleService = scheduleService;
         this.typeService = typeService;
-        this.emailService = emailService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -151,43 +145,30 @@ public class TeacherController {
             List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
                     .limit(ChronoUnit.DAYS.between(start, end))
                     .collect(Collectors.toList());
-            // TODO simplify
+
             for (LocalDate date : dates) {
-                scheduleService.getActualEventsByOwnerAndDate(user, date).forEach(event -> {
+                scheduleService.getNonCancelledEventsByOwnerAndDate(user, date).forEach(event -> {
                     event.getParticipants().stream()
                             .map(Participant::getUser)
                             .map(User::getVerificationKey)
                             .map(VerificationKey::getPerson)
                             .forEach(person -> {
-                                if (person.getClass() == Student.class) {
+                                if (person instanceof Student) {
                                     Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
                                             .ifPresent(studentDTO -> {
-                                                studentDTO.setOptionalData(
-                                                        event.getStartOfEvent()
-                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
-                                                                + " "
-                                                                + event.getTitle()
-                                                                + (event.getDescription().isEmpty() ? "" : ": ")
-                                                                + event.getDescription());
+                                                studentDTO.setOptionalData(getEventDetails(event));
                                                 students.add(studentDTO);
                                             });
                                 } else {
                                     Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
                                             .ifPresent(guestDTO -> {
-                                                guestDTO.setOptionalData(
-                                                        event.getStartOfEvent()
-                                                                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
-                                                                + " "
-                                                                + event.getTitle()
-                                                                + (event.getDescription().isEmpty() ? "" : ": ")
-                                                                + event.getDescription());
+                                                guestDTO.setOptionalData(getEventDetails(event));
                                                 guests.add(guestDTO);
                                             });
                                 }
                             });
                 });
             }
-
             modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
             modelAndView.addObject("students", students);
             modelAndView.addObject("guests", guests);
@@ -227,13 +208,13 @@ public class TeacherController {
 
             currentWeekDates.forEach(date ->
                     currentWeekEvents.add(
-                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+                            addDescriptionAndConvertToDTO(scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))));
             nextWeekDates.forEach(date ->
                     nextWeekEvents.add(
-                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+                            addDescriptionAndConvertToDTO(scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))));
             standardWeek.forEach(date ->
                     standardWeekEvents.add(
-                            addDescriptionAndConvertToDTO(scheduleService.getActualEventsByOwnerAndDate(user, date))));
+                            addDescriptionAndConvertToDTO(scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))));
 
             List<ScheduleEvent> incomingEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
                             user,
@@ -261,11 +242,8 @@ public class TeacherController {
         return modelAndView;
     }
 
-    /*
-    TODO Replace Get with Post
-     */
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping("/{id}/event/{eid}/delete")
+    @PostMapping("/{id}/event/{eid}/delete")
     public ModelAndView processTeacherEventDelete(@PathVariable("id") Long id,
                                                   @PathVariable("eid") Long eventId,
                                                   ModelMap model,
@@ -294,17 +272,14 @@ public class TeacherController {
                     "teacher",
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
             model.addAttribute("thisDay", dayOfWeek);
-            modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteCurrentWeekDay", model);
+            modelAndView = new ModelAndView("teacher/teacher_schedule :: cancelCurrentWeekDay", model);
         }
 
         return modelAndView;
     }
 
-    /*
-    TODO Replace Get with Post
-     */
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping("/{id}/current-week/{day}/delete")
+    @PostMapping("/{id}/current-week/{day}/cancel")
     public ModelAndView processTeacherDeleteCurrentWeekDay(@PathVariable("id") Long id,
                                                            @PathVariable("day") int dayOfWeek,
                                                            ModelMap model,
@@ -312,21 +287,17 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
-            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+            List<ScheduleEvent> events = scheduleService.getNonCancelledEventsByOwnerAndDate(
                     optionalUser.get(),
                     scheduleService.getCurrentWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
-            Executor executor = Executors.newSingleThreadExecutor();
-            events.forEach(event -> {
-                executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.deleteEventById(event.getId());
-            });
+
+            scheduleService.cancelEventsAndMailToParticipants(events);
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
         return modelAndView;
     }
-
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/next-week/{day}")
     public ModelAndView displayTeacherDeleteNextWeekDayModal(@PathVariable("id") Long id,
@@ -340,14 +311,14 @@ public class TeacherController {
                     "teacher",
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
             model.addAttribute("thisDay", dayOfWeek);
-            modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteNextWeekDay", model);
+            modelAndView = new ModelAndView("teacher/teacher_schedule :: cancelNextWeekDay", model);
         }
 
         return modelAndView;
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping("/{id}/next-week/{day}/delete")
+    @PostMapping("/{id}/next-week/{day}/cancel")
     public ModelAndView processTeacherDeleteNextWeekDay(@PathVariable("id") Long id,
                                                         @PathVariable("day") int dayOfWeek,
                                                         ModelMap model,
@@ -355,15 +326,11 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent() && isWorkingDay(dayOfWeek)) {
-            List<ScheduleEvent> events = scheduleService.getActualEventsByOwnerAndDate(
+            List<ScheduleEvent> events = scheduleService.getNonCancelledEventsByOwnerAndDate(
                     optionalUser.get(),
                     scheduleService.getNextWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
-            Executor executor = Executors.newSingleThreadExecutor();
-            events.forEach(event -> {
-                executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.deleteEventById(event.getId());
-            });
-//            scheduleService.deleteEventsAfterMailingToParticipants(events);
+
+            scheduleService.cancelEventsAndMailToParticipants(events);
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
@@ -388,7 +355,7 @@ public class TeacherController {
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
             model.addAttribute("thisDay", dayOfWeek);
             List<ScheduleEvent> actualEvents =
-                    scheduleService.getActualEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
+                    scheduleService.getNonCancelledEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
             Optional<ScheduleEvent> latestEvent = actualEvents.stream().reduce((first, second) -> second);
             LocalDate dateToStartNextEvent =
                     latestEvent
@@ -616,6 +583,15 @@ public class TeacherController {
         return Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
                 .orElse(null);
+    }
+
+    private String getEventDetails(ScheduleEvent event) {
+        return event.getStartOfEvent()
+                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
+                + " "
+                + event.getTitle()
+                + (event.getDescription().isEmpty() ? "" : ": ")
+                + event.getDescription();
     }
 
     private List<ScheduleEventDTO> addDescriptionAndConvertToDTO(final List<ScheduleEvent> events) {
