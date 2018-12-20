@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Guest List</title>
     <meta charset="utf-8">
@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
@@ -26,9 +26,13 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text">
+    <h4 class="font-weight-normal mb-0" th:inline="text">
         <small>Гості</small>
     </h4>
+    <button class="float-right btn btn-sm btn-outline-primary mb-1" type="button"
+            th:onclick="'javascript:openCreateAccountModal(\'' + '\');'">
+            Додати нового користувача
+    </button>
     <div class="table-responsive" th:if="${not #lists.isEmpty(guests)}">
         <table class="col-lg-12 table table-sm table-hover">
             <thead>
@@ -83,6 +87,72 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<!-- ModalHolder -->
+<div id="createAccountModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="createAccountModal" role="dialog" th:fragment="createAccount">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalTitle">Створення нового облікового запису</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form th:method="post" th:action="@{/guest/create}" th:object="${person}" class="form" id="formCreateAccount">
+                <div class="modal-body text-center">
+                    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+                        Місце індикації помилок введення даних
+                    </small>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Прізвище</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                               th:field="*{lastName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Ім'я</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
+                               th:field="*{firstName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">По-батькові</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="По-батькові" id="patronymicName"
+                               th:field="*{patronymicName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Телефон</span>
+                        </div>
+                        <input class="form-control" type="tel" placeholder="Державний або місцевий формат"
+                               pattern="^(([ \.\-])?)?([\(]{1}[0-9]{2,3}[\)])?([0-9 \.\-]{7,10})$" title='Зразки:(044)123-45-67, (044) 123 45 67, 123-4567 і т.ін.'
+                               id="phone" th:field="*{phoneNumber}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Скасувати
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Створити користувача!
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/guestList.js"></script>
 
 </body>
 </html>

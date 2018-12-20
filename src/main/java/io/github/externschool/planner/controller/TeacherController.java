@@ -261,6 +261,9 @@ public class TeacherController {
         return modelAndView;
     }
 
+    /*
+    TODO Replace Get with Post
+     */
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/event/{eid}/delete")
     public ModelAndView processTeacherEventDelete(@PathVariable("id") Long id,
@@ -270,7 +273,7 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         ScheduleEvent event = scheduleService.getEventById(eventId);
-        if (optionalUser != null && optionalUser.isPresent() && event != null) {
+        if (optionalUser.isPresent() && event != null) {
             scheduleService.deleteEventById(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
@@ -297,6 +300,9 @@ public class TeacherController {
         return modelAndView;
     }
 
+    /*
+    TODO Replace Get with Post
+     */
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/current-week/{day}/delete")
     public ModelAndView processTeacherDeleteCurrentWeekDay(@PathVariable("id") Long id,
@@ -312,7 +318,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEventByIdAndSave(event.getId());
+                scheduleService.deleteEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -355,7 +361,7 @@ public class TeacherController {
             Executor executor = Executors.newSingleThreadExecutor();
             events.forEach(event -> {
                 executor.execute(() -> emailService.sendCancelEventMail(event));
-                scheduleService.cancelEventByIdAndSave(event.getId());
+                scheduleService.deleteEventById(event.getId());
             });
 
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
@@ -474,7 +480,7 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Teacher teacher = teacherService.findTeacherById(id);
         if(teacher != null) {
-            //TODO Add deletion confirmation
+            //TODO Add delete confirmation
             teacherService.deleteTeacherById(id);
         }
 
