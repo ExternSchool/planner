@@ -152,7 +152,13 @@ public class GuestController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
     public ModelAndView deletePersonProfile(@PathVariable("id") Long id){
-        personService.deletePerson(personService.findPersonById(id));
+        Person person = personService.findPersonById(id);
+        VerificationKey key = person.getVerificationKey();
+        Optional.ofNullable(person.getVerificationKey())
+                .map(VerificationKey::getUser)
+                .ifPresent(userService::deleteUser);
+        personService.deletePerson(person);
+        keyService.deleteById(key.getId());
 
         return new ModelAndView("redirect:/guest/");
     }

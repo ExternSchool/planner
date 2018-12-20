@@ -64,15 +64,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(final User user) {
         if (user != null && getUserByEmail(user.getEmail()) != null) {
-            if (user.getVerificationKey() != null) {
-                user.removeVerificationKey();
-            }
-            for (ScheduleEvent event : user.getOwnEvents()) {
-                scheduleService.deleteEventById(event.getId());
-            }
-            for (Participant participant : user.getParticipants()) {
-                scheduleService.removeParticipant(participant);
-            }
+            Optional.ofNullable(user.getVerificationKey())
+                    .ifPresent(key -> user.removeVerificationKey());
+            Optional.ofNullable(user.getOwnEvents()).ifPresent(scheduleEvents -> {
+                for (ScheduleEvent event : new ArrayList<>(scheduleEvents)) {
+                    scheduleService.deleteEventById(event.getId());
+                }
+            });
+            Optional.ofNullable(user.getParticipants()).ifPresent(participants -> {
+                for (Participant participant : new ArrayList<>(participants)) {
+                    scheduleService.removeParticipant(participant);
+                }
+            });
 
             userRepository.delete(user);
         }
