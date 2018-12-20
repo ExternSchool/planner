@@ -84,6 +84,7 @@ public final class Constants {
     public static final Duration DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofDays(0);
     public static final Duration HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT = Duration.ofHours(0);
     // mailing service text messages
+    public static final String FAKE_MAIL_DOMAIN = "x";
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";

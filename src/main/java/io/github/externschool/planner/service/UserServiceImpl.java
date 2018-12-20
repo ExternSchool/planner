@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
+
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
@@ -90,6 +92,36 @@ public class UserServiceImpl implements UserService {
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         assignNewRole(user, role);
+
+        return user;
+    }
+
+    @Override
+    public User createAndSaveFakeUserWithStudentVerificationKey(final VerificationKey key) {
+        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+        User user;
+        try {
+            user = createUser(fakeMail, key.getValue(), "ROLE_STUDENT");
+            user.addVerificationKey(key);
+            userRepository.save(user);
+        } catch (EmailExistsException e) {
+            user = createAndSaveFakeUserWithStudentVerificationKey(changeKey(key));
+        }
+
+        return user;
+    }
+
+    @Override
+    public User createAndSaveFakeUserWithGuestVerificationKey(final VerificationKey key) {
+        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+        User user;
+        try {
+            user = createUser(fakeMail, key.getValue(), "ROLE_GUEST");
+            user.addVerificationKey(key);
+            userRepository.save(user);
+        } catch (EmailExistsException e) {
+            user = createAndSaveFakeUserWithGuestVerificationKey(changeKey(key));
+        }
 
         return user;
     }
@@ -166,6 +198,17 @@ public class UserServiceImpl implements UserService {
         user.addVerificationKey(key);
         save(user);
         assignNewRolesByKey(user, key);
+    }
+
+    private VerificationKey changeKey(VerificationKey key) {
+        VerificationKey newKey = new VerificationKey();
+        keyRepository.save(newKey);
+        Person person = key.getPerson();
+        person.addVerificationKey(newKey);
+        personRepository.save(person);
+        keyRepository.delete(key);
+
+        return newKey;
     }
 
     private boolean emailExists(final String email) {

@@ -96,18 +96,39 @@ public class GuestController {
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
     public ModelAndView showGuestList(){
-        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
-        List<PersonDTO> guests = personService.findAllByOrderByName().stream()
-                .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
-                .filter(Objects::nonNull)
-                .filter(p -> (p.getVerificationKey() == null)
-                        || (p.getVerificationKey() != null
-                            && keyService.findKeyByValue(p.getVerificationKey().getValue()).getUser() != null
-                            && !keyService.findKeyByValue(p.getVerificationKey().getValue()).getUser().getRoles()
-                        .contains(roleAdmin)))
-                .collect(Collectors.toList());
+        return prepareGuestList();
+    }
 
-        return new ModelAndView("guest/guest_list", "guests", guests);
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/create")
+    public ModelAndView showCreatePersonProfileModal() {
+        ModelAndView modelAndView = prepareGuestList();
+        modelAndView.setViewName("guest/guest_list :: createAccount");
+
+        return modelAndView;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/create")
+    public ModelAndView processCreatePersonProfileModal(@ModelAttribute("person") @Valid PersonDTO personDTO,
+                                                        BindingResult bindingResult) {
+        try {
+            if (bindingResult.hasErrors()) {
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
+            }
+        } catch (BindingResultException e) {
+            ModelAndView modelAndView = prepareGuestList();
+            modelAndView.setViewName("guest/guest_list :: createAccount");
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.addObject("person", personDTO);
+
+            return modelAndView;
+        }
+        keyService.setNewKeyToDTO(personDTO);
+        personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+        userService.createAndSaveFakeUserWithGuestVerificationKey(personDTO.getVerificationKey());
+
+        return prepareGuestList();
     }
 
     @Secured("ROLE_GUEST")
@@ -316,6 +337,22 @@ public class GuestController {
         return modelAndView;
     }
 
+    private ModelAndView prepareGuestList() {
+        Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
+        List<PersonDTO> guests = personService.findAllByOrderByName().stream()
+                .map(p -> p.getClass().equals(Person.class) ? conversionService.convert(p, PersonDTO.class) : null)
+                .filter(Objects::nonNull)
+                .filter(p -> (p.getVerificationKey() == null)
+                        || (p.getVerificationKey() != null && Optional.ofNullable(keyService.findKeyByValue(
+                        p.getVerificationKey().getValue()).getUser())
+                        .filter(user -> !user.getRoles().contains(roleAdmin)).isPresent()))
+                .collect(Collectors.toList());
+        ModelAndView modelAndView = new ModelAndView("guest/guest_list", "guests", guests);
+        modelAndView.addObject("person", new PersonDTO());
+
+        return modelAndView;
+    }
+
     private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(guestId))
                 .map(Person::getVerificationKey)
@@ -429,8 +466,8 @@ public class GuestController {
     }
 
     private void addByDatesSingletonListToEventsListOfLists(final List<LocalDate> dates,
-                                                                                 final List<List<ScheduleEvent>> events,
-                                                                                 final ScheduleEvent singletonEvent) {
+                                                            final List<List<ScheduleEvent>> events,
+                                                            final ScheduleEvent singletonEvent) {
         dates.forEach(date ->
                 events.add(date.isEqual(singletonEvent.getStartOfEvent().toLocalDate())
                                 ? Collections.singletonList(singletonEvent)
