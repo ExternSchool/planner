@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -28,6 +29,8 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -40,18 +43,21 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final ScheduleEventTypeRepository eventTypeRepository;
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     private final ReentrantLock lock = new ReentrantLock();
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Autowired
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
                                final ScheduleEventTypeRepository eventTypeRepository,
                                final UserRepository userRepository,
-                               final ParticipantRepository participantRepository) {
+                               final ParticipantRepository participantRepository, final EmailService emailService) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
+        this.emailService = emailService;
     }
 
     /**
@@ -114,7 +120,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> getActualEventsByOwnerAndDate(final User owner, final LocalDate date) {
+    public List<ScheduleEvent> getNonCancelledEventsByOwnerAndDate(final User owner, final LocalDate date) {
         return eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
                 owner,
                 date.atStartOfDay(),
@@ -146,25 +152,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public void cancelEventByIdAndSave(final long id) {
-        eventRepository.findById(id).ifPresent(event -> {
-            event.setCancelled(true);
-            event.setOpen(false);
-            event.setModifiedAt(LocalDateTime.now());
-            eventRepository.save(event);
-        });
-    }
-
-    @Override
-    public void findEventByIdSetOpenAndSave(final long id, final boolean state) {
-        eventRepository.findById(id).ifPresent(event -> {
-            event.setOpen(state);
-            event.setModifiedAt(LocalDateTime.now());
-            eventRepository.save(event);
-        });
-    }
-
-    @Override
     public void deleteEventById(final long id) {
         eventRepository.findById(id).ifPresent(event -> {
             event.getParticipants().forEach(this::removeParticipant);
@@ -174,6 +161,39 @@ public class ScheduleServiceImpl implements ScheduleService {
             });
 
             eventRepository.deleteById(id);
+        });
+    }
+
+    @Override
+    public Optional<ScheduleEvent> findEventByIdSetOpenByStateAndSave(final long id, final boolean state) {
+        eventRepository.findById(id).ifPresent(event -> {
+            event.setOpen(state);
+            event.setModifiedAt(LocalDateTime.now());
+            eventRepository.save(event);
+        });
+
+        return eventRepository.findById(id);
+    }
+
+    @Override
+    public Optional<ScheduleEvent> findEventByIdSetCancelledNotOpenAndSave(final long id) {
+        eventRepository.findById(id).ifPresent(event -> {
+            event.setCancelled(true);
+            event.setOpen(false);
+            event.setModifiedAt(LocalDateTime.now());
+            eventRepository.save(event);
+        });
+
+        return eventRepository.findById(id);
+    }
+
+    @Override
+    public void cancelEventsAndMailToParticipants(final List<ScheduleEvent> events) {
+
+        events.forEach(event -> {
+            executor.execute(() -> emailService.sendCancelEventMail(event));
+
+            findEventByIdSetCancelledNotOpenAndSave(event.getId());
         });
     }
 

@@ -96,7 +96,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${currentWeekEvents[dayNum]}"
-                                th:class="${!evnt.getOpen() ? 'text-success' : ''}">
+                                th:class="${!evnt.getOpen() ? 'text-primary' : ''}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -153,7 +153,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${nextWeekEvents[dayNum]}"
-                                th:class="${!evnt.getOpen() ? 'text-success' : ''}">
+                                th:class="${!evnt.getOpen() ? 'text-primary' : ''}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -216,10 +216,11 @@
                                     </ul>
                                 </td>
                                 <td class="text-right">
-                                    <a th:href="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}"
-                                       class="btn badge badge-danger">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
-                                    </a>
+                                    <form th:method="post" th:action="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}">
+                                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             </tbody>
@@ -240,9 +241,8 @@
 
 <!-- ModalHolder -->
 <div id="newScheduleModalHolder"></div>
-<!--<div id="deleteEventModalHolder"></div>-->
-<div id="deleteCurrentModalHolder"></div>
-<div id="deleteNextModalHolder"></div>
+<div id="cancelCurrentModalHolder"></div>
+<div id="cancelNextModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
@@ -296,35 +296,11 @@
     </div>
 </div>
 
-<!--TODO Complete this confirmation-->
-<!--<div class="modal fade" id="deleteEventModal" role="dialog" th:fragment="deleteEvent">-->
-    <!--<div class="modal-dialog modal-dialog-centered" role="document">-->
-        <!--<div class="modal-content">-->
-            <!--<div class="modal-header">-->
-                <!--<h5 class="modal-title" id="deleteEventModalTitle">Вилучення події з розкладу</h5>-->
-                <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close">-->
-                    <!--<span aria-hidden="true">&times;</span>-->
-                <!--</button>-->
-            <!--</div>-->
-            <!--<div class="modal-body text-justify">-->
-                <!--<div class="modal-footer">-->
-                    <!--<button type="button" class="btn btn-secondary" data-dismiss="modal">-->
-                        <!--Повернутися до розкладу-->
-                    <!--</button>-->
-                    <!--<button type="submit" class="btn btn-primary">-->
-                        <!--Вилучити подію-->
-                    <!--</button>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-    <!--</div>-->
-<!--</div>-->
-
-<div class="modal fade" id="deleteCurrentModal" role="dialog" th:fragment="deleteCurrentWeekDay">
+<div class="modal fade" id="cancelCurrentModal" role="dialog" th:fragment="cancelCurrentWeekDay">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteCurrentModalTitle">Скасування розкладу</h5>
+                <h5 class="modal-title" id="cancelCurrentModalTitle">Скасування запланованих подій</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -333,32 +309,33 @@
                 <p>
                     Виконання цієї дії приведе<br>
                     до скасування всіх призначень на цей день!<br>
-                    Всім записаним відвідувачам буде відправлено<br>
+                    Всім зареєстрованим відвідувачам буде відправлено<br>
                     відповідні повідомлення електронною поштою.
                 </p>
                 <p>
-                    Ви впевнені, що бажаєте скасувати розклад на цей день?
+                    Ви впевнені, що бажаєте скасувати всі події,<br>
+                    заплановані на цей день?
                 </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Ні, дякую
                 </button>
-                <!--TODO replace for Post -->
-                <a th:href="@{/teacher/{id}/current-week/{day}/delete(id=${teacher.id}, day=${thisDay})}"
-                   class="btn btn-primary">
-                    Так, скасувати!
-                </a>
+                <form th:method="post" th:action="@{/teacher/{id}/current-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
+                    <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
+                        Так, скасувати!
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="deleteNextModal" role="dialog" th:fragment="deleteNextWeekDay">
+<div class="modal fade" id="cancelNextModal" role="dialog" th:fragment="cancelNextWeekDay">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteNextModalTitle">Скасування розкладу</h5>
+                <h5 class="modal-title" id="cancelNextModalTitle">Скасування запланованих подій</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -367,21 +344,23 @@
                 <p>
                     Виконання цієї дії приведе<br>
                     до скасування всіх призначень на цей день!<br>
-                    Всім записаним відвідувачам буде відправлено<br>
+                    Всім зареєстрованим відвідувачам буде відправлено<br>
                     відповідні повідомлення електронною поштою.
                 </p>
                 <p>
-                    Ви впевнені, що бажаєте скасувати розклад на цей день?
+                    Ви впевнені, що бажаєте скасувати всі події,<br>
+                    заплановані на цей день?
                 </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                     Ні, дякую
                 </button>
-                <a th:href="@{/teacher/{id}/next-week/{day}/delete(id=${teacher.id}, day=${thisDay})}"
-                   class="btn btn-primary">
-                    Так, скасувати!
-                </a>
+                <form th:method="post" th:action="@{/teacher/{id}/next-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
+                    <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
+                        Так, скасувати!
+                    </button>
+                </form>
             </div>
         </div>
     </div>
