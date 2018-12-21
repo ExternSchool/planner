@@ -22,6 +22,7 @@ import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import io.github.externschool.planner.util.CollatorHolder;
+import io.github.externschool.planner.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -41,10 +43,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
@@ -86,12 +86,15 @@ public class StudentController {
 
     /**
      * Displays List of All Students to Admin and Filtered By Id to Teacher
+     * @param request ?search= request parameter
      * @param principal principal user
      * @return ModelAndView
      * */
     @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
     @GetMapping("/")
-    public ModelAndView displayStudentListToPrincipal(Principal principal) {
+    @SuppressWarnings("unchecked")
+    public ModelAndView displayStudentListToTeacher(@RequestParam(value = "search", required = false) String request,
+                                                    Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
         if (isTeacher(user)) {
             Long id = Optional.ofNullable(user)
@@ -102,7 +105,13 @@ public class StudentController {
             return prepareStudentListModelAndView(id, 0);
         }
 
-        return prepareStudentListModelAndView(null, 0);
+        ModelAndView modelAndView = prepareStudentListModelAndView(null, 0);
+        if (request != null) {
+            modelAndView.addObject("students",
+                    Utils.searchRequestFilter((List<StudentDTO>)(modelAndView.getModel().get("students")), request));
+        }
+
+        return modelAndView;
     }
 
     /**

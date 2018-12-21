@@ -20,6 +20,7 @@ import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.github.externschool.planner.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
@@ -89,7 +91,7 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
-    public ModelAndView displayTeacherListForm() {
+    public ModelAndView displayTeacherList(@RequestParam(value = "search", required = false) String request) {
         List<Teacher> teachers = teacherService.findAllByOrderByLastName();
         Optional.ofNullable(teacherService.findAllByLastName(UK_COURSE_NO_TEACHER))
                 .ifPresent(t -> t.forEach(teachers::remove));
@@ -97,8 +99,13 @@ public class TeacherController {
                 .filter(Objects::nonNull)
                 .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
                 .collect(Collectors.toList());
+        ModelAndView modelAndView =
+                new ModelAndView("teacher/teacher_list", "teachers", teacherDTOs);
+        if (request != null) {
+            modelAndView.addObject("teachers", Utils.searchRequestFilter(teacherDTOs, request));
+        }
 
-        return new ModelAndView("teacher/teacher_list", "teachers", teacherDTOs);
+        return modelAndView;
     }
 
     @Secured("ROLE_TEACHER")

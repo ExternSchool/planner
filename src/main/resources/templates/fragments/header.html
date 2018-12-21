@@ -100,12 +100,6 @@
                            href="/teacher/">Працівники</a>
                     </div>
                 </li>
-                <!--<li class="nav-item">-->
-                    <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
-                        <!--<a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link disabled'"-->
-                           <!--href="#">Розклади</a>-->
-                    <!--</div>-->
-                <!--</li>-->
                 <li th:class="${activeTab == 'setup'}? 'nav-item dropdown active' : 'nav-item dropdown'"
                     sec:authorize="hasRole('ROLE_ADMIN')">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
@@ -124,11 +118,11 @@
                 <form class="form-inline my-2 my-lg-0">
                     <div class="input-group">
                         <input type="search" class="form-control mr-sm-0" placeholder="Пошук" aria-label="Search"
-                               sec:authorize="hasRole('ROLE_ADMIN')">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-success my-2 my-sm-0 mr-1" type="submit"
-                                    sec:authorize="hasRole('ROLE_ADMIN')">Пошук</button>
+                               th:name="search" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <div class="input-group-append" sec:authorize="hasRole('ROLE_ADMIN')">
+                            <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
                         </div>
+
                         <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"
                            sec:authorize="isAuthenticated()"> Вийти</a>
 

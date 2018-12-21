@@ -9,6 +9,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
@@ -188,6 +189,30 @@ public class StudentControllerTest {
                                         Matchers.equalToIgnoringCase(firstName)))))
                 .andExpect(model().attribute("teacherId",
                         Matchers.nullValue()));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnStudentList_whenGetStudentWithSearchWhichDoMatch() throws Exception {
+        mockMvc.perform(get("/student/").param("search", ""))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("students",
+                        Matchers.hasItem(
+                                Matchers.<Person> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(student.getFirstName())))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnEmptyList_whenGetStudentWithSearchWhichNotMatch() throws Exception {
+        mockMvc.perform(get("/student/").param("search", "RequestDoesNotMatch"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attribute("students", Matchers.empty()));
     }
 
     @Test
