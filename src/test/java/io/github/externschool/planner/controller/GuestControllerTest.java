@@ -180,7 +180,8 @@ public class GuestControllerTest {
     public void shouldReturnModelAndView_whenProcessCreatePersonProfileModal() throws Exception {
         mockMvc.perform(post("/guest/create").params(map))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/guest/"));
+                .andExpect(view().name(Matchers.containsString("redirect:/guest/")))
+                .andExpect(view().name(Matchers.containsString("/official/schedule")));
     }
 
     @Test
@@ -335,8 +336,7 @@ public class GuestControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnNullRecentUpdates_whenDisplayOfficialsListToAdmin() throws Exception {
-        mockMvc.perform(post("/guest/" + person.getId() + "/official/schedule")
-                .param("action", "cancel"))
+        mockMvc.perform(get("/guest/" + person.getId() + "/official/schedule"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
