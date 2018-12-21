@@ -45,7 +45,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -343,7 +342,7 @@ public class GuestController {
         Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(guestUser, event);
         if(participant.isPresent()) {
             scheduleService.removeParticipant(participant.get());
-            scheduleService.findEventByIdSetOpenAndSave(eventId, true);
+            scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);
 
             return modelAndView;
         }
@@ -516,7 +515,7 @@ public class GuestController {
 
     private List<ScheduleEvent> getEventsAvailableToGuest(User user, LocalDate date) {
 
-        return filterEventsAvailableToGuest(user, scheduleService.getActualEventsByOwnerAndDate(user, date));
+        return filterEventsAvailableToGuest(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date));
     }
 
     private Optional<User> getOptionalOfficialUser(final Long id) {

@@ -2,6 +2,7 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.ScheduleEventReq;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
@@ -22,6 +23,8 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.BeanUtils;
+import org.springframework.test.annotation.Repeat;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -41,6 +44,9 @@ import static io.github.externschool.planner.util.Constants.LOCALE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ScheduleServiceTest {
@@ -48,6 +54,7 @@ public class ScheduleServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
     @Mock private UserRepository userRepository;
     @Mock private ParticipantRepository participantRepository;
+    @Mock private EmailService emailService;
     private ScheduleService scheduleService;
 
     @Before
@@ -57,7 +64,8 @@ public class ScheduleServiceTest {
                 this.eventRepository,
                 this.eventTypeRepo,
                 this.userRepository,
-                this.participantRepository);
+                this.participantRepository,
+                this.emailService);
     }
 
     @Test
@@ -177,7 +185,7 @@ public class ScheduleServiceTest {
                         date.atTime(LocalTime.MAX)))
                 .thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.getActualEventsByOwnerAndDate(owner, date);
+        List<ScheduleEvent> actualEvents = scheduleService.getNonCancelledEventsByOwnerAndDate(owner, date);
 
         assertThat(actualEvents)
                 .isNotNull()
@@ -261,7 +269,7 @@ public class ScheduleServiceTest {
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
 
-        scheduleService.cancelEventByIdAndSave(id);
+        scheduleService.findEventByIdSetCancelledNotOpenAndSave(id);
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
 
         assertThat(actualEvent)
@@ -281,7 +289,7 @@ public class ScheduleServiceTest {
         when(this.eventRepository.getOne(id))
                 .thenReturn(anEvent);
 
-        scheduleService.findEventByIdSetOpenAndSave(id, true);
+        scheduleService.findEventByIdSetOpenByStateAndSave(id, true);
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
 
         assertThat(actualEvent)
@@ -318,6 +326,35 @@ public class ScheduleServiceTest {
         assertThat(anEvent)
                 .hasFieldOrPropertyWithValue("owner", null)
                 .hasFieldOrPropertyWithValue("participants", Collections.emptySet());
+    }
+
+    @Test
+    @Repeat(10)
+    public void shouldSendEmail_whenCancelEventsAndMailToParticipants(){
+        long id = 1L;
+        Role userRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        event.setOpen(true);
+        event.getType().addParticipant(userRole);
+        User user = new User("participant@email.com", "pass");
+        user.setId(++id);
+        user.addRole(userRole);
+        Participant participant = new Participant(user, event);
+        participant.setId(++id);
+        ScheduleEvent event2 = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        BeanUtils.copyProperties(event, event2);
+        event2.setId(++id);
+        List<ScheduleEvent> events = Arrays.asList(event, event2);
+        assertThat(events)
+                .containsExactly(event, event2);
+
+        scheduleService.cancelEventsAndMailToParticipants(events);
+
+        verify(eventRepository, times(2)).findById(event.getId());
+        verify(eventRepository, times(2)).findById(event2.getId());
+        verify(emailService, after(100).times(1)).sendCancelEventMail(event);
+        verify(emailService, after(100).times(1)).sendCancelEventMail(event2);
     }
 
     @Test(expected = UserCannotHandleEventException.class)

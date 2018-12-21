@@ -2,7 +2,6 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
-import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
@@ -65,7 +64,6 @@ public class TeacherControllerTest {
     @Autowired private RoleService roleService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ScheduleEventTypeService typeService;
-    @Autowired private EmailService emailService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -87,8 +85,7 @@ public class TeacherControllerTest {
                 userService,
                 roleService,
                 scheduleService,
-                typeService,
-                emailService);
+                typeService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -234,7 +231,7 @@ public class TeacherControllerTest {
         event = scheduleService.createEventWithDuration(user, dto, 30);
         long id = event.getId();
 
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/event/" + id + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + id + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -259,17 +256,17 @@ public class TeacherControllerTest {
     public void shouldReturnTemplate_WhenDisplayTeacherDeleteCurrentWeekDayModal() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0))
                 .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule :: deleteCurrentWeekDay"))
+                .andExpect(view().name("teacher/teacher_schedule :: cancelCurrentWeekDay"))
                 .andExpect(model().attributeExists("teacher"))
                 .andExpect(model().attributeExists("thisDay"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("deleteCurrentModal")));
+                .andExpect(content().string(Matchers.containsString("cancelCurrentModal")));
     }
 
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -280,21 +277,20 @@ public class TeacherControllerTest {
     public void shouldReturnTemplate_WhenDisplayTeacherDeleteNextWeekDayModal() throws Exception {
         mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0))
                 .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule :: deleteNextWeekDay"))
+                .andExpect(view().name("teacher/teacher_schedule :: cancelNextWeekDay"))
                 .andExpect(model().attributeExists("teacher"))
                 .andExpect(model().attributeExists("thisDay"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("deleteNextModal")));
+                .andExpect(content().string(Matchers.containsString("cancelNextModal")));
     }
 
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
-
 
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})

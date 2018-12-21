@@ -14,8 +14,8 @@ function openDeleteCurrentModal(id, day) {
     $.ajax({
         url: "/teacher/" + id + "/current-week/" + day,
         success: function (data) {
-            $("#deleteCurrentModalHolder").html(data);
-            $("#deleteCurrentModal").modal("show");
+            $("#cancelCurrentModalHolder").html(data);
+            $("#cancelCurrentModal").modal("show");
         }
     });
 }
@@ -24,8 +24,8 @@ function openDeleteNextModal(id, day) {
     $.ajax({
         url: "/teacher/" + id + "/next-week/" + day,
         success: function (data) {
-            $("#deleteNextModalHolder").html(data);
-            $("#deleteNextModal").modal("show");
+            $("#cancelNextModalHolder").html(data);
+            $("#cancelNextModal").modal("show");
         }
     });
 }
