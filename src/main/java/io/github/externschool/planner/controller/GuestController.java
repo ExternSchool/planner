@@ -134,10 +134,10 @@ public class GuestController {
             return modelAndView;
         }
         keyService.setNewKeyToDTO(personDTO);
-        personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+        Person p = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
         userService.createAndSaveFakeUserWithGuestVerificationKey(personDTO.getVerificationKey());
 
-        return  new ModelAndView("redirect:/guest/");
+        return new ModelAndView("redirect:/guest/" + p.getId() + "/official/schedule");
     }
 
     @Secured("ROLE_GUEST")
@@ -263,7 +263,7 @@ public class GuestController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/{gid}/official/schedule")
+    @GetMapping("/{gid}/official/schedule")
     public ModelAndView displayOfficialsListToAdmin(@PathVariable("gid") Long guestId, final ModelMap model) {
 
         return prepareScheduleModelAndView(guestId, null, model);
