@@ -7,6 +7,7 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.service.RoleService;
@@ -128,7 +129,38 @@ public class TeacherControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_list"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Teachers List")));
+                .andExpect(content().string(Matchers.containsString("Teacher List")));
+    }
+
+    @Test
+    @WithMockUser(roles = "GUEST")
+    public void shouldReturnForbidden_WhenRequestUnauthorized() throws Exception {
+        mockMvc.perform(get("/teacher/"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnTeacherList_whenGetTeacherWithSearchWhichDoMatch() throws Exception {
+        mockMvc.perform(get("/teacher/").param("search", ""))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_list"))
+                .andExpect(content().string(Matchers.containsString("Teacher List")))
+                .andExpect(model().attributeExists("teachers"))
+                .andExpect(model().attribute("teachers",
+                        Matchers.hasItem(
+                                Matchers.<Person> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(teacher.getFirstName())))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnEmptyList_whenGetTeacherWithSearchWhichNotMatch() throws Exception {
+        mockMvc.perform(get("/teacher/").param("search", "RequestDoesNotMatch"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_list"))
+                .andExpect(content().string(Matchers.containsString("Teacher List")))
+                .andExpect(model().attribute("teachers", Matchers.empty()));
     }
 
     @Test
@@ -139,13 +171,6 @@ public class TeacherControllerTest {
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
-    }
-
-    @Test
-    @WithMockUser(roles = "GUEST")
-    public void shouldReturnForbidden_WhenRequestUnauthorized() throws Exception {
-        mockMvc.perform(get("/teacher/"))
-                .andExpect(status().isForbidden());
     }
 
     @Test

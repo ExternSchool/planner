@@ -118,7 +118,7 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnGuestListTemplate_whenGetGuestWithAdminRole() throws Exception {
+    public void shouldReturnGuestList_whenGetGuestWithAdminRole() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
@@ -128,6 +128,30 @@ public class GuestControllerTest {
                         Matchers.hasItem(
                                 Matchers.<Person> hasProperty("firstName",
                                         Matchers.equalToIgnoringCase(personName)))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnGuestList_whenGetGuestWithSearchWhichDoMatch() throws Exception {
+        mockMvc.perform(get("/guest/").param("search", ""))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list"))
+                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(model().attribute("guests",
+                        Matchers.hasItem(
+                                Matchers.<Person> hasProperty("firstName",
+                                        Matchers.equalToIgnoringCase(personName)))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnEmptyList_whenGetGuestWithSearchWhichNotMatch() throws Exception {
+        mockMvc.perform(get("/guest/").param("search", "RequestDoesNotMatch"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list"))
+                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(model().attribute("guests", Matchers.empty()));
     }
 
     @Test
@@ -155,10 +179,8 @@ public class GuestControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenProcessCreatePersonProfileModal() throws Exception {
         mockMvc.perform(post("/guest/create").params(map))
-                .andExpect(status().isOk())
-                .andExpect(view().name("guest/guest_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")))
-                .andExpect(model().attributeExists("person", "guests"));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/guest/"));
     }
 
     @Test
