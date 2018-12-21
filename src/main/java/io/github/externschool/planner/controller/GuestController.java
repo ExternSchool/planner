@@ -23,6 +23,7 @@ import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.github.externschool.planner.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
@@ -95,8 +97,15 @@ public class GuestController {
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
-    public ModelAndView showGuestList(){
-        return prepareGuestList();
+    @SuppressWarnings("unchecked")
+    public ModelAndView showGuestList(@RequestParam(value = "search", required = false) String request) {
+        ModelAndView modelAndView = prepareGuestList();
+        if (request != null) {
+            modelAndView.addObject("guests",
+                    Utils.searchRequestFilter((List<PersonDTO>)(modelAndView.getModel().get("guests")), request));
+        }
+
+        return modelAndView;
     }
 
     @Secured("ROLE_ADMIN")
@@ -128,7 +137,7 @@ public class GuestController {
         personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
         userService.createAndSaveFakeUserWithGuestVerificationKey(personDTO.getVerificationKey());
 
-        return prepareGuestList();
+        return  new ModelAndView("redirect:/guest/");
     }
 
     @Secured("ROLE_GUEST")
