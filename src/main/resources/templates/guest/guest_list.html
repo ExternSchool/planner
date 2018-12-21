@@ -55,7 +55,7 @@
                 <td th:text="${guest.getPhoneNumber()}">Phone</td>
                 <td th:text="${guest.getEmail()}">Email</td>
                 <td class="text-right">
-                    <form th:method="post" th:action="@{/guest/{id}/official/schedule(id=${guest.id})}">
+                    <form th:method="get" th:action="@{/guest/{id}/official/schedule(id=${guest.id})}">
                         <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
                             <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                         </button>
@@ -143,7 +143,7 @@
                         Скасувати
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        Створити користувача!
+                        Створити обліковий запис!
                     </button>
                 </div>
             </form>
