@@ -167,7 +167,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Optional<ScheduleEvent> findEventByIdSetOpenByStateAndSave(final long id, final boolean state) {
         eventRepository.findById(id).ifPresent(event -> {
             event.setOpen(state);
-//            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         });
 
@@ -179,7 +178,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         eventRepository.findById(id).ifPresent(event -> {
             event.setCancelled(true);
             event.setOpen(false);
-//            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         });
 
@@ -202,7 +200,6 @@ public class ScheduleServiceImpl implements ScheduleService {
             canUserOwnAnEventForType(owner, event.getType());
 
             owner.addOwnEvent(event);
-//            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         }
         return event;
@@ -212,7 +209,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void removeOwner(final ScheduleEvent event) {
         if (event != null && event.getOwner() != null) {
             event.getOwner().removeOwnEvent(event);
-//            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         }
     }
@@ -236,16 +232,13 @@ public class ScheduleServiceImpl implements ScheduleService {
             canUserParticipateInEventForType(user, event.getType());
             int maximum = event.getType().getAmountOfParticipants();
             Set participants = event.getParticipants();
-            synchronized (participants){
-                if (participants.size() < maximum) {
-                    Participant participant = new Participant(user, event);
-                    if (participants.size() >= maximum) {
-                        event.setOpen(false);
-                    }
-                    optionalParticipant = Optional.ofNullable(participantRepository.save(participant));
-//                    event.setModifiedAt(LocalDateTime.now());
-                    eventRepository.save(event);
+            if (participants.size() < maximum) {
+                Participant participant = new Participant(user, event);
+                if (participants.size() >= maximum) {
+                    event.setOpen(false);
                 }
+                optionalParticipant = Optional.ofNullable(participantRepository.save(participant));
+                eventRepository.save(event);
             }
         }
 
@@ -255,21 +248,19 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void removeParticipant(final Participant participant) {
         Optional.ofNullable(participant.getEvent()).map(ScheduleEvent::getParticipants).ifPresent(participants -> {
-            synchronized (participants) {
-                participantRepository.findById(participant.getId())
-                        .ifPresent(p -> {
-                            Optional.ofNullable(participant.getUser()).ifPresent(user -> {
-                                user.removeParticipant(participant);
-                                participantRepository.save(participant);
-                            });
-                            Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
-                                event.removeParticipant(participant);
-//                                event.setModifiedAt(LocalDateTime.now());
-                                participantRepository.save(participant);
-                            });
-                            participantRepository.delete(participant);
+            participantRepository.findById(participant.getId())
+                    .ifPresent(p -> {
+                        Optional.ofNullable(participant.getUser()).ifPresent(user -> {
+                            user.removeParticipant(participant);
+                            participantRepository.save(participant);
                         });
-            }
+                        Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
+                            event.removeParticipant(participant);
+                            participantRepository.save(participant);
+                        });
+                        participantRepository.delete(participant);
+                    });
+
         });
     }
 

@@ -141,49 +141,4 @@ public class ParticipantRepositoryTest {
         assertThat(participantList)
                 .isEmpty();
     }
-
-    @Repeat(1)
-    @Test
-    public void shouldReturnSameObject_whenReadFromRepo() {
-        ScheduleEvent event = new ScheduleEvent();
-        event.setTitle("Event");
-        User user = new User();
-        Participant participant1 = new Participant(user, event);
-        participant1 = participantRepository.save(participant1);
-        Participant participant2 = new Participant(user, event);
-        participant2 = participantRepository.save(participant2);
-        System.out.println(participant1.getEvent().getTitle() + ":" + participant2.getEvent().getTitle());
-        Long id1 = participant1.getId();
-        Long id2 = participant2.getId();
-        List<Participant> readValues = new ArrayList<>();
-
-        ExecutorService executor = Executors.newFixedThreadPool(100);
-        Callable<Optional<Participant>> call1 = () -> {
-            return participantRepository.findById(id1);
-        };
-        Callable<Optional<Participant>> call2 = () -> {
-            return participantRepository.findById(id2);
-        };
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-
-        }
-
-        Future<Optional<Participant>> got1 = executor.submit(call1);
-        Future<Optional<Participant>> got2 = executor.submit(call2);
-
-        try {
-            Optional<Participant> res1 = got1.get();
-            Optional<Participant> res2 = got2.get();
-
-            System.out.println(res1.get().getEvent().getTitle() + ":" + res2.get().getEvent().getTitle());
-            assertThat(res1)
-                    .matches(Matchers.equalTo(res2));
-            assertThat(res1.get().equals(res2.get()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

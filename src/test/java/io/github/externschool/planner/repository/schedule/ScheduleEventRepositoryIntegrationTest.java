@@ -43,7 +43,7 @@ public class ScheduleEventRepositoryIntegrationTest {
         assertThat(events)
                 .isNotNull();
         assertThat(event)
-                .isEqualToComparingFieldByField(expectedEvent);
+                .isEqualToIgnoringGivenFields(expectedEvent, "modifiedAt");
     }
 
     @Test
