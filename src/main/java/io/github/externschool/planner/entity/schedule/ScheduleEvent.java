@@ -69,9 +69,6 @@ public class ScheduleEvent {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-//    @Version
-//    private Long version;
-
     public ScheduleEvent() {}
 
     @ManyToOne

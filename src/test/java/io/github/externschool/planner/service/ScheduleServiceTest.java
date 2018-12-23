@@ -19,17 +19,19 @@ import io.github.externschool.planner.repository.schedule.ScheduleEventRepositor
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Repeat;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -49,6 +51,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 public class ScheduleServiceTest {
     @Mock private ScheduleEventRepository eventRepository;
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
@@ -464,31 +468,6 @@ public class ScheduleServiceTest {
 
         assertThat(participant)
                 .hasFieldOrPropertyWithValue("user", user);
-    }
-
-    @Test
-    public void shouldChangeEventModifiedAt_whenAddParticipantToOpenEvent() {
-        long id = 100500L;
-        Role userRole = RolesFactory.createRoleEntity(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
-        ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        anEvent.setId(id);
-        anEvent.setOpen(true);
-        anEvent.getType().addParticipant(userRole);
-        User user = new User("participant@email.com", "pass");
-        user.addRole(userRole);
-
-        when(this.eventRepository.getOne(id))
-                .thenReturn(anEvent);
-
-        ScheduleEvent actualEvent = scheduleService.getEventById(id);
-
-        assertThat(actualEvent.getModifiedAt())
-                .isNull();
-
-        scheduleService.addParticipant(user, actualEvent);
-
-        assertThat(actualEvent.getModifiedAt())
-                .isInstanceOf(LocalDateTime.class);
     }
 
     @Test
