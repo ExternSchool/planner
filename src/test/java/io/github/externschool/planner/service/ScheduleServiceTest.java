@@ -488,7 +488,6 @@ public class ScheduleServiceTest {
         scheduleService.addParticipant(user, actualEvent);
 
         assertThat(actualEvent.getModifiedAt())
-                .isNotNull()
                 .isInstanceOf(LocalDateTime.class);
     }
 

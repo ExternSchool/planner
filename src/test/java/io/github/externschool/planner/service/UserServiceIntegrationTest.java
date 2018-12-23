@@ -153,9 +153,6 @@ public class UserServiceIntegrationTest {
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
         LocalDateTime modifiedAt = actualEvent.getModifiedAt();
 
-        assertThat(modifiedAt)
-                .isNull();
-
         scheduleService.addParticipant(expectedUser, actualEvent);
         actualEvent = scheduleService.getEventById(actualEvent.getId());
         modifiedAt = actualEvent.getModifiedAt();
