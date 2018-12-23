@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,9 +30,8 @@ import java.util.Set;
 @Table(name = "schedule_event")
 public class ScheduleEvent {
 
-    //TODO need to extract to base entity class and change strategy to sequence
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(nullable = false)
@@ -52,6 +52,7 @@ public class ScheduleEvent {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Version
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
@@ -68,14 +69,14 @@ public class ScheduleEvent {
     @JoinColumn(name = "owner_id")
     private User owner;
 
+    public ScheduleEvent() {}
+
     @ManyToOne
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
-    private Set<Participant> participants = new HashSet<>();
-
-    public ScheduleEvent() {}
+    private Set<Participant> participants = Collections.synchronizedSet(new HashSet<>());
 
     private ScheduleEvent(final Long id,
                           final String title,
@@ -193,10 +194,6 @@ public class ScheduleEvent {
 
     public LocalDateTime getModifiedAt() {
         return modifiedAt;
-    }
-
-    public void setModifiedAt(LocalDateTime modifiedAt) {
-        this.modifiedAt = modifiedAt;
     }
 
     public boolean isOpen() {

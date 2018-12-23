@@ -29,9 +29,9 @@ import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.LOCALE;
@@ -45,7 +45,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    private final ReentrantLock lock = new ReentrantLock();
     private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Autowired
@@ -168,7 +167,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Optional<ScheduleEvent> findEventByIdSetOpenByStateAndSave(final long id, final boolean state) {
         eventRepository.findById(id).ifPresent(event -> {
             event.setOpen(state);
-            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         });
 
@@ -180,7 +178,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         eventRepository.findById(id).ifPresent(event -> {
             event.setCancelled(true);
             event.setOpen(false);
-            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         });
 
@@ -203,7 +200,6 @@ public class ScheduleServiceImpl implements ScheduleService {
             canUserOwnAnEventForType(owner, event.getType());
 
             owner.addOwnEvent(event);
-            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         }
         return event;
@@ -213,36 +209,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void removeOwner(final ScheduleEvent event) {
         if (event != null && event.getOwner() != null) {
             event.getOwner().removeOwnEvent(event);
-            event.setModifiedAt(LocalDateTime.now());
             eventRepository.save(event);
         }
-    }
-
-    @Override
-    public Optional<Participant> addParticipant(final User user, final ScheduleEvent event)
-            throws UserCannotHandleEventException {
-        Optional<Participant> optionalParticipant = Optional.empty();
-
-        lock.lock();
-        if (user != null && event != null && event.isOpen()) {
-            canUserParticipateInEventForType(user, event.getType());
-            int maximum = event.getType().getAmountOfParticipants();
-            try {
-                if (event.getParticipants().size() < maximum) {
-                    Participant participant = new Participant(user, event);
-                    if (event.getParticipants().size() >= maximum) {
-                        event.setOpen(false);
-                    }
-                    optionalParticipant = Optional.ofNullable(participantRepository.save(participant));
-                    event.setModifiedAt(LocalDateTime.now());
-                    eventRepository.save(event);
-                }
-            } finally {
-                lock.unlock();
-            }
-        }
-
-        return optionalParticipant;
     }
 
     @Override
@@ -256,11 +224,30 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public boolean removeParticipant(final Participant participant) {
-        long id = participant.getId();
+    public Optional<Participant> addParticipant(final User user, final ScheduleEvent event)
+            throws UserCannotHandleEventException {
+        Optional<Participant> optionalParticipant = Optional.empty();
 
-        lock.lock();
-        try {
+        if (user != null && event != null && event.isOpen()) {
+            canUserParticipateInEventForType(user, event.getType());
+            int maximum = event.getType().getAmountOfParticipants();
+            Set participants = event.getParticipants();
+            if (participants.size() < maximum) {
+                Participant participant = new Participant(user, event);
+                if (participants.size() >= maximum) {
+                    event.setOpen(false);
+                }
+                optionalParticipant = Optional.ofNullable(participantRepository.save(participant));
+                eventRepository.save(event);
+            }
+        }
+
+        return optionalParticipant;
+    }
+
+    @Override
+    public void removeParticipant(final Participant participant) {
+        Optional.ofNullable(participant.getEvent()).map(ScheduleEvent::getParticipants).ifPresent(participants -> {
             participantRepository.findById(participant.getId())
                     .ifPresent(p -> {
                         Optional.ofNullable(participant.getUser()).ifPresent(user -> {
@@ -269,17 +256,12 @@ public class ScheduleServiceImpl implements ScheduleService {
                         });
                         Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
                             event.removeParticipant(participant);
-                            event.setModifiedAt(LocalDateTime.now());
                             participantRepository.save(participant);
                         });
                         participantRepository.delete(participant);
                     });
 
-        } finally {
-            lock.unlock();
-        }
-
-        return !participantRepository.findById(id).isPresent();
+        });
     }
 
     @Override
