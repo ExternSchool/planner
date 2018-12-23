@@ -435,7 +435,7 @@ public class GuestControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = {"ADMIN", "GUEST"})
-    public void shouldReturnModelAndView_whenDisplayNewSubscriptionModalWithAdmin() throws Exception {
+    public void shouldReturnModelAndView_whenDisplaySubscriptionModalWithAdmin() throws Exception {
         User eventUser = userService.createUser("teacher@mail.co", "pass", "ROLE_OFFICER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_OFFICER");

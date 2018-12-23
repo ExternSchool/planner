@@ -280,7 +280,7 @@ public class GuestController {
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @GetMapping("/{gid}/official/{id}/event/{event}/subscribe")
-    public ModelAndView displayNewSubscriptionModal(@PathVariable("gid") Long guestId,
+    public ModelAndView displaySubscriptionModal(@PathVariable("gid") Long guestId,
                                                    @PathVariable("id") Long officialId,
                                                    @PathVariable("event") Long eventId,
                                                    ModelMap model) {
@@ -294,12 +294,12 @@ public class GuestController {
 
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @PostMapping("/{gid}/official/{id}/event/{event}/subscribe")
-    public ModelAndView processNewEventSubscriptionModal(@PathVariable("gid") Long guestId,
+    public ModelAndView processSubscriptionModal(@PathVariable("gid") Long guestId,
                                                    @PathVariable("id") Long officialId,
                                                    @PathVariable("event") Long eventId,
                                                    ModelMap model) {
-        ModelAndView modelAndView =
-                new ModelAndView("redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
+        ModelAndView modelAndView = new ModelAndView(
+                "redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
         try {
             subscribeScheduleEvent(guestId, eventId);
         } catch (UserCannotHandleEventException e) {
@@ -331,25 +331,41 @@ public class GuestController {
                                                       @PathVariable("id") Long officialId,
                                                       @PathVariable("event") Long eventId,
                                                       ModelMap model) {
-        ModelAndView modelAndView =
-                new ModelAndView("redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
+        ModelAndView modelAndView = new ModelAndView(
+                "redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
+        try {
+            unsubscribeScheduleEvent(guestId, eventId);
+        } catch (UserCannotHandleEventException e) {
+            modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
+            modelAndView.addObject("error", e.getMessage());
+        }
 
-        User guestUser = Optional.ofNullable(personService.findPersonById(guestId))
+        return modelAndView;
+    }
+
+    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(guestId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+        }
+    }
+
+    private void unsubscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(guestId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
                 .orElse(null);
         ScheduleEvent event = scheduleService.getEventById(eventId);
-        Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(guestUser, event);
-        if(participant.isPresent()) {
-            scheduleService.removeParticipant(participant.get());
-            scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);
-
-            return modelAndView;
+        Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(user, event);
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
         }
-        modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
-        modelAndView.addObject("error", UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
-
-        return modelAndView;
+        scheduleService.removeParticipant(participant.get());
+        scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);
     }
 
     private ModelAndView prepareGuestList() {
@@ -366,17 +382,6 @@ public class GuestController {
         modelAndView.addObject("person", new PersonDTO());
 
         return modelAndView;
-    }
-
-    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
-        User user = Optional.ofNullable(personService.findPersonById(guestId))
-                .map(Person::getVerificationKey)
-                .map(VerificationKey::getUser)
-                .orElse(null);
-        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
-        if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
-        }
     }
 
     private ModelAndView prepareScheduleModelAndView(final Long guestId, final Long officialId, final ModelMap model) {
