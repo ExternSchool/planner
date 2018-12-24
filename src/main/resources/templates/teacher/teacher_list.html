@@ -29,7 +29,7 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal" th:inline="text"><small>Вчителі та інші працівники</small></h4>
     <form th:method="post" th:action="@{/teacher/add}">
-        <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm mb-1">
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-primary btn-sm mb-1">
             Додати нового вчителя</button>
     </form>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">

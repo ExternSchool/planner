@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Official Schedule</title>
+    <title>Student Schedule</title>
     <meta charset="utf-8">
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +36,7 @@
         <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
     </div>
     <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-        <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+        <div th:replace="fragments/header :: header(activeTab='student')"></div>
     </div>
 </header>
 
@@ -45,8 +45,8 @@
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
         <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-            Відвідувач:
-            <span th:text="${guest.getShortName()} + ' '">
+            Студент:
+            <span th:text="${student.getShortName()} + ' '">
                 П.І.Б.
             </span>
         </span>
@@ -54,7 +54,7 @@
         </small>
         <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
         <a class="float-right btn btn-sm btn-outline-info ml-3"
-           th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
+           th:href="@{/student/{id}/subscriptions(id=${student.getId()})}">
             Список резервувань
         </a>
         </span>
@@ -68,22 +68,22 @@
             <div class="card-header">Виберіть працівника для перегляду розкладу</div>
             <div class="card-body text-left">
                 <div>
-                    <div class="table-responsive" th:if="${not #lists.isEmpty(officials)}">
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
                         <table class="col-lg-12 table table-sm table-hover">
                             <thead>
                             <tr>
                                 <th class="text-left">П.І.Б.</th>
-                                <th class="text-left">Посада</th>
+                                <!--<th class="text-left">Посада</th>-->
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="off : ${officials}"
-                                th:class="${official.getId() == off.getId()} ? 'table-active' : ''"
-                                th:onclick="'javascript:rowClicked(\'' + ${guest.id} + '\',\'' + ${off.getId()} + '\');'">
+                            <tr th:each="off : ${teachers}"
+                                th:class="${teacher.getId() == off.getId()} ? 'table-active' : ''"
+                                th:onclick="'javascript:rowClicked(\'' + ${student.id} + '\',\'' + ${off.getId()} + '\');'">
                                 <td class="text-left" th:text="${off.getShortName()}">П.І.Б.</td>
-                                <td class="text-left" th:text="${off.getOfficial()}">
-                                    Адміністративна посада
-                                </td>
+                                <!--<td class="text-left" th:text="${off.getTeacher()}">-->
+                                    <!--Адміністративна посада  !!!!!!!!!!-->
+                                <!--</td>-->
                             </tr>
                             </tbody>
                         </table>
@@ -130,13 +130,13 @@
                                 </td>
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                     <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -193,13 +193,13 @@
                                 </td>
                                 <td class="text-right">
                                 <span th:if="${evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-success">
                                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                                     </a>
                                 </span>
                                 <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
                                        class="btn btn-danger">
                                         <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
                                     </a>
@@ -245,7 +245,7 @@
             </div>
 
             <form th:method="post"
-                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/subscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
+                  th:action="@{/student/{uid}/teacher/{id}/event/{eventId}/subscribe(uid=${student.id}, id=${teacher.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formSubscribe">
                 <div class="modal-body text-center">
                     <p>
@@ -256,7 +256,7 @@
                         <span style="white-space: pre;" th:text=" ${event.description}">опис події<br></span>
                         <br>
                         Організатор:
-                        <span style="white-space: pre;" th:text="${official.getShortName()}">організатор зустрічі</span>
+                        <span style="white-space: pre;" th:text="${teacher.getShortName()}">організатор зустрічі</span>
                         <br>
                         Дата та час:
                         <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">дата зустрічі</span>
@@ -270,11 +270,11 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <span th:if="${official != null}">
+                    <span th:if="${teacher != null}">
                          <button type="submit" class="btn btn-primary">
                              Так, резервувати!
                          </button>
-                    </span>
+                </span>
                 </div>
             </form>
         </div>
@@ -291,7 +291,7 @@
                 </button>
             </div>
             <form th:method="post"
-                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/unsubscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
+                  th:action="@{/student/{uid}/teacher/{id}/event/{eventId}/unsubscribe(uid=${student.id}, id=${teacher.id}, eventId=${event.id})}"
                   th:object="${event.id}" class="form" id="formUnsubscribe">
                 <div class="modal-body text-center">
                     <p>
@@ -302,7 +302,7 @@
                         <span style="white-space: pre;" th:text=" ${event.description}">опис події<br></span>
                         <br>
                         Організатор:
-                        <span style="white-space: pre;" th:text="${official.getShortName()}">організатор зустрічі</span>
+                        <span style="white-space: pre;" th:text="${teacher.getShortName()}">організатор зустрічі</span>
                         <br>
                         Дата та час:
                         <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">дата зустрічі</span>
@@ -316,7 +316,7 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Ні, дякую
                     </button>
-                    <span th:if="${official != null}">
+                    <span th:if="${teacher != null}">
                          <button type="submit" class="btn btn-primary">
                              Так, скасувати!
                          </button>
@@ -328,7 +328,7 @@
 </div>
 <!-- / Modal -->
 
-<script src="/js/guestSchedule.js"></script>
+<script src="/js/studentSchedule.js"></script>
 
 </body>
 </html>
