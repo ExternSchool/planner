@@ -1,8 +1,14 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.CourseDTO;
+import io.github.externschool.planner.dto.ParticipantDTO;
+import io.github.externschool.planner.dto.PersonDTO;
+import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
+import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.Participant;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
@@ -12,10 +18,15 @@ import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.exceptions.BindingResultException;
+import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
+import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
@@ -27,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -38,6 +50,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,10 +60,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
+import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
 @RequestMapping("/student")
@@ -62,6 +85,8 @@ public class StudentController {
     private final CourseService courseService;
     private final TeacherService teacherService;
     private final StudyPlanService planService;
+    private final ScheduleService scheduleService;
+    private final ScheduleEventTypeService scheduleEventTypeService;
 
     @Autowired
     public StudentController(final StudentService studentService,
@@ -72,7 +97,9 @@ public class StudentController {
                              final RoleService roleService,
                              final CourseService courseService,
                              final TeacherService teacherService,
-                             final StudyPlanService planService) {
+                             final StudyPlanService planService,
+                             final ScheduleService scheduleService,
+                             final ScheduleEventTypeService scheduleEventTypeService) {
         this.studentService = studentService;
         this.personService = personService;
         this.userService = userService;
@@ -82,6 +109,8 @@ public class StudentController {
         this.courseService = courseService;
         this.teacherService = teacherService;
         this.planService = planService;
+        this.scheduleService = scheduleService;
+        this.scheduleEventTypeService = scheduleEventTypeService;
     }
 
     /**
@@ -241,6 +270,7 @@ public class StudentController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processFormStudentProfileActionSave(@ModelAttribute("student") @Valid StudentDTO studentDTO,
                                                             BindingResult bindingResult,
+                                                            ModelMap model,
                                                             Principal principal) {
         try {
             if (bindingResult.hasErrors()) {
@@ -252,9 +282,12 @@ public class StudentController {
 
             return modelAndView;
         }
-        studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
+        Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
+        if (!Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser).isPresent()) {
+            userService.createAndSaveFakeUserWithGuestVerificationKey(student.getVerificationKey());
+        }
 
-        return redirectByRole(userService.getUserByEmail(principal.getName()));
+        return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
@@ -297,6 +330,313 @@ public class StudentController {
 
         return showStudentProfileForm(studentDTO, true);
     }
+
+    /*
+    TODO REFACTOR
+     */
+
+
+
+    @Secured("ROLE_STUDENT")
+    @GetMapping("/subscriptions")
+    public ModelAndView displaySubscriptionsToStudent(final ModelMap model, final Principal principal) {
+        User user = userService.getUserByEmail(principal.getName());
+
+        return prepareSubscriptionsModelAndView(user, model);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{gid}/subscriptions")
+    public ModelAndView displaySubscriptionsToAdmin(@PathVariable("gid") Long studentId, final ModelMap model) {
+        User user = Optional.ofNullable(personService.findPersonById(studentId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+
+        return prepareSubscriptionsModelAndView(user, model);
+    }
+
+    @Secured("ROLE_STUDENT")
+    @GetMapping("/teacher/schedule")
+    public ModelAndView displayTeachersListToStudent(final ModelMap model, final Principal principal) {
+        Long studentId = Optional.ofNullable(userService.getUserByEmail(principal.getName()))
+                .map(User::getVerificationKey)
+                .map(VerificationKey::getPerson)
+                .map(Person::getId)
+                .orElse(null);
+
+        return prepareScheduleModelAndView(studentId, null, model);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{gid}/teacher/schedule")
+    public ModelAndView displayTeachersListToAdmin(@PathVariable("gid") Long studentId, final ModelMap model) {
+
+        return prepareScheduleModelAndView(studentId, null, model);
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
+    @GetMapping("/{gid}/teacher/{id}/schedule")
+    public ModelAndView displayTeacherSchedule(@PathVariable("gid") Long studentId,
+                                                @PathVariable("id") Long teacherId,
+                                                final ModelMap model) {
+
+        return prepareScheduleModelAndView(studentId, teacherId, model);
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
+    @GetMapping("/{gid}/teacher/{id}/event/{event}/subscribe")
+    public ModelAndView displaySubscriptionModal(@PathVariable("gid") Long studentId,
+                                                 @PathVariable("id") Long teacherId,
+                                                 @PathVariable("event") Long eventId,
+                                                 ModelMap model) {
+        ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+        modelAndView.addObject("event",
+                conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
+        modelAndView.setViewName("student/student_schedule :: subscribeEvent");
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
+    @PostMapping("/{gid}/teacher/{id}/event/{event}/subscribe")
+    public ModelAndView processSubscriptionModal(@PathVariable("gid") Long studentId,
+                                                 @PathVariable("id") Long teacherId,
+                                                 @PathVariable("event") Long eventId,
+                                                 ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView(
+                "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
+        try {
+            subscribeScheduleEvent(studentId, eventId);
+        } catch (UserCannotHandleEventException e) {
+            modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+            modelAndView.addObject("error", e.getMessage());
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
+    @GetMapping("/{gid}/teacher/{id}/event/{event}/unsubscribe")
+    public ModelAndView displayUnsubscribeModal(@PathVariable("gid") Long studentId,
+                                                @PathVariable("id") Long teacherId,
+                                                @PathVariable("event") Long eventId,
+                                                ModelMap model,
+                                                final Principal principal) {
+        ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+        modelAndView.addObject("event",
+                conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
+        modelAndView.setViewName("student/student_schedule :: unsubscribe");
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
+    @PostMapping("/{gid}/teacher/{id}/event/{event}/unsubscribe")
+    public ModelAndView processUnsubscribeModal(@PathVariable("gid") Long studentId,
+                                                @PathVariable("id") Long teacherId,
+                                                @PathVariable("event") Long eventId,
+                                                ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView(
+                "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
+        try {
+            unsubscribeScheduleEvent(studentId, eventId);
+        } catch (UserCannotHandleEventException e) {
+            modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+            modelAndView.addObject("error", e.getMessage());
+        }
+
+        return modelAndView;
+    }
+
+    private ModelAndView prepareScheduleModelAndView(final Long studentId, final Long teacherId, final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("student/student_schedule", model);
+
+        // TODO Add invalid studentId error checking
+        LocalDate currentWeekFirstDay = scheduleService.getCurrentWeekFirstDay();
+        LocalDate nextWeekFirstDay = scheduleService.getNextWeekFirstDay();
+        List<LocalDate> currentWeekDates = scheduleService.getWeekStartingFirstDay(currentWeekFirstDay);
+        List<LocalDate> nextWeekDates = scheduleService.getWeekStartingFirstDay(nextWeekFirstDay);
+        List<List<ScheduleEvent>> currentWeekEvents = new ArrayList<>();
+        List<List<ScheduleEvent>> nextWeekEvents = new ArrayList<>();
+        TeacherDTO teacherTeacher = new TeacherDTO();
+        PersonDTO studentPerson = conversionService.convert(personService.findPersonById(studentId), PersonDTO.class);
+        Optional<ScheduleEvent> subscribedEvent = Optional.empty();
+        Optional<LocalDateTime> mostRecentUpdate = Optional.empty();
+        long incomingEventsNumber = 0;
+
+        Optional<User> optionalTeacherUser = getOptionalTeacherUser(teacherId);
+        Optional<User> optionalStudentUser = getOptionalStudentUser(studentId);
+        if (teacherId != null
+                && optionalStudentUser.isPresent()
+                && optionalTeacherUser.isPresent()) {
+            User teacherUser = optionalTeacherUser.get();
+            User studentUser = optionalStudentUser.get();
+            teacherTeacher = conversionService.convert(teacherService.findTeacherById(teacherId), TeacherDTO.class);
+
+            // when user has any subscribed event no more events available to subscribe are shown
+            List<ScheduleEvent> allCurrentEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
+                    teacherUser,
+                    LocalDate.now(),
+                    currentWeekFirstDay.plusDays(14));
+            subscribedEvent = allCurrentEvents.stream()
+                    .map(ScheduleEvent::getParticipants)
+                    .flatMap(Set::stream)
+                    .filter(participant -> participant.getUser().equals(studentUser))
+                    .findFirst()
+                    .map(Participant::getEvent);
+            if (subscribedEvent.isPresent()) {
+                ScheduleEvent singleEvent = subscribedEvent.get();
+                addByDatesSingletonListToEventsListOfLists(currentWeekDates, currentWeekEvents, singleEvent);
+                addByDatesSingletonListToEventsListOfLists(nextWeekDates, nextWeekEvents, singleEvent);
+            } else {
+                currentWeekDates.forEach(date -> currentWeekEvents.add(getEventsAvailableToStudent(teacherUser, date)));
+                nextWeekDates.forEach(date -> nextWeekEvents.add(getEventsAvailableToStudent(teacherUser, date)));
+            }
+            List<ScheduleEvent> incomingEvents = filterEventsAvailableToStudent(
+                    studentUser,
+                    scheduleService.getEventsByOwnerStartingBetweenDates(
+                            teacherUser,
+                            currentWeekFirstDay,
+                            currentWeekFirstDay.plusDays(14)));
+            mostRecentUpdate = incomingEvents.stream()
+                    .map(ScheduleEvent::getModifiedAt)
+                    .filter(Objects::nonNull)
+                    .max(Comparator.naturalOrder());
+            incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
+        } else {
+            currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
+            nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
+        }
+        List<Teacher> teachers = courseService.findAllByStudentId(studentId).stream()
+                .map(Course::getTeacher)
+                .filter(teacher -> !teacher.getLastName().equals(UK_COURSE_NO_TEACHER))
+                .collect(Collectors.toList());
+
+        modelAndView.addObject("student", studentPerson);
+        modelAndView.addObject("teacher", teacherTeacher);
+        modelAndView.addObject("teachers", teachers);
+        modelAndView.addObject("weekDays", UK_WEEK_WORKING_DAYS);
+        modelAndView.addObject("currentWeek", currentWeekDates);
+        modelAndView.addObject("nextWeek", nextWeekDates);
+        modelAndView.addObject("currentWeekEvents", convertListOfListsToDTO(currentWeekEvents));
+        modelAndView.addObject("nextWeekEvents", convertListOfListsToDTO(nextWeekEvents));
+        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+        modelAndView.addObject("availableEvents", incomingEventsNumber);
+        modelAndView.addObject("event",
+                subscribedEvent
+                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                        .orElse(ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                                .withDate(FIRST_MONDAY_OF_EPOCH)
+                                .withStartTime(LocalTime.MIN)
+                                .withEventType(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withDescription(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withTitle(UK_EVENT_TYPE_NOT_DEFINED)
+                                .withCreated(LocalDateTime.now())
+                                .withIsOpen(true)
+                                .build()));
+
+        return modelAndView;
+    }
+
+
+    private ModelAndView prepareSubscriptionsModelAndView(final User user, final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("student/student_subscriptions", model);
+        modelAndView.addObject("student", Optional.ofNullable(user)
+                .map(User::getVerificationKey)
+                .map(VerificationKey::getPerson)
+                .orElse(null));
+        modelAndView.addObject("participants", Optional.ofNullable(user)
+                .map(u -> scheduleService.getParticipantsByUser(u).stream()
+                        .map(p -> conversionService.convert(p, ParticipantDTO.class))
+                        .collect(Collectors.toList()))
+                .orElse(new ArrayList<>()));
+
+        return modelAndView;
+    }
+
+    private void addByDatesSingletonListToEventsListOfLists(final List<LocalDate> dates,
+                                                            final List<List<ScheduleEvent>> events,
+                                                            final ScheduleEvent singletonEvent) {
+        dates.forEach(date ->
+                events.add(date.isEqual(singletonEvent.getStartOfEvent().toLocalDate())
+                        ? Collections.singletonList(singletonEvent)
+                        : Collections.emptyList()));
+    }
+
+    private List<List<ScheduleEventDTO>> convertListOfListsToDTO(final List<List<ScheduleEvent>> list) {
+        return list.stream()
+                .map(l -> l.stream()
+                        .map(event -> conversionService.convert(event, ScheduleEventDTO.class))
+                        .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+    }
+
+    private List<ScheduleEvent> filterEventsAvailableToStudent(final User student, final List<ScheduleEvent> events) {
+        Role role = roleService.getRoleByName("ROLE_STUDENT");
+        List<ScheduleEventType> availableTypes = scheduleEventTypeService.loadEventTypes().stream()
+                .filter(type -> type.getParticipants().contains(role))
+                .collect(Collectors.toList());
+
+        return events.stream()
+                .filter(event -> availableTypes.contains(event.getType()))
+                .filter(ScheduleEvent::isOpen)
+                .filter(event -> event.getStartOfEvent().isAfter(LocalDateTime.now()
+                        // min date and time before new appointments
+                        .plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT)
+                        .plus(HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT)))
+                .collect(Collectors.toList());
+    }
+
+    private List<ScheduleEvent> getEventsAvailableToStudent(User user, LocalDate date) {
+
+        return filterEventsAvailableToStudent(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date));
+    }
+
+    //TODO Refactor since GuestController has identical method. Probably move to service
+    private void subscribeScheduleEvent(Long studentId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(studentId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+        }
+    }
+
+    //TODO same as previous
+    private void unsubscribeScheduleEvent(Long studentId, Long eventId) throws UserCannotHandleEventException {
+        User user = Optional.ofNullable(personService.findPersonById(studentId))
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        ScheduleEvent event = scheduleService.getEventById(eventId);
+        Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(user, event);
+        if (!participant.isPresent()) {
+            throw new UserCannotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
+        }
+        scheduleService.removeParticipant(participant.get());
+        scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);
+    }
+
+
+    private Optional<User> getOptionalTeacherUser(final Long id) {
+        return Optional.ofNullable(teacherService.findTeacherById(id))
+                .flatMap(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser));
+    }
+
+    private Optional<User> getOptionalStudentUser(final Long id) {
+        return Optional.ofNullable(personService.findPersonById(id))
+                .flatMap(student -> Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser));
+    }
+
+
+
+    /*
+    TODO REFACTOR
+     */
+
 
     private ModelAndView prepareStudentListModelAndView(Long teacherId, Integer level) {
         List<StudentDTO> students = getStudentListByTeacherIdAndGradeLevel(teacherId, level);

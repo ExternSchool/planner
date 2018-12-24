@@ -15,6 +15,8 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
+import io.github.externschool.planner.service.ScheduleEventTypeService;
+import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.StudyPlanService;
@@ -66,6 +68,8 @@ public class StudentControllerTest {
     @Autowired private TeacherService teacherService;
     @Autowired private StudyPlanService planService;
     @Autowired private SchoolSubjectService subjectService;
+    @Autowired private ScheduleService scheduleService;
+    @Autowired private ScheduleEventTypeService scheduleEventTypeService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -92,7 +96,9 @@ public class StudentControllerTest {
                 roleService,
                 courseService,
                 teacherService,
-                planService);
+                planService,
+                scheduleService,
+                scheduleEventTypeService);
 
         key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -492,7 +498,7 @@ public class StudentControllerTest {
                 .params(map))
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/"));
+                .andExpect(view().name("redirect:/student/" + student.getId() + "/plan"));
     }
 
     @Test
@@ -506,7 +512,7 @@ public class StudentControllerTest {
                 .params(map))
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/student/"));
+                .andExpect(view().name("redirect:/student/" + student.getId() + "/plan"));
     }
 
     @Test
