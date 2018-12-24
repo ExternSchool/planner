@@ -91,9 +91,9 @@ public class PersonDTO {
     }
     
     public String getShortName() {
-        return lastName + " " +
-                (firstName != null ? firstName.substring(0,1) + "." : "") +
-                (patronymicName != null ? patronymicName.substring(0,1) + "." : "");
+        return (lastName != null && !lastName.isEmpty() ? lastName + " " : "") +
+                (firstName != null && !firstName.isEmpty() ? firstName.substring(0,1) + "." : "") +
+                (patronymicName != null && !patronymicName.isEmpty() ? patronymicName.substring(0,1) + "." : "");
     }
 
     public String getPhoneNumber() {

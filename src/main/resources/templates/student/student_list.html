@@ -37,15 +37,11 @@
     </h4>
     <form th:method="post" th:action="@{/student/add}">
         <div sec:authorize="hasRole('ROLE_ADMIN')">
-            <button type="submit" name="add" value="add" class="float-right btn btn-outline-success btn-sm">
+            <button type="submit" name="add" value="add" class="float-right btn btn-outline-primary btn-sm">
                 Додати нового учня
             </button>
         </div>
     </form>
-    <button class="float-right btn btn-sm btn-outline-primary mb-1 mr-1" type="button"
-            th:onclick="'javascript:openCreateAccountModal(\'' + '\');'">
-        Додати нового користувача
-    </button>
     <div class="form-group mb-0">
         <input type="hidden" th:field="${level}">
         <nav id="selector" aria-label="Grades navigation">
@@ -81,7 +77,7 @@
             <tr>
                 <th class="text-left">Прізвище</th>
                 <th class="text-left">Ім'я</th>
-                <th class="text-left">По-батькові</th>
+                <th class="text-left">По б.</th>
                 <th>Клас</th>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
                     <th>Стать</th>
@@ -92,6 +88,7 @@
                 <th style="width: 15ch">Телефон</th>
                 <th>Email</th>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <th class="text-right" style="width: 10ch">Записи</th>
                     <th class="text-right" style="width: 10ch">План</th>
                     <th class="text-right" style="width: 10ch">Змінити</th>
                     <th class="text-right" style="width: 10ch">Видалити</th>
@@ -113,6 +110,13 @@
                 <td th:text="${student.getPhoneNumber()}">Телефон</td>
                 <td th:text="${student.getEmail()}">Email</td>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
+                    <td class="text-right">
+                        <form th:method="get" th:action="@{/student/{id}/teacher/schedule(id=${student.id})}">
+                            <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
+                                <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </td>
                     <td class="text-right">
                         <a th:href="@{/student/{id}/plan(id=${student.id})}" class="btn badge badge-secondary">
                             <i class="fas fa-list-ol" style="color: white" aria-hidden="true"></i>
