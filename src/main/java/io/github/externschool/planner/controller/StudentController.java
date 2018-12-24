@@ -331,12 +331,6 @@ public class StudentController {
         return showStudentProfileForm(studentDTO, true);
     }
 
-    /*
-    TODO REFACTOR
-     */
-
-
-
     @Secured("ROLE_STUDENT")
     @GetMapping("/subscriptions")
     public ModelAndView displaySubscriptionsToStudent(final ModelMap model, final Principal principal) {
@@ -605,7 +599,7 @@ public class StudentController {
         }
     }
 
-    //TODO same as previous
+    //TODO same as previous - Probably move to Service
     private void unsubscribeScheduleEvent(Long studentId, Long eventId) throws UserCannotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(studentId))
                 .map(Person::getVerificationKey)
@@ -630,13 +624,6 @@ public class StudentController {
         return Optional.ofNullable(personService.findPersonById(id))
                 .flatMap(student -> Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser));
     }
-
-
-
-    /*
-    TODO REFACTOR
-     */
-
 
     private ModelAndView prepareStudentListModelAndView(Long teacherId, Integer level) {
         List<StudentDTO> students = getStudentListByTeacherIdAndGradeLevel(teacherId, level);
