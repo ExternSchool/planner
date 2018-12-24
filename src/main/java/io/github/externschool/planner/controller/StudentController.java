@@ -284,7 +284,7 @@ public class StudentController {
         }
         Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
         if (!Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser).isPresent()) {
-            userService.createAndSaveFakeUserWithGuestVerificationKey(student.getVerificationKey());
+            userService.createAndSaveFakeUserWithStudentVerificationKey(student.getVerificationKey());
         }
 
         return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
