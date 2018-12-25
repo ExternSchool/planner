@@ -29,36 +29,63 @@ public class ScheduleHolidayRepositoryTest {
     }
 
     @Test
-    public void shouldReturnLocalDateList_whenGetAllBetweenDates() {
+    public void shouldReturnList_whenGetAllHolidaysBetweenDates() {
         ScheduleHoliday first = new ScheduleHoliday(LocalDate.now(),LocalDate.now().plusDays(2L));
         ScheduleHoliday second = new ScheduleHoliday(LocalDate.now().plusDays(1L),LocalDate.now().plusDays(2L));
         List<ScheduleHoliday> holidays = Arrays.asList(first, second);
 
         repository.saveAll(holidays);
 
-        List<ScheduleHoliday> firstOnly = repository.findAllByHolidayDateIsBetween(
+        List<ScheduleHoliday> firstOnly = repository.findAllByHolidayDateBetween(
                 LocalDate.now(),
                 LocalDate.now());
-        List<ScheduleHoliday> bothDays = repository.findAllByHolidayDateIsBetween(
+        List<ScheduleHoliday> bothDays = repository.findAllByHolidayDateBetween(
                 LocalDate.now(),
                 LocalDate.now().plusDays(1L));
-        List<ScheduleHoliday> secondOnly = repository.findAllByHolidayDateIsBetween(
+        List<ScheduleHoliday> secondOnly = repository.findAllByHolidayDateBetween(
                 LocalDate.now().plusDays(1L),
                 LocalDate.now().plusDays(1L));
-        List<ScheduleHoliday> noDays = repository.findAllByHolidayDateIsBetween(
+        List<ScheduleHoliday> noDays = repository.findAllByHolidayDateBetween(
                 LocalDate.now().plusDays(2L),
                 LocalDate.now().plusDays(3L));
 
+        assertThat(firstOnly)
+                .containsOnly(first);
+        assertThat(bothDays)
+                .containsExactly(first, second);
+        assertThat(secondOnly)
+                .containsOnly(second);
+        assertThat(noDays)
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldReturnList_whenGetAllSubstitutionsBetweenDates() {
+        ScheduleHoliday first = new ScheduleHoliday(LocalDate.now().minusDays(1L),LocalDate.now());
+        ScheduleHoliday second = new ScheduleHoliday(LocalDate.now().minusDays(2L),LocalDate.now().plusDays(1L));
+        List<ScheduleHoliday> holidays = Arrays.asList(first, second);
+
+        repository.saveAll(holidays);
+
+        List<ScheduleHoliday> firstOnly = repository.findAllBySubstitutionDateBetween(
+                LocalDate.now(),
+                LocalDate.now());
+        List<ScheduleHoliday> bothDays = repository.findAllBySubstitutionDateBetween(
+                LocalDate.now(),
+                LocalDate.now().plusDays(1L));
+        List<ScheduleHoliday> secondOnly = repository.findAllBySubstitutionDateBetween(
+                LocalDate.now().plusDays(1L),
+                LocalDate.now().plusDays(1L));
+        List<ScheduleHoliday> noDays = repository.findAllBySubstitutionDateBetween(
+                LocalDate.now().plusDays(2L),
+                LocalDate.now().plusDays(3L));
 
         assertThat(firstOnly)
                 .containsOnly(first);
-
         assertThat(bothDays)
                 .containsExactly(first, second);
-
         assertThat(secondOnly)
                 .containsOnly(second);
-
         assertThat(noDays)
                 .isEmpty();
     }

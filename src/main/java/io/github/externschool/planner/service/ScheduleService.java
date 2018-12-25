@@ -61,5 +61,9 @@ public interface ScheduleService {
 
     void deleteHolidayById(Long id);
 
-    List<ScheduleHoliday> findHolidaysBetweenDates(LocalDate start, LocalDate end);
+    List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
+
+    List<ScheduleEvent> createOwnersCurrentWeekEventsWithStandardSchema(User owner);
+
+    List<ScheduleEvent> createOwnersNextWeekEventsWithStandardSchema(User owner);
 }

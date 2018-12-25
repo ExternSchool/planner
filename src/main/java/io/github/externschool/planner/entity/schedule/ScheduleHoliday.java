@@ -24,15 +24,15 @@ public class ScheduleHoliday {
     @Column(name = "holiday_date", nullable = false)
     private LocalDate holidayDate;
 
-    @Column(name = "working_date")
-    private LocalDate workingDate;
+    @Column(name = "substitution_date")
+    private LocalDate substitutionDate;
 
     private ScheduleHoliday() {
     }
 
-    public ScheduleHoliday(final LocalDate holidayDate, final LocalDate workingDate) {
+    public ScheduleHoliday(final LocalDate holidayDate, final LocalDate substitutionDate) {
         this.holidayDate = holidayDate;
-        this.workingDate = workingDate;
+        this.substitutionDate = substitutionDate;
     }
 
     public Long getId() {
@@ -51,12 +51,12 @@ public class ScheduleHoliday {
         this.holidayDate = holidayDate;
     }
 
-    public LocalDate getWorkingDate() {
-        return workingDate;
+    public LocalDate getSubstitutionDate() {
+        return substitutionDate;
     }
 
-    public void setWorkingDate(final LocalDate workingDate) {
-        this.workingDate = workingDate;
+    public void setSubstitutionDate(final LocalDate substitutionDate) {
+        this.substitutionDate = substitutionDate;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ScheduleHoliday {
         return new EqualsBuilder()
                 .append(getId(), holiday.getId())
                 .append(getHolidayDate(), holiday.getHolidayDate())
-                .append(getWorkingDate(), holiday.getWorkingDate())
+                .append(getSubstitutionDate(), holiday.getSubstitutionDate())
                 .isEquals();
     }
 
@@ -79,7 +79,7 @@ public class ScheduleHoliday {
         return new HashCodeBuilder(17, 37)
                 .append(getId())
                 .append(getHolidayDate())
-                .append(getWorkingDate())
+                .append(getSubstitutionDate())
                 .toHashCode();
     }
 
@@ -88,7 +88,7 @@ public class ScheduleHoliday {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("holidayDate", holidayDate)
-                .append("workingDate", workingDate)
+                .append("substitutionDate", substitutionDate)
                 .toString();
     }
 }

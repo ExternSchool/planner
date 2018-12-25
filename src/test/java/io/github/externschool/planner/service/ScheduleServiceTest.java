@@ -34,6 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.temporal.ChronoUnit;
@@ -43,7 +44,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -667,13 +672,47 @@ public class ScheduleServiceTest {
     public void shouldReturnList_whenFindHolidaysBetweenDates() {
         LocalDate start = LocalDate.now();
         LocalDate end = LocalDate.now().plusDays(1L);
-        List<ScheduleHoliday> holidays =
-                Arrays.asList(new ScheduleHoliday(start, null), new ScheduleHoliday(end, null));
+        List<ScheduleHoliday> holidays = Arrays.asList(
+                        new ScheduleHoliday(start, null),
+                        new ScheduleHoliday(end, null));
 
-        Mockito.when(holidayRepository.findAllByHolidayDateIsBetween(start, end))
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(start, end))
                 .thenReturn(holidays);
 
-        assertThat(scheduleService.findHolidaysBetweenDates(start, end))
+        assertThat(scheduleService.getHolidaysBetweenDates(start, end))
                 .containsExactlyInAnyOrderElementsOf(holidays);
+    }
+
+    @Test
+    public void shouldReturnList_whenCreateOwnersCurrentWeekEventsBasedOnStandardSchema() {
+        LocalDate startDate = scheduleService.getCurrentWeekFirstDay();
+        User owner = new User("owner@email.com", "pass");
+        LocalDate endDate = startDate.plusDays(6L);
+        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
+        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        List<LocalDateTime> standardEventStartDateTimes = new ArrayList<>();
+        LongStream.rangeClosed(0L, 4L)
+                .mapToObj(FIRST_MONDAY_OF_EPOCH::plusDays)
+                .forEach(date -> {
+                    for (int i = 9; i < 16; i++) {
+                        standardEventStartDateTimes.add(LocalDateTime.of(date, LocalTime.of(i, 0)));
+                    }
+                });
+        List<ScheduleEvent> standardEvents = new ArrayList<>();
+        standardEventStartDateTimes.forEach(start -> {
+            ScheduleEvent event = ScheduleEvent.builder()
+                    .withStartDateTime(start)
+                    .withEndDateTime(start.plusMinutes(60))
+                    .withTitle("Event " + start.getDayOfWeek() + ":" + start.getHour())
+                    .withType(eventType)
+                    .withDescription(start.getDayOfWeek() + ":" + start.getHour())
+                    .withOpenStatus(true)
+                    .withOwner(owner)
+                    .build();
+            standardEvents.add(event);
+        });
+
+
     }
 }

@@ -15,6 +15,7 @@ import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleHolidayRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
 @Service
@@ -328,8 +330,71 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleHoliday> findHolidaysBetweenDates(final LocalDate start, final LocalDate end) {
-        return holidayRepository.findAllByHolidayDateIsBetween(start, end);
+    public List<ScheduleHoliday> getHolidaysBetweenDates(final LocalDate start, final LocalDate end) {
+        return holidayRepository.findAllByHolidayDateBetween(start, end);
+    }
+
+    @Override
+    public List<ScheduleEvent> createOwnersCurrentWeekEventsWithStandardSchema(final User owner) {
+        return eventRepository.saveAll(
+                getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
+    }
+
+    @Override
+    public List<ScheduleEvent> createOwnersNextWeekEventsWithStandardSchema(final User owner) {
+        return eventRepository.saveAll(
+                getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(owner, getNextWeekFirstDay()));
+    }
+
+    private List<ScheduleEvent> getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(final User owner,
+                                                                                          final LocalDate firstDay) {
+        List<ScheduleEvent> newEvents = new ArrayList<>();
+        List<ScheduleEvent> standardSchemaEvents =
+                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN),
+                        LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX));
+        Set<LocalDate> holidayDates = holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4))
+                .stream()
+                .map(ScheduleHoliday::getHolidayDate)
+                .collect(Collectors.toSet());
+        // Monday to Friday
+        for (long i = 0; i < 5; i++) {
+            final long daysBetween = i;
+            if (!holidayDates.contains(firstDay.plusDays(i))) {
+                // this is an ordinary working day, not a holiday
+                standardSchemaEvents.stream()
+                        .filter(event ->
+                                ChronoUnit.DAYS.between(FIRST_MONDAY_OF_EPOCH, event.getStartOfEvent().toLocalDate())
+                                         == daysBetween)
+                        .map(event -> duplicateEventForDate(event, firstDay.plusDays(daysBetween)))
+                        .forEach(newEvents::add);
+            } // do not create events for holidays
+        }
+        // Saturday To Sunday
+        List<ScheduleHoliday> substitutionDays =
+                holidayRepository.findAllBySubstitutionDateBetween(firstDay.plusDays(5L), firstDay.plusDays(6L));
+            for (ScheduleHoliday day : substitutionDays) {
+                // this holiday is a substitution working day for another day so fill it with events
+                final long daysBetween = ChronoUnit.DAYS.between(firstDay, day.getHolidayDate());
+                standardSchemaEvents.stream()
+                        .filter(event ->
+                                ChronoUnit.DAYS.between(FIRST_MONDAY_OF_EPOCH, event.getStartOfEvent().toLocalDate())
+                                        == daysBetween)
+                        .map(event -> duplicateEventForDate(event, day.getSubstitutionDate()))
+                        .forEach(newEvents::add);
+            }
+
+        return newEvents;
+    }
+
+    private ScheduleEvent duplicateEventForDate(final ScheduleEvent event, final LocalDate date) {
+        ScheduleEvent newEvent = new ScheduleEvent();
+        BeanUtils.copyProperties(event, newEvent);
+        newEvent.setStartOfEvent(LocalDateTime.of(date, LocalTime.from(event.getStartOfEvent())));
+        newEvent.setEndOfEvent(LocalDateTime.of(date, LocalTime.from(event.getEndOfEvent())));
+
+        return newEvent;
     }
 
     private void canUserParticipateInEventForType(final User user, final ScheduleEventType type) {

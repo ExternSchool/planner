@@ -7,5 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ScheduleHolidayRepository extends JpaRepository<ScheduleHoliday, Long> {
-    List<ScheduleHoliday> findAllByHolidayDateIsBetween(LocalDate start, LocalDate end);
+    List<ScheduleHoliday> findAllByHolidayDateBetween(LocalDate start, LocalDate end);
+
+    List<ScheduleHoliday> findAllBySubstitutionDateBetween(LocalDate start, LocalDate end);
 }
