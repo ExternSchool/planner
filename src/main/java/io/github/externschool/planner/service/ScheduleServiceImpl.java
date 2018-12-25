@@ -8,11 +8,13 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleHolidayRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +46,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final ScheduleHolidayRepository holidayRepository;
 
     private final Executor executor = Executors.newSingleThreadExecutor();
 
@@ -51,12 +54,15 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
                                final ScheduleEventTypeRepository eventTypeRepository,
                                final UserRepository userRepository,
-                               final ParticipantRepository participantRepository, final EmailService emailService) {
+                               final ParticipantRepository participantRepository,
+                               final EmailService emailService,
+                               final ScheduleHolidayRepository holidayRepository) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
         this.emailService = emailService;
+        this.holidayRepository = holidayRepository;
     }
 
     /**
@@ -302,6 +308,28 @@ public class ScheduleServiceImpl implements ScheduleService {
                 String.format("The user %s is not allowed to create or own %s type of event",
                         user != null ? user.getEmail() : "NULL",
                         type != null ? type.getName() : "NULL"));
+    }
+
+    @Override
+    public ScheduleHoliday saveHoliday(final LocalDate holiday, final LocalDate substitutionDay) {
+        ScheduleHoliday scheduleHoliday = new ScheduleHoliday(holiday, substitutionDay);
+
+        return holidayRepository.save(scheduleHoliday);
+    }
+
+    @Override
+    public Optional<ScheduleHoliday> findHolidayById(final Long id) {
+        return holidayRepository.findById(id);
+    }
+
+    @Override
+    public void deleteHolidayById(final Long id) {
+        holidayRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ScheduleHoliday> findHolidaysBetweenDates(final LocalDate start, final LocalDate end) {
+        return holidayRepository.findAllByHolidayDateIsBetween(start, end);
     }
 
     private void canUserParticipateInEventForType(final User user, final ScheduleEventType type) {

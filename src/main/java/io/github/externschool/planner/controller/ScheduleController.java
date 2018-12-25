@@ -138,6 +138,8 @@ public class ScheduleController {
         return modelAndView;
     }
 
+
+
     private ModelAndView prepareModelAndView(Long typeId, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("event/event_type");
         model.addAttribute("ownersRoles", roleService.getAllRoles().stream()

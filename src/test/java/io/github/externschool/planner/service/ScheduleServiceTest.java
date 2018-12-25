@@ -8,6 +8,7 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
 import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
@@ -17,6 +18,7 @@ import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleHolidayRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +61,7 @@ public class ScheduleServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ParticipantRepository participantRepository;
     @Mock private EmailService emailService;
+    @Mock private ScheduleHolidayRepository holidayRepository;
     private ScheduleService scheduleService;
 
     @Before
@@ -69,7 +72,8 @@ public class ScheduleServiceTest {
                 this.eventTypeRepo,
                 this.userRepository,
                 this.participantRepository,
-                this.emailService);
+                this.emailService,
+                this.holidayRepository);
     }
 
     @Test
@@ -612,5 +616,64 @@ public class ScheduleServiceTest {
                         firstDay.plus(Period.of(0, 0 ,4)),
                         firstDay.plus(Period.of(0, 0 ,5)),
                         firstDay.plus(Period.of(0, 0 ,6)));
+    }
+
+
+    @Test
+    public void ahouldReturnScheduleHoliday_whenSaveHoliday() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = LocalDate.now().plusDays(1L);
+        ScheduleHoliday scheduleHoliday = new ScheduleHoliday(start, end);
+        Mockito.when(holidayRepository.save(scheduleHoliday))
+                .thenReturn(scheduleHoliday);
+
+        assertThat(scheduleService.saveHoliday(start, end))
+                .isEqualTo(scheduleHoliday);
+    }
+
+    @Test
+    public void shouldReturnScheduleHoliday_whenFindHolidayById() {
+        ScheduleHoliday scheduleHoliday = new ScheduleHoliday(LocalDate.now(), LocalDate.now().plusDays(1L));
+        Long id = 100500L;
+        Mockito.when(holidayRepository.findById(id))
+                .thenReturn(Optional.of(scheduleHoliday));
+
+        assertThat(scheduleService.findHolidayById(id))
+                .isNotEmpty()
+                .contains(scheduleHoliday);
+    }
+
+    @Test
+    public void shouldReturnEmptyOptional_whenFindHolidayById() {
+        Mockito.when(holidayRepository.findById(any()))
+                .thenReturn(Optional.empty());
+
+        assertThat(scheduleService.findHolidayById(100500L))
+                .isEmpty();
+    }
+
+    @Test
+    public void shouldInvoke_whenDeleteHoliday() {
+        ScheduleHoliday scheduleHoliday = new ScheduleHoliday(LocalDate.now(), LocalDate.now().plusDays(1L));
+        Long id = 100500L;
+        scheduleHoliday.setId(id);
+
+        scheduleService.deleteHolidayById(id);
+
+        verify(holidayRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void shouldReturnList_whenFindHolidaysBetweenDates() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = LocalDate.now().plusDays(1L);
+        List<ScheduleHoliday> holidays =
+                Arrays.asList(new ScheduleHoliday(start, null), new ScheduleHoliday(end, null));
+
+        Mockito.when(holidayRepository.findAllByHolidayDateIsBetween(start, end))
+                .thenReturn(holidays);
+
+        assertThat(scheduleService.findHolidaysBetweenDates(start, end))
+                .containsExactlyInAnyOrderElementsOf(holidays);
     }
 }
