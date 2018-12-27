@@ -8,11 +8,14 @@ import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleHolidayRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
 @Service
@@ -44,6 +48,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final ParticipantRepository participantRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final ScheduleHolidayRepository holidayRepository;
 
     private final Executor executor = Executors.newSingleThreadExecutor();
 
@@ -51,12 +56,15 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleServiceImpl(final ScheduleEventRepository eventRepository,
                                final ScheduleEventTypeRepository eventTypeRepository,
                                final UserRepository userRepository,
-                               final ParticipantRepository participantRepository, final EmailService emailService) {
+                               final ParticipantRepository participantRepository,
+                               final EmailService emailService,
+                               final ScheduleHolidayRepository holidayRepository) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
         this.emailService = emailService;
+        this.holidayRepository = holidayRepository;
     }
 
     /**
@@ -302,6 +310,87 @@ public class ScheduleServiceImpl implements ScheduleService {
                 String.format("The user %s is not allowed to create or own %s type of event",
                         user != null ? user.getEmail() : "NULL",
                         type != null ? type.getName() : "NULL"));
+    }
+
+    @Override
+    public ScheduleHoliday saveHoliday(final LocalDate holiday, final LocalDate substitutionDay) {
+        ScheduleHoliday scheduleHoliday = new ScheduleHoliday(holiday, substitutionDay);
+
+        return holidayRepository.save(scheduleHoliday);
+    }
+
+    @Override
+    public Optional<ScheduleHoliday> findHolidayById(final Long id) {
+        return holidayRepository.findById(id);
+    }
+
+    @Override
+    public void deleteHolidayById(final Long id) {
+        holidayRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ScheduleHoliday> getHolidaysBetweenDates(final LocalDate start, final LocalDate end) {
+        return holidayRepository.findAllByHolidayDateBetween(start, end);
+    }
+
+    @Override
+    public List<ScheduleEvent> createCurrentWeekEventsWithStandardSchemaAndOwner(final User owner) {
+        return eventRepository.saveAll(
+                duplicateStandardEventsByOwnerAndFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
+    }
+
+    @Override
+    public List<ScheduleEvent> createNextWeekEventsWithStandardSchemaAndOwner(final User owner) {
+        return eventRepository.saveAll(
+                duplicateStandardEventsByOwnerAndFirstDayOfWeek(owner, getNextWeekFirstDay()));
+    }
+
+    private List<ScheduleEvent> duplicateStandardEventsByOwnerAndFirstDayOfWeek(final User owner,
+                                                                                final LocalDate firstDay) {
+        List<ScheduleEvent> newEvents = new ArrayList<>();
+        List<ScheduleEvent> standardSchemaEvents =
+                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN),
+                        LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX));
+        Set<LocalDate> holidayDates = holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4))
+                .stream()
+                .map(ScheduleHoliday::getHolidayDate)
+                .collect(Collectors.toSet());
+        // Monday to Friday
+        for (long i = 0; i < 5; i++) {
+            LocalDate date = firstDay.plusDays(i);
+            if (!holidayDates.contains(date)) {
+                // this is an ordinary working day, not a holiday
+                standardSchemaEvents.stream()
+                        .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(date.getDayOfWeek()))
+                        .map(event -> duplicateEventForDate(event, date))
+                        .forEach(newEvents::add);
+            } // do not create events for holidays
+        }
+        // Saturday To Sunday
+        List<ScheduleHoliday> substitutionDays =
+                holidayRepository.findAllBySubstitutionDateBetween(firstDay.plusDays(5L), firstDay.plusDays(6L));
+        for (ScheduleHoliday day : substitutionDays) {
+            // this holiday is a substitution working day for another day so fill it with events
+            DayOfWeek holidayDayOfWeek = day.getHolidayDate().getDayOfWeek();
+            standardSchemaEvents.stream()
+                    .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(holidayDayOfWeek))
+                    .map(event -> duplicateEventForDate(event, day.getSubstitutionDate()))
+                    .forEach(newEvents::add);
+        }
+
+        return newEvents;
+    }
+
+    private ScheduleEvent duplicateEventForDate(final ScheduleEvent event, final LocalDate date) {
+        ScheduleEvent newEvent = new ScheduleEvent();
+        BeanUtils.copyProperties(event, newEvent);
+        newEvent.setStartOfEvent(LocalDateTime.of(date, LocalTime.from(event.getStartOfEvent())));
+        newEvent.setEndOfEvent(LocalDateTime.of(date, LocalTime.from(event.getEndOfEvent())));
+
+        return newEvent;
     }
 
     private void canUserParticipateInEventForType(final User user, final ScheduleEventType type) {

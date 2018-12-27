@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -53,4 +54,16 @@ public interface ScheduleService {
     LocalDate getNextWeekFirstDay();
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
+
+    ScheduleHoliday saveHoliday(LocalDate holiday, LocalDate substitutionDay);
+
+    Optional<ScheduleHoliday> findHolidayById(Long id);
+
+    void deleteHolidayById(Long id);
+
+    List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
+
+    List<ScheduleEvent> createCurrentWeekEventsWithStandardSchemaAndOwner(User owner);
+
+    List<ScheduleEvent> createNextWeekEventsWithStandardSchemaAndOwner(User owner);
 }
