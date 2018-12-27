@@ -335,19 +335,19 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> createOwnersCurrentWeekEventsWithStandardSchema(final User owner) {
+    public List<ScheduleEvent> createCurrentWeekEventsWithStandardSchemaAndOwner(final User owner) {
         return eventRepository.saveAll(
-                getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
+                duplicateStandardEventsByOwnerAndFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
     }
 
     @Override
-    public List<ScheduleEvent> createOwnersNextWeekEventsWithStandardSchema(final User owner) {
+    public List<ScheduleEvent> createNextWeekEventsWithStandardSchemaAndOwner(final User owner) {
         return eventRepository.saveAll(
-                getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(owner, getNextWeekFirstDay()));
+                duplicateStandardEventsByOwnerAndFirstDayOfWeek(owner, getNextWeekFirstDay()));
     }
 
-    private List<ScheduleEvent> getStandardSchemaEventsDuplicatesByOwnerAndFirstDayOfWeek(final User owner,
-                                                                                          final LocalDate firstDay) {
+    private List<ScheduleEvent> duplicateStandardEventsByOwnerAndFirstDayOfWeek(final User owner,
+                                                                                final LocalDate firstDay) {
         List<ScheduleEvent> newEvents = new ArrayList<>();
         List<ScheduleEvent> standardSchemaEvents =
                 eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
@@ -360,30 +360,26 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .collect(Collectors.toSet());
         // Monday to Friday
         for (long i = 0; i < 5; i++) {
-            final long daysBetween = i;
-            if (!holidayDates.contains(firstDay.plusDays(i))) {
+            LocalDate date = firstDay.plusDays(i);
+            if (!holidayDates.contains(date)) {
                 // this is an ordinary working day, not a holiday
                 standardSchemaEvents.stream()
-                        .filter(event ->
-                                ChronoUnit.DAYS.between(FIRST_MONDAY_OF_EPOCH, event.getStartOfEvent().toLocalDate())
-                                         == daysBetween)
-                        .map(event -> duplicateEventForDate(event, firstDay.plusDays(daysBetween)))
+                        .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(date.getDayOfWeek()))
+                        .map(event -> duplicateEventForDate(event, date))
                         .forEach(newEvents::add);
             } // do not create events for holidays
         }
         // Saturday To Sunday
         List<ScheduleHoliday> substitutionDays =
                 holidayRepository.findAllBySubstitutionDateBetween(firstDay.plusDays(5L), firstDay.plusDays(6L));
-            for (ScheduleHoliday day : substitutionDays) {
-                // this holiday is a substitution working day for another day so fill it with events
-                final long daysBetween = ChronoUnit.DAYS.between(firstDay, day.getHolidayDate());
-                standardSchemaEvents.stream()
-                        .filter(event ->
-                                ChronoUnit.DAYS.between(FIRST_MONDAY_OF_EPOCH, event.getStartOfEvent().toLocalDate())
-                                        == daysBetween)
-                        .map(event -> duplicateEventForDate(event, day.getSubstitutionDate()))
-                        .forEach(newEvents::add);
-            }
+        for (ScheduleHoliday day : substitutionDays) {
+            // this holiday is a substitution working day for another day so fill it with events
+            DayOfWeek holidayDayOfWeek = day.getHolidayDate().getDayOfWeek();
+            standardSchemaEvents.stream()
+                    .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(holidayDayOfWeek))
+                    .map(event -> duplicateEventForDate(event, day.getSubstitutionDate()))
+                    .forEach(newEvents::add);
+        }
 
         return newEvents;
     }

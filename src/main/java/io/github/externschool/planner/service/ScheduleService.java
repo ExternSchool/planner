@@ -63,7 +63,7 @@ public interface ScheduleService {
 
     List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
 
-    List<ScheduleEvent> createOwnersCurrentWeekEventsWithStandardSchema(User owner);
+    List<ScheduleEvent> createCurrentWeekEventsWithStandardSchemaAndOwner(User owner);
 
-    List<ScheduleEvent> createOwnersNextWeekEventsWithStandardSchema(User owner);
+    List<ScheduleEvent> createNextWeekEventsWithStandardSchemaAndOwner(User owner);
 }

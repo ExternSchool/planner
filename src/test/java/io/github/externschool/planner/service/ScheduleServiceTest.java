@@ -30,6 +30,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Repeat;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -45,7 +46,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
@@ -59,6 +59,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
+@Transactional
 @SpringBootTest
 public class ScheduleServiceTest {
     @Mock private ScheduleEventRepository eventRepository;
@@ -684,18 +685,162 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateOwnersCurrentWeekEventsBasedOnStandardSchema() {
-        LocalDate startDate = scheduleService.getCurrentWeekFirstDay();
+    public void shouldReturnList_whenCreateCurrentWeekEventsBasedOnStandardSchema() {
         User owner = new User("owner@email.com", "pass");
-        LocalDate endDate = startDate.plusDays(6L);
         LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
         LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
+        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+
+        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
+        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+
+        Mockito
+                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        standardStart,
+                        standardEnd))
+                .thenReturn(standardEvents);
+        Mockito.when(eventRepository.saveAll(expectedDuplicates))
+                .thenReturn(expectedDuplicates);
+
+        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
+
+        assertThat(actualDuplicates)
+                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+    }
+
+    @Test
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchema() {
+        User owner = new User("owner@email.com", "pass");
+        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
+        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
+        LocalDate firstDay = scheduleService.getNextWeekFirstDay();
+
+        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
+        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+
+        Mockito
+                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        standardStart,
+                        standardEnd))
+                .thenReturn(standardEvents);
+        Mockito.when(eventRepository.saveAll(expectedDuplicates))
+                .thenReturn(expectedDuplicates);
+
+        List<ScheduleEvent> actualDuplicates = scheduleService.createNextWeekEventsWithStandardSchemaAndOwner(owner);
+
+        assertThat(actualDuplicates)
+                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+    }
+
+    @Test
+    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithHoliday() {
+        User owner = new User("owner@email.com", "pass");
+        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
+        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
+        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+
+        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
+        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+        ScheduleHoliday holiday = new ScheduleHoliday(firstDay, firstDay.plusDays(10));
+        List<ScheduleEvent> toRemove = expectedDuplicates.stream()
+                .filter(event -> event.getStartOfEvent().toLocalDate().equals(holiday.getHolidayDate()))
+                .collect(Collectors.toList());
+        expectedDuplicates.removeAll(toRemove);
+
+        Mockito
+                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        standardStart,
+                        standardEnd))
+                .thenReturn(standardEvents);
+        Mockito.when(eventRepository.saveAll(expectedDuplicates))
+                .thenReturn(expectedDuplicates);
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4)))
+                .thenReturn(Collections.singletonList(holiday));
+
+        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
+
+        assertThat(actualDuplicates)
+                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+    }
+
+    @Test
+    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithSubstitutionDay() {
+        User owner = new User("owner@email.com", "pass");
+        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
+        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
+        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+
+        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
+        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+        List<ScheduleEvent> toRemove = expectedDuplicates.stream()
+                .filter(event -> event.getStartOfEvent().toLocalDate().equals(firstDay))
+                .collect(Collectors.toList());
+        expectedDuplicates.removeAll(toRemove);
+        ScheduleHoliday substitute = new ScheduleHoliday(firstDay, firstDay.plusDays(5));
+        List<ScheduleEvent> toAdd = new ArrayList<>();
+        for (ScheduleEvent event : standardEvents) {
+            DayOfWeek dayOfWeek = substitute.getHolidayDate().getDayOfWeek();
+            if (event.getStartOfEvent().getDayOfWeek().equals(dayOfWeek)) {
+                ScheduleEvent newEvent = new ScheduleEvent();
+                BeanUtils.copyProperties(event, newEvent);
+                newEvent.setStartOfEvent(
+                        LocalDateTime.of(
+                                substitute.getSubstitutionDate(),
+                                event.getStartOfEvent().toLocalTime()));
+                newEvent.setEndOfEvent(
+                        LocalDateTime.of(
+                                substitute.getSubstitutionDate(),
+                                event.getEndOfEvent().toLocalTime()));
+                toAdd.add(newEvent);
+            }
+        }
+        expectedDuplicates.addAll(toAdd);
+
+        Mockito
+                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
+                        owner,
+                        standardStart,
+                        standardEnd))
+                .thenReturn(standardEvents);
+        Mockito.when(holidayRepository.findAllBySubstitutionDateBetween(firstDay.plusDays(5), firstDay.plusDays(6)))
+                .thenReturn(Collections.singletonList(substitute));
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4)))
+                .thenReturn(Collections.singletonList(substitute));
+        Mockito.doReturn(expectedDuplicates).when(eventRepository).saveAll(expectedDuplicates);
+
+        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
+
+        assertThat(actualDuplicates)
+                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+    }
+
+    private List<ScheduleEvent> duplicateStandardEvents(List<ScheduleEvent> standardEvents,
+                                                        LocalDateTime standardStart,
+                                                        LocalDate firstDay) {
+        long daysBetween = ChronoUnit.DAYS.between(standardStart.toLocalDate(), firstDay);
+
+        List<ScheduleEvent> expectedDuplicates = new ArrayList<>();
+        standardEvents.forEach(event -> {
+            ScheduleEvent newEvent = new ScheduleEvent();
+            BeanUtils.copyProperties(event, newEvent);
+            newEvent.setStartOfEvent(event.getStartOfEvent().plusDays(daysBetween));
+            newEvent.setEndOfEvent(event.getEndOfEvent().plusDays(daysBetween));
+            expectedDuplicates.add(newEvent);
+        });
+
+        return expectedDuplicates;
+    }
+
+    private List<ScheduleEvent> populateStandardEvents(User owner) {
         ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
         List<LocalDateTime> standardEventStartDateTimes = new ArrayList<>();
         LongStream.rangeClosed(0L, 4L)
                 .mapToObj(FIRST_MONDAY_OF_EPOCH::plusDays)
                 .forEach(date -> {
-                    for (int i = 9; i < 16; i++) {
+                    for (int i = 9; i < 11; i++) {
                         standardEventStartDateTimes.add(LocalDateTime.of(date, LocalTime.of(i, 0)));
                     }
                 });
@@ -704,15 +849,15 @@ public class ScheduleServiceTest {
             ScheduleEvent event = ScheduleEvent.builder()
                     .withStartDateTime(start)
                     .withEndDateTime(start.plusMinutes(60))
-                    .withTitle("Event " + start.getDayOfWeek() + ":" + start.getHour())
+                    .withTitle("Event " + start.getDayOfWeek() + "@" + start.getHour() + ":00")
                     .withType(eventType)
-                    .withDescription(start.getDayOfWeek() + ":" + start.getHour())
+                    .withDescription(start.getDayOfWeek() + "@" + start.getHour() + ":00")
                     .withOpenStatus(true)
                     .withOwner(owner)
                     .build();
             standardEvents.add(event);
         });
 
-
+        return standardEvents;
     }
 }
