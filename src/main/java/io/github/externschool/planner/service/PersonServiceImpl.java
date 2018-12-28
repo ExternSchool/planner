@@ -40,6 +40,15 @@ public class PersonServiceImpl implements PersonService {
 
     @Transactional(readOnly = true)
     @Override
+    public Person findPersonByFullNameAndPhoneNumber(final Person person) {
+        return personRepository.findPersonByFirstNameAndPatronymicNameAndLastName(
+                person.getFirstName(),
+                person.getPatronymicName(),
+                person.getLastName());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<Person> findAllByOrderByName() {
         return personRepository.findAllByOrderByLastName();
     }

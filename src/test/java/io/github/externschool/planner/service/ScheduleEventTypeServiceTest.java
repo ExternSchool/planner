@@ -51,7 +51,7 @@ public class ScheduleEventTypeServiceTest {
         when(eventTypeRepository.findByName(expectedType.getName()))
                 .thenReturn(null);
 
-        ScheduleEventType actualType = eventTypeService.saveOrUpdateEventType(expectedType);
+        ScheduleEventType actualType = eventTypeService.saveEventType(expectedType);
 
         assertThat(actualType)
                 .isNotNull()
@@ -61,21 +61,14 @@ public class ScheduleEventTypeServiceTest {
     @Test
     public void shouldReturnUpdatedEventType_whenSaveUpdateEventType() {
         Role role = new Role();
-        ScheduleEventType storedType = new ScheduleEventType("Type", 1);
-        storedType.setId(1L);
-        ScheduleEventType typeToSave = new ScheduleEventType("Type", 99);
-        typeToSave.setId(2L);
-        typeToSave.addOwner(role);
         ScheduleEventType expectedType = new ScheduleEventType("Type", 99);
         expectedType.setId(1L);
         expectedType.addOwner(role);
 
-        when(eventTypeRepository.findByName(storedType.getName()))
-                .thenReturn(storedType);
         when(eventTypeRepository.save(expectedType))
                 .thenReturn(expectedType);
 
-        ScheduleEventType actualType = eventTypeService.saveOrUpdateEventType(typeToSave);
+        ScheduleEventType actualType = eventTypeService.saveEventType(expectedType);
 
         assertThat(actualType)
                 .isNotNull()

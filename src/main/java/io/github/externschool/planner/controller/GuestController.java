@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,7 +63,6 @@ import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHED
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
-@Transactional
 @RequestMapping("/guest")
 public class GuestController {
     private final PersonService personService;
@@ -125,6 +123,12 @@ public class GuestController {
             if (bindingResult.hasErrors()) {
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
+            keyService.setNewKeyToDTO(personDTO);
+            Person p = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+            userService.createAndSaveFakeUserWithKeyAndRoleName(personDTO.getVerificationKey(), "ROLE_GUEST");
+
+            return new ModelAndView("redirect:/guest/" + p.getId() + "/official/schedule");
+
         } catch (BindingResultException e) {
             ModelAndView modelAndView = prepareGuestList();
             modelAndView.setViewName("guest/guest_list :: createAccount");
@@ -133,11 +137,6 @@ public class GuestController {
 
             return modelAndView;
         }
-        keyService.setNewKeyToDTO(personDTO);
-        Person p = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
-        userService.createAndSaveFakeUserWithGuestVerificationKey(personDTO.getVerificationKey());
-
-        return new ModelAndView("redirect:/guest/" + p.getId() + "/official/schedule");
     }
 
     @Secured("ROLE_GUEST")
@@ -211,7 +210,10 @@ public class GuestController {
                 }
             }
             personDTO.setVerificationKey(persistedKey);
+
+            // Todo Fix double save
             personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+
         } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
             ModelAndView modelAndView = new ModelAndView("guest/person_profile");
             modelAndView.addObject("error", e.getMessage());

@@ -100,30 +100,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAndSaveFakeUserWithStudentVerificationKey(final VerificationKey key) {
+    public User createAndSaveFakeUserWithKeyAndRoleName(final VerificationKey key,
+                                                        final String roleName) throws EmailExistsException {
         String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
-        User user;
-        try {
-            user = createUser(fakeMail, key.getValue(), "ROLE_STUDENT");
+        User user = userRepository.findByEmail(fakeMail);
+        if(user == null) {
+            user = createUser(fakeMail, key.getValue(), roleName);
             user.addVerificationKey(key);
             userRepository.save(user);
-        } catch (EmailExistsException e) {
-            user = createAndSaveFakeUserWithStudentVerificationKey(changeKey(key));
-        }
-
-        return user;
-    }
-
-    @Override
-    public User createAndSaveFakeUserWithGuestVerificationKey(final VerificationKey key) {
-        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
-        User user;
-        try {
-            user = createUser(fakeMail, key.getValue(), "ROLE_GUEST");
-            user.addVerificationKey(key);
-            userRepository.save(user);
-        } catch (EmailExistsException e) {
-            user = createAndSaveFakeUserWithGuestVerificationKey(changeKey(key));
         }
 
         return user;

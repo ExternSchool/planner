@@ -12,7 +12,6 @@ import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -162,14 +161,14 @@ public class UserServiceTest {
         personRepository.save(person);
         String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
 
-        User user = userService.createAndSaveFakeUserWithStudentVerificationKey(key);
+        User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_STUDENT");
 
         assertThat(user)
                 .isNotNull()
                 .hasFieldOrProperty("id")
                 .hasFieldOrProperty("password")
                 .hasFieldOrPropertyWithValue("email", fakeMail)
-                .hasNoNullFieldsOrPropertiesExcept("id");
+                .hasNoNullFieldsOrPropertiesExcept("id", "version");
         assertThat(user.getRoles())
                 .containsExactly(roleService.getRoleByName("ROLE_STUDENT"));
         assertThat(user.getVerificationKey())
@@ -185,14 +184,14 @@ public class UserServiceTest {
         personRepository.save(person);
         String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
 
-        User user = userService.createAndSaveFakeUserWithGuestVerificationKey(key);
+        User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_GUEST");
 
         assertThat(user)
                 .isNotNull()
                 .hasFieldOrProperty("id")
                 .hasFieldOrProperty("password")
                 .hasFieldOrPropertyWithValue("email", fakeMail)
-                .hasNoNullFieldsOrPropertiesExcept("id");
+                .hasNoNullFieldsOrPropertiesExcept("id", "version");
         assertThat(user.getRoles())
                 .containsExactly(roleService.getRoleByName("ROLE_GUEST"));
         assertThat(user.getVerificationKey())
@@ -312,6 +311,6 @@ public class UserServiceTest {
 
         assertThat(actualUser.getVerificationKey())
                 .isNotNull()
-                .hasNoNullFieldsOrPropertiesExcept("id");
+                .hasNoNullFieldsOrPropertiesExcept("id", "version");
     }
 }

@@ -77,16 +77,16 @@
             <tr>
                 <th class="text-left">Прізвище</th>
                 <th class="text-left">Ім'я</th>
-                <th class="text-left">По б.</th>
+                <th class="text-left" style="width: 15ch">По батькові</th>
                 <th>Клас</th>
-                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                    <th>Стать</th>
-                </div>
+                <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
+                    <!--<th>Стать</th>-->
+                <!--</div>-->
                 <div sec:authorize="hasRole('ROLE_TEACHER')">
                     <th>Предмет</th>
                 </div>
                 <th style="width: 15ch">Телефон</th>
-                <th>Email</th>
+                <th style="width: 20ch">Email</th>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
                     <th class="text-right" style="width: 10ch">Записи</th>
                     <th class="text-right" style="width: 10ch">План</th>
@@ -99,16 +99,16 @@
             <tr th:each="student : ${students}">
                 <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
                 <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
-                <td class="text-left" th:text="${student.getPatronymicName()}">По-батькові</td>
+                <td class="text-left" th:text="${student.getPatronymicName()}">По батькові</td>
                 <td th:text="${student.getGradeLevel()}">Клас</td>
-                <div sec:authorize="hasRole('ROLE_ADMIN')">
-                    <td th:text="${student.getGender()}">Стать</td>
-                </div>
+                <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
+                    <!--<td th:text="${student.getGender()}">Стать</td>-->
+                <!--</div>-->
                 <div sec:authorize="hasRole('ROLE_TEACHER')">
                     <td th:text="${student.getOptionalData()}">Предмет</td>
                 </div>
                 <td th:text="${student.getPhoneNumber()}">Телефон</td>
-                <td th:text="${student.getEmail()}">Email</td>
+                <td th:text="${#strings.abbreviate(student.getEmail(),20)}">Email</td>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
                     <td class="text-right">
                         <form th:method="get" th:action="@{/student/{id}/teacher/schedule(id=${student.id})}">

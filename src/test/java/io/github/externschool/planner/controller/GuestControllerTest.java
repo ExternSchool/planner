@@ -37,7 +37,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
-import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
@@ -51,9 +50,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-
-@RunWith(SpringRunner.class)
 @Transactional
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class GuestControllerTest {
@@ -86,6 +84,7 @@ public class GuestControllerTest {
                 teacherService,
                 scheduleService,
                 typeService);
+
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
@@ -372,7 +371,7 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -448,7 +447,7 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -497,7 +496,7 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -530,10 +529,10 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(wrongType::addOwner);
-        typeService.saveOrUpdateEventType(wrongType);
+        typeService.saveEventType(wrongType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -572,7 +571,7 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -621,7 +620,7 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -655,10 +654,10 @@ public class GuestControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(wrongType::addOwner);
-        typeService.saveOrUpdateEventType(wrongType);
+        typeService.saveEventType(wrongType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")

@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -51,14 +50,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE;
-import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_OF_WORKING_DAY_BEGINNING;
+import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
-@Transactional
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
@@ -379,7 +377,7 @@ public class TeacherController {
                                             .map(min -> event.getStartOfEvent().toLocalTime().plusMinutes(min))
                                             .orElse(event.getStartOfEvent().toLocalTime()
                                                     .plusMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE))))
-                            .orElse(DEFAULT_TIME_OF_WORKING_DAY_BEGINNING);
+                            .orElse(DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS);
             model.addAttribute("thisDayEvents", addDescriptionAndConvertToDTO(actualEvents));
             model.addAttribute(
                     "newEvent",
@@ -466,25 +464,34 @@ public class TeacherController {
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (isPrincipalAnAdmin(principal)
-                && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
-            if (teacherDTO.getVerificationKey() == null) {
-                teacherDTO.setVerificationKey(new VerificationKey());
-            }
+        if (teacherDTO != null && teacherDTO.getId() == null) {
+            teacherDTO.setVerificationKey(new VerificationKey());
             keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
         }
         Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
         teacherService.saveOrUpdateTeacher(teacher);
-
         if (isPrincipalAnAdmin(principal)) {
-            Optional.ofNullable(teacher)
+            Optional<User> user = Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
-                    .ifPresent(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+                    .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+            if (!user.isPresent()) {
+                Optional.ofNullable(teacher).ifPresent(t ->
+                        userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
+                                "ROLE_TEACHER"));
+            }
         }
 
         return redirectByRole(principal);
     }
+
+//    private boolean isTeacherPresent(Teacher teacher) {
+//        return Optional.ofNullable(personRepository.findPersonByFirstNameAndPatronymicNameAndLastName(
+//                teacher.getFirstName(),
+//                teacher.getPatronymicName(),
+//                teacher.getLastName()))
+//                    .isPresent();
+//    }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping(value = "/update")
@@ -502,11 +509,19 @@ public class TeacherController {
         /*
           When key change confirmed:
           DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
-          user receives Guest role
+          the old user is DELETED from database, and a NEW one created for the key recently assigned to DTO
          */
         TeacherDTO teacherDTO = Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
-                .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
+                .map(t -> {
+                    Optional.ofNullable(t.getVerificationKey())
+                            .map(VerificationKey::getUser)
+                            .ifPresent(userService::deleteUser);
+                    TeacherDTO dto = (TeacherDTO)keyService.setNewKeyToDTO(t);
+                    userService.createAndSaveFakeUserWithKeyAndRoleName(dto.getVerificationKey(),
+                            "ROLE_TEACHER");
+                    return dto;
+                })
                 .orElse(new TeacherDTO());
 
         Optional.ofNullable(userService.getUserByEmail(teacherDTO.getEmail()))

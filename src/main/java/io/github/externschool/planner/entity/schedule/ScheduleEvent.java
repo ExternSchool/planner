@@ -34,6 +34,10 @@ public class ScheduleEvent {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
+    @Version
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
+
     @Column(nullable = false)
     private String title;
 
@@ -51,10 +55,6 @@ public class ScheduleEvent {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Version
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
 
     @Column(name = "is_open")
     private Boolean isOpen;

@@ -14,7 +14,6 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,6 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
 @Controller
-@Transactional
 public class UserController {
     private final UserService userService;
     private final VerificationKeyService keyService;

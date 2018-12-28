@@ -55,7 +55,7 @@
                     <th class="text-left">Дата, час, назва та опис події</th>
                     <th class="text-left">Прізвище</th>
                     <th class="text-left">Ім'я</th>
-                    <th class="text-left">По-батькові</th>
+                    <th class="text-left">По батькові</th>
                     <th>Клас</th>
                     <th style="width: 15ch">Телефон</th>
                     <th class="d-print-none text-right">
@@ -70,7 +70,7 @@
                     <td class="text-left" th:text="${student.getOptionalData()}">Дата, Час, Предмет</td>
                     <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
                     <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
-                    <td class="text-left" th:text="${student.getPatronymicName()}">По-батькові</td>
+                    <td class="text-left" th:text="${student.getPatronymicName()}">По батькові</td>
                     <td th:text="${student.getGradeLevel()}">Клас</td>
                     <td th:text="${student.getPhoneNumber()}">Телефон</td>
                     <td class="d-print-none text-right">
@@ -94,7 +94,7 @@
                     <th class="text-left">Дата, час, назва та опис події</th>
                     <th class="text-left">Прізвище</th>
                     <th class="text-left">Ім'я</th>
-                    <th class="text-left">По-батькові</th>
+                    <th class="text-left">По батькові</th>
                     <th style="width: 15ch">Телефон</th>
                     <th class="d-print-none text-right">
                         <span sec:authorize="hasRole('ROLE_ADMIN')">
@@ -108,7 +108,7 @@
                     <td class="text-left" th:text="${guest.getOptionalData()}">Дата, час, назва та опис події</td>
                     <td class="text-left" th:text="${guest.getLastName()}">Прізвище</td>
                     <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
-                    <td class="text-left" th:text="${guest.getPatronymicName()}">По-батькові</td>
+                    <td class="text-left" th:text="${guest.getPatronymicName()}">По батькові</td>
                     <td th:text="${guest.getPhoneNumber()}">Телефон</td>
                     <td class="d-print-none text-right">
                         <span sec:authorize="hasRole('ROLE_ADMIN')">

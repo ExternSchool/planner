@@ -12,7 +12,6 @@ import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,7 +153,7 @@ public class StudyPlanControllerTest {
 
         mockMvc.perform(post("/plan/").params(map))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/"))
+                .andExpect(view().name("redirect:/plan/grade/3"))
                 .andExpect(model().attribute("level", 3));
 
         assertThat(planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_3, subject))
@@ -182,7 +180,7 @@ public class StudyPlanControllerTest {
 
         mockMvc.perform(post("/plan/").params(map))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/"))
+                .andExpect(view().name("redirect:/plan/grade/3"))
                 .andExpect(model().attribute("level", 3));
 
         assertThat(planService.findAll())

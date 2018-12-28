@@ -2,15 +2,14 @@ package io.github.externschool.planner.dto;
 
 import io.github.externschool.planner.entity.profile.Gender;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class StudentDTO extends PersonDTO {
-    @NotNull private LocalDate dateOfBirth;
-    @NotNull private Gender gender;
-    @NotBlank private String address;
+    private LocalDate dateOfBirth;
+    private Gender gender;
+    private String address;
     @NotNull private int gradeLevel;
 
     public StudentDTO() {

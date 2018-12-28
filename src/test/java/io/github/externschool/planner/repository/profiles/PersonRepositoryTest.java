@@ -18,12 +18,8 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class PersonRepositoryTest {
-
-    @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    TestEntityManager entityManager;
+    @Autowired private PersonRepository personRepository;
+    @Autowired TestEntityManager entityManager;
 
     private List<Person> expectedPersons;
 
@@ -38,6 +34,26 @@ public class PersonRepositoryTest {
             expectedPersons.add(person);
         }
     }
+
+    @Test
+    public void shouldReturnPerson_whenFindByAllNames(){
+        Person person = new Person();
+        person.setLastName("Last");
+        person.setFirstName("First");
+        person.setPatronymicName("Pat");
+        person.setPhoneNumber("123-45-67");
+        entityManager.persist(person);
+
+        Person actualPerson = personRepository.findPersonByFirstNameAndPatronymicNameAndLastName(
+                person.getFirstName(),
+                person.getPatronymicName(),
+                person.getLastName());
+
+        assertThat(actualPerson)
+                .isNotNull()
+                .isEqualTo(person);
+    }
+
 
     @Test
     public void shouldReturnOrderedListOfThreePersons_whenFindAllByOrderByLastName(){

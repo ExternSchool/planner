@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -30,24 +29,9 @@ public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
         return Optional.ofNullable(id).flatMap(eventTypeRepository::findById);
     }
 
-    //TODO refactor to meet conversionService.convert(...)
     @Override
-    public ScheduleEventType saveOrUpdateEventType(final ScheduleEventType eventType) {
-        ScheduleEventType eventTypeToSave = Optional.ofNullable(eventTypeRepository.findByName(eventType.getName()))
-                .map(storedEventType -> {
-                    storedEventType.setName(eventType.getName());
-                    storedEventType.setAmountOfParticipants(eventType.getAmountOfParticipants());
-                    storedEventType.setDurationInMinutes(eventType.getDurationInMinutes());
-                    new ArrayList<>(storedEventType.getOwners()).forEach(storedEventType::removeOwner);
-                    new ArrayList<>(storedEventType.getParticipants()).forEach(storedEventType::removeParticipant);
-                    eventType.getOwners().forEach(storedEventType::addOwner);
-                    eventType.getParticipants().forEach(storedEventType::addParticipant);
-
-                    return storedEventType;
-                })
-                .orElse(eventType);
-
-        return eventTypeRepository.save(eventTypeToSave);
+    public ScheduleEventType saveEventType(final ScheduleEventType eventType) {
+        return eventTypeRepository.save(eventType);
     }
 
     @Override

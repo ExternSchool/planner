@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class VerificationKeyServiceImpl implements VerificationKeyService {
     private VerificationKeyRepository repository;
 
@@ -19,22 +20,24 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         this.repository = verificationKeyRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VerificationKey findKeyById(Long id) {
         return repository.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VerificationKey findKeyByValue(final String value) {
         return repository.findByValue(value);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VerificationKey> findAll() {
         return repository.findAll();
     }
 
-    @Transactional
     @Override
     public VerificationKey saveOrUpdateKey(VerificationKey verificationKey) throws KeyNotValidException {
         if (verificationKey == null) {
@@ -43,13 +46,11 @@ public class VerificationKeyServiceImpl implements VerificationKeyService {
         return repository.save(verificationKey);
     }
 
-    @Transactional
     @Override
     public void deleteById(Long id) {
         repository.findById(id).ifPresent(repository::delete);
     }
 
-    @Transactional
     @Override
     public PersonDTO setNewKeyToDTO(PersonDTO personDTO) {
         VerificationKey newKey = repository.save(new VerificationKey());

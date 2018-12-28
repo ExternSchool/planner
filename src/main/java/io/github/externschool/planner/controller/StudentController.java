@@ -282,12 +282,20 @@ public class StudentController {
 
             return modelAndView;
         }
-        Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
-        if (!Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser).isPresent()) {
-            userService.createAndSaveFakeUserWithStudentVerificationKey(student.getVerificationKey());
-        }
 
-        return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
+        try {
+            Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
+            if (!Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser).isPresent()) {
+                userService.createAndSaveFakeUserWithKeyAndRoleName(student.getVerificationKey(), "ROLE_STUDENT");
+            }
+
+            return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
+        } catch (Exception e) {
+            ModelAndView modelAndView = showStudentProfileForm(studentDTO, true);
+            modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_MESSAGE);
+
+            return modelAndView;
+        }
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
@@ -502,10 +510,24 @@ public class StudentController {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
         }
-        List<Teacher> teachers = courseService.findAllByStudentId(studentId).stream()
-                .map(Course::getTeacher)
-                .filter(teacher -> !teacher.getLastName().equals(UK_COURSE_NO_TEACHER))
-                .collect(Collectors.toList());
+        List<TeacherDTO> teachers = new ArrayList<>();
+        courseService.findAllByStudentId(studentId)
+                .forEach(course -> {
+                    Teacher teacher = course.getTeacher();
+                    if(!teacher.getLastName().equals(UK_COURSE_NO_TEACHER)) {
+                        Optional<TeacherDTO> current = teachers.stream()
+                                .filter(teacherDTO -> teacherDTO.getId().equals(teacher.getId()))
+                                .findFirst();
+                        if (current.isPresent()) {
+                            current.get().setOptionalData(current.get().getOptionalData() + ", " + course.getTitle());
+                        } else {
+                            Optional.ofNullable(conversionService.convert(teacher, TeacherDTO.class)).ifPresent(dto -> {
+                                dto.setOptionalData(course.getTitle());
+                                teachers.add(dto);
+                            });
+                        }
+                    }
+                });
 
         modelAndView.addObject("student", studentPerson);
         modelAndView.addObject("teacher", teacherTeacher);

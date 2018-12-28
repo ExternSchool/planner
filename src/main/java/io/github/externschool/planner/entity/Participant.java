@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import java.io.Serializable;
 
 @Entity
@@ -19,6 +20,9 @@ public class Participant implements Serializable {
     @Id
     @GeneratedValue
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne
     @JoinTable(
