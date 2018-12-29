@@ -149,7 +149,13 @@ public class BootstrapDataPopulator implements InitializingBean {
                     GradeLevel.LEVEL_11,
                     GradeLevel.LEVEL_12)
                     .forEach(gradeLevel -> {
-                        StudyPlan plan = new StudyPlan(gradeLevel, subject);
+                        StudyPlan plan = new StudyPlan(gradeLevel,
+                                subject,
+                                subject.getTitle(),
+                                0,
+                                0,
+                                0,
+                                0);
                         planRepository.save(plan);
                         teacher.addSubject(subject);
                         plan.setSubject(subject);

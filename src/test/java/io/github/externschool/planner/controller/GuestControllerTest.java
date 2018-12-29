@@ -497,6 +497,8 @@ public class GuestControllerTest {
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
         typeService.saveEventType(type);
+        assertThat(typeService.getEventTypeById(type.getId()).get())
+                .isEqualTo(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")

@@ -19,8 +19,6 @@ public class VerificationKeyFormatter implements Formatter<VerificationKey> {
 
     @Override
     public VerificationKey parse(final String s, final Locale locale) {
-
-        VerificationKey key = repository.findByValue(s);
         return repository.findByValue(s);
     }
 

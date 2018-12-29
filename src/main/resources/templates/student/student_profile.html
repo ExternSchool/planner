@@ -137,7 +137,7 @@
                     </div>
                     <div class="form-group row col-md-8 mx-auto">
                         <div class="col-md-4">
-                            <a th:href="@{/student/cancel/{id}(id=${student.verificationKey.id})}">
+                            <a th:href="@{/student/cancel}">
                                 <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Скасувати
                                 </button>
@@ -145,8 +145,6 @@
                         </div>
                         <div class="col-md-8">
                             <button class="btn btn-primary btn-block" name="action" value="save" type="submit">
-                                    <!--onclick="toggleSubmit()" id="formSubmit">-->
-                                    <!--onclick="this.style.visibility='hidden';">-->
                                 Зберегти зміни
                             </button>
                         </div>
@@ -202,19 +200,6 @@
     </div>
 </div>
 <!-- / Modal -->
-
-<!--<script type="text/javascript">-->
-    <!--function toggleSubmit() {-->
-        <!--var button = document.getElementById('formSubmit');-->
-        <!--button.style.visibility='hidden';-->
-        <!--window.setTimeout(showButton, 2000);-->
-        <!--content.style.display = '';-->
-    <!--}-->
-    <!--function showButton() {-->
-        <!--var content = document.getElementById('formSubmit');-->
-        <!--content.style.display = '';-->
-    <!--}-->
-<!--</script>-->
 
 </body>
 </html>

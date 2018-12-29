@@ -2,6 +2,7 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
@@ -9,6 +10,8 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -37,9 +40,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +70,9 @@ public class TeacherControllerTest {
     @Autowired private RoleService roleService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ScheduleEventTypeService typeService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private VerificationKeyRepository keyRepository;
+    @Autowired private EmailService emailService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -85,7 +94,8 @@ public class TeacherControllerTest {
                 userService,
                 roleService,
                 scheduleService,
-                typeService);
+                typeService,
+                emailService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -339,6 +349,102 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
+    public void shouldNotAddNewKeyAndNewUser_WhenTeacherPostUpdateSaveExistingTeacher() throws Exception {
+        VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+        map.add("verificationKey", key.getValue());
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/teacher/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
+
+        assertThat(keyRepository.findAll())
+                .contains(key);
+
+//        keyService.deleteById(key.getId());
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldNotAddNewKeyAndNewUser_WhenAdminPostUpdateSaveExistingTeacher() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        VerificationKey verificationKey = keyService.saveOrUpdateKey(new VerificationKey());
+        User keyUser = userService.createUser("user@u", "pass", "ROLE_TEACHER");
+        keyUser.addVerificationKey(verificationKey);
+        userService.save(keyUser);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+        map.add("verificationKey", verificationKey.getValue());
+        map.add("official", "");
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/teacher/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
+
+        assertThat(keyRepository.findAll())
+                .contains(verificationKey);
+
+        teacherService.deleteTeacherById(verificationKey.getPerson().getId());
+        keyService.deleteById(verificationKey.getId());
+        userService.deleteUser(keyUser);
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldAddNewKeyAndNewUser_WhenAdminPostUpdateSaveNewProfile() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/teacher/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber + 1);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber + 1);
+    }
+
+    @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_WhenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
@@ -387,21 +493,104 @@ public class TeacherControllerTest {
         userService.save(user);
 
         List<Teacher> teachers = teacherService.findAllTeachers();
-        int sizeBefore = teachers.size();
         TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
         Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
         mockMvc.perform(post("/teacher/{id}/delete", id))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldDeleteUser_WhenRequestDeleteInvalidEmail() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        List<Teacher> teachers = teacherService.findAllTeachers();
+        int sizeBefore = teachers.size();
+        Teacher teacher = teachers.get(0);
+        User user = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_TEACHER");
+        VerificationKey key = teacher.getVerificationKey();
+        user.addVerificationKey(key);
+        userService.save(user);
+        Long id = Optional.ofNullable(teacher.getId()).orElse(0L);
+        String email = Optional.ofNullable(teacherService.findTeacherById(id))
+                .map(Teacher::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(User::getEmail)
+                .orElse(null);
+
+        assertThat(emailService.emailIsValid(email))
+                .isEqualTo(false);
+
+        mockMvc.perform(post("/teacher/{id}/delete", id));
 
         assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore - 1);
+
+        assertThat(userService.getUserByEmail(email))
+                .isNull();
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldSetGuestRoleToUser_WhenRequestDeleteValidEmail() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        List<Teacher> teachers = teacherService.findAllTeachers();
+        int sizeBefore = teachers.size();
+        Teacher teacher = teachers.get(0);
+        User user = userService.createUser("valid@email.com", "pass", "ROLE_TEACHER");
+        VerificationKey key = teacher.getVerificationKey();
+        user.addVerificationKey(key);
+        userService.save(user);
+        Long id = Optional.ofNullable(teacher.getId()).orElse(0L);
+        String email = Optional.ofNullable(teacherService.findTeacherById(id))
+                .map(Teacher::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(User::getEmail)
+                .orElse(null);
+
+        assertThat(emailService.emailIsValid(email))
+                .isEqualTo(true);
+
+        mockMvc.perform(post("/teacher/{id}/delete", id));
+
+        assertThat(teacherService.findAllTeachers())
+                .hasSize(sizeBefore - 1);
+
+        assertThat(userService.getUserByEmail(email))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("roles",
+                        new HashSet<Role>(Collections.singletonList(roleService.getRoleByName("ROLE_GUEST"))));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldKeepSameNumberOfKeysAndUsers_whenPostUpdateActionNewKey() throws Exception {
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_profile"))
+                .andExpect(model().attribute("teacher",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.hasProperty("user",
+                                        Matchers.not(user)))));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
     }
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + noTeacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -413,7 +602,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + noTeacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
