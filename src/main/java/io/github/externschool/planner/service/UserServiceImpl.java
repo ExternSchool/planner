@@ -63,21 +63,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(final User user) {
-        if (user != null && getUserByEmail(user.getEmail()) != null) {
-            Optional.ofNullable(user.getVerificationKey())
-                    .ifPresent(key -> user.removeVerificationKey());
-            Optional.ofNullable(user.getOwnEvents()).ifPresent(scheduleEvents -> {
+        final User actualUser = getUserByEmail(user.getEmail());
+        if (actualUser != null) {
+            Optional.ofNullable(actualUser.getVerificationKey())
+                    .ifPresent(key -> {
+                        actualUser.removeVerificationKey();
+                        keyRepository.save(key);
+                    });
+            Optional.ofNullable(actualUser.getOwnEvents()).ifPresent(scheduleEvents -> {
                 for (ScheduleEvent event : new ArrayList<>(scheduleEvents)) {
                     scheduleService.deleteEventById(event.getId());
                 }
             });
-            Optional.ofNullable(user.getParticipants()).ifPresent(participants -> {
+            Optional.ofNullable(actualUser.getParticipants()).ifPresent(participants -> {
                 for (Participant participant : new ArrayList<>(participants)) {
                     scheduleService.removeParticipant(participant);
                 }
             });
-
-            userRepository.delete(user);
+            userRepository.delete(actualUser);
         }
     }
 
@@ -100,30 +103,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createAndSaveFakeUserWithStudentVerificationKey(final VerificationKey key) {
+    public User createAndSaveFakeUserWithKeyAndRoleName(final VerificationKey key,
+                                                        final String roleName) throws EmailExistsException {
         String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
-        User user;
-        try {
-            user = createUser(fakeMail, key.getValue(), "ROLE_STUDENT");
+        User user = userRepository.findByEmail(fakeMail);
+        if(user == null) {
+            user = createUser(fakeMail, key.getValue(), roleName);
             user.addVerificationKey(key);
             userRepository.save(user);
-        } catch (EmailExistsException e) {
-            user = createAndSaveFakeUserWithStudentVerificationKey(changeKey(key));
-        }
-
-        return user;
-    }
-
-    @Override
-    public User createAndSaveFakeUserWithGuestVerificationKey(final VerificationKey key) {
-        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
-        User user;
-        try {
-            user = createUser(fakeMail, key.getValue(), "ROLE_GUEST");
-            user.addVerificationKey(key);
-            userRepository.save(user);
-        } catch (EmailExistsException e) {
-            user = createAndSaveFakeUserWithGuestVerificationKey(changeKey(key));
         }
 
         return user;

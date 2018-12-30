@@ -103,6 +103,21 @@ public class PersonServiceTest {
                 .isEqualTo(firstPerson);
     }
 
+
+    @Test
+    public void shouldReturnPerson_whenFindByFullName(){
+        Mockito.when(personRepository.findPersonByFirstNameAndPatronymicNameAndLastName(
+                firstPerson.getFirstName(),
+                firstPerson.getPatronymicName(),
+                firstPerson.getLastName()))
+                .thenReturn(firstPerson);
+
+        Person foundPerson = personService.findPersonByFullNameAndPhoneNumber(firstPerson);
+
+        assertThat(foundPerson)
+                .isEqualTo(firstPerson);
+    }
+
     @Test
     public void shouldDeletePerson_whenDelete() {
         Mockito.when(personRepository.findPersonById(firstPerson.getId()))

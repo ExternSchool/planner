@@ -10,6 +10,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -71,10 +73,24 @@ public class EmailServiceImpl implements EmailService {
                 });
     }
 
+    @Override
+    public boolean emailIsValid(final String email) {
+        boolean result;
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+            result = !email.split("[@._]")[1].equals(FAKE_MAIL_DOMAIN);
+        } catch (AddressException | NullPointerException ex) {
+            result = false;
+        }
+
+        return result;
+    }
+
     private boolean participantEmailIsNotFake(final Participant participant) {
         return Optional.ofNullable(participant.getUser())
                 .map(User::getEmail)
-                .filter(email -> !email.split("[@._]")[1].equals(FAKE_MAIL_DOMAIN))
-                .isPresent();
+                .map(this::emailIsValid)
+                .orElse(false);
     }
 }

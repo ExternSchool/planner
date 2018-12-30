@@ -11,7 +11,6 @@ import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE;
 
 @Controller
-@Transactional
 @Secured("ROLE_ADMIN")
 @RequestMapping("/event")
 public class ScheduleController {
@@ -81,7 +79,7 @@ public class ScheduleController {
         newEventType.setDurationInMinutes(45);
         newEventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
         newEventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-        eventTypeService.saveOrUpdateEventType(newEventType);
+        eventTypeService.saveEventType(newEventType);
 
         return new ModelAndView("redirect:/event/type/");
     }
@@ -95,7 +93,7 @@ public class ScheduleController {
             return prepareModelAndView(req.getId(), model);
         }
 
-        eventTypeService.saveOrUpdateEventType(conversionService.convert(req, ScheduleEventType.class));
+        eventTypeService.saveEventType(conversionService.convert(req, ScheduleEventType.class));
 
         return new ModelAndView("redirect:/event/type/", model);
     }

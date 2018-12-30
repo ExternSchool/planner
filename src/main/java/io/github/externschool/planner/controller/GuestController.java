@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +53,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
@@ -64,7 +64,6 @@ import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHED
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
-@Transactional
 @RequestMapping("/guest")
 public class GuestController {
     private final PersonService personService;
@@ -120,7 +119,9 @@ public class GuestController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/create")
     public ModelAndView processCreatePersonProfileModal(@ModelAttribute("person") @Valid PersonDTO personDTO,
-                                                        BindingResult bindingResult) {
+                                                        BindingResult bindingResult,
+                                                        ModelMap model,
+                                                        Principal principal) {
         try {
             if (bindingResult.hasErrors()) {
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
@@ -133,29 +134,99 @@ public class GuestController {
 
             return modelAndView;
         }
-        keyService.setNewKeyToDTO(personDTO);
-        Person p = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
-        userService.createAndSaveFakeUserWithGuestVerificationKey(personDTO.getVerificationKey());
 
-        return new ModelAndView("redirect:/guest/" + p.getId() + "/official/schedule");
+        personDTO.setVerificationKey(keyService.saveOrUpdateKey(Optional.ofNullable(personDTO.getVerificationKey())
+                .orElse(new VerificationKey())));
+        Person person = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+        if (isPrincipalAnAdmin(principal)) {
+            updateUserWhenSaveUpdatePerson(person);
+        }
+
+        return new ModelAndView("redirect:/guest/" + person.getId() + "/official/schedule");
     }
+
 
     @Secured("ROLE_GUEST")
     @GetMapping("/profile")
-    public ModelAndView showFormPersonProfile(final Principal principal) {
-        final User user = userService.getUserByEmail(principal.getName());
-        Long id = user.getVerificationKey().getPerson().getId();
-        PersonDTO personDTO =  conversionService.convert(personService.findPersonById(id), PersonDTO.class);
+    public ModelAndView displayPersonProfile(final Principal principal) {
+        Long id = userService.getUserByEmail(principal.getName()).getVerificationKey().getPerson().getId();
+        PersonDTO personDTO = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
         return showPersonProfileForm(personDTO, false);
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
-    public ModelAndView showFormPersonProfileToEdit(@PathVariable("id") Long id){
+    public ModelAndView displayPersonProfileToEdit(@PathVariable("id") Long id){
         PersonDTO personDTO = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
         return showPersonProfileForm(personDTO, false);
+    }
+
+    /**
+     * Updates current user with a new key and a new person when a valid key is provided in submitted form;
+     * a user attached to the new key before, as well as current user's previous person and key are dropped.
+     * If submitted key is the same as before, updates person data.
+     *
+     * @param personDTO
+     * @param bindingResult
+     * @param model
+     * @param principal
+     * @return
+     */
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @PostMapping(value = "/update", params = "action=save")
+    public ModelAndView processFormPersonProfileActionSave(@ModelAttribute("person") @Valid PersonDTO personDTO,
+                                                           BindingResult bindingResult,
+                                                           ModelMap model,
+                                                           Principal principal) {
+        try {
+            if (bindingResult.hasErrors()) {
+                Optional.ofNullable((bindingResult.getAllErrors().get(0)).getDefaultMessage())
+                        .filter(message -> message.contains("verificationKey"))
+                        .ifPresent(r -> {throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);});
+
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
+            }
+        } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
+            ModelAndView modelAndView = new ModelAndView("guest/person_profile", model);
+            modelAndView.addObject("error", e.getMessage());
+            modelAndView.addObject("person", personDTO);
+            modelAndView.addObject("isNew", false);
+
+            return modelAndView;
+        }
+            // always exists since every user receives a key and a person when /init is processed at UserController.
+            Person person = personService.findPersonById(personDTO.getId());
+            VerificationKey key = person.getVerificationKey();
+            VerificationKey newKey = personDTO.getVerificationKey();
+            User user = key.getUser();
+            if (key.equals(newKey)) {
+                person = personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
+                personService.saveOrUpdatePerson(person);
+            } else {
+                // assigning received new key with a new person to the current user
+                //remove an old key from the current user
+                user.removeVerificationKey();
+                //delete an old person and a bound key
+                personService.deletePerson(person);
+                //delete an old user from the new key
+                userService.deleteUser(newKey.getUser());
+                user.addVerificationKey(newKey);
+                userService.assignNewRolesByKey(user, newKey);
+                userService.save(user);
+
+                return new ModelAndView("redirect:/logout");
+            }
+
+        return redirectByRole(principal);
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
+    @PostMapping(value = "/update", params = "action=cancel")
+    public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
+
+        return redirectByRole(principal);
     }
 
     @Secured("ROLE_ADMIN")
@@ -170,65 +241,6 @@ public class GuestController {
         keyService.deleteById(key.getId());
 
         return new ModelAndView("redirect:/guest/");
-    }
-
-    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @PostMapping(value = "/update", params = "action=save")
-    public ModelAndView processFormPersonProfileActionSave(@ModelAttribute("person") @Valid PersonDTO personDTO,
-                                                           BindingResult bindingResult,
-                                                           Principal principal) {
-        try {
-            if (bindingResult.hasErrors()) {
-                Optional.ofNullable((bindingResult.getAllErrors().get(0)).getDefaultMessage())
-                        .filter(message -> message.contains("verificationKey"))
-                        .ifPresent(r -> {throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);});
-
-                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
-            }
-
-            Person persistedPerson = personService.findPersonById(personDTO.getId());
-            VerificationKey persistedKey = persistedPerson.getVerificationKey();
-            User user = persistedKey.getUser();
-            VerificationKey newKey = personDTO.getVerificationKey();
-            if (newKey != null && newKey != persistedKey) {
-                if (newKey.getUser() != null) {
-                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
-                }
-                Person newPerson = newKey.getPerson();
-                if (user != null && newPerson != null && newPerson.getClass() != Person.class) {
-                    user.removeVerificationKey();
-                    personService.deletePerson(persistedPerson);
-                    user.addVerificationKey(newKey);
-                    userService.assignNewRolesByKey(user, newKey);
-                    userService.save(user);
-                    if (userService.getUserByEmail(principal.getName())
-                            .getRoles()
-                            .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
-                        return new ModelAndView("redirect:/guest/");
-                    }
-
-                    return new ModelAndView("redirect:/logout");
-                }
-            }
-            personDTO.setVerificationKey(persistedKey);
-            personService.saveOrUpdatePerson(conversionService.convert(personDTO, Person.class));
-        } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
-            ModelAndView modelAndView = new ModelAndView("guest/person_profile");
-            modelAndView.addObject("error", e.getMessage());
-            modelAndView.addObject("person", personDTO);
-            modelAndView.addObject("isNew", false);
-
-            return modelAndView;
-        }
-
-        return redirectByRole(userService.getUserByEmail(principal.getName()));
-    }
-
-    @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
-    @PostMapping(value = "/update", params = "action=cancel")
-    public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
-
-        return redirectByRole(userService.getUserByEmail(principal.getName()));
     }
 
     @Secured("ROLE_GUEST")
@@ -452,7 +464,8 @@ public class GuestController {
         modelAndView.addObject("nextWeek", nextWeekDates);
         modelAndView.addObject("currentWeekEvents", convertListOfListsToDTO(currentWeekEvents));
         modelAndView.addObject("nextWeekEvents", convertListOfListsToDTO(nextWeekEvents));
-        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(
+                LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS)));
         modelAndView.addObject("availableEvents", incomingEventsNumber);
         modelAndView.addObject("event",
                 subscribedEvent
@@ -533,12 +546,14 @@ public class GuestController {
                 .flatMap(guest -> Optional.ofNullable(guest.getVerificationKey()).map(VerificationKey::getUser));
     }
 
-    private ModelAndView redirectByRole(User user) {
-        if (userService.getUserByEmail(user.getEmail())
-                .getRoles()
-                .contains(roleService.getRoleByName("ROLE_ADMIN"))) {
+    private ModelAndView redirectByRole(Principal principal) {
+        User user = userService.getUserByEmail(principal.getName());
+        if (user != null && user.getEmail() != null) {
+            User userFound = userService.getUserByEmail(user.getEmail());
+            if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
 
-            return new ModelAndView("redirect:/guest/");
+                return new ModelAndView("redirect:/guest/");
+            }
         }
 
         return new ModelAndView("redirect:/");
@@ -550,5 +565,31 @@ public class GuestController {
         modelAndView.addObject("isNew",isNew);
 
         return modelAndView;
+    }
+
+    //TODO Move to User Service
+    private Boolean isUserAnAdmin(User user) {
+        return Optional.ofNullable(user)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
+                .orElse(Boolean.FALSE);
+    }
+    private Boolean isPrincipalAnAdmin(Principal principal) {
+        return Optional.ofNullable(principal)
+                .map(p -> userService.getUserByEmail(p.getName()))
+                .map(this::isUserAnAdmin)
+                .orElse(false);
+    }
+
+    private void updateUserWhenSaveUpdatePerson(Person person) {
+        Optional<User> user = Optional.ofNullable(person)
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+        if (!user.isPresent()) {
+            Optional.ofNullable(person).ifPresent(p ->
+                    userService.createAndSaveFakeUserWithKeyAndRoleName(p.getVerificationKey(),
+                            "ROLE_GUEST"));
+        }
     }
 }

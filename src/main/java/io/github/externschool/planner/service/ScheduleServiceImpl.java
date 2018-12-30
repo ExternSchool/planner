@@ -95,7 +95,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
-
         ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
         canUserOwnAnEventForType(owner, type);
 

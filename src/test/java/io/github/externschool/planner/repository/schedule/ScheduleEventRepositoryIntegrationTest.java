@@ -4,6 +4,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
+import io.github.externschool.planner.repository.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 public class ScheduleEventRepositoryIntegrationTest {
     @Autowired private ScheduleEventRepository repository;
+    @Autowired private UserRepository userRepository;
 
     @Test
     @SqlGroup(value = {
@@ -56,8 +58,7 @@ public class ScheduleEventRepositoryIntegrationTest {
         LocalDate date = LocalDate.of(2018,6, 7);
         LocalDateTime starting = LocalDateTime.of(date, LocalTime.MIN);
         LocalDateTime ending = LocalDateTime.of(date, LocalTime.MAX);
-        User owner = new User();
-        owner.setId(1L);
+        User owner = userRepository.getOne(1L);
         List<ScheduleEvent> events =
                 repository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, starting, ending);
 
@@ -74,8 +75,7 @@ public class ScheduleEventRepositoryIntegrationTest {
             @Sql("/datasets/scheduleEvent/oneEvent.sql")
     })
     public void shouldReturnListOfEvents_whenFindAllByOwner() {
-        User owner = new User();
-        owner.setId(1L);
+        User owner = userRepository.getOne(1L);
         List<ScheduleEvent> events = repository.findAllByOwner(owner);
 
         assertThat(events)
@@ -110,8 +110,7 @@ public class ScheduleEventRepositoryIntegrationTest {
             @Sql("/datasets/scheduleEvent/oneEvent.sql")
     })
     public void shouldReturnEmptyListOfEvents_whenDeleteById() {
-        User owner = new User();
-        owner.setId(1L);
+        User owner = userRepository.getOne(1L);
         ScheduleEvent event = repository.findAllByOwner(owner).get(0);
 
         repository.deleteById(event.getId());

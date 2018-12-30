@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
     private final VerificationKeyRepository keyRepository;
@@ -29,21 +30,25 @@ public class StudentServiceImpl implements StudentService {
         this.courseRepository = courseRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Student findStudentById(final Long id) {
         return studentRepository.findStudentById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Student> findAllStudents() {
         return studentRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Student> findAllByOrderByLastName() {
         return studentRepository.findAllByOrderByLastName();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Student> findAllByGradeLevel(final GradeLevel gradeLevel) {
         return studentRepository.findAllByGradeLevelOrderByLastName(gradeLevel);
@@ -54,7 +59,6 @@ public class StudentServiceImpl implements StudentService {
         return studentRepository.save(student);
     }
 
-    @Transactional
     @Override
     public void deleteStudentById(final Long id) {
         Optional.ofNullable(findStudentById(id)).ifPresent(student -> {
@@ -70,3 +74,4 @@ public class StudentServiceImpl implements StudentService {
         });
     }
 }
+

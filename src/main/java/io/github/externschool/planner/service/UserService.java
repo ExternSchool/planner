@@ -17,9 +17,7 @@ public interface UserService {
 
     User createUser(String email, String password, String role) throws EmailExistsException;
 
-    User createAndSaveFakeUserWithStudentVerificationKey(VerificationKey key);
-
-    User createAndSaveFakeUserWithGuestVerificationKey(VerificationKey key);
+    User createAndSaveFakeUserWithKeyAndRoleName(final VerificationKey key, final String roleName);
 
     Boolean userHasRole(User user, String role);
 

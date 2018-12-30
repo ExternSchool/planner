@@ -6,6 +6,7 @@ import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
@@ -64,6 +65,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
@@ -87,6 +89,7 @@ public class StudentController {
     private final StudyPlanService planService;
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService scheduleEventTypeService;
+    private final EmailService emailService;
 
     @Autowired
     public StudentController(final StudentService studentService,
@@ -99,7 +102,8 @@ public class StudentController {
                              final TeacherService teacherService,
                              final StudyPlanService planService,
                              final ScheduleService scheduleService,
-                             final ScheduleEventTypeService scheduleEventTypeService) {
+                             final ScheduleEventTypeService scheduleEventTypeService,
+                             final EmailService emailService) {
         this.studentService = studentService;
         this.personService = personService;
         this.userService = userService;
@@ -111,6 +115,7 @@ public class StudentController {
         this.planService = planService;
         this.scheduleService = scheduleService;
         this.scheduleEventTypeService = scheduleEventTypeService;
+        this.emailService = emailService;
     }
 
     /**
@@ -179,33 +184,6 @@ public class StudentController {
     }
 
     @Secured("ROLE_STUDENT")
-    @GetMapping("/profile")
-    public ModelAndView displayFormStudentProfile(final Principal principal) {
-        final User user = userService.getUserByEmail(principal.getName());
-        Long id = user.getVerificationKey().getPerson().getId();
-        StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
-
-        return showStudentProfileForm(studentDTO, false);
-    }
-
-    @Secured("ROLE_ADMIN")
-    @PostMapping("/{id}")
-    public ModelAndView displayFormStudentProfileToEdit(@PathVariable("id") Long id) {
-        StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
-
-        return showStudentProfileForm(studentDTO, false);
-    }
-
-    @Secured("ROLE_ADMIN")
-    @PostMapping("/add")
-    public ModelAndView displayFormStudentProfileToAdd() {
-        StudentDTO studentDTO = new StudentDTO();
-        keyService.setNewKeyToDTO(studentDTO);
-
-        return showStudentProfileForm(studentDTO, true);
-    }
-
-    @Secured("ROLE_STUDENT")
     @GetMapping("/plan")
     public ModelAndView displayFormStudentPlanForStudent(final Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
@@ -220,9 +198,8 @@ public class StudentController {
     public ModelAndView showStudentPlanForm(@PathVariable("id") Long id,
                                             final Principal principal) {
         Student student = studentService.findStudentById(id);
-        User user = userService.getUserByEmail(principal.getName());
         if (student == null) {
-            return redirectByRole(user);
+            return redirectByRole(principal);
         }
         List<Course> courses = courseService.selectCoursesForStudent(student);
 
@@ -244,26 +221,27 @@ public class StudentController {
         return showStudentPlanForm(student, courses, coursePlanId);
     }
 
-    @Secured("ROLE_ADMIN")
-    @PostMapping(value = "/{sid}/plan/{id}", params = "action=teacher")
-    public ModelAndView processStudentPlanFormActionTeacher(@PathVariable("sid") Long sid,
-                                                            @PathVariable("id") Long id,
-                                                            @ModelAttribute("course") CourseDTO courseDTO) {
-        Course course = courseService.findCourseByStudentIdAndPlanId(sid, id);
-        course.setTeacher(courseDTO.getTeacher());
-        courseService.saveOrUpdateCourse(course);
-        List<Course> courses = courseService.findAllByStudentId(sid);
+    @Secured("ROLE_STUDENT")
+    @GetMapping("/profile")
+    public ModelAndView displayStudentProfileToStudent(final Principal principal) {
+        Long id = userService.getUserByEmail(principal.getName()).getVerificationKey().getPerson().getId();
+        StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
 
-        return showStudentPlanForm(studentService.findStudentById(sid), courses, 0L);
+        return showStudentProfileForm(studentDTO, false);
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/{id}/delete")
-    public ModelAndView delete(@PathVariable("id") Long id) {
-        //TODO Add deletion confirmation
-        studentService.deleteStudentById(id);
+    @PostMapping("/{id}")
+    public ModelAndView displayStudentProfileToEdit(@PathVariable("id") Long id) {
+        StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
 
-        return new ModelAndView("redirect:/student/");
+        return showStudentProfileForm(studentDTO, false);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/add")
+    public ModelAndView displayStudentProfileToAdd() {
+        return showStudentProfileForm(new StudentDTO(), true);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
@@ -282,26 +260,48 @@ public class StudentController {
 
             return modelAndView;
         }
+
+        studentDTO.setVerificationKey(keyService.saveOrUpdateKey(Optional.ofNullable(studentDTO.getVerificationKey())
+                .orElse(new VerificationKey())));
         Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
-        if (!Optional.ofNullable(student.getVerificationKey()).map(VerificationKey::getUser).isPresent()) {
-            userService.createAndSaveFakeUserWithStudentVerificationKey(student.getVerificationKey());
+        if (isPrincipalAnAdmin(principal)) {
+            Optional<User> user = Optional.ofNullable(student)
+                    .map(Student::getVerificationKey)
+                    .map(VerificationKey::getUser)
+                    .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+            if (!user.isPresent()) {
+                Optional.ofNullable(student).ifPresent(t ->
+                        userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
+                                "ROLE_STUDENT"));
+            }
         }
 
         return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
-    @GetMapping(value = "/cancel/{kid}")
-    public ModelAndView processFormStudentProfileCancel(@PathVariable("kid") Long keyId, Principal principal) {
-        VerificationKey key = keyService.findKeyById(keyId);
-        if (key != null
-                && (key.getPerson() == null
-                || key.getPerson().getId() == null
-                || personService.findPersonById(key.getPerson().getId()) == null)) {
-            keyService.deleteById(key.getId());
-        }
+    @GetMapping(value = "/cancel")
+    public ModelAndView processFormStudentProfileCancel( Principal principal) {
+        return redirectByRole(principal);
+    }
 
-        return redirectByRole(userService.getUserByEmail(principal.getName()));
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/{id}/delete")
+    public ModelAndView processStudentListFormDelete(@PathVariable("id") Long id) {
+        //TODO Add deletion confirmation
+        Optional.ofNullable(id).map(studentService::findStudentById)
+                .map(Student::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .ifPresent(user -> {
+                    if (emailService.emailIsValid(user.getEmail())) {
+                        userService.assignNewRolesByKey(user, keyService.saveOrUpdateKey(new VerificationKey()));
+                    } else {
+                        userService.deleteUser(user);
+                    }
+                });
+        studentService.deleteStudentById(id);
+
+        return new ModelAndView("redirect:/student/");
     }
 
     /**
@@ -309,7 +309,8 @@ public class StudentController {
      * When key change confirmed:
      *         DTO Receives a NEW KEY which is instantly assigned,
      *         an old key is removed from user (if present),
-     *         user receives Guest role
+     *         unbound user is DELETED from the database,
+     *         and a NEW one created for the key recently assigned to DTO
      *
      * @param id Student Id
      * @return ModelAndView
@@ -319,7 +320,15 @@ public class StudentController {
     public ModelAndView processStudentProfileFormActionNewKey(@PathVariable("id") Long id) {
         StudentDTO studentDTO = Optional.ofNullable(studentService.findStudentById(id))
                 .map(student -> conversionService.convert(student, StudentDTO.class))
-                .map(s -> (StudentDTO)keyService.setNewKeyToDTO(s))
+                .map(s -> {
+                    Optional.ofNullable(s.getVerificationKey())
+                            .map(VerificationKey::getUser)
+                            .ifPresent(userService::deleteUser);
+                    StudentDTO dto = (StudentDTO)keyService.setNewKeyToDTO(s);
+                    userService.createAndSaveFakeUserWithKeyAndRoleName(dto.getVerificationKey(),
+                            "ROLE_STUDENT");
+                    return dto;
+                })
                 .orElse(new StudentDTO());
 
         Optional.ofNullable(userService.getUserByEmail(studentDTO.getEmail()))
@@ -329,6 +338,19 @@ public class StudentController {
                 });
 
         return showStudentProfileForm(studentDTO, true);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PostMapping(value = "/{sid}/plan/{id}", params = "action=teacher")
+    public ModelAndView processStudentPlanFormActionTeacher(@PathVariable("sid") Long sid,
+                                                            @PathVariable("id") Long id,
+                                                            @ModelAttribute("course") CourseDTO courseDTO) {
+        Course course = courseService.findCourseByStudentIdAndPlanId(sid, id);
+        course.setTeacher(courseDTO.getTeacher());
+        courseService.saveOrUpdateCourse(course);
+        List<Course> courses = courseService.findAllByStudentId(sid);
+
+        return showStudentPlanForm(studentService.findStudentById(sid), courses, 0L);
     }
 
     @Secured("ROLE_STUDENT")
@@ -443,6 +465,7 @@ public class StudentController {
         return modelAndView;
     }
 
+    // TODO Simplify
     private ModelAndView prepareScheduleModelAndView(final Long studentId, final Long teacherId, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("student/student_schedule", model);
 
@@ -502,10 +525,24 @@ public class StudentController {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
         }
-        List<Teacher> teachers = courseService.findAllByStudentId(studentId).stream()
-                .map(Course::getTeacher)
-                .filter(teacher -> !teacher.getLastName().equals(UK_COURSE_NO_TEACHER))
-                .collect(Collectors.toList());
+        List<TeacherDTO> teachers = new ArrayList<>();
+        courseService.findAllByStudentId(studentId)
+                .forEach(course -> {
+                    Teacher teacher = course.getTeacher();
+                    if(!teacher.getLastName().equals(UK_COURSE_NO_TEACHER)) {
+                        Optional<TeacherDTO> current = teachers.stream()
+                                .filter(teacherDTO -> teacherDTO.getId().equals(teacher.getId()))
+                                .findFirst();
+                        if (current.isPresent()) {
+                            current.get().setOptionalData(current.get().getOptionalData() + ", " + course.getTitle());
+                        } else {
+                            Optional.ofNullable(conversionService.convert(teacher, TeacherDTO.class)).ifPresent(dto -> {
+                                dto.setOptionalData(course.getTitle());
+                                teachers.add(dto);
+                            });
+                        }
+                    }
+                });
 
         modelAndView.addObject("student", studentPerson);
         modelAndView.addObject("teacher", teacherTeacher);
@@ -515,7 +552,8 @@ public class StudentController {
         modelAndView.addObject("nextWeek", nextWeekDates);
         modelAndView.addObject("currentWeekEvents", convertListOfListsToDTO(currentWeekEvents));
         modelAndView.addObject("nextWeekEvents", convertListOfListsToDTO(nextWeekEvents));
-        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(
+                LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS)));
         modelAndView.addObject("availableEvents", incomingEventsNumber);
         modelAndView.addObject("event",
                 subscribedEvent
@@ -684,7 +722,8 @@ public class StudentController {
         return studentsByTeacherId;
     }
 
-    private ModelAndView redirectByRole(User user) {
+    private ModelAndView redirectByRole(Principal principal) {
+        User user = userService.getUserByEmail(principal.getName());
         if (user != null && user.getEmail() != null) {
             User userFound = userService.getUserByEmail(user.getEmail());
             if (userFound != null && userFound.getRoles().contains(roleService.getRoleByName("ROLE_ADMIN"))) {
@@ -757,5 +796,20 @@ public class StudentController {
                 .map(VerificationKey::getPerson)
                 .map(Person::getId)
                 .map(teacherService::findTeacherById);
+    }
+
+    //TODO Move to User Service
+    private Boolean isUserAnAdmin(User user) {
+        return Optional.ofNullable(user)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
+                .orElse(Boolean.FALSE);
+    }
+
+    private Boolean isPrincipalAnAdmin(Principal principal) {
+        return Optional.ofNullable(principal)
+                .map(p -> userService.getUserByEmail(p.getName()))
+                .map(this::isUserAnAdmin)
+                .orElse(false);
     }
 }

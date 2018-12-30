@@ -1,5 +1,6 @@
 package io.github.externschool.planner.controller;
 
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
@@ -40,13 +41,14 @@ public class UserControllerTest {
     @Autowired private UserService userService;
     @Autowired private VerificationKeyService keyService;
     @Autowired private ConversionService conversionService;
+    @Autowired private EmailService emailService;
     private UserController controller;
     private MockMvc mockMvc;
     private User expectedUser;
 
     @Before
     public void setup() {
-        controller = new UserController(userService, keyService, conversionService);
+        controller = new UserController(userService, keyService, conversionService, emailService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(wac)
                 .apply(springSecurity())
@@ -109,7 +111,6 @@ public class UserControllerTest {
         map.add("email", "email@email.com");
         map.add("password", "!Qwert");
         map.add("verificationKey", "123");
-
 
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
                 .andExpect(status().is3xxRedirection())

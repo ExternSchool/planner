@@ -34,10 +34,22 @@ public class VerificationKeyFormatterTest {
     }
 
     @Test
-    public void shouldReturnSameKey_whenRunParsePrint() throws ParseException {
+    public void shouldReturnString_whenRunPrint() throws ParseException {
         Locale locale = new Locale("uk");
 
-        VerificationKey actualKey = formatter.parse(formatter.print(key, locale), locale);
+        String actualKey = formatter.print(key, locale);
+
+        assertThat(actualKey)
+                .isNotNull()
+                .isEqualTo(key.getValue());
+    }
+
+    @Test
+    public void shouldReturnSameKey_whenRunParse() throws ParseException {
+        Locale locale = new Locale("uk");
+        String value = key.getValue();
+
+        VerificationKey actualKey = formatter.parse(value, locale);
 
         assertThat(actualKey)
                 .isNotNull()

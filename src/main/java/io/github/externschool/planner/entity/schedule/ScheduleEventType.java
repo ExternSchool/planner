@@ -23,13 +23,11 @@ import java.util.Set;
 @Entity
 @Table(name = "schedule_event_type")
 public class ScheduleEventType {
-
-    //TODO need to extract to base entity class and change strategy to sequence
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false, updatable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(name = "participants_amount")

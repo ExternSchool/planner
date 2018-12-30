@@ -4,7 +4,6 @@ import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
@@ -33,6 +33,10 @@ public class ScheduleEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @Version
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @Column(nullable = false)
     private String title;
@@ -51,10 +55,6 @@ public class ScheduleEvent {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Version
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
 
     @Column(name = "is_open")
     private Boolean isOpen;
@@ -268,23 +268,22 @@ public class ScheduleEvent {
 
     @Override
     public String toString() {
-        ToStringBuilder sb = new ToStringBuilder(this)
-                .append("id", getId())
-                .append("title", getTitle())
-                .append("description", getDescription())
-                .append("location", getLocation())
-                .append("startOfEvent", getStartOfEvent())
-                .append("endOfEvent", getEndOfEvent())
-                .append("createdAt", getCreatedAt())
-                .append("modifiedAt", getModifiedAt())
-                .append("isOpen", isOpen())
-                .append("isCancelled", isCancelled())
-                .append("isAccomplished", isAccomplished())
-                .append("owner", Optional.ofNullable(getOwner()).map(User::getEmail).orElse(""))
-                .append("type", Optional.ofNullable(getType()).map(ScheduleEventType::getName).orElse("Not defined"))
-                .append("participants", getParticipants().size());
-
-        return sb.toString();
+        return new StringJoiner(", ", ScheduleEvent.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("modifiedAt=" + modifiedAt)
+                .add("title='" + title + "'")
+                .add("description='" + description + "'")
+                .add("location='" + location + "'")
+                .add("startOfEvent=" + startOfEvent)
+                .add("endOfEvent=" + endOfEvent)
+                .add("createdAt=" + createdAt)
+                .add("isOpen=" + isOpen)
+                .add("isCancelled=" + isCancelled)
+                .add("isAccomplished=" + isAccomplished)
+                .add("owner=" + Optional.ofNullable(getOwner()).map(User::getEmail).orElse(""))
+                .add("type=" + Optional.ofNullable(getType()).map(ScheduleEventType::getName).orElse("Not defined"))
+                .add("participants=" + getParticipants().size())
+                .toString();
     }
 
     public static ScheduleEventBuilder builder() {
