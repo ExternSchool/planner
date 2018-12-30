@@ -694,6 +694,7 @@ public class GuestControllerTest {
                 .andExpect(view().name("redirect:/guest/" + otherPerson.getId()
                                 + "/official/" + official.getId() + "/schedule"));
 
+        personService.deletePerson(otherPerson);
         userService.deleteUser(eventUser);
         userService.deleteUser(otherUser);
         scheduleService.deleteEventById(event.getId());
@@ -754,6 +755,7 @@ public class GuestControllerTest {
                 .andExpect(model()
                         .attribute("error", Matchers.notNullValue()));
 
+        personService.deletePerson(otherPerson);
         userService.deleteUser(eventUser);
         userService.deleteUser(otherUser);
         scheduleService.deleteEventById(event.getId());
