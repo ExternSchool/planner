@@ -730,6 +730,7 @@ public class GuestControllerTest {
         typeService.saveEventType(type);
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(wrongType::addOwner);
+        eventUser.getRoles().forEach(wrongType::addParticipant);
         typeService.saveEventType(wrongType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
