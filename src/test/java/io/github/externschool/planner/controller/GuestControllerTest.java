@@ -55,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+@Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -513,7 +514,6 @@ public class GuestControllerTest {
                         .attribute("availableEvents", 0L));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnNonNullRecentUpdates_whenDisplayOfficialScheduleWithAdmin() throws Exception {
@@ -597,7 +597,6 @@ public class GuestControllerTest {
                         .attribute("availableEvents", 0L));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = {"ADMIN", "GUEST"})
     public void shouldReturnModelAndView_whenDisplaySubscriptionModalWithAdmin() throws Exception {
@@ -652,7 +651,6 @@ public class GuestControllerTest {
         typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = {"ADMIN"})
     public void shouldRedirect_whenSuccessfulProcessNewEventSubscriptionModal() throws Exception {
@@ -704,7 +702,6 @@ public class GuestControllerTest {
         typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldReturnModelAndView_whenUnsuccessfulProcessNewEventSubscriptionModal() throws Exception {
@@ -763,7 +760,6 @@ public class GuestControllerTest {
         typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
     public void shouldReturnModelAndView_whenDisplayUnsubscribeModal() throws Exception {
@@ -817,7 +813,6 @@ public class GuestControllerTest {
         typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
     public void shouldRedirect_whenSuccessfulProcessUnsubscribeModalWithAdmin() throws Exception {
@@ -857,7 +852,6 @@ public class GuestControllerTest {
         typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
-    @Transactional
     @Test
     @WithMockUser(username = userName, roles = {"GUEST", "ADMIN"})
     public void shouldReturnModelAndView_whenUnsuccessfulProcessUnsubscribeModalWithGuest() throws Exception {

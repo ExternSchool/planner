@@ -27,7 +27,7 @@ public class Person {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "key_id")
     private VerificationKey verificationKey;
 
