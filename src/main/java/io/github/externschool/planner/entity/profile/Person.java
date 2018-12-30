@@ -3,7 +3,6 @@ package io.github.externschool.planner.entity.profile;
 import io.github.externschool.planner.entity.VerificationKey;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +15,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "person")
@@ -23,7 +23,7 @@ import javax.persistence.Table;
 public class Person {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
@@ -128,13 +128,13 @@ public class Person {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id", id)
-                .append("verificationKey", verificationKey)
-                .append("firstName", firstName)
-                .append("patronymicName", patronymicName)
-                .append("lastName", lastName)
-                .append("phoneNumber", phoneNumber)
+        return new StringJoiner(", ", Person.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("verificationKey=" + getVerificationKey())
+                .add("firstName='" + firstName + "'")
+                .add("patronymicName='" + patronymicName + "'")
+                .add("lastName='" + lastName + "'")
+                .add("phoneNumber='" + phoneNumber + "'")
                 .toString();
     }
 

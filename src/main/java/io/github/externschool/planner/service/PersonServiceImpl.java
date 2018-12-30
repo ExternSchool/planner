@@ -1,5 +1,6 @@
 package io.github.externschool.planner.service;
 
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -55,16 +56,18 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void deletePerson(Person person) {
-        if (person != null && findPersonById(person.getId()) != null) {
-            Optional.ofNullable(person.getVerificationKey()).ifPresent(key -> {
+        final Person actualPerson = findPersonById(person.getId());
+        if (actualPerson != null) {
+            if(actualPerson.getVerificationKey() != null) {
+                VerificationKey key = actualPerson.getVerificationKey();
                 Optional.ofNullable(key.getUser()).ifPresent(user -> {
                     user.removeVerificationKey();
                     userRepository.save(user);
                 });
-                person.removeVerificationKey();
+                actualPerson.removeVerificationKey();
                 keyRepository.delete(key);
-            });
-            personRepository.delete(person);
+            }
+            personRepository.delete(actualPerson);
         }
     }
 }

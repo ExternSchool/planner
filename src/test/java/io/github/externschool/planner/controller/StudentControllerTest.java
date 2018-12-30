@@ -1131,7 +1131,6 @@ public class StudentControllerTest {
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
                         .attributeExists("availableEvents"));
-
     }
 
     @Test
@@ -1170,9 +1169,7 @@ public class StudentControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId()
                         + "/teacher/" + teacher.getId() + "/schedule"));
-
     }
-
 
     @Test
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
@@ -1217,7 +1214,6 @@ public class StudentControllerTest {
                         .attributeExists("error"))
                 .andExpect(model()
                         .attribute("error", UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE));
-
     }
 
     @After

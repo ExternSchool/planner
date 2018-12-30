@@ -225,8 +225,9 @@ public class StudentController {
     @GetMapping("/profile")
     public ModelAndView displayStudentProfileToStudent(final Principal principal) {
         Long id = userService.getUserByEmail(principal.getName()).getVerificationKey().getPerson().getId();
+        StudentDTO studentDTO = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
 
-        return displayStudentProfileToEdit(id);
+        return showStudentProfileForm(studentDTO, false);
     }
 
     @Secured("ROLE_ADMIN")
