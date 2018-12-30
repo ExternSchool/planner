@@ -678,8 +678,6 @@ public class GuestControllerTest {
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
         typeService.saveEventType(type);
-        assertThat(typeService.getEventTypeById(type.getId()).get())
-                .isEqualTo(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -724,6 +722,7 @@ public class GuestControllerTest {
         personService.saveOrUpdatePerson(otherPerson);
         otherUser.addVerificationKey(otherKey);
         userService.save(otherUser);
+        Long id = otherPerson.getId();
 
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
@@ -743,9 +742,10 @@ public class GuestControllerTest {
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
         eventDTO.setEventType(wrongType.getName());
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+        long eid = wrongEvent.getId();
 
-        mockMvc.perform(post("/guest/" + otherPerson.getId() + "/official/"
-                        + official.getId() + "/event/" + wrongEvent.getId() + "/subscribe"))
+        mockMvc.perform(post("/guest/" + id + "/official/"
+                        + official.getId() + "/event/" + eid + "/subscribe"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
