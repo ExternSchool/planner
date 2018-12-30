@@ -8,8 +8,12 @@ import java.util.List;
 
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
-
     Person findPersonById(Long id);
+
+    Person findPersonByFirstNameAndPatronymicNameAndLastName(
+            String firstName,
+            String patronymicName,
+            String lastName);
 
     List<Person> findAllByOrderByLastName();
 }

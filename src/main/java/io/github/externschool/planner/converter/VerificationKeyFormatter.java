@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.Formatter;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
 import java.util.Locale;
 
 @Service
@@ -19,7 +18,7 @@ public class VerificationKeyFormatter implements Formatter<VerificationKey> {
     }
 
     @Override
-    public VerificationKey parse(final String s, final Locale locale) throws ParseException {
+    public VerificationKey parse(final String s, final Locale locale) {
         return repository.findByValue(s);
     }
 

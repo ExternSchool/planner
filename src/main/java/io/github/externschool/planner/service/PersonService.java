@@ -9,6 +9,8 @@ public interface PersonService {
 
     Person findPersonById(Long id);
 
+    Person findPersonByFullNameAndPhoneNumber(Person person);
+
     List<Person> findAllByOrderByName();
 
     void deletePerson(Person person);

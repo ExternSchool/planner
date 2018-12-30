@@ -1,8 +1,13 @@
 package io.github.externschool.planner.config;
 
+import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class SpringSecurityConfigTest {
     @Autowired private WebApplicationContext wac;
+    @Autowired private UserService userService;
+    @Mock UserRepository userRepository;
     private MockMvc mockMvc;
 
     @Before
@@ -66,8 +73,15 @@ public class SpringSecurityConfigTest {
     }
 
     @Test
-    @WithMockUser(username="q@q", password = "q", roles={"ADMIN"})
+    @WithMockUser(username="q@q", password = "q", roles={"GUEST"})
     public void shouldReturnRedirection_WhenFormLogin() throws Exception {
+        Mockito.when(userRepository.findByEmail("q@q"))
+                .thenReturn(null);
+        User user = userService.createUser("q@q", "q", "ROLE_GUEST");
+        userService.save(user);
+        Mockito.when(userRepository.findByEmail("q@q"))
+                .thenReturn(user);
+
         mockMvc.perform(formLogin("/login").user("q@q").password("q"))
                 .andExpect(authenticated())
                 .andExpect(status().is3xxRedirection())

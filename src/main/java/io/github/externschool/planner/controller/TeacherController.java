@@ -4,6 +4,7 @@ import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -51,14 +51,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE;
-import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_OF_WORKING_DAY_BEGINNING;
+import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
 @Controller
-@Transactional
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
@@ -69,6 +68,7 @@ public class TeacherController {
     private final RoleService roleService;
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService typeService;
+    private final EmailService emailService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -78,7 +78,8 @@ public class TeacherController {
                              final UserService userService,
                              final RoleService roleService,
                              final ScheduleService scheduleService,
-                             final ScheduleEventTypeService typeService) {
+                             final ScheduleEventTypeService typeService,
+                             final EmailService emailService) {
         this.teacherService = teacherService;
         this.subjectService = subjectService;
         this.conversionService = conversionService;
@@ -87,6 +88,7 @@ public class TeacherController {
         this.roleService = roleService;
         this.scheduleService = scheduleService;
         this.typeService = typeService;
+        this.emailService = emailService;
     }
 
     @Secured("ROLE_ADMIN")
@@ -103,22 +105,6 @@ public class TeacherController {
                 new ModelAndView("teacher/teacher_list", "teachers", teacherDTOs);
         if (request != null) {
             modelAndView.addObject("teachers", Utils.searchRequestFilter(teacherDTOs, request));
-        }
-
-        return modelAndView;
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/profile")
-    public ModelAndView displayTeacherProfileForTeacher(final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(principal);
-        Long id = Optional.ofNullable(userService.getUserByEmail(principal.getName())
-                .getVerificationKey().getPerson().getId())
-                .orElse(0L);
-
-        Teacher teacher = teacherService.findTeacherById(id);
-        if (teacher != null) {
-            modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
         }
 
         return modelAndView;
@@ -379,7 +365,7 @@ public class TeacherController {
                                             .map(min -> event.getStartOfEvent().toLocalTime().plusMinutes(min))
                                             .orElse(event.getStartOfEvent().toLocalTime()
                                                     .plusMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE))))
-                            .orElse(DEFAULT_TIME_OF_WORKING_DAY_BEGINNING);
+                            .orElse(DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS);
             model.addAttribute("thisDayEvents", addDescriptionAndConvertToDTO(actualEvents));
             model.addAttribute(
                     "newEvent",
@@ -430,14 +416,30 @@ public class TeacherController {
         return modelAndView;
     }
 
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/profile")
+    public ModelAndView displayTeacherProfileToTeacher(final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+
+        Long id = userService.getUserByEmail(principal.getName()).getVerificationKey().getPerson().getId();
+        Teacher teacher = Optional.ofNullable(id).map(teacherService::findTeacherById).orElse(null);
+        if (teacher != null) {
+            TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
+            modelAndView = displayTeacherProfileForm(teacherDTO, false);
+        }
+
+        return modelAndView;
+    }
+
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}")
     public ModelAndView displayTeacherProfileToEdit(@PathVariable("id") Long id, final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
-        Teacher teacher = teacherService.findTeacherById(Optional.ofNullable(id).orElse(0L));
+
+        Teacher teacher = Optional.ofNullable(id).map(teacherService::findTeacherById).orElse(null);
         if(teacher != null) {
             TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
-            modelAndView = displayTeacherProfile(teacherDTO);
+            modelAndView = displayTeacherProfileForm(teacherDTO, false);
         }
 
         return modelAndView;
@@ -446,67 +448,75 @@ public class TeacherController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/add")
     public ModelAndView displayTeacherProfileToAdd() {
-        return displayTeacherProfile(new TeacherDTO());
-    }
-
-    @Secured("ROLE_ADMIN")
-    @PostMapping("/{id}/delete")
-    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, final Principal principal) {
-        ModelAndView modelAndView = redirectByRole(principal);
-        Teacher teacher = teacherService.findTeacherById(id);
-        if(teacher != null) {
-            //TODO Add delete confirmation
-            teacherService.deleteTeacherById(id);
-        }
-
-        return modelAndView;
+        return displayTeacherProfileForm(new TeacherDTO(), true);
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @PostMapping(value = "/update", params = "action=save")
     public ModelAndView processTeacherProfileFormSave(@ModelAttribute("teacher") TeacherDTO teacherDTO,
                                                       final Principal principal) {
-        if (isPrincipalAnAdmin(principal)
-                && (teacherDTO.getId() == null || teacherService.findTeacherById(teacherDTO.getId()) == null)) {
-            if (teacherDTO.getVerificationKey() == null) {
-                teacherDTO.setVerificationKey(new VerificationKey());
-            }
-            keyService.saveOrUpdateKey(teacherDTO.getVerificationKey());
-        }
-        Teacher teacher = conversionService.convert(teacherDTO, Teacher.class);
-        teacherService.saveOrUpdateTeacher(teacher);
-
+        teacherDTO.setVerificationKey(keyService.saveOrUpdateKey(Optional.ofNullable(teacherDTO.getVerificationKey())
+                .orElse(new VerificationKey())));
+        Teacher teacher = teacherService.saveOrUpdateTeacher(conversionService.convert(teacherDTO, Teacher.class));
         if (isPrincipalAnAdmin(principal)) {
-            Optional.ofNullable(teacher)
+            Optional<User> user = Optional.ofNullable(teacher)
                     .map(Teacher::getVerificationKey)
                     .map(VerificationKey::getUser)
-                    .ifPresent(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+                    .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
+            if (!user.isPresent()) {
+                Optional.ofNullable(teacher).ifPresent(t ->
+                        userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
+                                "ROLE_TEACHER"));
+            }
         }
 
         return redirectByRole(principal);
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping(value = "/update")
+    @GetMapping(value = "/update") // TODO change to /cancel
     public ModelAndView processTeacherProfileFormCancel(final Principal principal) {
         return redirectByRole(principal);
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping(value = "/{id}/new-key")
-    public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id, Principal principal) {
-        ModelAndView modelAndView = redirectByRole(principal);
-        if (id == null) {
-            return modelAndView;
-        }
-        /*
+    @PostMapping("/{id}/delete")
+    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, final Principal principal) {
+        //TODO Add delete confirmation
+        Optional.ofNullable(id).map(teacherService::findTeacherById)
+                .map(Teacher::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .ifPresent(user -> {
+                    if (emailService.emailIsValid(user.getEmail())) {
+                        userService.assignNewRolesByKey(user, keyService.saveOrUpdateKey(new VerificationKey()));
+                    } else {
+                        userService.deleteUser(user);
+                    }
+                });
+        teacherService.deleteTeacherById(id);
+
+        return redirectByRole(principal);
+    }
+
+    /*
           When key change confirmed:
           DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
-          user receives Guest role
+          the old user is DELETED from database, and a NEW one created for the key recently assigned to DTO
          */
+    @Secured("ROLE_ADMIN")
+    @PostMapping(value = "/{id}/new-key")
+    public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id, Principal principal) {
         TeacherDTO teacherDTO = Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> conversionService.convert(teacher, TeacherDTO.class))
-                .map(t -> (TeacherDTO)keyService.setNewKeyToDTO(t))
+                .map(t -> {
+                    Optional.ofNullable(t.getVerificationKey())
+                            .map(VerificationKey::getUser)
+                            .ifPresent(userService::deleteUser);
+                    TeacherDTO dto = (TeacherDTO)keyService.setNewKeyToDTO(t);
+                    userService.createAndSaveFakeUserWithKeyAndRoleName(dto.getVerificationKey(),
+                            "ROLE_TEACHER");
+                    return dto;
+                })
                 .orElse(new TeacherDTO());
 
         Optional.ofNullable(userService.getUserByEmail(teacherDTO.getEmail()))
@@ -515,19 +525,15 @@ public class TeacherController {
                     userService.save(user);
                 });
 
-        modelAndView = displayTeacherProfile(teacherDTO);
-        modelAndView.addObject("isNew", true);
-
-        return modelAndView;
+        return displayTeacherProfileForm(teacherDTO, true);
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/admin")
     public ModelAndView processTeacherProfileFormActionAdmin(@PathVariable("id") Long id,
                                                                 Principal principal) {
-        ModelAndView modelAndView = redirectByRole(principal);
         if (id == null) {
-            return modelAndView;
+            return redirectByRole(principal);
         }
         Teacher teacher = teacherService.findTeacherById(id);
         Optional.ofNullable(teacher.getVerificationKey())
@@ -540,15 +546,15 @@ public class TeacherController {
                         user.addRole(roleAdmin);
                     }
                 });
-        modelAndView = displayTeacherProfile(conversionService.convert(teacher, TeacherDTO.class));
+        TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
 
-        return modelAndView;
+        return displayTeacherProfileForm(teacherDTO, false);
     }
 
-    private ModelAndView displayTeacherProfile(TeacherDTO teacherDTO) {
+    private ModelAndView displayTeacherProfileForm(TeacherDTO teacherDTO, boolean isNew) {
         ModelAndView modelAndView =
                 new ModelAndView("teacher/teacher_profile", "teacher", teacherDTO);
-        modelAndView.addObject("isNew", isNew(teacherDTO));
+        modelAndView.addObject("isNew", isNew);
         modelAndView.addObject("isAdmin", isTeacherAnAdmin(teacherDTO));
         modelAndView.addObject("allSubjects", subjectService.findAllByOrderByTitle());
 
@@ -564,9 +570,8 @@ public class TeacherController {
     private Boolean isPrincipalAnAdmin(Principal principal) {
         return Optional.ofNullable(principal)
                 .map(p -> userService.getUserByEmail(p.getName()))
-                .map(User::getRoles)
-                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
-                .orElse(Boolean.FALSE);
+                .map(this::isUserAnAdmin)
+                .orElse(false);
     }
 
     private Boolean isTeacherAnAdmin(TeacherDTO teacherDTO) {
@@ -574,8 +579,16 @@ public class TeacherController {
                 .map(teacherService::findTeacherById)
                 .map(Teacher::getVerificationKey)
                 .map(VerificationKey::getUser)
-                .map(user -> userService.userHasRole(user, "ROLE_ADMIN"))
+                .map(this::isUserAnAdmin)
                 .orElse(false);
+    }
+
+    //TODO Move to User Service
+    private Boolean isUserAnAdmin(User user) {
+        return Optional.ofNullable(user)
+                .map(User::getRoles)
+                .map(roles -> roles.contains(roleService.getRoleByName("ROLE_ADMIN")))
+                .orElse(Boolean.FALSE);
     }
 
     private ModelAndView redirectByRole(Principal principal) {

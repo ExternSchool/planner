@@ -6,7 +6,6 @@ import io.github.externschool.planner.service.SchoolSubjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +19,6 @@ import java.util.Optional;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
 
 @Controller
-@Transactional
 @Secured("ROLE_ADMIN")
 @RequestMapping("/subject")
 public class SchoolSubjectController {

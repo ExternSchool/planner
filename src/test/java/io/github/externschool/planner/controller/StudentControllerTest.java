@@ -3,7 +3,9 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.CourseDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.GradeLevel;
+import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
@@ -16,6 +18,8 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.repository.UserRepository;
+import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
@@ -46,10 +50,16 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
+import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
@@ -62,8 +72,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@RunWith(SpringRunner.class)
 @Transactional
+@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class StudentControllerTest {
@@ -80,6 +90,9 @@ public class StudentControllerTest {
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ScheduleEventTypeService typeService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private VerificationKeyRepository keyRepository;
+    @Autowired private EmailService emailService;
     private StudentController controller;
 
     private MockMvc mockMvc;
@@ -98,17 +111,18 @@ public class StudentControllerTest {
     @Before
     public void setup(){
         controller = new StudentController(
-                studentService, 
-                personService, 
+                studentService,
+                personService,
                 userService,
-                keyService, 
-                conversionService, 
+                keyService,
+                conversionService,
                 roleService,
                 courseService,
                 teacherService,
                 planService,
                 scheduleService,
-                typeService);
+                typeService,
+                emailService);
 
         key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -358,7 +372,7 @@ public class StudentControllerTest {
                                 Matchers.<Student> hasProperty("gradeLevel",
                                         Matchers.equalTo(3)))))
                 .andExpect(model().attribute("level",
-                                        Matchers.equalTo(3)));
+                        Matchers.equalTo(3)));
     }
 
     @Test
@@ -397,9 +411,79 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
-        mockMvc.perform(post("/student/" + student.getId() + "/delete"))
+        mockMvc.perform(post("/student/{id}/delete", + student.getId()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
+    }
+
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldDeleteUser_WhenRequestDeleteInvalidEmail() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        Student student = new Student();
+        VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+        student.addVerificationKey(key);
+        studentService.saveOrUpdateStudent(student);
+        List<Student> students = studentService.findAllStudents();
+        int sizeBefore = students.size();
+        User user = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_STUDENT");
+        user.addVerificationKey(key);
+        userService.save(user);
+        Long id = Optional.ofNullable(student.getId()).orElse(0L);
+        String email = Optional.ofNullable(studentService.findStudentById(id))
+                .map(Student::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(User::getEmail)
+                .orElse(null);
+
+        assertThat(emailService.emailIsValid(email))
+                .isEqualTo(false);
+
+        mockMvc.perform(post("/student/{id}/delete", id));
+
+        assertThat(studentService.findAllStudents().size()).isEqualTo(sizeBefore - 1);
+
+        assertThat(userService.getUserByEmail(email))
+                .isNull();
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldSetGuestRoleToUser_WhenRequestDeleteValidEmail() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        Student student = new Student();
+        VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+        student.addVerificationKey(key);
+        studentService.saveOrUpdateStudent(student);
+        List<Student> students = studentService.findAllStudents();
+        int sizeBefore = students.size();
+        User user = userService.createUser("valid@mail", "pass", "ROLE_STUDENT");
+        user.addVerificationKey(key);
+        userService.save(user);
+        Long id = Optional.ofNullable(student.getId()).orElse(0L);
+        String email = Optional.ofNullable(studentService.findStudentById(id))
+                .map(Student::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .map(User::getEmail)
+                .orElse(null);
+
+        assertThat(emailService.emailIsValid(email))
+                .isEqualTo(true);
+
+        mockMvc.perform(post("/student/{id}/delete", id));
+
+        assertThat(studentService.findAllStudents())
+                .hasSize(sizeBefore - 1);
+
+        assertThat(userService.getUserByEmail(email))
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("roles",
+                        new HashSet<Role>(Collections.singletonList(roleService.getRoleByName("ROLE_GUEST"))));
     }
 
     @Test
@@ -527,6 +611,95 @@ public class StudentControllerTest {
 
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
+    public void shouldNotAddNewKeyAndNewUser_whenStudentPostUpdateSave() throws Exception {
+        map = new LinkedMultiValueMap<>();
+        map.add("id", student.getId().toString());
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+        map.add("grade", GradeLevel.LEVEL_8.toString());
+        map.add("verificationKey", key.getValue());
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/student/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
+
+        assertThat(keyRepository.findAll())
+                .contains(key);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldNotAddNewKeyAndNewUser_whenAdminPostUpdateSaveExistingStudent() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        map = new LinkedMultiValueMap<>();
+        map.add("id", student.getId().toString());
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+        map.add("grade", GradeLevel.LEVEL_8.toString());
+        map.add("verificationKey", key.getValue());
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/student/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
+
+        assertThat(keyRepository.findAll())
+                .contains(key);
+    }
+
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldAddNewKeyAndNewUser_whenAdminPostUpdateSaveNewProfile() throws Exception {
+        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
+        userService.save(user);
+
+        map = new LinkedMultiValueMap<>();
+        map.add("lastName", "lastName");
+        map.add("firstName", "firstName");
+        map.add("patronymicName", "patronymicName");
+        map.add("phoneNumber", "123-4567");
+        map.add("grade", GradeLevel.LEVEL_8.toString());
+
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/student/update")
+                .param("action", "save")
+                .params(map));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber + 1);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber + 1);
+    }
+
+
+    @Test
+    @WithMockUser(username = userName, roles = "STUDENT")
     public void shouldReturnFormBack_whenPostUpdateActionSaveInvalidDate() throws Exception {
         map.remove("dateOfBirth");
         map.add("dateOfBirth", "123");
@@ -558,7 +731,7 @@ public class StudentControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
-        mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
     }
@@ -566,7 +739,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
     public void shouldRedirect_whenGetUpdateCancelStudent() throws Exception {
-        mockMvc.perform(get("/student/cancel/" + student.getVerificationKey().getId()))
+        mockMvc.perform(get("/student/cancel"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
@@ -594,9 +767,25 @@ public class StudentControllerTest {
                                 Matchers.not(key))));
     }
 
-    //TODO
-    //TODO
-    //TODO
+    @Test
+    @WithMockUser(username = userName, roles = "ADMIN")
+    public void shouldKeepSameNumberOfKeysAndUsers_whenPostUpdateActionNewKey() throws Exception {
+        long userNumber = userRepository.count();
+        long keyNumber = keyRepository.count();
+
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_profile"))
+                .andExpect(model().attribute("student",
+                        Matchers.hasProperty("verificationKey",
+                                Matchers.not(key))));
+
+        assertThat(userRepository.count())
+                .isEqualTo(userNumber);
+
+        assertThat(keyRepository.count())
+                .isEqualTo(keyNumber);
+    }
 
     @Test
     @WithMockUser(username = userName, roles = "STUDENT")
@@ -653,8 +842,11 @@ public class StudentControllerTest {
                                 "availableEvents",
                                 "event"))
                 .andExpect(model()
-                        //has to be null since there is no selected schedule yet
-                        .attribute("recentUpdate", Matchers.nullValue()))
+                        //has to be year 1970 since there is no selected schedule yet
+                        .attribute("recentUpdate",
+                                Matchers.equalTo(LocalDateTime.of(
+                                        FIRST_MONDAY_OF_EPOCH,
+                                        DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS))))
                 .andExpect(model()
                         .attribute("availableEvents", 0L));
     }
@@ -678,7 +870,7 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -711,8 +903,7 @@ public class StudentControllerTest {
                 .andExpect(model()
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
-                        .attribute("availableEvents", 1L));
-
+                        .attributeExists("availableEvents"));
     }
 
     @Test
@@ -737,9 +928,12 @@ public class StudentControllerTest {
                                 "availableEvents",
                                 "event"))
                 .andExpect(model()
-                        //has to be null since there is no schedule for the student whose id has been provided
-                        //if we provide an existing teacher id, who has any event, here should be non-null value
-                        .attribute("recentUpdate", Matchers.nullValue()))
+                        //if we provide an existing teacher id, who has any event, here should be another value
+                        //has to be year 1970 since there is no selected schedule yet
+                        .attribute("recentUpdate",
+                                Matchers.equalTo(LocalDateTime.of(
+                                        FIRST_MONDAY_OF_EPOCH,
+                                        DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS))))
                 .andExpect(model()
                         .attribute("availableEvents", 0L));
 
@@ -765,7 +959,7 @@ public class StudentControllerTest {
         userTeacher.getRoles().forEach(type::addOwner);
         userService.save(userTeacher);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -796,7 +990,7 @@ public class StudentControllerTest {
                 .andExpect(model()
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
-                        .attribute("availableEvents", 1L));
+                        .attributeExists("availableEvents"));
 
     }
 
@@ -819,7 +1013,7 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -845,8 +1039,6 @@ public class StudentControllerTest {
         @PostMapping("/{gid}/teacher/{id}/event/{event}/subscribe")
         return modelAndView;
         */
-
-
         User eventUser = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
         userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
         userService.assignNewRole(eventUser, "ROLE_TEACHER");
@@ -859,10 +1051,10 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(wrongType::addOwner);
-        typeService.saveOrUpdateEventType(wrongType);
+        typeService.saveEventType(wrongType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -907,7 +1099,7 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -938,8 +1130,7 @@ public class StudentControllerTest {
                 .andExpect(model()
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
-                        .attribute("availableEvents", 1L));
-
+                        .attributeExists("availableEvents"));
     }
 
     @Test
@@ -961,7 +1152,7 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -978,9 +1169,7 @@ public class StudentControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId()
                         + "/teacher/" + teacher.getId() + "/schedule"));
-
     }
-
 
     @Test
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
@@ -1001,10 +1190,10 @@ public class StudentControllerTest {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
-        typeService.saveOrUpdateEventType(type);
+        typeService.saveEventType(type);
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(wrongType::addOwner);
-        typeService.saveOrUpdateEventType(wrongType);
+        typeService.saveEventType(wrongType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
@@ -1025,9 +1214,9 @@ public class StudentControllerTest {
                         .attributeExists("error"))
                 .andExpect(model()
                         .attribute("error", UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE));
-
     }
-        @After
+
+    @After
     public void tearDown() {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);

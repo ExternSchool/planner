@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
 @Transactional
+@Service
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final VerificationKeyRepository keyRepository;

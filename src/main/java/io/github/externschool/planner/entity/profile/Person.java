@@ -1,6 +1,8 @@
 package io.github.externschool.planner.entity.profile;
 
 import io.github.externschool.planner.entity.VerificationKey;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,7 +15,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.Objects;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "person")
@@ -21,11 +23,11 @@ import java.util.Objects;
 public class Person {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "key_id")
     private VerificationKey verificationKey;
 
@@ -126,31 +128,43 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Person{" +
-                "id=" + id +
-                ", verificationKey=" + verificationKey +
-                ", firstName='" + firstName + '\'' +
-                ", patronymicName='" + patronymicName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
+        return new StringJoiner(", ", Person.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("verificationKey=" + getVerificationKey())
+                .add("firstName='" + firstName + "'")
+                .add("patronymicName='" + patronymicName + "'")
+                .add("lastName='" + lastName + "'")
+                .add("phoneNumber='" + phoneNumber + "'")
+                .toString();
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Person that = (Person) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(verificationKey, that.verificationKey) &&
-                Objects.equals(firstName, that.firstName) &&
-                Objects.equals(patronymicName, that.patronymicName) &&
-                Objects.equals(lastName, that.lastName) &&
-                Objects.equals(phoneNumber, that.phoneNumber);
+
+        if (!(o instanceof Person)) return false;
+
+        Person person = (Person) o;
+
+        return new EqualsBuilder()
+                .append(getId(), person.getId())
+                .append(getVerificationKey(), person.getVerificationKey())
+                .append(getFirstName(), person.getFirstName())
+                .append(getPatronymicName(), person.getPatronymicName())
+                .append(getLastName(), person.getLastName())
+                .append(getPhoneNumber(), person.getPhoneNumber())
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, verificationKey, firstName, patronymicName, lastName, phoneNumber);
+        return new HashCodeBuilder(17, 37)
+                .append(getId())
+                .append(getVerificationKey())
+                .append(getFirstName())
+                .append(getPatronymicName())
+                .append(getLastName())
+                .append(getPhoneNumber())
+                .toHashCode();
     }
 }

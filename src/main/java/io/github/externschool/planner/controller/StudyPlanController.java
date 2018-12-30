@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +23,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@Transactional
 @Secured("ROLE_ADMIN")
 @RequestMapping("/plan")
 public class StudyPlanController {
@@ -68,6 +66,7 @@ public class StudyPlanController {
                             0, 0, 0, 0);
                     plan = planService.saveOrUpdatePlan(plan);
                     modelAndView.addObject("level", plan.getGradeLevel().getValue());
+                    modelAndView.setViewName(modelAndView.getViewName() + "grade/" + plan.getGradeLevel().getValue());
                 });
 
         return modelAndView;
@@ -80,6 +79,7 @@ public class StudyPlanController {
                 .ifPresent(plan -> {
                     planService.saveOrUpdatePlan(conversionService.convert(planDTO, StudyPlan.class));
                     modelAndView.addObject("level", plan.getGradeLevel().getValue());
+                    modelAndView.setViewName(modelAndView.getViewName() + "grade/" + plan.getGradeLevel().getValue());
                 });
 
         return modelAndView;

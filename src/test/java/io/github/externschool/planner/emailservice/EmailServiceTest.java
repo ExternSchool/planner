@@ -197,4 +197,34 @@ public class EmailServiceTest {
 
         verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
     }
+
+    @Test
+    public void shouldReturnTrue_ifEmailIsValid() {
+        assertThat(emailService.emailIsValid("some@email"))
+                .isEqualTo(true);
+    }
+
+    @Test
+    public void shouldReturnFalse_ifEmailIsFake() {
+        assertThat(emailService.emailIsValid("ab2fc006-7a24-4cb9-98b7-296369a23a42@x"))
+                .isEqualTo(false);
+    }
+
+    @Test
+    public void shouldReturnFalse_ifEmailIsNull() {
+        assertThat(emailService.emailIsValid(null))
+                .isEqualTo(false);
+    }
+
+    @Test
+    public void shouldReturnFalse_ifEmailIsEmpty() {
+        assertThat(emailService.emailIsValid(""))
+                .isEqualTo(false);
+    }
+
+    @Test
+    public void shouldReturnFalse_ifEmailIsInvalid() {
+        assertThat(emailService.emailIsValid("fjhbaflsjfbhsal"))
+                .isEqualTo(false);
+    }
 }

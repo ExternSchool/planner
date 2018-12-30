@@ -73,17 +73,15 @@
                             <thead>
                             <tr>
                                 <th class="text-left">П.І.Б.</th>
-                                <!--<th class="text-left">Посада</th>-->
+                                <th class="text-left">Предмет</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="off : ${teachers}"
-                                th:class="${teacher.getId() == off.getId()} ? 'table-active' : ''"
-                                th:onclick="'javascript:rowClicked(\'' + ${student.id} + '\',\'' + ${off.getId()} + '\');'">
-                                <td class="text-left" th:text="${off.getShortName()}">П.І.Б.</td>
-                                <!--<td class="text-left" th:text="${off.getTeacher()}">-->
-                                    <!--Адміністративна посада  !!!!!!!!!!-->
-                                <!--</td>-->
+                            <tr th:if="${teachers != null}" th:each="t : ${teachers}"
+                                th:class="${teacher.getId() == t.getId()} ? 'table-active' : ''"
+                                th:onclick="'javascript:rowClicked(\'' + ${student.id} + '\',\'' + ${t.getId()} + '\');'">
+                                <td class="text-left" th:text="${t.getShortName()}">П.І.Б.</td>
+                                <td class="text-left" th:text="${t.getOptionalData()}">Предмет</td>
                             </tr>
                             </tbody>
                         </table>

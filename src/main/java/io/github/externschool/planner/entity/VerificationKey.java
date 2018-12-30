@@ -74,7 +74,7 @@ public class VerificationKey {
         return Objects.hash(id, value);
     }
 
-    @Override
+    @Override //please don't change - used in Formatter
     public String toString() {
         return value;
     }

@@ -39,9 +39,9 @@
             <tr>
                 <th class="text-left">Прізвище</th>
                 <th class="text-left">Ім'я</th>
-                <th class="text-left">По-батькові</th>
+                <th class="text-left" style="width: 15ch">По батькові</th>
                 <th>Телефон</th>
-                <th>Email</th>
+                <th style="width: 20ch">Email</th>
                 <th class="text-right" style="width: 10ch">Записи</th>
                 <th class="text-right" style="width: 10ch">Змінити</th>
                 <th class="text-right" style="width: 10ch">Видалити</th>
@@ -51,9 +51,9 @@
             <tr th:each="guest : ${guests}">
                 <td class="text-left" th:text="${guest.getLastName()}">Прізвище</td>
                 <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
-                <td class="text-left" th:text="${guest.getPatronymicName()}">По-батькові</td>
+                <td class="text-left" th:text="${guest.getPatronymicName()}">По батькові</td>
                 <td th:text="${guest.getPhoneNumber()}">Phone</td>
-                <td th:text="${guest.getEmail()}">Email</td>
+                <td th:text="${#strings.abbreviate(guest.getEmail(),20)}">Email</td>
                 <td class="text-right">
                     <form th:method="get" th:action="@{/guest/{id}/official/schedule(id=${guest.id})}">
                         <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
@@ -124,9 +124,9 @@
                     </div>
                     <div class="input-group mb-1">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" style="width: 12ch;">По-батькові</span>
+                            <span class="input-group-text" style="width: 12ch;">По батькові</span>
                         </div>
-                        <input class="form-control" type="text" placeholder="По-батькові" id="patronymicName"
+                        <input class="form-control" type="text" placeholder="По батькові" id="patronymicName"
                                th:field="*{patronymicName}" required>
                     </div>
                     <div class="input-group mb-1">

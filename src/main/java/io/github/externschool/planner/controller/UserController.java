@@ -2,6 +2,7 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.PersonDTO;
 import io.github.externschool.planner.dto.UserDTO;
+import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
@@ -14,7 +15,6 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,24 +24,27 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 
 @Controller
-@Transactional
 public class UserController {
     private final UserService userService;
     private final VerificationKeyService keyService;
     private final ConversionService conversionService;
+    private final EmailService emailService;
 
     @Autowired
     public UserController(final UserService userService,
                           final VerificationKeyService keyService,
-                          final ConversionService conversionService) {
+                          final ConversionService conversionService,
+                          final EmailService emailService) {
         this.userService = userService;
         this.keyService = keyService;
         this.conversionService = conversionService;
+        this.emailService = emailService;
     }
 
     @GetMapping(value = "/signup")
@@ -72,11 +75,18 @@ public class UserController {
                 userService.save(user);
             } else {
                 VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
-                if (key == null || key.getUser() != null) {
+                if (key == null
+                        || Optional.ofNullable(key.getUser())
+                        .map(User::getEmail)
+                        .map(emailService::emailIsValid)
+                        .orElse(false)) {
                     userDTO.setVerificationKey(null);
                     throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
                 }
                 if (key.getPerson() != null && key.getPerson().getClass() != Person.class) {
+                    User oldUser = key.getUser();
+                    userService.deleteUser(oldUser);
+
                     user.addVerificationKey(key);
                     userService.save(user);
                     userService.assignNewRolesByKey(user, key);
