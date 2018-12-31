@@ -69,14 +69,14 @@ public class ScheduleEvent {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    public ScheduleEvent() {}
-
     @ManyToOne
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     private Set<Participant> participants = Collections.synchronizedSet(new HashSet<>());
+
+    public ScheduleEvent() {}
 
     private ScheduleEvent(final Long id,
                           final String title,
