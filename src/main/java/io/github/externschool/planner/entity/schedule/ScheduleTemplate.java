@@ -30,6 +30,9 @@ public class ScheduleTemplate {
     @Column(length = 500)
     private String description;
 
+    @Column
+    private String location;
+
     @Column(name = "week_day", nullable = false)
     private Integer dayOfWeek;
 
@@ -58,6 +61,7 @@ public class ScheduleTemplate {
 
     public ScheduleTemplate(final String title,
                             final String description,
+                            final String location,
                             final Integer dayOfWeek,
                             final LocalTime startOfEvent,
                             final LocalTime endOfEvent,
@@ -67,6 +71,7 @@ public class ScheduleTemplate {
                             final ScheduleEventType type) {
         this.title = title;
         this.description = description;
+        this.location = location;
         this.dayOfWeek = dayOfWeek;
         this.startOfEvent = startOfEvent;
         this.endOfEvent = endOfEvent;
@@ -98,6 +103,14 @@ public class ScheduleTemplate {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(final String location) {
+        this.location = location;
     }
 
     public Integer getDayOfWeek() {
@@ -162,19 +175,20 @@ public class ScheduleTemplate {
 
         if (!(o instanceof ScheduleTemplate)) return false;
 
-        ScheduleTemplate that = (ScheduleTemplate) o;
+        ScheduleTemplate template = (ScheduleTemplate) o;
 
         return new EqualsBuilder()
-                .append(getId(), that.getId())
-                .append(getTitle(), that.getTitle())
-                .append(getDescription(), that.getDescription())
-                .append(getDayOfWeek(), that.getDayOfWeek())
-                .append(getStartOfEvent(), that.getStartOfEvent())
-                .append(getEndOfEvent(), that.getEndOfEvent())
-                .append(getCreatedAt(), that.getCreatedAt())
-                .append(getModifiedAt(), that.getModifiedAt())
-                .append(getOwner(), that.getOwner())
-                .append(getType(), that.getType())
+                .append(getId(), template.getId())
+                .append(getTitle(), template.getTitle())
+                .append(getDescription(), template.getDescription())
+                .append(getLocation(), template.getLocation())
+                .append(getDayOfWeek(), template.getDayOfWeek())
+                .append(getStartOfEvent(), template.getStartOfEvent())
+                .append(getEndOfEvent(), template.getEndOfEvent())
+                .append(getCreatedAt(), template.getCreatedAt())
+                .append(getModifiedAt(), template.getModifiedAt())
+                .append(getOwner(), template.getOwner())
+                .append(getType(), template.getType())
                 .isEquals();
     }
 
@@ -184,6 +198,7 @@ public class ScheduleTemplate {
                 .append(getId())
                 .append(getTitle())
                 .append(getDescription())
+                .append(getLocation())
                 .append(getDayOfWeek())
                 .append(getStartOfEvent())
                 .append(getEndOfEvent())
@@ -200,6 +215,7 @@ public class ScheduleTemplate {
                 .add("id=" + id)
                 .add("title='" + title + "'")
                 .add("description='" + description + "'")
+                .add("location='" + location + "'")
                 .add("dayOfWeek=" + dayOfWeek)
                 .add("startOfEvent=" + startOfEvent)
                 .add("endOfEvent=" + endOfEvent)

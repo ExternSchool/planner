@@ -30,6 +30,7 @@ public class ScheduleTemplateRepositoryTest {
         ScheduleTemplate templateOne = new ScheduleTemplate(
                 "First",
                 "First Day Template",
+                null,
                 0,
                 LocalTime.of(9, 0),
                 LocalTime.of(9,45),
@@ -40,6 +41,7 @@ public class ScheduleTemplateRepositoryTest {
         ScheduleTemplate templateTwo = new ScheduleTemplate(
                 "Second",
                 "Second Day Template",
+                null,
                 1,
                 LocalTime.of(9, 45),
                 LocalTime.of(10,30),
