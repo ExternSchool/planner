@@ -351,7 +351,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<ScheduleTemplate> templates = templateRepository.findAllByOwner(owner);
         Set<LocalDate> holidayDates = holidayRepository.findAllByHolidayDateBetween(
                 firstDay,
-                firstDay.plusDays(DayOfWeek.FRIDAY.getValue()))
+                firstDay.plusDays(DayOfWeek.FRIDAY.getValue() - 1))
                     .stream()
                     .map(ScheduleHoliday::getHolidayDate)
                     .collect(Collectors.toSet());
@@ -374,8 +374,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         // Saturday To Sunday
         List<ScheduleHoliday> substitutionDays = holidayRepository.findAllBySubstitutionDateBetween(
-                firstDay.plusDays(DayOfWeek.SATURDAY.getValue()),
-                firstDay.plusDays(DayOfWeek.SUNDAY.getValue()));
+                firstDay.plusDays(DayOfWeek.SATURDAY.getValue() - 1),
+                firstDay.plusDays(DayOfWeek.SUNDAY.getValue() - 1));
         for (ScheduleHoliday day : substitutionDays) {
             // this holiday is a substitution working day for another day so fill it with events
             DayOfWeek holidayDayOfWeek = day.getHolidayDate().getDayOfWeek();

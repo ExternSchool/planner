@@ -699,7 +699,14 @@ public class ScheduleServiceTest {
         List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
 
         assertThat(actualEvents)
-                .containsExactlyInAnyOrderElementsOf(expectedEvents);
+                .isNotEmpty()
+                .hasSize(10); // 2 events for every of 5 days
+
+        for (int i = 0; i < 10; i++) {
+            assertThat(actualEvents.get(i))
+                    .isEqualToIgnoringGivenFields(
+                            expectedEvents.get(i), "createdAt", "modifiedAt");
+        }
     }
 
 //    @Test
@@ -816,7 +823,9 @@ public class ScheduleServiceTest {
                 DayOfWeek.TUESDAY,
                 DayOfWeek.WEDNESDAY,
                 DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY);
+                DayOfWeek.FRIDAY,
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY);
         for (DayOfWeek dayOfWeek : daysList) {
             for (int i = 9; i < 11; i++) {
                 templates.add(
