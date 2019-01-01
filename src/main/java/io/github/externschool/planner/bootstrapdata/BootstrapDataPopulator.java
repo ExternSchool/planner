@@ -8,9 +8,12 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
+import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleTemplateRepository;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -25,6 +28,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -58,6 +64,10 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final ScheduleService scheduleService;
     @Value("${app.incharge.mail}") private String inchargeEmail;
     @Value("${app.incharge.pass}") private String inchargePass;
+
+
+    @Autowired private ScheduleTemplateRepository templateRepository;
+    @Autowired private UserRepository userRepository;
 
     @Autowired
     public BootstrapDataPopulator(final UserService userService,
@@ -118,6 +128,39 @@ public class BootstrapDataPopulator implements InitializingBean {
             inCharge.addVerificationKey(key);
             teacherService.saveOrUpdateTeacher(inChargeTeacher);
             userService.save(inCharge);
+
+
+
+            /*
+            TODO Remove after testing events creation
+             */
+            User owner = inCharge;
+            ScheduleEventType type = eventTypeRepository.findByName(UK_EVENT_TYPE_TEST);
+            ScheduleTemplate templateOne = new ScheduleTemplate(
+                    "First",
+                    "Monday Template",
+                    null,
+                    DayOfWeek.MONDAY,
+                    LocalTime.of(9, 0),
+                    LocalTime.of(9,0).plusMinutes(type.getDurationInMinutes()),
+                    LocalDateTime.now(),
+                    null,
+                    owner,
+                    type);
+            ScheduleTemplate templateTwo = new ScheduleTemplate(
+                    "Second",
+                    "Tuesday Template",
+                    null,
+                    DayOfWeek.TUESDAY,
+                    templateOne.getEndOfEvent(),
+                    templateOne.getEndOfEvent().plusMinutes(type.getDurationInMinutes()),
+                    LocalDateTime.now(),
+                    null,
+                    owner,
+                    type);
+
+            templateRepository.save(templateOne);
+            templateRepository.save(templateTwo);
         }
     }
 

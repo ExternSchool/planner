@@ -6,6 +6,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -13,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.StringJoiner;
@@ -33,8 +36,9 @@ public class ScheduleTemplate {
     @Column
     private String location;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "week_day", nullable = false)
-    private Integer dayOfWeek;
+    private DayOfWeek dayOfWeek;
 
     @Column(name = "start_event", nullable = false)
     private LocalTime startOfEvent;
@@ -62,7 +66,7 @@ public class ScheduleTemplate {
     public ScheduleTemplate(final String title,
                             final String description,
                             final String location,
-                            final Integer dayOfWeek,
+                            final DayOfWeek dayOfWeek,
                             final LocalTime startOfEvent,
                             final LocalTime endOfEvent,
                             final LocalDateTime createdAt,
@@ -113,11 +117,11 @@ public class ScheduleTemplate {
         this.location = location;
     }
 
-    public Integer getDayOfWeek() {
+    public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
     }
 
-    public void setDayOfWeek(final Integer dayOfWeek) {
+    public void setDayOfWeek(final DayOfWeek dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
 
@@ -224,5 +228,97 @@ public class ScheduleTemplate {
                 .add("owner=" + owner)
                 .add("type=" + type)
                 .toString();
+    }
+
+    public static ScheduleTemplateBuilder builder() {
+        return new ScheduleTemplateBuilder();
+    }
+
+    public static final class ScheduleTemplateBuilder {
+        private Long id;
+        private String title;
+        private String description;
+        private String location;
+        private DayOfWeek dayOfWeek;
+        private LocalTime startOfEvent;
+        private LocalTime endOfEvent;
+        private LocalDateTime createdAt;
+        private LocalDateTime modifiedAt;
+        private User owner;
+        private ScheduleEventType type;
+
+        private ScheduleTemplateBuilder() {
+        }
+
+        public ScheduleTemplateBuilder withId(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withLocation(String location) {
+            this.location = location;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withDayOfWeek(DayOfWeek dayOfWeek) {
+            this.dayOfWeek = dayOfWeek;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withStartOfEvent(LocalTime startOfEvent) {
+            this.startOfEvent = startOfEvent;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withEndOfEvent(LocalTime endOfEvent) {
+            this.endOfEvent = endOfEvent;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withModifiedAt(LocalDateTime modifiedAt) {
+            this.modifiedAt = modifiedAt;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withOwner(User owner) {
+            this.owner = owner;
+            return this;
+        }
+
+        public ScheduleTemplateBuilder withType(ScheduleEventType type) {
+            this.type = type;
+            return this;
+        }
+
+        public ScheduleTemplate build() {
+            ScheduleTemplate scheduleTemplate = new ScheduleTemplate();
+            scheduleTemplate.setId(id);
+            scheduleTemplate.setTitle(title);
+            scheduleTemplate.setDescription(description);
+            scheduleTemplate.setLocation(location);
+            scheduleTemplate.setDayOfWeek(dayOfWeek);
+            scheduleTemplate.setStartOfEvent(startOfEvent);
+            scheduleTemplate.setEndOfEvent(endOfEvent);
+            scheduleTemplate.setCreatedAt(createdAt);
+            scheduleTemplate.setModifiedAt(modifiedAt);
+            scheduleTemplate.setOwner(owner);
+            scheduleTemplate.setType(type);
+            return scheduleTemplate;
+        }
     }
 }

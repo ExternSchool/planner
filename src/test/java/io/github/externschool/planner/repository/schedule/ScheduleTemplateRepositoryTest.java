@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ScheduleTemplateRepositoryTest {
     @Autowired private ScheduleTemplateRepository templateRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private ScheduleEventTypeRepository typeRepository;
+    @Autowired private ScheduleEventTypeRepository eventTypeRepository;
 
     @Test
     public void shouldReturnList_whenFindByOwner() {
@@ -29,9 +30,9 @@ public class ScheduleTemplateRepositoryTest {
         ScheduleEventType type = new ScheduleEventType("Type", 1);
         ScheduleTemplate templateOne = new ScheduleTemplate(
                 "First",
-                "First Day Template",
+                "Monday Template",
                 null,
-                0,
+                DayOfWeek.MONDAY,
                 LocalTime.of(9, 0),
                 LocalTime.of(9,45),
                 LocalDateTime.now(),
@@ -40,18 +41,17 @@ public class ScheduleTemplateRepositoryTest {
                 type);
         ScheduleTemplate templateTwo = new ScheduleTemplate(
                 "Second",
-                "Second Day Template",
+                "Tuesday Template",
                 null,
-                1,
+                DayOfWeek.TUESDAY,
                 LocalTime.of(9, 45),
                 LocalTime.of(10,30),
                 LocalDateTime.now(),
                 null,
                 owner,
                 type);
-
         userRepository.save(owner);
-        typeRepository.save(type);
+        eventTypeRepository.save(type);
         templateRepository.save(templateOne);
         templateRepository.save(templateTwo);
 
