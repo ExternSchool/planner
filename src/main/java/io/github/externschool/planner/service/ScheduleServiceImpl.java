@@ -334,14 +334,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<ScheduleEvent> createCurrentWeekEventsForOwner(final User owner) {
-        List<ScheduleEvent> events = createEventsForOwnerByFirstDayOfWeek(owner, getCurrentWeekFirstDay());
         return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
     }
 
     @Override
     public List<ScheduleEvent> createNextWeekEventsForOwner(final User owner) {
-        List<ScheduleEvent> events = createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay());
-        events.forEach(System.out::println);
         return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay()));
     }
 
@@ -355,7 +352,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                     .stream()
                     .map(ScheduleHoliday::getHolidayDate)
                     .collect(Collectors.toSet());
-        // Monday to Friday
+        // Monday to Friday -- create usual working days schedule with templates
         List<DayOfWeek> daysList = Arrays.asList(
                 DayOfWeek.MONDAY,
                 DayOfWeek.TUESDAY,
@@ -365,19 +362,19 @@ public class ScheduleServiceImpl implements ScheduleService {
         for (DayOfWeek dayOfWeek : daysList) {
             LocalDate date = firstDay.plusDays(dayOfWeek.getValue() - 1);
             if (!holidayDates.contains(date)) {
-                // this is an ordinary working day, not a holiday
+                // this is an ordinary working day, not a holiday, so add it
                 templates.stream()
                         .filter(template -> template.getDayOfWeek().equals(dayOfWeek))
                         .map(template -> createEventForDate(template, date))
                         .forEach(newEvents::add);
-            } // do not create events for holidays
+            } // else when current day is a holiday, do not create events
         }
-        // Saturday To Sunday
+        // Saturday To Sunday -- add events for the days which are working days this week with holidays' templates
         List<ScheduleHoliday> substitutionDays = holidayRepository.findAllBySubstitutionDateBetween(
                 firstDay.plusDays(DayOfWeek.SATURDAY.getValue() - 1),
                 firstDay.plusDays(DayOfWeek.SUNDAY.getValue() - 1));
         for (ScheduleHoliday day : substitutionDays) {
-            // this holiday is a substitution working day for another day so fill it with events
+            // this holiday is a substitution working day for another day so fill it with events of that holiday
             DayOfWeek holidayDayOfWeek = day.getHolidayDate().getDayOfWeek();
             templates.stream()
                     .filter(template -> template.getDayOfWeek().equals(holidayDayOfWeek))
@@ -395,12 +392,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .withLocation(template.getLocation())
                 .withOwner(template.getOwner())
                 .withType(template.getType())
-                .withStartDateTime(LocalDateTime.of(
-                        date.plusDays(template.getDayOfWeek().getValue() - 1),
-                        template.getStartOfEvent()))
-                .withEndDateTime(LocalDateTime.of(
-                        date.plusDays(template.getDayOfWeek().getValue() - 1),
-                        template.getEndOfEvent()))
+                .withStartDateTime(LocalDateTime.of(date, template.getStartOfEvent()))
+                .withEndDateTime(LocalDateTime.of(date, template.getEndOfEvent()))
                 .withOpenStatus(true)
                 .withCancelledStatus(false)
                 .withAccomplishedStatus(false)
