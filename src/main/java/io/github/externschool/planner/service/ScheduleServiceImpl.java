@@ -368,6 +368,28 @@ public class ScheduleServiceImpl implements ScheduleService {
         return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay()));
     }
 
+    @Override
+    public ScheduleTemplate createEventsTemplate(final User owner,
+                                                 final ScheduleEventDTO eventDTO,
+                                                 final DayOfWeek day,
+                                                 final int minutes) {
+        ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
+        canUserOwnAnEventForType(owner, type);
+
+        ScheduleTemplate template = ScheduleTemplate.builder()
+                .withTitle(eventDTO.getTitle())
+                .withDescription(eventDTO.getDescription())
+                .withDayOfWeek(day)
+                .withStartOfEvent(eventDTO.getStartTime())
+                .withEndOfEvent(eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES)))
+                .withCreatedAt(LocalDateTime.now())
+                .withOwner(owner)
+                .withType(type)
+                .build();
+
+        return templateRepository.save(template);
+    }
+
     private List<ScheduleEvent> createEventsForOwnerByFirstDayOfWeek(final User owner,
                                                                      final LocalDate firstDay) {
         List<ScheduleEvent> newEvents = new ArrayList<>();

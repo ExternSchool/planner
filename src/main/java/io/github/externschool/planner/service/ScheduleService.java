@@ -9,6 +9,7 @@ import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -76,4 +77,6 @@ public interface ScheduleService {
     List<ScheduleEvent> createCurrentWeekEventsForOwner(User owner);
 
     List<ScheduleEvent> createNextWeekEventsForOwner(User owner);
+
+    ScheduleTemplate createEventsTemplate(User owner, ScheduleEventDTO eventDTO, DayOfWeek day, int minutes);
 }

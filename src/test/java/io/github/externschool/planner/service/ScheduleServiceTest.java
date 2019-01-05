@@ -883,6 +883,53 @@ public class ScheduleServiceTest {
                 .hasSize(12); // 2 events for every one of 6 working days this week
     }
 
+    @Test
+    public void shouldReturnTemplate_whenCreateEventsTemplate() {
+        User owner = new User("owner@email.com", "pass");
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        Role allowedRole = new Role(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
+        eventType.addOwner(allowedRole);
+        owner.addRole(allowedRole);
+        DayOfWeek day = DayOfWeek.MONDAY;
+        int minutes = 55;
+
+        assertThat(eventType.getOwners())
+                .contains(allowedRole);
+
+        ScheduleTemplate expectedTemplate = ScheduleTemplate.builder()
+                .withTitle(eventType.getName())
+                .withDescription(day.getDisplayName(
+                        TextStyle.SHORT,
+                        Locale.getDefault()) + ", 9:00")
+                .withLocation(null)
+                .withOwner(owner)
+                .withType(eventType)
+                .withDayOfWeek(day)
+                .withStartOfEvent(LocalTime.of(9, 0))
+                .withEndOfEvent(LocalTime.of(9, minutes))
+                .build();
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle(expectedTemplate.getTitle())
+                .withDescription(expectedTemplate.getDescription())
+                .withEventType(eventType.getName())
+                .withStartTime(expectedTemplate.getStartOfEvent())
+                .build();
+
+        when(eventTypeRepo.findByName(eventType.getName()))
+                .thenReturn(eventType);
+        when(templateRepository.save(argThat((ArgumentMatcher<ScheduleTemplate>) template -> {
+            Assertions.assertThat(template)
+                    .isEqualToIgnoringGivenFields(expectedTemplate, "createdAt");
+            return true;
+        }))).thenReturn(expectedTemplate);
+
+        ScheduleTemplate actualTemplate = scheduleService.createEventsTemplate(owner, eventDTO, day, minutes);
+
+        assertThat(actualTemplate)
+                .isNotNull();
+    }
+
     private List<ScheduleEvent> createEventsOnTemplates(List<ScheduleTemplate> templates,
                                                         LocalDate date) {
         List<ScheduleEvent> events = new ArrayList<>();
