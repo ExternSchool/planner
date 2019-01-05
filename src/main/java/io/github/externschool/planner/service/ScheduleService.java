@@ -7,6 +7,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -37,6 +38,7 @@ public interface ScheduleService {
 
     void cancelEventsAndMailToParticipants(List<ScheduleEvent> events);
 
+
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
     void removeOwner(ScheduleEvent event);
@@ -62,6 +64,14 @@ public interface ScheduleService {
     void deleteHolidayById(Long id);
 
     List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
+
+    ScheduleTemplate saveTemplate(ScheduleTemplate template);
+
+    Optional<ScheduleTemplate> findTemplateById(Long id);
+
+    void deleteTemplateById(Long id);
+
+    List<ScheduleTemplate> getTemplatesByOwner(User owner);
 
     List<ScheduleEvent> createCurrentWeekEventsForOwner(User owner);
 

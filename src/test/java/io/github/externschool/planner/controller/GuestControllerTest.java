@@ -80,6 +80,7 @@ public class GuestControllerTest {
     private final String userName = "some@email.com";
     private final String personName = "FirstName";
     private MultiValueMap<String, String> map;
+    private ScheduleEventType eventType;
 
     @Before
     public void setup(){
@@ -121,6 +122,11 @@ public class GuestControllerTest {
         user = userService.createUser(userName,"pass", "ROLE_GUEST");
         user.addVerificationKey(key);
         userService.save(user);
+
+        eventType = new ScheduleEventType();
+        eventType.setName("TestType");
+        eventType.setAmountOfParticipants(1);
+        typeService.saveEventType(eventType);
     }
 
     @Test
@@ -527,16 +533,14 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
-        type.setId(null);
-        eventUser.getRoles().forEach(type::addOwner);
-        user.getRoles().forEach(type::addParticipant);
-        typeService.saveEventType(type);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        user.getRoles().forEach(eventType::addParticipant);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
@@ -568,7 +572,6 @@ public class GuestControllerTest {
 
         userService.deleteUser(eventUser);
         scheduleService.deleteEventById(event.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
     @Test
@@ -611,16 +614,14 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
-        type.setId(null);
-        eventUser.getRoles().forEach(type::addOwner);
-        user.getRoles().forEach(type::addParticipant);
-        typeService.saveEventType(type);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        user.getRoles().forEach(eventType::addParticipant);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
@@ -651,7 +652,6 @@ public class GuestControllerTest {
         userService.deleteUser(eventUser);
         userService.deleteUser(eventUser);
         scheduleService.deleteEventById(event.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
     @Test
@@ -677,16 +677,14 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
-        type.setId(null);
-        eventUser.getRoles().forEach(type::addOwner);
-        user.getRoles().forEach(type::addParticipant);
-        typeService.saveEventType(type);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        user.getRoles().forEach(eventType::addParticipant);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
@@ -702,7 +700,6 @@ public class GuestControllerTest {
         userService.deleteUser(eventUser);
         userService.deleteUser(otherUser);
         scheduleService.deleteEventById(event.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
     @Test
@@ -739,7 +736,6 @@ public class GuestControllerTest {
         assertThat(personService.findPersonById(otherPerson.getId())).isNotNull();
         Long guestId = otherPerson.getId();
 
-        typeService.getAllEventTypesSorted().forEach(t -> typeService.deleteEventType(t));
         ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
         wrongType.setId(null);
         eventUser.getRoles().forEach(wrongType::addOwner);
@@ -770,7 +766,7 @@ public class GuestControllerTest {
         userService.deleteUser(eventUser);
         userService.deleteUser(otherUser);
         scheduleService.deleteEventById(wrongEvent.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
+        typeService.deleteEventType(wrongType);
     }
 
     @Test
@@ -785,16 +781,14 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
-        type.setId(null);
-        eventUser.getRoles().forEach(type::addOwner);
-        user.getRoles().forEach(type::addParticipant);
-        typeService.saveEventType(type);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        user.getRoles().forEach(eventType::addParticipant);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
@@ -824,7 +818,6 @@ public class GuestControllerTest {
 
         userService.deleteUser(eventUser);
         scheduleService.deleteEventById(event.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
     @Test
@@ -839,21 +832,20 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
-        type.setId(null);
-        eventUser.getRoles().forEach(type::addOwner);
-        user.getRoles().forEach(type::addParticipant);
-        typeService.saveEventType(type);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        user.getRoles().forEach(eventType::addParticipant);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
-        Optional<Participant> participant = scheduleService.addParticipant(user, event);
+        Optional<Participant> participant;
+        participant = scheduleService.addParticipant(user, scheduleService.getEventById(event.getId()));
 
         mockMvc.perform(post("/guest/" + person.getId()
                 + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe"))
@@ -861,10 +853,15 @@ public class GuestControllerTest {
                 .andExpect(view().name("redirect:/guest/" + person.getId()
                         + "/official/" + official.getId() + "/schedule"));
 
-        userService.deleteUser(eventUser);
-        scheduleService.removeParticipant(participant.get());
+        participant = scheduleService.findParticipantByUserAndEvent(eventUser, event);
+
+        assertThat(participant)
+                .isEqualTo(Optional.empty());
+        assertThat(event.getParticipants())
+                .isEmpty();
+
         scheduleService.deleteEventById(event.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
+        userService.deleteUser(eventUser);
     }
 
     @Test
@@ -879,19 +876,17 @@ public class GuestControllerTest {
                 new HashSet<>(),
                 new HashSet<>()));
 
-        ScheduleEventType wrongType = ScheduleEventTypeFactory.createScheduleEventType();
-        wrongType.setId(null);
-        eventUser.getRoles().forEach(wrongType::addOwner);
-        typeService.saveEventType(wrongType);
+        eventUser.getRoles().forEach(eventType::addOwner);
+        typeService.saveEventType(eventType);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
                 .withDate(LocalDate.now())
-                .withEventType(wrongType.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
                 .build();
-        eventDTO.setEventType(wrongType.getName());
+        eventDTO.setEventType(eventType.getName());
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
         mockMvc.perform(post("/guest/" + person.getId() + "/official/"
@@ -905,14 +900,13 @@ public class GuestControllerTest {
 
         userService.deleteUser(eventUser);
         scheduleService.deleteEventById(wrongEvent.getId());
-        typeService.loadEventTypes().forEach(t -> typeService.deleteEventType(t));
     }
 
     @After
     public void tearDown() {
-        Optional.ofNullable(personService.findPersonById(person.getId()))
-                .ifPresent(p -> personService.deletePerson(p));
         Optional.ofNullable(userService.getUserByEmail(user.getEmail()))
                 .ifPresent(u -> userService.deleteUser(u));
+        Optional.ofNullable(personService.findPersonById(person.getId()))
+                .ifPresent(p -> personService.deletePerson(p));
     }
 }

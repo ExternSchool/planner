@@ -196,27 +196,27 @@ public class ScheduleEvent {
         return modifiedAt;
     }
 
-    public boolean isOpen() {
+    public Boolean isOpen() {
         return isOpen;
     }
 
-    public void setOpen(boolean open) {
+    public void setOpen(final Boolean open) {
         isOpen = open;
     }
 
-    public boolean isCancelled() {
+    public Boolean isCancelled() {
         return isCancelled;
     }
 
-    public void setCancelled(boolean cancelled) {
+    public void setCancelled(final Boolean cancelled) {
         isCancelled = cancelled;
     }
 
-    public boolean isAccomplished() {
+    public Boolean isAccomplished() {
         return isAccomplished;
     }
 
-    public void setAccomplished(boolean accomplished) {
+    public void setAccomplished(final Boolean accomplished) {
         isAccomplished = accomplished;
     }
 

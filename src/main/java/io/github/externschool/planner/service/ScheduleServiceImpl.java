@@ -10,7 +10,8 @@ import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
-import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.exceptions.UserCanNotHandleEventException;
+import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
@@ -48,6 +49,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final EmailService emailService;
     private final ScheduleHolidayRepository holidayRepository;
     private final ScheduleTemplateRepository templateRepository;
+    private final UserRepository userRepository;
 
     private final Executor executor = Executors.newSingleThreadExecutor();
 
@@ -57,13 +59,15 @@ public class ScheduleServiceImpl implements ScheduleService {
                                final ParticipantRepository participantRepository,
                                final EmailService emailService,
                                final ScheduleHolidayRepository holidayRepository,
-                               final ScheduleTemplateRepository templateRepository) {
+                               final ScheduleTemplateRepository templateRepository,
+                               final UserRepository userRepository) {
         this.eventRepository = eventRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.participantRepository = participantRepository;
         this.emailService = emailService;
         this.holidayRepository = holidayRepository;
         this.templateRepository = templateRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -104,11 +108,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .withEndDateTime(LocalDateTime.of(eventDTO.getDate(),
                         eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES))))
                 .withOwner(owner)
-                .withOpenStatus(eventDTO.getOpen())
                 .withType(type)
+                .withOpenStatus(eventDTO.getOpen() != null ? eventDTO.getOpen() : true)
+                .withCancelledStatus(false)
+                .withAccomplishedStatus(false)
                 .build();
-        eventRepository.save(newEvent);
         owner.addOwnEvent(newEvent);
+        saveEvent(newEvent);
+        userRepository.save(owner);
 
         return newEvent;
     }
@@ -162,6 +169,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             event.getParticipants().forEach(this::removeParticipant);
             Optional.ofNullable(event.getOwner()).ifPresent(owner -> {
                 removeOwner(event);
+                event.setType(null);
                 eventRepository.save(event);
             });
 
@@ -230,8 +238,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public Optional<Participant> addParticipant(final User user, final ScheduleEvent event)
-            throws UserCannotHandleEventException {
+    public Optional<Participant> addParticipant(final User user, ScheduleEvent event)
+            throws UserCanNotHandleEventException {
         Optional<Participant> optionalParticipant = Optional.empty();
 
         if (user != null && event != null && event.isOpen()) {
@@ -253,21 +261,19 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public void removeParticipant(final Participant participant) {
-        Optional.ofNullable(participant.getEvent()).map(ScheduleEvent::getParticipants).ifPresent(participants -> {
-            participantRepository.findById(participant.getId())
-                    .ifPresent(p -> {
-                        Optional.ofNullable(participant.getUser()).ifPresent(user -> {
-                            user.removeParticipant(participant);
-                            participantRepository.save(participant);
-                        });
-                        Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
-                            event.removeParticipant(participant);
-                            participantRepository.save(participant);
-                        });
-                        participantRepository.delete(participant);
-                    });
-
-        });
+        if (participant != null) {
+            Optional.ofNullable(participant.getUser()).ifPresent(user -> {
+                user.removeParticipant(participant);
+                userRepository.save(user);
+                participantRepository.save(participant);
+            });
+            Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
+                event.removeParticipant(participant);
+                eventRepository.save(event);
+                participantRepository.save(participant);
+            });
+            participantRepository.delete(participant);
+        }
     }
 
     @Override
@@ -304,7 +310,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 }
             }
         }
-        throw new UserCannotHandleEventException(
+        throw new UserCanNotHandleEventException(
                 String.format("The user %s is not allowed to create or own %s type of event",
                         user != null ? user.getEmail() : "NULL",
                         type != null ? type.getName() : "NULL"));
@@ -330,6 +336,26 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public List<ScheduleHoliday> getHolidaysBetweenDates(final LocalDate start, final LocalDate end) {
         return holidayRepository.findAllByHolidayDateBetween(start, end);
+    }
+
+    @Override
+    public ScheduleTemplate saveTemplate(final ScheduleTemplate template) {
+        return templateRepository.save(template);
+    }
+
+    @Override
+    public Optional<ScheduleTemplate> findTemplateById(final Long id) {
+        return templateRepository.findById(id);
+    }
+
+    @Override
+    public void deleteTemplateById(final Long id) {
+        templateRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ScheduleTemplate> getTemplatesByOwner(final User owner) {
+        return templateRepository.findAllByOwner(owner);
     }
 
     @Override
@@ -408,7 +434,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 }
             }
         }
-        throw new UserCannotHandleEventException(
+        throw new UserCanNotHandleEventException(
                 String.format("The user %s is not allowed to participate in %s type of event",
                         user != null ? user.getEmail() : "NULL",
                         type != null ? type.getName() : "NULL"));

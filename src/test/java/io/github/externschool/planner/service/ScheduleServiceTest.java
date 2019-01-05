@@ -10,11 +10,12 @@ import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
-import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.exceptions.UserCanNotHandleEventException;
 import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
@@ -71,6 +72,7 @@ public class ScheduleServiceTest {
     @Mock private EmailService emailService;
     @Mock private ScheduleHolidayRepository holidayRepository;
     @Mock private ScheduleTemplateRepository templateRepository;
+    @Mock private UserRepository userRepository;
     private ScheduleService scheduleService;
 
     @Before
@@ -82,7 +84,8 @@ public class ScheduleServiceTest {
                 this.participantRepository,
                 this.emailService,
                 this.holidayRepository,
-                templateRepository);
+                this.templateRepository,
+                this.userRepository);
     }
 
     @Test
@@ -109,7 +112,7 @@ public class ScheduleServiceTest {
                 .isEqualTo(expectedEvent);
     }
 
-    @Test(expected = UserCannotHandleEventException.class)
+    @Test(expected = UserCanNotHandleEventException.class)
     public void shouldThrowException_whenUserInvalidForThisEventType() {
         User user = UserFactory.createUser();
         ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
@@ -145,6 +148,8 @@ public class ScheduleServiceTest {
 
         when(eventTypeRepo.findByName(type.getName()))
                 .thenReturn(type);
+        when(userRepository.save(user))
+                .thenReturn(user);
 
         ScheduleEvent event = scheduleService.createEventWithDuration(user, dto, 30);
 
@@ -374,7 +379,7 @@ public class ScheduleServiceTest {
         verify(emailService, after(100).times(1)).sendCancelEventMail(event2);
     }
 
-    @Test(expected = UserCannotHandleEventException.class)
+    @Test(expected = UserCanNotHandleEventException.class)
     public void shouldThrowException_whenAddOwnerWithoutRole() {
         long id = 100500L;
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
@@ -688,6 +693,66 @@ public class ScheduleServiceTest {
     }
 
     @Test
+    public void shouldReturnScheduleTemplate_whenSaveTemplate() {
+        ScheduleTemplate template = ScheduleTemplate.builder().build();
+
+        when(templateRepository.save(template))
+                .thenReturn(template);
+
+        assertThat(scheduleService.saveTemplate(template))
+                .isEqualTo(template);
+    }
+
+    @Test
+    public void shouldReturnScheduleTemplate_whenFindTemplateById() {
+        Long id = 100500L;
+        ScheduleTemplate template = ScheduleTemplate.builder().withId(id).build();
+
+        when(templateRepository.findById(id))
+                .thenReturn(Optional.of(template));
+
+        assertThat(scheduleService.findTemplateById(id))
+                .isEqualTo(Optional.of(template));
+    }
+
+    @Test
+    public void shouldReturnEmptyOptional_whenFindTemplateById() {
+        Long id = 100500L;
+
+        when(templateRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        assertThat(scheduleService.findTemplateById(id))
+                .isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void shouldInvoke_whenDeleteTemplateById() {
+        Long id = 100500L;
+        ScheduleTemplate template = ScheduleTemplate.builder().withId(id).build();
+
+        scheduleService.deleteTemplateById(id);
+
+        verify(templateRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void shouldReturnList_whenGetTemplatesByOwner() {
+        User owner = new User();
+        List<ScheduleTemplate> templates =
+                Collections.singletonList(ScheduleTemplate.builder().withOwner(owner).build());
+
+        when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+
+        List<ScheduleTemplate> actual = scheduleService.getTemplatesByOwner(owner);
+
+        assertThat(actual)
+                .containsExactlyElementsOf(templates);
+    }
+
+
+    @Test
     public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchema() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
@@ -779,7 +844,7 @@ public class ScheduleServiceTest {
 
         assertThat(actualEvents)
                 .isNotEmpty()
-                .hasSize(10); // 2 events for every of 5 days
+                .hasSize(10); // 2 events for every one of those 5 days
     }
 
     @Test
@@ -790,19 +855,12 @@ public class ScheduleServiceTest {
         List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, date);
         int daysMondayToSaturday = 5; // Monday + 5 days => Saturday
         List<ScheduleHoliday> holidays = Collections.singletonList(new ScheduleHoliday(
-                date.minusDays(7),                      // Previous Monday holiday
-                date.plusDays(daysMondayToSaturday))); // working day is moved to this Saturday
-        for (int i = 0; i < 2; i++) {                   // add 2 events of previous Monday to this of Saturday
-            ScheduleEvent newEvent = new ScheduleEvent();
-            BeanUtils.copyProperties(expectedEvents.get(i), newEvent);
-            newEvent.setStartOfEvent(LocalDateTime.of(
-                    date.plusDays(daysMondayToSaturday),
-                    expectedEvents.get(i).getStartOfEvent().toLocalTime()));
-            newEvent.setEndOfEvent(LocalDateTime.of(
-                    date.plusDays(daysMondayToSaturday),
-                    expectedEvents.get(i).getEndOfEvent().toLocalTime()));
-            expectedEvents.add(newEvent);
-        }
+                date.minusDays(7),                      // Previous Monday holiday's working day is moved to
+                date.plusDays(daysMondayToSaturday)));  // this Saturday
+        expectedEvents.addAll(createEventsOnTemplates(  // expecting for previous Monday events added to this of Saturday
+                Arrays.asList(templates.get(0), templates.get(1)),
+                date.plusDays(daysMondayToSaturday)));
+
         Mockito.when(templateRepository.findAllByOwner(owner))
                 .thenReturn(templates);
         Mockito.when(holidayRepository.findAllByHolidayDateBetween(date, date.plusDays(4)))                     //Mo..Fr

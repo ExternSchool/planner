@@ -2,11 +2,16 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.exceptions.EventTypeCanNotBeDeletedException;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,12 +27,16 @@ import static org.mockito.Mockito.when;
 
 public class ScheduleEventTypeServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepository;
+    @Mock private ScheduleEventRepository eventRepository;
     private ScheduleEventTypeService eventTypeService;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.eventTypeService = new ScheduleEventTypeServiceImpl(this.eventTypeRepository);
+        this.eventTypeService = new ScheduleEventTypeServiceImpl(this.eventTypeRepository, this.eventRepository);
     }
 
     @Test
@@ -83,6 +92,18 @@ public class ScheduleEventTypeServiceTest {
         eventTypeService.deleteEventType(expectedType);
 
         verify(eventTypeRepository, times(1)).delete(expectedType);
+    }
+
+    @Test(expected = EventTypeCanNotBeDeletedException.class)
+    public void shouldThrowException_whenDeletedEventTypeInUse()  {
+        ScheduleEventType expectedType = new ScheduleEventType("Type", 1);
+
+        when(eventRepository.findAllByType(expectedType))
+                .thenReturn(Collections.singletonList(new ScheduleEvent()));
+
+        eventTypeService.deleteEventType(expectedType);
+
+        verify(eventTypeRepository, times(0)).delete(expectedType);
     }
 
     @Test
