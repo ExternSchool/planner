@@ -495,11 +495,16 @@ public class TeacherController {
         return redirectByRole(principal);
     }
 
-    /*
-          When key change confirmed:
-          DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
-          the old user is DELETED from database, and a NEW one created for the key recently assigned to DTO
-         */
+    /**
+     * Assigns new Verification Key to selected Teacher's profile.
+     *  When key change confirmed:
+     *      DTO Receives a NEW KEY which is instantly assigned, an old key is removed from user (if present),
+     *      the old user is DELETED from database, and a NEW one created for the key recently assigned to DTO.
+     *
+     * @param id Teacher's profile id
+     * @param principal Principal user
+     * @return Model and View to display TeacherProfileForm
+     */
     @Secured("ROLE_ADMIN")
     @PostMapping(value = "/{id}/new-key")
     public ModelAndView processTeacherProfileFormActionNewKey(@PathVariable("id") Long id, Principal principal) {
