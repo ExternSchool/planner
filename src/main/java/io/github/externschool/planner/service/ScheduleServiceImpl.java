@@ -38,6 +38,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 
 @Service
@@ -73,7 +74,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     /**
      * Creates and saves a new event
      *
-     * @return ScheduleEvent
+     * @return Schedule Event, created with provided data
      * @deprecated Replaced by {@link #createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes)}
      */
     @Deprecated
@@ -96,6 +97,14 @@ public class ScheduleServiceImpl implements ScheduleService {
         return this.eventRepository.save(newEvent);
     }
 
+    /**
+     * Creates and saves a new Event, saves provided User with this Event's ownership
+     *
+     * @param owner a User who owns this Event
+     * @param eventDTO provided source DTO
+     * @param minutes duration of the Event in minutes
+     * @return Schedule Event
+     */
     @Override
     public ScheduleEvent createEventWithDuration(final User owner, final ScheduleEventDTO eventDTO, final int minutes) {
         ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
@@ -339,6 +348,28 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public ScheduleTemplate createTemplate(final User owner,
+                                           final ScheduleEventDTO eventDTO,
+                                           final DayOfWeek day,
+                                           final int minutes) {
+        ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
+        canUserOwnAnEventForType(owner, type);
+
+        ScheduleTemplate template = ScheduleTemplate.builder()
+                .withTitle(eventDTO.getTitle())
+                .withDescription(eventDTO.getDescription())
+                .withDayOfWeek(day)
+                .withStartOfEvent(eventDTO.getStartTime())
+                .withEndOfEvent(eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES)))
+                .withCreatedAt(LocalDateTime.now())
+                .withOwner(owner)
+                .withType(type)
+                .build();
+
+        return templateRepository.save(template);
+    }
+
+    @Override
     public ScheduleTemplate saveTemplate(final ScheduleTemplate template) {
         return templateRepository.save(template);
     }
@@ -359,35 +390,26 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> createCurrentWeekEventsForOwner(final User owner) {
-        return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getCurrentWeekFirstDay()));
-    }
-
-    @Override
     public List<ScheduleEvent> createNextWeekEventsForOwner(final User owner) {
         return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay()));
     }
 
+    /**
+     *  Since Templates have no Event's LocalDateTime startOfEvent, but DayOfWeek dayOfWeek field only,
+     *  FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek.getValue() - 1) are used to define startOfEvent date.
+     *
+     * @param owner Template Events owner user
+     * @return List of Schedule Events converted from stored Templates
+     */
     @Override
-    public ScheduleTemplate createEventsTemplate(final User owner,
-                                                 final ScheduleEventDTO eventDTO,
-                                                 final DayOfWeek day,
-                                                 final int minutes) {
-        ScheduleEventType type = eventTypeRepository.findByName(eventDTO.getEventType());
-        canUserOwnAnEventForType(owner, type);
+    public List<ScheduleEvent> getDailyTemplateEventsByOwner(final User owner) {
+        List<ScheduleTemplate> templates = templateRepository.findAllByOwner(owner);
 
-        ScheduleTemplate template = ScheduleTemplate.builder()
-                .withTitle(eventDTO.getTitle())
-                .withDescription(eventDTO.getDescription())
-                .withDayOfWeek(day)
-                .withStartOfEvent(eventDTO.getStartTime())
-                .withEndOfEvent(eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES)))
-                .withCreatedAt(LocalDateTime.now())
-                .withOwner(owner)
-                .withType(type)
-                .build();
-
-        return templateRepository.save(template);
+        return templates.stream()
+                .map(template -> createEventForDate(
+                        template,
+                        FIRST_MONDAY_OF_EPOCH.plusDays(template.getDayOfWeek().getValue() - 1)))
+                .collect(Collectors.toList());
     }
 
     private List<ScheduleEvent> createEventsForOwnerByFirstDayOfWeek(final User owner,
@@ -435,6 +457,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private ScheduleEvent createEventForDate(final ScheduleTemplate template, final LocalDate date) {
         return ScheduleEvent.builder()
+                .withId(template.getId())
                 .withTitle(template.getTitle())
                 .withDescription(template.getDescription())
                 .withLocation(template.getLocation())

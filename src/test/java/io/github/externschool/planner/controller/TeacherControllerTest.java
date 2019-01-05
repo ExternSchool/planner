@@ -10,6 +10,7 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.service.RoleService;
@@ -36,6 +37,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -228,7 +230,7 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldRedirect_WhenProcessTeacherEventDelete() throws Exception {
+    public void shouldRedirect_WhenProcessTeacherTemplateDelete() throws Exception {
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withEventType(typeService.loadEventTypes().get(0).getName())
                 .withDate(LocalDate.now())
@@ -238,10 +240,11 @@ public class TeacherControllerTest {
                 .withCreated(LocalDateTime.now())
                 .withIsOpen(true)
                 .build();
-        event = scheduleService.createEventWithDuration(user, dto, 30);
-        long id = event.getId();
+        ScheduleTemplate template = scheduleService.createTemplate(user, dto, DayOfWeek.MONDAY, 30);
+        scheduleService.saveTemplate(template);
+        long id = template.getId();
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + id + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/template/" + id + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }

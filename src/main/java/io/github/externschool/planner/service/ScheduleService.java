@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleService {
+
+    // Events
+
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
 
     ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);
@@ -39,6 +42,7 @@ public interface ScheduleService {
 
     void cancelEventsAndMailToParticipants(List<ScheduleEvent> events);
 
+    // Event Owners and Participants
 
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
@@ -52,11 +56,15 @@ public interface ScheduleService {
 
     void removeParticipant(Participant participant);
 
+    // Calendar Days
+
     LocalDate getCurrentWeekFirstDay();
 
     LocalDate getNextWeekFirstDay();
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
+
+    List<ScheduleEvent> createNextWeekEventsForOwner(User owner);
 
     ScheduleHoliday saveHoliday(LocalDate holiday, LocalDate substitutionDay);
 
@@ -66,6 +74,10 @@ public interface ScheduleService {
 
     List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
 
+    // Event Templates
+
+    ScheduleTemplate createTemplate(User owner, ScheduleEventDTO eventDTO, DayOfWeek dayOfWeek, int durationInMinutes);
+
     ScheduleTemplate saveTemplate(ScheduleTemplate template);
 
     Optional<ScheduleTemplate> findTemplateById(Long id);
@@ -74,9 +86,5 @@ public interface ScheduleService {
 
     List<ScheduleTemplate> getTemplatesByOwner(User owner);
 
-    List<ScheduleEvent> createCurrentWeekEventsForOwner(User owner);
-
-    List<ScheduleEvent> createNextWeekEventsForOwner(User owner);
-
-    ScheduleTemplate createEventsTemplate(User owner, ScheduleEventDTO eventDTO, DayOfWeek day, int minutes);
+    List<ScheduleEvent> getDailyTemplateEventsByOwner(User owner);
 }

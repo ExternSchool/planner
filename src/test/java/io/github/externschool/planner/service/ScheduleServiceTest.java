@@ -51,7 +51,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
+import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -678,7 +680,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenFindHolidaysBetweenDates() {
+    public void shouldReturnList_whenGetHolidaysBetweenDates() {
         LocalDate start = LocalDate.now();
         LocalDate end = LocalDate.now().plusDays(1L);
         List<ScheduleHoliday> holidays = Arrays.asList(
@@ -690,6 +692,53 @@ public class ScheduleServiceTest {
 
         assertThat(scheduleService.getHolidaysBetweenDates(start, end))
                 .containsExactlyInAnyOrderElementsOf(holidays);
+    }
+
+    @Test
+    public void shouldReturnTemplate_whenCreateTemplate() {
+        User owner = new User("owner@email.com", "pass");
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        Role allowedRole = new Role(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
+        eventType.addOwner(allowedRole);
+        owner.addRole(allowedRole);
+        DayOfWeek day = DayOfWeek.MONDAY;
+        int minutes = 55;
+
+        assertThat(eventType.getOwners())
+                .contains(allowedRole);
+
+        ScheduleTemplate expectedTemplate = ScheduleTemplate.builder()
+                .withTitle(eventType.getName())
+                .withDescription(day.getDisplayName(
+                        TextStyle.SHORT,
+                        Locale.getDefault()) + ", 9:00")
+                .withLocation(null)
+                .withOwner(owner)
+                .withType(eventType)
+                .withDayOfWeek(day)
+                .withStartOfEvent(LocalTime.of(9, 0))
+                .withEndOfEvent(LocalTime.of(9, minutes))
+                .build();
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle(expectedTemplate.getTitle())
+                .withDescription(expectedTemplate.getDescription())
+                .withEventType(eventType.getName())
+                .withStartTime(expectedTemplate.getStartOfEvent())
+                .build();
+
+        when(eventTypeRepo.findByName(eventType.getName()))
+                .thenReturn(eventType);
+        when(templateRepository.save(argThat((ArgumentMatcher<ScheduleTemplate>) template -> {
+            Assertions.assertThat(template)
+                    .isEqualToIgnoringGivenFields(expectedTemplate, "createdAt");
+            return true;
+        }))).thenReturn(expectedTemplate);
+
+        ScheduleTemplate actualTemplate = scheduleService.createTemplate(owner, eventDTO, day, minutes);
+
+        assertThat(actualTemplate)
+                .isNotNull();
     }
 
     @Test
@@ -778,7 +827,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithHoliday() {
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithHoliday() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -808,7 +857,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithSubstitutionDayThisWeek() {
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayThisWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -848,7 +897,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithSubstitutionDayPreviousWeek() {
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayPreviousWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -884,50 +933,24 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnTemplate_whenCreateEventsTemplate() {
+    public void shouldReturnListOfEvents_whenGetDailyTemplateEventsByOwner() {
         User owner = new User("owner@email.com", "pass");
-        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
-        Role allowedRole = new Role(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
-        eventType.addOwner(allowedRole);
-        owner.addRole(allowedRole);
-        DayOfWeek day = DayOfWeek.MONDAY;
-        int minutes = 55;
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, FIRST_MONDAY_OF_EPOCH);
 
-        assertThat(eventType.getOwners())
-                .contains(allowedRole);
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
 
-        ScheduleTemplate expectedTemplate = ScheduleTemplate.builder()
-                .withTitle(eventType.getName())
-                .withDescription(day.getDisplayName(
-                        TextStyle.SHORT,
-                        Locale.getDefault()) + ", 9:00")
-                .withLocation(null)
-                .withOwner(owner)
-                .withType(eventType)
-                .withDayOfWeek(day)
-                .withStartOfEvent(LocalTime.of(9, 0))
-                .withEndOfEvent(LocalTime.of(9, minutes))
-                .build();
+        List<ScheduleEvent> actualEvents = scheduleService.getDailyTemplateEventsByOwner(owner);
 
-        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withTitle(expectedTemplate.getTitle())
-                .withDescription(expectedTemplate.getDescription())
-                .withEventType(eventType.getName())
-                .withStartTime(expectedTemplate.getStartOfEvent())
-                .build();
-
-        when(eventTypeRepo.findByName(eventType.getName()))
-                .thenReturn(eventType);
-        when(templateRepository.save(argThat((ArgumentMatcher<ScheduleTemplate>) template -> {
-            Assertions.assertThat(template)
-                    .isEqualToIgnoringGivenFields(expectedTemplate, "createdAt");
-            return true;
-        }))).thenReturn(expectedTemplate);
-
-        ScheduleTemplate actualTemplate = scheduleService.createEventsTemplate(owner, eventDTO, day, minutes);
-
-        assertThat(actualTemplate)
-                .isNotNull();
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(expectedEvents.size());
+        IntStream.range(0, actualEvents.size()).forEach(i -> {
+            ScheduleEvent event = actualEvents.get(i);
+            assertThat(event)
+                    .isEqualToIgnoringGivenFields(expectedEvents.get(i), "createdAt");
+        });
     }
 
     private List<ScheduleEvent> createEventsOnTemplates(List<ScheduleTemplate> templates,
