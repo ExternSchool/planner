@@ -22,7 +22,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.exceptions.BindingResultException;
-import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.exceptions.UserCanNotHandleEventException;
 import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
@@ -424,7 +424,7 @@ public class StudentController {
                 "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
         try {
             subscribeScheduleEvent(studentId, eventId);
-        } catch (UserCannotHandleEventException e) {
+        } catch (UserCanNotHandleEventException e) {
             modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
             modelAndView.addObject("error", e.getMessage());
         }
@@ -457,7 +457,7 @@ public class StudentController {
                 "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
         try {
             unsubscribeScheduleEvent(studentId, eventId);
-        } catch (UserCannotHandleEventException e) {
+        } catch (UserCanNotHandleEventException e) {
             modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
             modelAndView.addObject("error", e.getMessage());
         }
@@ -626,19 +626,19 @@ public class StudentController {
     }
 
     //TODO Refactor since GuestController has identical method. Probably move to service
-    private void subscribeScheduleEvent(Long studentId, Long eventId) throws UserCannotHandleEventException {
+    private void subscribeScheduleEvent(Long studentId, Long eventId) throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(studentId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
                 .orElse(null);
         Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
         if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+            throw new UserCanNotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
         }
     }
 
     //TODO same as previous - Probably move to Service
-    private void unsubscribeScheduleEvent(Long studentId, Long eventId) throws UserCannotHandleEventException {
+    private void unsubscribeScheduleEvent(Long studentId, Long eventId) throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(studentId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
@@ -646,7 +646,7 @@ public class StudentController {
         ScheduleEvent event = scheduleService.getEventById(eventId);
         Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(user, event);
         if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
+            throw new UserCanNotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
         }
         scheduleService.removeParticipant(participant.get());
         scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);

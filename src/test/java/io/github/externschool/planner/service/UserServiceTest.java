@@ -8,6 +8,7 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -25,6 +26,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,11 +40,11 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class UserServiceTest {
+    @Autowired private PasswordEncoder passwordEncoder;
     @Mock private UserRepository userRepository;
     @Mock private RoleService roleService;
     @Mock private VerificationKeyRepository keyRepository;
     @Mock private PersonRepository personRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
     @Mock private ScheduleService scheduleService;
     private UserService userService;
 
@@ -113,7 +115,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldCancelEvents_WhenDeleteUser() {
+    public void shouldDeleteEvents_WhenDeleteUser() {
         long id1 = 100500L;
         long id2 = 100501L;
         ScheduleEvent eventOne = ScheduleEvent.builder().withOwner(expectedUser).withId(id1).build();
@@ -122,6 +124,20 @@ public class UserServiceTest {
         userService.deleteUser(expectedUser);
 
         verify(userRepository, times(1)).delete(expectedUser);
+    }
+
+    @Test
+    public void shouldInvokeScheduleServiceDeleteTemplateById_WhenDeleteUser() {
+        Long id = 100500L;
+        ScheduleTemplate template = ScheduleTemplate.builder().withId(id).withOwner(expectedUser).build();
+        List<ScheduleTemplate> templates = Collections.singletonList(template);
+
+        when(scheduleService.getTemplatesByOwner(expectedUser))
+                .thenReturn(templates);
+
+        userService.deleteUser(expectedUser);
+
+        verify(scheduleService, times(1)).deleteTemplateById(template.getId());
     }
 
     @Test

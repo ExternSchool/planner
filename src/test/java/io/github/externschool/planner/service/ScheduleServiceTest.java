@@ -9,7 +9,8 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
-import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
+import io.github.externschool.planner.exceptions.UserCanNotHandleEventException;
 import io.github.externschool.planner.factories.RolesFactory;
 import io.github.externschool.planner.factories.UserFactory;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
@@ -19,10 +20,13 @@ import io.github.externschool.planner.repository.schedule.ParticipantRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleHolidayRepository;
+import io.github.externschool.planner.repository.schedule.ScheduleTemplateRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.AdditionalAnswers;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -38,15 +42,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.IntStream;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
@@ -54,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,10 +70,11 @@ import static org.mockito.Mockito.when;
 public class ScheduleServiceTest {
     @Mock private ScheduleEventRepository eventRepository;
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
-    @Mock private UserRepository userRepository;
     @Mock private ParticipantRepository participantRepository;
     @Mock private EmailService emailService;
     @Mock private ScheduleHolidayRepository holidayRepository;
+    @Mock private ScheduleTemplateRepository templateRepository;
+    @Mock private UserRepository userRepository;
     private ScheduleService scheduleService;
 
     @Before
@@ -76,10 +83,11 @@ public class ScheduleServiceTest {
         this.scheduleService = new ScheduleServiceImpl(
                 this.eventRepository,
                 this.eventTypeRepo,
-                this.userRepository,
                 this.participantRepository,
                 this.emailService,
-                this.holidayRepository);
+                this.holidayRepository,
+                this.templateRepository,
+                this.userRepository);
     }
 
     @Test
@@ -106,7 +114,7 @@ public class ScheduleServiceTest {
                 .isEqualTo(expectedEvent);
     }
 
-    @Test(expected = UserCannotHandleEventException.class)
+    @Test(expected = UserCanNotHandleEventException.class)
     public void shouldThrowException_whenUserInvalidForThisEventType() {
         User user = UserFactory.createUser();
         ScheduleEventReq eventReq = ScheduleEventFactory.createScheduleEventReq();
@@ -142,6 +150,8 @@ public class ScheduleServiceTest {
 
         when(eventTypeRepo.findByName(type.getName()))
                 .thenReturn(type);
+        when(userRepository.save(user))
+                .thenReturn(user);
 
         ScheduleEvent event = scheduleService.createEventWithDuration(user, dto, 30);
 
@@ -371,7 +381,7 @@ public class ScheduleServiceTest {
         verify(emailService, after(100).times(1)).sendCancelEventMail(event2);
     }
 
-    @Test(expected = UserCannotHandleEventException.class)
+    @Test(expected = UserCanNotHandleEventException.class)
     public void shouldThrowException_whenAddOwnerWithoutRole() {
         long id = 100500L;
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
@@ -670,7 +680,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenFindHolidaysBetweenDates() {
+    public void shouldReturnList_whenGetHolidaysBetweenDates() {
         LocalDate start = LocalDate.now();
         LocalDate end = LocalDate.now().plusDays(1L);
         List<ScheduleHoliday> holidays = Arrays.asList(
@@ -685,179 +695,314 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateCurrentWeekEventsBasedOnStandardSchema() {
+    public void shouldReturnTemplate_whenCreateTemplate() {
         User owner = new User("owner@email.com", "pass");
-        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
-        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
-        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        Role allowedRole = new Role(RolesFactory.ROLE_ALLOWED_CREATE_EVENT);
+        eventType.addOwner(allowedRole);
+        owner.addRole(allowedRole);
+        DayOfWeek day = DayOfWeek.MONDAY;
+        int minutes = 55;
 
-        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
-        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+        assertThat(eventType.getOwners())
+                .contains(allowedRole);
 
-        Mockito
-                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
-                        owner,
-                        standardStart,
-                        standardEnd))
-                .thenReturn(standardEvents);
-        Mockito.when(eventRepository.saveAll(expectedDuplicates))
-                .thenReturn(expectedDuplicates);
+        ScheduleTemplate expectedTemplate = ScheduleTemplate.builder()
+                .withTitle(eventType.getName())
+                .withDescription(day.getDisplayName(
+                        TextStyle.SHORT,
+                        Locale.getDefault()) + ", 9:00")
+                .withLocation(null)
+                .withOwner(owner)
+                .withType(eventType)
+                .withDayOfWeek(day)
+                .withStartOfEvent(LocalTime.of(9, 0))
+                .withEndOfEvent(LocalTime.of(9, minutes))
+                .build();
 
-        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle(expectedTemplate.getTitle())
+                .withDescription(expectedTemplate.getDescription())
+                .withEventType(eventType.getName())
+                .withStartTime(expectedTemplate.getStartOfEvent())
+                .build();
 
-        assertThat(actualDuplicates)
-                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+        when(eventTypeRepo.findByName(eventType.getName()))
+                .thenReturn(eventType);
+        when(templateRepository.save(argThat((ArgumentMatcher<ScheduleTemplate>) template -> {
+            Assertions.assertThat(template)
+                    .isEqualToIgnoringGivenFields(expectedTemplate, "createdAt");
+            return true;
+        }))).thenReturn(expectedTemplate);
+
+        ScheduleTemplate actualTemplate = scheduleService.createTemplate(owner, eventDTO, day, minutes);
+
+        assertThat(actualTemplate)
+                .isNotNull();
     }
+
+    @Test
+    public void shouldReturnScheduleTemplate_whenSaveTemplate() {
+        ScheduleTemplate template = ScheduleTemplate.builder().build();
+
+        when(templateRepository.save(template))
+                .thenReturn(template);
+
+        assertThat(scheduleService.saveTemplate(template))
+                .isEqualTo(template);
+    }
+
+    @Test
+    public void shouldReturnScheduleTemplate_whenFindTemplateById() {
+        Long id = 100500L;
+        ScheduleTemplate template = ScheduleTemplate.builder().withId(id).build();
+
+        when(templateRepository.findById(id))
+                .thenReturn(Optional.of(template));
+
+        assertThat(scheduleService.findTemplateById(id))
+                .isEqualTo(Optional.of(template));
+    }
+
+    @Test
+    public void shouldReturnEmptyOptional_whenFindTemplateById() {
+        Long id = 100500L;
+
+        when(templateRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        assertThat(scheduleService.findTemplateById(id))
+                .isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void shouldInvoke_whenDeleteTemplateById() {
+        Long id = 100500L;
+        ScheduleTemplate template = ScheduleTemplate.builder().withId(id).build();
+
+        scheduleService.deleteTemplateById(id);
+
+        verify(templateRepository, times(1)).deleteById(id);
+    }
+
+    @Test
+    public void shouldReturnList_whenGetTemplatesByOwner() {
+        User owner = new User();
+        List<ScheduleTemplate> templates =
+                Collections.singletonList(ScheduleTemplate.builder().withOwner(owner).build());
+
+        when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+
+        List<ScheduleTemplate> actual = scheduleService.getTemplatesByOwner(owner);
+
+        assertThat(actual)
+                .containsExactlyElementsOf(templates);
+    }
+
 
     @Test
     public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchema() {
         User owner = new User("owner@email.com", "pass");
-        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
-        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
-        LocalDate firstDay = scheduleService.getNextWeekFirstDay();
+        LocalDate date = scheduleService.getNextWeekFirstDay();
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, date);
 
-        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
-        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+        Mockito.when(eventRepository.saveAll(argThat((ArgumentMatcher<List<ScheduleEvent>>) events -> {
+            for (int i = 0; i < 10; i++) {
+                Assertions.assertThat(events.get(i))
+                        .isEqualToIgnoringGivenFields(
+                                expectedEvents.get(i), "createdAt", "modifiedAt");
+            }
+            return true;
+        }))).thenReturn(expectedEvents);
 
-        Mockito
-                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
-                        owner,
-                        standardStart,
-                        standardEnd))
-                .thenReturn(standardEvents);
-        Mockito.when(eventRepository.saveAll(expectedDuplicates))
-                .thenReturn(expectedDuplicates);
+        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
 
-        List<ScheduleEvent> actualDuplicates = scheduleService.createNextWeekEventsWithStandardSchemaAndOwner(owner);
-
-        assertThat(actualDuplicates)
-                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(10); // 2 events for every of 5 days
     }
 
     @Test
-    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithHoliday() {
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithHoliday() {
         User owner = new User("owner@email.com", "pass");
-        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
-        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
-        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+        LocalDate date = scheduleService.getNextWeekFirstDay();
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, date);
+        expectedEvents.remove(1);
+        expectedEvents.remove(0);
+        List<ScheduleHoliday> holidays = Collections.singletonList(new ScheduleHoliday(date, date.plusDays(5)));
 
-        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
-        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
-        ScheduleHoliday holiday = new ScheduleHoliday(firstDay, firstDay.plusDays(10));
-        List<ScheduleEvent> toRemove = expectedDuplicates.stream()
-                .filter(event -> event.getStartOfEvent().toLocalDate().equals(holiday.getHolidayDate()))
-                .collect(Collectors.toList());
-        expectedDuplicates.removeAll(toRemove);
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(date, date.plusDays(4)))
+                .thenReturn(holidays);
+        Mockito.when(eventRepository.saveAll(argThat((ArgumentMatcher<List<ScheduleEvent>>) events -> {
+            for (int i = 0; i < 8; i++) {
+                Assertions.assertThat(events.get(i))
+                        .isEqualToIgnoringGivenFields(
+                                expectedEvents.get(i), "createdAt", "modifiedAt");
+            }
+            return true;
+        }))).thenReturn(expectedEvents);
 
-        Mockito
-                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
-                        owner,
-                        standardStart,
-                        standardEnd))
-                .thenReturn(standardEvents);
-        Mockito.when(eventRepository.saveAll(expectedDuplicates))
-                .thenReturn(expectedDuplicates);
-        Mockito.when(holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4)))
-                .thenReturn(Collections.singletonList(holiday));
+        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
 
-        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
-
-        assertThat(actualDuplicates)
-                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(8); // 2 events for every of 4 days
     }
 
     @Test
-    public void shouldReturnList_whenCreateEventsBasedOnStandardSchemaWithSubstitutionDay() {
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayThisWeek() {
         User owner = new User("owner@email.com", "pass");
-        LocalDateTime standardStart = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, LocalTime.MIN);
-        LocalDateTime standardEnd = LocalDateTime.of(FIRST_MONDAY_OF_EPOCH.plusDays(6L), LocalTime.MAX);
-        LocalDate firstDay = scheduleService.getCurrentWeekFirstDay();
+        LocalDate date = scheduleService.getNextWeekFirstDay();
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, date);
+        int daysToMoveHoliday = 5;
+        List<ScheduleHoliday> holidays =
+                Collections.singletonList(new ScheduleHoliday(date, date.plusDays(daysToMoveHoliday)));
+        for (int i = 0; i < 2; i++) { //change dates of 2 events on Monday to the date of Saturday
+            expectedEvents.get(0).setStartOfEvent(LocalDateTime.of(
+                    date.plusDays(daysToMoveHoliday),
+                    expectedEvents.get(0).getStartOfEvent().toLocalTime()));
+            expectedEvents.get(0).setEndOfEvent(LocalDateTime.of(
+                    date.plusDays(daysToMoveHoliday),
+                    expectedEvents.get(0).getEndOfEvent().toLocalTime()));
+            expectedEvents.add(expectedEvents.remove(0));
+        }
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(date, date.plusDays(4)))
+                .thenReturn(holidays);
+        Mockito.when(holidayRepository.findAllBySubstitutionDateBetween(date.plusDays(5), date.plusDays(6)))
+                .thenReturn(holidays);
+        Mockito.when(eventRepository.saveAll(argThat((ArgumentMatcher<List<ScheduleEvent>>) events -> {
+            for (int i = 0; i < 8; i++) {
+                Assertions.assertThat(events.get(i))
+                        .isEqualToIgnoringGivenFields(
+                                expectedEvents.get(i), "createdAt", "modifiedAt");
+            }
+            return true;
+        }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> standardEvents = populateStandardEvents(owner);
-        List<ScheduleEvent> expectedDuplicates = duplicateStandardEvents(standardEvents, standardStart, firstDay);
-        List<ScheduleEvent> toRemove = expectedDuplicates.stream()
-                .filter(event -> event.getStartOfEvent().toLocalDate().equals(firstDay))
-                .collect(Collectors.toList());
-        expectedDuplicates.removeAll(toRemove);
-        ScheduleHoliday substitute = new ScheduleHoliday(firstDay, firstDay.plusDays(5));
-        List<ScheduleEvent> toAdd = new ArrayList<>();
-        for (ScheduleEvent event : standardEvents) {
-            DayOfWeek dayOfWeek = substitute.getHolidayDate().getDayOfWeek();
-            if (event.getStartOfEvent().getDayOfWeek().equals(dayOfWeek)) {
-                ScheduleEvent newEvent = new ScheduleEvent();
-                BeanUtils.copyProperties(event, newEvent);
-                newEvent.setStartOfEvent(
-                        LocalDateTime.of(
-                                substitute.getSubstitutionDate(),
-                                event.getStartOfEvent().toLocalTime()));
-                newEvent.setEndOfEvent(
-                        LocalDateTime.of(
-                                substitute.getSubstitutionDate(),
-                                event.getEndOfEvent().toLocalTime()));
-                toAdd.add(newEvent);
+        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(10); // 2 events for every one of those 5 days
+    }
+
+    @Test
+    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayPreviousWeek() {
+        User owner = new User("owner@email.com", "pass");
+        LocalDate date = scheduleService.getNextWeekFirstDay();
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, date);
+        int daysMondayToSaturday = 5; // Monday + 5 days => Saturday
+        List<ScheduleHoliday> holidays = Collections.singletonList(new ScheduleHoliday(
+                date.minusDays(7),                      // Previous Monday holiday's working day is moved to
+                date.plusDays(daysMondayToSaturday)));  // this Saturday
+        expectedEvents.addAll(createEventsOnTemplates(  // expecting for previous Monday events added to this of Saturday
+                Arrays.asList(templates.get(0), templates.get(1)),
+                date.plusDays(daysMondayToSaturday)));
+
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+        Mockito.when(holidayRepository.findAllByHolidayDateBetween(date, date.plusDays(4)))                     //Mo..Fr
+                .thenReturn(holidays);
+        Mockito.when(holidayRepository.findAllBySubstitutionDateBetween(date.plusDays(5), date.plusDays(6)))    //Sa..Su
+                .thenReturn(holidays);
+        Mockito.when(eventRepository.saveAll(argThat((ArgumentMatcher<List<ScheduleEvent>>) events -> {
+            for (int i = 0; i < 12; i++) {
+                Assertions.assertThat(events.get(i))
+                        .isEqualToIgnoringGivenFields(
+                                expectedEvents.get(i), "createdAt", "modifiedAt");
+            }
+            return true;
+        }))).thenReturn(expectedEvents);
+
+        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(12); // 2 events for every one of 6 working days this week
+    }
+
+    @Test
+    public void shouldReturnListOfEvents_whenGetDailyTemplateEventsByOwner() {
+        User owner = new User("owner@email.com", "pass");
+        List<ScheduleTemplate> templates = populateEventTemplates(owner);
+        List<ScheduleEvent> expectedEvents = createEventsOnTemplates(templates, FIRST_MONDAY_OF_EPOCH);
+
+        Mockito.when(templateRepository.findAllByOwner(owner))
+                .thenReturn(templates);
+
+        List<ScheduleEvent> actualEvents = scheduleService.getDailyTemplateEventsByOwner(owner);
+
+        assertThat(actualEvents)
+                .isNotEmpty()
+                .hasSize(expectedEvents.size());
+        IntStream.range(0, actualEvents.size()).forEach(i -> {
+            ScheduleEvent event = actualEvents.get(i);
+            assertThat(event)
+                    .isEqualToIgnoringGivenFields(expectedEvents.get(i), "createdAt");
+        });
+    }
+
+    private List<ScheduleEvent> createEventsOnTemplates(List<ScheduleTemplate> templates,
+                                                        LocalDate date) {
+        List<ScheduleEvent> events = new ArrayList<>();
+        templates.forEach(template -> events.add(ScheduleEvent.builder()
+                    .withTitle(template.getTitle())
+                    .withDescription(template.getDescription())
+                    .withLocation(template.getLocation())
+                    .withOwner(template.getOwner())
+                    .withType(template.getType())
+                    .withStartDateTime(LocalDateTime.of(
+                            date.plusDays(template.getDayOfWeek().getValue() - 1),
+                            template.getStartOfEvent()))
+                    .withEndDateTime(LocalDateTime.of(
+                            date.plusDays(template.getDayOfWeek().getValue() - 1),
+                            template.getEndOfEvent()))
+                    .withOpenStatus(true)
+                    .withCancelledStatus(false)
+                    .withAccomplishedStatus(false)
+                    .build()));
+
+        return events;
+    }
+
+    private List<ScheduleTemplate> populateEventTemplates(User owner) {
+        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
+        List<ScheduleTemplate> templates = new ArrayList<>();
+        List<DayOfWeek> daysList = Arrays.asList(
+                DayOfWeek.MONDAY,
+                DayOfWeek.TUESDAY,
+                DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY);
+        for (DayOfWeek dayOfWeek : daysList) {
+            for (int i = 9; i < 11; i++) {
+                templates.add(
+                        ScheduleTemplate.builder()
+                                .withTitle(eventType.getName())
+                                .withDescription(dayOfWeek.getDisplayName(
+                                        TextStyle.SHORT,
+                                        Locale.getDefault()) + ", " + i + ":00")
+                                .withLocation(null)
+                                .withOwner(owner)
+                                .withType(eventType)
+                                .withDayOfWeek(dayOfWeek)
+                                .withStartOfEvent(LocalTime.of(i, 0))
+                                .withEndOfEvent(LocalTime.of(i, 55))
+                                .build());
             }
         }
-        expectedDuplicates.addAll(toAdd);
 
-        Mockito
-                .when(eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(
-                        owner,
-                        standardStart,
-                        standardEnd))
-                .thenReturn(standardEvents);
-        Mockito.when(holidayRepository.findAllBySubstitutionDateBetween(firstDay.plusDays(5), firstDay.plusDays(6)))
-                .thenReturn(Collections.singletonList(substitute));
-        Mockito.when(holidayRepository.findAllByHolidayDateBetween(firstDay, firstDay.plusDays(4)))
-                .thenReturn(Collections.singletonList(substitute));
-        Mockito.doReturn(expectedDuplicates).when(eventRepository).saveAll(expectedDuplicates);
-
-        List<ScheduleEvent> actualDuplicates = scheduleService.createCurrentWeekEventsWithStandardSchemaAndOwner(owner);
-
-        assertThat(actualDuplicates)
-                .containsExactlyInAnyOrderElementsOf(expectedDuplicates);
-    }
-
-    private List<ScheduleEvent> duplicateStandardEvents(List<ScheduleEvent> standardEvents,
-                                                        LocalDateTime standardStart,
-                                                        LocalDate firstDay) {
-        long daysBetween = ChronoUnit.DAYS.between(standardStart.toLocalDate(), firstDay);
-
-        List<ScheduleEvent> expectedDuplicates = new ArrayList<>();
-        standardEvents.forEach(event -> {
-            ScheduleEvent newEvent = new ScheduleEvent();
-            BeanUtils.copyProperties(event, newEvent);
-            newEvent.setStartOfEvent(event.getStartOfEvent().plusDays(daysBetween));
-            newEvent.setEndOfEvent(event.getEndOfEvent().plusDays(daysBetween));
-            expectedDuplicates.add(newEvent);
-        });
-
-        return expectedDuplicates;
-    }
-
-    private List<ScheduleEvent> populateStandardEvents(User owner) {
-        ScheduleEventType eventType = ScheduleEventTypeFactory.createScheduleEventType();
-        List<LocalDateTime> standardEventStartDateTimes = new ArrayList<>();
-        LongStream.rangeClosed(0L, 4L)
-                .mapToObj(FIRST_MONDAY_OF_EPOCH::plusDays)
-                .forEach(date -> {
-                    for (int i = 9; i < 11; i++) {
-                        standardEventStartDateTimes.add(LocalDateTime.of(date, LocalTime.of(i, 0)));
-                    }
-                });
-        List<ScheduleEvent> standardEvents = new ArrayList<>();
-        standardEventStartDateTimes.forEach(start -> {
-            ScheduleEvent event = ScheduleEvent.builder()
-                    .withStartDateTime(start)
-                    .withEndDateTime(start.plusMinutes(60))
-                    .withTitle("Event " + start.getDayOfWeek() + "@" + start.getHour() + ":00")
-                    .withType(eventType)
-                    .withDescription(start.getDayOfWeek() + "@" + start.getHour() + ":00")
-                    .withOpenStatus(true)
-                    .withOwner(owner)
-                    .build();
-            standardEvents.add(event);
-        });
-
-        return standardEvents;
+        return templates;
     }
 }
