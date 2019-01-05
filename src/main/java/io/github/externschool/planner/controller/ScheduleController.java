@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.ScheduleEventTypeDTO;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.exceptions.BindingResultException;
+import io.github.externschool.planner.exceptions.EventTypeCanNotBeDeletedException;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -131,7 +132,11 @@ public class ScheduleController {
     public ModelAndView processDeleteEventType(@PathVariable("id") Long id, ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("redirect:/event/type/", model);
         Optional<ScheduleEventType> eventType = eventTypeService.getEventTypeById(id);
-        eventType.ifPresent(eventTypeService::deleteEventType);
+        try {
+            eventType.ifPresent(eventTypeService::deleteEventType);
+        } catch (EventTypeCanNotBeDeletedException e) {
+            // TODO Add a message to the web template
+        }
 
         return modelAndView;
     }

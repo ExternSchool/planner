@@ -2,6 +2,8 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.exceptions.EventTypeCanNotBeDeletedException;
+import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
 import io.github.externschool.planner.util.CollatorHolder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,13 @@ import java.util.stream.Collectors;
 @Transactional
 public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
     private final ScheduleEventTypeRepository eventTypeRepository;
+    private final ScheduleEventRepository eventRepository;
 
     @Autowired
-    public ScheduleEventTypeServiceImpl(final ScheduleEventTypeRepository eventTypeRepository) {
+    public ScheduleEventTypeServiceImpl(final ScheduleEventTypeRepository eventTypeRepository,
+                                        final ScheduleEventRepository eventRepository) {
         this.eventTypeRepository = eventTypeRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -35,8 +40,13 @@ public class ScheduleEventTypeServiceImpl implements ScheduleEventTypeService {
     }
 
     @Override
-    public void deleteEventType(final ScheduleEventType eventType) {
-        eventTypeRepository.delete(eventType);
+    public void deleteEventType(final ScheduleEventType eventType) throws EventTypeCanNotBeDeletedException {
+        if (eventType != null) {
+            if (!eventRepository.findAllByType(eventType).isEmpty()) {
+                throw new EventTypeCanNotBeDeletedException("Could not delete Event Type since it is used in Events");
+            }
+            eventTypeRepository.delete(eventType);
+        }
     }
 
     @Override

@@ -69,14 +69,14 @@ public class ScheduleEvent {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    public ScheduleEvent() {}
-
     @ManyToOne
     @JoinColumn(name = "event_type_id")
     private ScheduleEventType type;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
     private Set<Participant> participants = Collections.synchronizedSet(new HashSet<>());
+
+    public ScheduleEvent() {}
 
     private ScheduleEvent(final Long id,
                           final String title,
@@ -196,27 +196,27 @@ public class ScheduleEvent {
         return modifiedAt;
     }
 
-    public boolean isOpen() {
+    public Boolean isOpen() {
         return isOpen;
     }
 
-    public void setOpen(boolean open) {
+    public void setOpen(final Boolean open) {
         isOpen = open;
     }
 
-    public boolean isCancelled() {
+    public Boolean isCancelled() {
         return isCancelled;
     }
 
-    public void setCancelled(boolean cancelled) {
+    public void setCancelled(final Boolean cancelled) {
         isCancelled = cancelled;
     }
 
-    public boolean isAccomplished() {
+    public Boolean isAccomplished() {
         return isAccomplished;
     }
 
-    public void setAccomplished(boolean accomplished) {
+    public void setAccomplished(final Boolean accomplished) {
         isAccomplished = accomplished;
     }
 

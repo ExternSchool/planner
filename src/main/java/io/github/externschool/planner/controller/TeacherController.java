@@ -14,6 +14,7 @@ import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE;
@@ -193,8 +196,7 @@ public class TeacherController {
             LocalDate currentWeekFirstDay = scheduleService.getCurrentWeekFirstDay();
             List<LocalDate> currentWeekDates = scheduleService.getWeekStartingFirstDay(currentWeekFirstDay);
             List<LocalDate> nextWeekDates = scheduleService.getWeekStartingFirstDay(scheduleService.getNextWeekFirstDay());
-            // standard week schedule has no real date to start, so FIRST_MONDAY_OF_EPOCH is used
-            List<LocalDate> standardWeek = scheduleService.getWeekStartingFirstDay(FIRST_MONDAY_OF_EPOCH);
+
             List<List<ScheduleEventDTO>> currentWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> nextWeekEvents = new ArrayList<>();
             List<List<ScheduleEventDTO>> standardWeekEvents = new ArrayList<>();
@@ -205,14 +207,17 @@ public class TeacherController {
             nextWeekDates.forEach(date ->
                     nextWeekEvents.add(
                             addDescriptionAndConvertToDTO(scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))));
-            standardWeek.forEach(date ->
+            List<ScheduleEvent> templateEvents = scheduleService.getDailyTemplateEventsByOwner(user);
+            IntStream.rangeClosed(1, 5).mapToObj(DayOfWeek::of).forEach(day ->
                     standardWeekEvents.add(
-                            addDescriptionAndConvertToDTO(scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))));
+                            addDescriptionAndConvertToDTO(templateEvents.stream()
+                                    .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(day))
+                                    .collect(Collectors.toList()))));
 
             List<ScheduleEvent> incomingEvents = scheduleService.getEventsByOwnerStartingBetweenDates(
                             user,
                             currentWeekFirstDay,
-                            currentWeekFirstDay.plusDays(14));
+                            currentWeekFirstDay.plusDays(13));
             Optional<LocalDateTime> mostRecentUpdate = incomingEvents.stream()
                     .map(ScheduleEvent::getModifiedAt)
                     .filter(Objects::nonNull)
@@ -236,16 +241,16 @@ public class TeacherController {
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping("/{id}/event/{eid}/delete")
-    public ModelAndView processTeacherEventDelete(@PathVariable("id") Long id,
-                                                  @PathVariable("eid") Long eventId,
-                                                  ModelMap model,
-                                                  final Principal principal) {
+    @PostMapping("/{id}/template/{eid}/delete")
+    public ModelAndView processTeacherTemplateDelete(@PathVariable("id") Long id,
+                                                     @PathVariable("eid") Long eventId,
+                                                     ModelMap model,
+                                                     final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        ScheduleEvent event = scheduleService.getEventById(eventId);
-        if (optionalUser.isPresent() && event != null) {
-            scheduleService.deleteEventById(eventId);
+        Optional<ScheduleTemplate> template = scheduleService.findTemplateById(eventId);
+        if (optionalUser.isPresent() && template.isPresent()) {
+            scheduleService.deleteTemplateById(eventId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -347,17 +352,16 @@ public class TeacherController {
                     "teacher",
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
             model.addAttribute("thisDay", dayOfWeek);
-            List<ScheduleEvent> actualEvents =
-                    scheduleService.getNonCancelledEventsByOwnerAndDate(user, FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
+            List<ScheduleEvent> actualEvents = scheduleService.getDailyTemplateEventsByOwner(user).stream()
+                    .filter(event -> event.getStartOfEvent().getDayOfWeek().equals(DayOfWeek.of(dayOfWeek + 1)))
+                    .collect(Collectors.toList());
             Optional<ScheduleEvent> latestEvent = actualEvents.stream().reduce((first, second) -> second);
-            LocalDate dateToStartNextEvent =
-                    latestEvent
+            LocalDate dateToStartNextEvent = latestEvent
                             .map(event -> Optional.ofNullable(event.getEndOfEvent())
                                     .map(LocalDateTime::toLocalDate)
                                     .orElse(event.getStartOfEvent().toLocalDate()))
                             .orElse(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek));
-            LocalTime timeToStartNextEvent =
-                    latestEvent
+            LocalTime timeToStartNextEvent = latestEvent
                             .map(event -> Optional.ofNullable(event.getEndOfEvent())
                                     .map(LocalDateTime::toLocalTime)
                                     .orElse(Optional.ofNullable(event.getType())
@@ -385,30 +389,23 @@ public class TeacherController {
     @PostMapping(value = "/{id}/new-schedule/{day}/add")
     public ModelAndView processTeacherScheduleModalFormAddEvent(@PathVariable("id") Long id,
                                                                 @PathVariable("day") int dayOfWeek,
-                                                                @ModelAttribute("newEvent") ScheduleEventDTO newEvent,
+                                                                @ModelAttribute("newEvent") ScheduleEventDTO eventDTO,
                                                                 ModelMap model,
                                                                 final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
             Optional<ScheduleEventType> type = typeService.loadEventTypes().stream()
-                    .filter(eventType -> eventType.getName().equals(newEvent.getEventType()))
+                    .filter(eventType -> eventType.getName().equals(eventDTO.getEventType()))
                     .findAny();
             Integer duration = type.map(ScheduleEventType::getDurationInMinutes)
                     .orElse(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE);
-            ScheduleEventDTO anEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                    .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(dayOfWeek))
-                    .withCreated(LocalDateTime.now())
-                    .withIsOpen(true)
-                    .withTitle(type.map(ScheduleEventType::getName).orElse(UK_EVENT_TYPE_NOT_DEFINED))
-                    .withDescription(newEvent.getDescription())
-                    .withEventType(newEvent.getEventType())
-                    .withStartTime(newEvent.getStartTime())
-                    .build();
 
-            scheduleService.createEventWithDuration(
+            eventDTO.setTitle(type.map(ScheduleEventType::getName).orElse(UK_EVENT_TYPE_NOT_DEFINED));
+            ScheduleTemplate template = scheduleService.createTemplate(
                     optionalUser.get(),
-                    anEvent,
+                    eventDTO,
+                    DayOfWeek.of(dayOfWeek + 1),
                     duration);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }

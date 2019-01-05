@@ -15,7 +15,7 @@ import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
-import io.github.externschool.planner.exceptions.UserCannotHandleEventException;
+import io.github.externschool.planner.exceptions.UserCanNotHandleEventException;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
@@ -206,6 +206,8 @@ public class GuestController {
                 personService.saveOrUpdatePerson(person);
             } else {
                 // assigning received new key with a new person to the current user
+                //remove all related events participants
+                scheduleService.getParticipantsByUser(user).forEach(scheduleService::removeParticipant);
                 //remove an old key from the current user
                 user.removeVerificationKey();
                 //delete an old person and a bound key
@@ -314,7 +316,7 @@ public class GuestController {
                 "redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
         try {
             subscribeScheduleEvent(guestId, eventId);
-        } catch (UserCannotHandleEventException e) {
+        } catch (UserCanNotHandleEventException e) {
             modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
             modelAndView.addObject("error", e.getMessage());
         }
@@ -347,7 +349,7 @@ public class GuestController {
                 "redirect:/guest/" + guestId + "/official/" + officialId + "/schedule", model);
         try {
             unsubscribeScheduleEvent(guestId, eventId);
-        } catch (UserCannotHandleEventException e) {
+        } catch (UserCanNotHandleEventException e) {
             modelAndView = prepareScheduleModelAndView(guestId, officialId, model);
             modelAndView.addObject("error", e.getMessage());
         }
@@ -355,18 +357,18 @@ public class GuestController {
         return modelAndView;
     }
 
-    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+    private void subscribeScheduleEvent(Long guestId, Long eventId) throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(guestId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
                 .orElse(null);
         Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
         if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+            throw new UserCanNotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
         }
     }
 
-    private void unsubscribeScheduleEvent(Long guestId, Long eventId) throws UserCannotHandleEventException {
+    private void unsubscribeScheduleEvent(Long guestId, Long eventId) throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(guestId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
@@ -374,7 +376,7 @@ public class GuestController {
         ScheduleEvent event = scheduleService.getEventById(eventId);
         Optional<Participant> participant = scheduleService.findParticipantByUserAndEvent(user, event);
         if (!participant.isPresent()) {
-            throw new UserCannotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
+            throw new UserCanNotHandleEventException(UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE);
         }
         scheduleService.removeParticipant(participant.get());
         scheduleService.findEventByIdSetOpenByStateAndSave(eventId, true);

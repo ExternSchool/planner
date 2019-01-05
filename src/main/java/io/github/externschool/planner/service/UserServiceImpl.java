@@ -8,6 +8,7 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.exceptions.EmailExistsException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.repository.UserRepository;
@@ -78,6 +79,11 @@ public class UserServiceImpl implements UserService {
             Optional.ofNullable(actualUser.getParticipants()).ifPresent(participants -> {
                 for (Participant participant : new ArrayList<>(participants)) {
                     scheduleService.removeParticipant(participant);
+                }
+            });
+            Optional.ofNullable(scheduleService.getTemplatesByOwner(actualUser)).ifPresent(scheduleTemplates -> {
+                for (ScheduleTemplate template : new ArrayList<>(scheduleTemplates)) {
+                    scheduleService.deleteTemplateById(template.getId());
                 }
             });
             userRepository.delete(actualUser);

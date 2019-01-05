@@ -7,12 +7,17 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleHoliday;
+import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleService {
+
+    // Events
+
     ScheduleEvent createEvent(User owner, ScheduleEventReq eventReq);
 
     ScheduleEvent createEventWithDuration(User owner, ScheduleEventDTO eventDTO, int minutes);
@@ -37,6 +42,8 @@ public interface ScheduleService {
 
     void cancelEventsAndMailToParticipants(List<ScheduleEvent> events);
 
+    // Event Owners and Participants
+
     ScheduleEvent addOwner(User owner, ScheduleEvent event);
 
     void removeOwner(ScheduleEvent event);
@@ -49,11 +56,15 @@ public interface ScheduleService {
 
     void removeParticipant(Participant participant);
 
+    // Calendar Days
+
     LocalDate getCurrentWeekFirstDay();
 
     LocalDate getNextWeekFirstDay();
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
+
+    List<ScheduleEvent> createNextWeekEventsForOwner(User owner);
 
     ScheduleHoliday saveHoliday(LocalDate holiday, LocalDate substitutionDay);
 
@@ -63,7 +74,17 @@ public interface ScheduleService {
 
     List<ScheduleHoliday> getHolidaysBetweenDates(LocalDate start, LocalDate end);
 
-    List<ScheduleEvent> createCurrentWeekEventsWithStandardSchemaAndOwner(User owner);
+    // Event Templates
 
-    List<ScheduleEvent> createNextWeekEventsWithStandardSchemaAndOwner(User owner);
+    ScheduleTemplate createTemplate(User owner, ScheduleEventDTO eventDTO, DayOfWeek dayOfWeek, int durationInMinutes);
+
+    ScheduleTemplate saveTemplate(ScheduleTemplate template);
+
+    Optional<ScheduleTemplate> findTemplateById(Long id);
+
+    void deleteTemplateById(Long id);
+
+    List<ScheduleTemplate> getTemplatesByOwner(User owner);
+
+    List<ScheduleEvent> getDailyTemplateEventsByOwner(User owner);
 }
