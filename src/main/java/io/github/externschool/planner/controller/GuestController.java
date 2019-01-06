@@ -145,14 +145,14 @@ public class GuestController {
         return new ModelAndView("redirect:/guest/" + person.getId() + "/official/schedule");
     }
 
-
     @Secured("ROLE_GUEST")
     @GetMapping("/profile")
-    public ModelAndView displayPersonProfile(final Principal principal) {
+    public ModelAndView displayPersonProfile(final Principal principal,
+                                             @RequestParam(value = "isNew", required = false) Boolean isNew) {
         Long id = userService.getUserByEmail(principal.getName()).getVerificationKey().getPerson().getId();
         PersonDTO personDTO = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
 
-        return showPersonProfileForm(personDTO, false);
+        return showPersonProfileForm(personDTO, false).addObject("isNew", isNew == null ? false : isNew);
     }
 
     @Secured("ROLE_ADMIN")
@@ -452,7 +452,9 @@ public class GuestController {
                     .map(ScheduleEvent::getModifiedAt)
                     .filter(Objects::nonNull)
                     .max(Comparator.naturalOrder());
-            incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
+            incomingEventsNumber = incomingEvents.stream()
+                    .filter(event -> !event.isCancelled() && event.isOpen())
+                    .count();
         } else {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));

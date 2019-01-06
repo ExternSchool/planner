@@ -113,7 +113,7 @@ public class UserController {
             userService.save(user);
         }
         if (user.getVerificationKey().getPerson().getPhoneNumber() == null) {
-            modelAndView.setViewName("/guest/person_profile");
+            modelAndView.setViewName("redirect:/guest/profile");
             modelAndView.addObject("person",
                     conversionService.convert(user.getVerificationKey().getPerson(), PersonDTO.class));
             modelAndView.addObject("isNew", true);

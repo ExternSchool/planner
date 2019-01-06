@@ -65,7 +65,7 @@
     </small>
     <div class="card-deck">
         <div class="card bg-light mb-2" style="min-width: 20rem;">
-            <div class="card-header">Виберіть працівника для перегляду розкладу</div>
+            <div class="card-header">Виберіть вчителя для перегляду розкладу</div>
             <div class="card-body text-left">
                 <div>
                     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
@@ -96,14 +96,14 @@
                 <div th:each="dayNum : ${#numbers.sequence( 0, 4)}">
                     <div class="card-title text-left">
                         <h5>
-                        <span th:text="${weekDays[dayNum]}">
-                            День тижня
-                        </span>
+                            <span th:text="${weekDays[dayNum]}">
+                                День тижня
+                            </span>
                             <span class="float-right badge badge-info badge-pill"
                                   th:value="${currentWeek[dayNum]}"
                                   th:text="${#temporals.format(currentWeek[dayNum], 'dd/MM')}">
-                            дата
-                        </span>
+                                дата
+                            </span>
                         </h5>
                     </div>
                     <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(currentWeekEvents[dayNum])}">
@@ -127,18 +127,18 @@
                                     </ul>
                                 </td>
                                 <td class="text-right">
-                                <span th:if="${evnt.id != event.id}">
-                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn btn-success">
-                                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
-                                    </a>
-                                </span>
+                                    <span th:if="${evnt.id != event.id}">
+                                        <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                           class="btn btn-success">
+                                            <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                        </a>
+                                    </span>
                                     <span th:if="${evnt.id == event.id}">
-                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
-                                       class="btn btn-danger">
-                                        <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
-                                    </a>
-                                </span>
+                                        <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${student.id} + '\',\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                           class="btn btn-danger">
+                                            <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                        </a>
+                                    </span>
                                 </td>
                             </tr>
                             </tbody>
@@ -159,14 +159,14 @@
                 <div th:each="dayNum : ${#numbers.sequence( 0, 4)}">
                     <div class="card-title text-left">
                         <h5>
-                        <span th:text="${weekDays[dayNum]}">
-                            День тижня
-                        </span>
+                            <span th:text="${weekDays[dayNum]}">
+                                День тижня
+                            </span>
                             <span class="float-right badge badge-info badge-pill"
                                   th:value="${nextWeek[dayNum]}"
                                   th:text="${#temporals.format(nextWeek[dayNum], 'dd/MM')}">
-                            дата
-                        </span>
+                                дата
+                            </span>
                         </h5>
                     </div>
                     <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(nextWeekEvents[dayNum])}">

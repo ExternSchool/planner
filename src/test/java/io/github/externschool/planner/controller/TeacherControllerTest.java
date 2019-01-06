@@ -10,6 +10,7 @@ import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
@@ -204,129 +205,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @WithMockUser(username = USER_NAME, roles = "TEACHER")
-    public void shouldRedirect_WhenDisplayTeacherScheduleToTeacher() throws Exception {
-        mockMvc.perform(get("/teacher/schedule"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldReturnTemplate_WhenDisplayTeacherSchedule() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/schedule"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attributeExists("currentWeek"))
-                .andExpect(model().attributeExists("nextWeek"))
-                .andExpect(model().attributeExists("currentWeekEvents"))
-                .andExpect(model().attributeExists("nextWeekEvents"))
-                .andExpect(model().attributeExists("standardWeekEvents"))
-                .andExpect(model().attributeExists("newEvent"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldRedirect_WhenProcessTeacherTemplateDelete() throws Exception {
-        ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withEventType(typeService.loadEventTypes().get(0).getName())
-                .withDate(LocalDate.now())
-                .withStartTime(LocalTime.now())
-                .withDescription("")
-                .withTitle("")
-                .withCreated(LocalDateTime.now())
-                .withIsOpen(true)
-                .build();
-        ScheduleTemplate template = scheduleService.createTemplate(user, dto, DayOfWeek.MONDAY, 30);
-        scheduleService.saveTemplate(template);
-        long id = template.getId();
-
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/template/" + id + "/delete"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldReturnTemplate_WhenDisplayTeacherNewScheduleModal() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-schedule/" + 0))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule :: newSchedule"))
-                .andExpect(model().attributeExists("eventTypes"))
-                .andExpect(model().attributeExists("newEvent"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attributeExists("thisDay"))
-                .andExpect(model().attributeExists("thisDayEvents"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("newScheduleModal")));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldReturnTemplate_WhenDisplayTeacherDeleteCurrentWeekDayModal() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule :: cancelCurrentWeekDay"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attributeExists("thisDay"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("cancelCurrentModal")));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/cancel"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-    }
-
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldReturnTemplate_WhenDisplayTeacherDeleteNextWeekDayModal() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_schedule :: cancelNextWeekDay"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attributeExists("thisDay"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("cancelNextModal")));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/cancel"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-    }
-
-    @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
-    public void shouldRedirect_WhenProcessTeacherScheduleModalFormAddEvent() throws Exception {
-        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(0))
-                .withDescription(typeService.loadEventTypes().get(0).getName())
-                .withEventType(typeService.loadEventTypes().get(0).getName())
-                .withStartTime(LocalTime.now())
-                .build();
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("date", newEvent.getDate().toString());
-        map.add("description", newEvent.getDescription());
-        map.add("eventType", newEvent.getEventType());
-        map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-schedule/" + 0 + "/add")
-                .params(map))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
-    }
-
-    @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
@@ -377,8 +255,6 @@ public class TeacherControllerTest {
 
         assertThat(keyRepository.findAll())
                 .contains(key);
-
-//        keyService.deleteById(key.getId());
     }
 
     @Test
@@ -652,6 +528,203 @@ public class TeacherControllerTest {
                                 Matchers.hasProperty("user",
                                         Matchers.hasProperty("roles",
                                                 Matchers.contains(roleTeacher))))));
+    }
+
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "TEACHER")
+    public void shouldRedirect_WhenDisplayTeacherScheduleToTeacher() throws Exception {
+        mockMvc.perform(get("/teacher/schedule"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherSchedule() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/schedule"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("currentWeek"))
+                .andExpect(model().attributeExists("nextWeek"))
+                .andExpect(model().attributeExists("currentWeekEvents"))
+                .andExpect(model().attributeExists("nextWeekEvents"))
+                .andExpect(model().attributeExists("standardWeekEvents"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Schedule")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherDeleteCurrentWeekDayModal() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/current-week/" + 0))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: cancelCurrentWeekDay"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("thisDay"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("cancelCurrentModal")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherNewCurrentModal() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-current/" + 0))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: newCurrent"))
+                .andExpect(model().attributeExists("eventTypes"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("thisDay"))
+                .andExpect(model().attributeExists("thisDayEvents"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("newCurrentModal")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherCurrentModalFormAddEvent() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(LocalDate.now())
+                .withStartTime(LocalTime.MIN)
+                .withEventType(type.getName())
+                .withDescription("Description")
+                .build();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("date", newEvent.getDate().toString());
+        map.add("description", newEvent.getDescription());
+        map.add("eventType", newEvent.getEventType());
+        map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-current/" + 0 + "/add")
+                .params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherDeleteNextWeekDayModal() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/next-week/" + 0))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: cancelNextWeekDay"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("thisDay"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("cancelNextModal")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherNewNextModal() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-next/" + 0))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: newNext"))
+                .andExpect(model().attributeExists("eventTypes"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("thisDay"))
+                .andExpect(model().attributeExists("thisDayEvents"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("newNextModal")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherNextModalFormAddEvent() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(LocalDate.now().plusDays(7))
+                .withStartTime(LocalTime.MIN)
+                .withEventType(type.getName())
+                .withDescription("Description")
+                .build();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("date", newEvent.getDate().toString());
+        map.add("description", newEvent.getDescription());
+        map.add("eventType", newEvent.getEventType());
+        map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-next/" + 0 + "/add")
+                .params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherNewScheduleModal() throws Exception {
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-schedule/" + 0))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: newSchedule"))
+                .andExpect(model().attributeExists("eventTypes"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("thisDay"))
+                .andExpect(model().attributeExists("thisDayEvents"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("newScheduleModal")));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherScheduleModalFormAddEvent() throws Exception {
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(0))
+                .withDescription(typeService.loadEventTypes().get(0).getName())
+                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withStartTime(LocalTime.now())
+                .build();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("date", newEvent.getDate().toString());
+        map.add("description", newEvent.getDescription());
+        map.add("eventType", newEvent.getEventType());
+        map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-schedule/" + 0 + "/add")
+                .params(map))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessTeacherTemplateDelete() throws Exception {
+        ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withDate(LocalDate.now())
+                .withStartTime(LocalTime.now())
+                .withDescription("")
+                .withTitle("")
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
+        ScheduleTemplate template = scheduleService.createTemplate(user, dto, DayOfWeek.MONDAY, 30);
+        scheduleService.saveTemplate(template);
+        long id = template.getId();
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/template/" + id + "/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
 
     @After
