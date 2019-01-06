@@ -125,9 +125,9 @@
                         <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"
                            sec:authorize="isAuthenticated()"> Вихід</a>
 
-                        <a th:href="@{/signup}" class="btn btn-default my-2 my-sm-0"
+                        <a th:href="@{/signup}" class="btn btn-outline-primary my-2 mr-3 my-sm-0"
                         sec:authorize="isAnonymous()"> Реєстрація</a>
-                        <a th:href="@{/login}" class="btn btn-default my-2 my-sm-0"
+                        <a th:href="@{/login}" class="btn btn-outline-primary my-2 my-sm-0"
                         sec:authorize="isAnonymous()"> Вхід</a>
                     </div>
                 </form>

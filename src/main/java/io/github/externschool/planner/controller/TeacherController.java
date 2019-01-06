@@ -221,9 +221,13 @@ public class TeacherController {
                     .map(VerificationKey::getUser)
                     .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
             if (!user.isPresent()) {
-                Optional.ofNullable(teacher).ifPresent(t ->
-                        userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
-                                "ROLE_TEACHER"));
+                Optional.ofNullable(teacher).ifPresent(t -> {
+                    User newUser = userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
+                            "ROLE_TEACHER");
+                    if (t.getOfficial() != null && !t.getOfficial().isEmpty()) {
+                        newUser.addRole(roleService.getRoleByName("ROLE_OFFICER"));
+                    }
+                });
             }
         }
 
@@ -362,8 +366,9 @@ public class TeacherController {
                     .map(ScheduleEvent::getModifiedAt)
                     .filter(Objects::nonNull)
                     .max(Comparator.naturalOrder());
-            long incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
-
+            long incomingEventsNumber = incomingEvents.stream()
+                    .filter(event -> !event.isCancelled() && event.isOpen())
+                    .count();
             modelAndView = new ModelAndView("teacher/teacher_schedule", "teacher", teacherDTO);
             modelAndView.addObject("weekDays", UK_WEEK_WORKING_DAYS);
             modelAndView.addObject("currentWeek", currentWeekDates);
@@ -456,7 +461,7 @@ public class TeacherController {
                             .withDate(thisDay)
                             .withStartTime(timeToStartNextEvent)
                             .withEventType(latestEvent.map(ScheduleEvent::getType).toString())
-                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).toString())
+                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).orElse(""))
                             .build());
 
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newCurrent", model);
@@ -569,7 +574,7 @@ public class TeacherController {
                             .withDate(thisDay)
                             .withStartTime(timeToStartNextEvent)
                             .withEventType(latestEvent.map(ScheduleEvent::getType).toString())
-                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).toString())
+                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).orElse(""))
                             .build());
 
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newNext", model);

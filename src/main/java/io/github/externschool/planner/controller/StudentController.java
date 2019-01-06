@@ -515,12 +515,14 @@ public class StudentController {
                     scheduleService.getEventsByOwnerStartingBetweenDates(
                             teacherUser,
                             currentWeekFirstDay,
-                            currentWeekFirstDay.plusDays(14)));
+                            currentWeekFirstDay.plusDays(13)));
             mostRecentUpdate = incomingEvents.stream()
                     .map(ScheduleEvent::getModifiedAt)
                     .filter(Objects::nonNull)
                     .max(Comparator.naturalOrder());
-            incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
+            incomingEventsNumber = incomingEvents.stream()
+                    .filter(event -> !event.isCancelled() && event.isOpen())
+                    .count();
         } else {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
