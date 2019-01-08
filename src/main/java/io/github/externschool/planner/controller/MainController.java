@@ -1,6 +1,7 @@
 package io.github.externschool.planner.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -13,7 +14,7 @@ public class MainController {
     }
 
     @GetMapping("/login")
-    public ModelAndView displayLoginForm() {
-        return new ModelAndView("login");
+    public ModelAndView displayLoginForm(Model model) {
+        return new ModelAndView("login", model.asMap());
     }
 }

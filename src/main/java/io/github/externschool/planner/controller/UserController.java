@@ -5,10 +5,8 @@ import io.github.externschool.planner.dto.UserDTO;
 import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.exceptions.BindingResultException;
 import io.github.externschool.planner.exceptions.EmailExistsException;
-import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.exceptions.RoleNotFoundException;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
@@ -19,15 +17,17 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_NOT_CONFIRMED;
 
 @Controller
 public class UserController {
@@ -35,6 +35,8 @@ public class UserController {
     private final VerificationKeyService keyService;
     private final ConversionService conversionService;
     private final EmailService emailService;
+
+    private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Autowired
     public UserController(final UserService userService,
@@ -48,12 +50,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/signup")
-    public String displaySignUpForm(Model model) {
+    public ModelAndView displaySignUpForm(Model model) {
         if (!model.containsAttribute("user")) {
             model.addAttribute("user", new UserDTO());
         }
 
-        return "signup";
+        return new ModelAndView("signup", model.asMap());
     }
 
     @PostMapping(value = "/signup")
@@ -63,36 +65,13 @@ public class UserController {
         User user;
         try {
             if (bindingResult.hasErrors()) {
-                String result = (bindingResult.getFieldErrors().get(0)).getDefaultMessage();
-                if(result != null && result.contains("verificationKey")) {
-                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
-                }
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
             user = userService.createNewUser(userDTO);
-            if (userDTO.getVerificationKey() == null) {
-                userService.createNewKeyWithNewPersonAndAddToUser(user);
-                userService.save(user);
-            } else {
-                VerificationKey key = keyService.findKeyByValue(userDTO.getVerificationKey().getValue());
-                if (key == null
-                        || Optional.ofNullable(key.getUser())
-                        .map(User::getEmail)
-                        .map(emailService::emailIsValid)
-                        .orElse(false)) {
-                    userDTO.setVerificationKey(null);
-                    throw new KeyNotValidException(UK_FORM_INVALID_KEY_MESSAGE);
-                }
-                if (key.getPerson() != null && key.getPerson().getClass() != Person.class) {
-                    User oldUser = key.getUser();
-                    userService.deleteUser(oldUser);
-
-                    user.addVerificationKey(key);
-                    userService.save(user);
-                    userService.assignNewRolesByKey(user, key);
-                }
-            }
-        } catch (BindingResultException | EmailExistsException | KeyNotValidException | RoleNotFoundException e) {
+            userService.createNewKeyWithNewPersonAndAddToUser(user);
+            userService.save(user);
+            executor.execute(() -> emailService.sendVerificationMail(user));
+        } catch (BindingResultException | EmailExistsException | RoleNotFoundException e) {
             ModelAndView modelAndView = new ModelAndView("redirect:/signup");
             modelAndView.addObject("error", e.getMessage());
             redirectAttributes.addFlashAttribute("user", userDTO);
@@ -120,6 +99,22 @@ public class UserController {
         } else {
             modelAndView.setViewName("redirect:/");
         }
+
+        return modelAndView;
+    }
+
+    @GetMapping("/confirm-registration")
+    public ModelAndView confirmEmail(@RequestParam(value = "token") String request) {
+        VerificationKey key = keyService.findKeyByValue(request);
+        if (key != null && key.getUser() != null && !key.getUser().isEnabled()) {
+            User user = key.getUser();
+            user.setEnabled(true);
+            userService.save(user);
+
+            return new ModelAndView("redirect:/login");
+        }
+        ModelAndView modelAndView = new ModelAndView("redirect:/signup");
+        modelAndView.addObject("error", UK_USER_ACCOUNT_NOT_CONFIRMED);
 
         return modelAndView;
     }

@@ -50,7 +50,7 @@ public class UserDetailsServiceTest {
         expectedUserDetails = new org.springframework.security.core.userdetails.User(
                 userDTO.getEmail(),
                 userDTO.getPassword(),
-                true,
+                false,
                 true,
                 true,
                 true,
