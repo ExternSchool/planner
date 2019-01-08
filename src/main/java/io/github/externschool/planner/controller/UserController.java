@@ -104,7 +104,7 @@ public class UserController {
     }
 
     @GetMapping("/confirm-registration")
-    public ModelAndView confirmRegistration(@RequestParam(value = "token") String request) {
+    public ModelAndView confirmEmail(@RequestParam(value = "token") String request) {
         VerificationKey key = keyService.findKeyByValue(request);
         if (key != null && key.getUser() != null && !key.getUser().isEnabled()) {
             User user = key.getUser();

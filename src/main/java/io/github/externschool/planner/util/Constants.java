@@ -126,7 +126,7 @@ public final class Constants {
             "будь ласка, скористайтеся наступним посиланням: ";
     public static final String EMAIL_CONFIRMATION_DISCLAIMER_EN = "You have received this message because somebody " +
             "used your address to subscribe to Kiev Extern School Visit Planner service. If you have received this " +
-            "letter by mistake, please do not reply it, nor follow the link above. Your registration will be " +
+            "by mistake, please don't reply it or follow the link above. Your registration will be " +
             "cancelled automatically.";
 
     private Constants() {

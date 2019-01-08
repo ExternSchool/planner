@@ -30,7 +30,9 @@ import static io.github.externschool.planner.util.Constants.ADMINISTRATION_EMAIL
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_PROPOSAL;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
+import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.LOCALE;
+import static io.github.externschool.planner.util.Constants.SCHOOL_EMAIL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -196,6 +198,24 @@ public class EmailServiceTest {
                         "text=" + textMessage);
 
         verify(mailSender, times(2)).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    public void shouldSendOneMessage_whenVerifyingEmail(){
+        User user = new User();
+        user.setEmail("some@e-mail.nowhere");
+        user.addVerificationKey(new VerificationKey());
+
+        emailService.sendVerificationMail(user);
+
+        assertThat(arguments.get(0))
+                .containsSubsequence(
+                        "from=" + SCHOOL_EMAIL,
+                        "to=" + user.getEmail(),
+                        "subject=" + EMAIL_CONFIRMATION_SUBJECT);
+        assertThat(arguments.get(0))
+                .contains("/confirm-registration?token=" + user.getVerificationKey().getValue());
+        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
     }
 
     @Test
