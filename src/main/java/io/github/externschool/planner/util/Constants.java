@@ -52,6 +52,9 @@ public final class Constants {
             "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
     public static final String UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE =
             "За користувачем не зареєстровано вказану подію. \nСпробуйте ще або зверніться до адміністратора";
+    public static final String UK_USER_ACCOUNT_NOT_CONFIRMED =
+            "Користувач з вказаною адресою не знайдений або обліковий запис не активований!\n" +
+            "Після реєстрації активуйте обліковий запис за посиланням, яке надіслано на вказану при реєстрації адресу.";
 
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
@@ -104,17 +107,27 @@ public final class Constants {
 
     // mailing service text messages
     public static final String FAKE_MAIL_DOMAIN = "x";
+    public static final String SCHOOL_EMAIL = "extern.school@gmail.com";
+    public static final String HOST_NAME = "http://localhost:8080"; //"https://extern.com.ua";
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";
     public static final String APPOINTMENT_CANCELLATION_PROPOSAL = "Зателефонуйте до школи за номером:"
                     + SCHOOL_PHONE_NUMBER
                     + " або скористайтеся цим посиланням для призначення нової зустрічі в зручний для Вас час: "
-                    + "https://extern.com.ua"
+                    + HOST_NAME
                     + "\n"
                     + "Цей лист сформований та відправлений в автоматичному режимі, будь ласка, не відповідайте на нього."
                     + "\n";
-    public static final String APPOINTMENT_CANCELLATION_SIGNATURE = "З повагою,\nАдміністрація Школи Екстернів";
+    public static final String ADMINISTRATION_EMAIL_SIGNATURE = "З повагою,\nАдміністрація Школи Екстернів";
+    public static final String EMAIL_CONFIRMATION_SUBJECT = "Підтвердження поштової адреси. Email confirmation";
+    public static final String EMAIL_CONFIRMATION_TEXT = "Вітаємо! Ви зареєструвалися в сервісі планування відвідувань " +
+            "Школи Екстернів в м.Києві. Для підтвердження вказаної адреси та завершення реєстрації, " +
+            "будь ласка, скористайтеся наступним посиланням: ";
+    public static final String EMAIL_CONFIRMATION_DISCLAIMER_EN = "You have received this message because somebody " +
+            "used your address to subscribe to Kiev Extern School Visit Planner service. If you have received this " +
+            "letter by mistake, please do not reply it, nor follow the link above. Your registration will be " +
+            "cancelled automatically.";
 
     private Constants() {
         throw new AssertionError();

@@ -95,7 +95,7 @@ Any school officer or assistant (principal/vice-principal/psychologist/librarian
 ### 4.1. Usability requirements
  * UI should be user friendly, easy to understand and operate
  * should be safe: previous registration for anyone who receives personal data (names, phone numbers etc.) should be 
- confirmed with a registry code given by school staff, unregistered guests should receive common public data only
+ enabled with a registry code given by school staff, unregistered guests should receive common public data only
  * should be fun, motivating young students 
  * continuous usability testing is a preference
 
@@ -256,8 +256,8 @@ The app should demonstrate following user flows:
 #### 5.5.1. Edge Service Identity Management
  * Register as a new user
  * Confirm registration code
- * Sign in (as a user who has already confirmed a registration code) -- visitor, host
- * Sign in (as a user who has not yet confirmed a registration code) -- as a guest
+ * Sign in (as a user who has already enabled a registration code) -- visitor, host
+ * Sign in (as a user who has not yet enabled a registration code) -- as a guest
  * Re-send request for a registration code OR get a code with the student's record-book from a vice-principal -- TBD
  * Forgot password
  * Change password

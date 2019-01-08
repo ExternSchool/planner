@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.github.externschool.planner.util.Constants.ADMINISTRATION_EMAIL_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_PROPOSAL;
-import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
 import static io.github.externschool.planner.util.Constants.LOCALE;
@@ -107,7 +107,7 @@ public class EmailServiceTest {
                 + "\n"
                 + APPOINTMENT_CANCELLATION_PROPOSAL
                 + "\n\n"
-                + APPOINTMENT_CANCELLATION_SIGNATURE
+                + ADMINISTRATION_EMAIL_SIGNATURE
                 +"\n"
                 + LocalDateTime.now()
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE));
@@ -165,7 +165,7 @@ public class EmailServiceTest {
                 + "\n"
                 + APPOINTMENT_CANCELLATION_PROPOSAL
                 + "\n\n"
-                + APPOINTMENT_CANCELLATION_SIGNATURE
+                + ADMINISTRATION_EMAIL_SIGNATURE
                 +"\n"
                 + LocalDateTime.now()
                 .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE));

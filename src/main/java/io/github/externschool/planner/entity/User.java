@@ -50,12 +50,17 @@ public class User implements Serializable {
     @JoinColumn(name = "key_id", unique = true)
     private VerificationKey verificationKey;
 
+    private Boolean enabled;
+
     public User() {
+        super();
+        enabled = false;
     }
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
+        enabled = false;
     }
 
     public Long getId() {
@@ -150,6 +155,14 @@ public class User implements Serializable {
             participants.remove(participant);
             participant.setUser(null);
         }
+    }
+
+    public Boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(final Boolean enabled) {
+        this.enabled = enabled;
     }
 
     // private getters to Sets instead of public immutable collection

@@ -18,12 +18,17 @@ import java.time.format.FormatStyle;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.ADMINISTRATION_EMAIL_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_PROPOSAL;
-import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
+import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_DISCLAIMER_EN;
+import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_SUBJECT;
+import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_TEXT;
 import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
+import static io.github.externschool.planner.util.Constants.HOST_NAME;
 import static io.github.externschool.planner.util.Constants.LOCALE;
+import static io.github.externschool.planner.util.Constants.SCHOOL_EMAIL;
 
 @Service
 @Transactional
@@ -58,7 +63,7 @@ public class EmailServiceImpl implements EmailService {
                             + "\n"
                             + APPOINTMENT_CANCELLATION_PROPOSAL
                             + "\n\n"
-                            + APPOINTMENT_CANCELLATION_SIGNATURE
+                            + ADMINISTRATION_EMAIL_SIGNATURE
                             +"\n"
                             + LocalDateTime.now()
                             .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE));
@@ -71,6 +76,28 @@ public class EmailServiceImpl implements EmailService {
 
                     mailSender.send(simpleMailMessage);
                 });
+    }
+
+    @Override
+    public void sendVerificationMail(final User user) {
+        String textMessage = EMAIL_CONFIRMATION_TEXT
+                + "\n"
+                + HOST_NAME + "/confirm-registration?token=" + user.getVerificationKey().getValue()
+                + "\n\n"
+                + ADMINISTRATION_EMAIL_SIGNATURE
+                + "\n"
+                + LocalDateTime.now()
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).withLocale(LOCALE))
+                + "\n\n"
+                + EMAIL_CONFIRMATION_DISCLAIMER_EN;
+
+        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        simpleMailMessage.setTo(user.getEmail());
+        simpleMailMessage.setSubject(EMAIL_CONFIRMATION_SUBJECT);
+        simpleMailMessage.setFrom(SCHOOL_EMAIL);
+        simpleMailMessage.setText(textMessage);
+
+        mailSender.send(simpleMailMessage);
     }
 
     @Override
