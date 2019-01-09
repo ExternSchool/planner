@@ -118,7 +118,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                         eventDTO.getStartTime().plus(Duration.of(minutes, ChronoUnit.MINUTES))))
                 .withOwner(owner)
                 .withType(type)
-                .withOpenStatus(eventDTO.getOpen() != null ? eventDTO.getOpen() : true)
+                .withOpenStatus(eventDTO.isOpen() != null ? eventDTO.isOpen() : true)
                 .withCancelledStatus(false)
                 .withAccomplishedStatus(false)
                 .build();

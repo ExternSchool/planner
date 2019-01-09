@@ -60,7 +60,7 @@
                 <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
                 <td class="text-right">
                     <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
-                       class="btn btn-info">
+                       class="btn btn-sm btn-info">
                         <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
                     </a>
                 </td>

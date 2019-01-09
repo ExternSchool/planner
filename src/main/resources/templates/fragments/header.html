@@ -21,7 +21,6 @@
                     <a th:class="${activeTab == 'main'}? 'nav-link active' : 'nav-link'"
                        href="/">Головна</a>
                 </li>
-
                 <li class="nav-item">
                     <div sec:authorize="hasRole('ROLE_GUEST')">
                         <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
@@ -115,16 +114,15 @@
                 </li>
             </ul>
             <div class="float-right">
-                <form class="form-inline my-2 my-lg-0">
+                <form class="form-inline my-2 my-sm-0">
                     <div class="input-group">
-                        <input type="search" class="form-control mr-sm-0" placeholder="Пошук" aria-label="Search"
+                        <input type="search" class="form-control my-sm-0 mr-sm-0" placeholder="Пошук" aria-label="Search"
                                th:name="search" sec:authorize="hasRole('ROLE_ADMIN')">
                         <div class="input-group-append" sec:authorize="hasRole('ROLE_ADMIN')">
-                            <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit">Пошук</button>
+                            <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit"> Пошук</button>
                         </div>
                         <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"
                            sec:authorize="isAuthenticated()"> Вихід</a>
-
                         <a th:href="@{/signup}" class="btn btn-outline-primary my-2 mr-3 my-sm-0"
                         sec:authorize="isAnonymous()"> Реєстрація</a>
                         <a th:href="@{/login}" class="btn btn-outline-primary my-2 my-sm-0"
