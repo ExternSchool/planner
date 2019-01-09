@@ -45,6 +45,7 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -188,7 +189,7 @@ public class GuestControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenProcessCreatePersonProfileModal() throws Exception {
-        mockMvc.perform(post("/guest/create").params(map))
+        mockMvc.perform(post("/guest/create").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name(Matchers.containsString("redirect:/guest/")))
                 .andExpect(view().name(Matchers.containsString("/official/schedule")));
@@ -213,7 +214,7 @@ public class GuestControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
-        mockMvc.perform(post("/guest/" + person.getId()))
+        mockMvc.perform(post("/guest/" + person.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
                 .andExpect(content().string(Matchers.containsString("Guest Profile")))
@@ -228,7 +229,7 @@ public class GuestControllerTest {
     public void shouldRedirect_whenPostUpdateActionSaveGuest() throws Exception {
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
@@ -241,7 +242,7 @@ public class GuestControllerTest {
 
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/"));
     }
@@ -319,7 +320,7 @@ public class GuestControllerTest {
 
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/logout"));
 
@@ -372,7 +373,7 @@ public class GuestControllerTest {
 
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/logout"));
         //since user is logged out there is no possibility to check user accounts saved
@@ -401,7 +402,7 @@ public class GuestControllerTest {
         map.add("verificationKey", "123");
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
                 .andExpect(model().attribute("error", UK_FORM_INVALID_KEY_MESSAGE));
@@ -414,7 +415,7 @@ public class GuestControllerTest {
         map.add("firstName", "");
         mockMvc.perform(post("/guest/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
@@ -427,7 +428,7 @@ public class GuestControllerTest {
         userService.save(user);
 
         mockMvc.perform(post("/guest/update")
-                .param("action", "cancel"))
+                .param("action", "cancel").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/"));
     }
@@ -436,7 +437,7 @@ public class GuestControllerTest {
     @WithMockUser(username = userName, roles = "GUEST")
     public void shouldRedirect_whenPostUpdateActionCancelGuest() throws Exception {
         mockMvc.perform(post("/guest/update")
-                .param("action", "cancel"))
+                .param("action", "cancel").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
@@ -447,7 +448,7 @@ public class GuestControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
-        mockMvc.perform(post("/guest/" + person.getId() + "/delete"))
+        mockMvc.perform(post("/guest/" + person.getId() + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/"));
     }
@@ -679,7 +680,7 @@ public class GuestControllerTest {
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
         mockMvc.perform(post("/guest/" + otherPerson.getId()
-                + "/official/" + official.getId() + "/event/" + event.getId() + "/subscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/subscribe").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/" + otherPerson.getId()
                                 + "/official/" + official.getId() + "/schedule"));
@@ -742,7 +743,7 @@ public class GuestControllerTest {
         long eid = wrongEvent.getId();
 
         mockMvc.perform(post("/guest/" + guestId + "/official/"
-                        + officialId + "/event/" + eid + "/subscribe"))
+                        + officialId + "/event/" + eid + "/subscribe").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()
@@ -836,7 +837,7 @@ public class GuestControllerTest {
         participant = scheduleService.addParticipant(user, scheduleService.getEventById(event.getId()));
 
         mockMvc.perform(post("/guest/" + person.getId()
-                + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/guest/" + person.getId()
                         + "/official/" + official.getId() + "/schedule"));
@@ -878,7 +879,7 @@ public class GuestControllerTest {
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
         mockMvc.perform(post("/guest/" + person.getId() + "/official/"
-                + official.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe"))
+                + official.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_schedule"))
                 .andExpect(model()

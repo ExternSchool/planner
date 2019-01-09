@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_ROLE_NAMES;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -115,7 +116,7 @@ public class ScheduleControllerTest {
         when(this.eventTypeService.loadEventTypes()).thenReturn(Collections.singletonList(eventType));
 
         mockMvc.perform(post("/event/type/add")
-                .param("new_name", "name"))
+                .param("new_name", "name").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/event/type/"));
     }
@@ -124,7 +125,7 @@ public class ScheduleControllerTest {
     public void shouldRedirect_whenValidData_withProcessEventTypeEditForm() throws Exception {
         mockMvc.perform(post("/event/type/")
                 .param("action", "save")
-                .params(modelMap))
+                .params(modelMap).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/event/type/"));
     }
@@ -134,7 +135,7 @@ public class ScheduleControllerTest {
         modelMap.remove("name");
         mockMvc.perform(post("/event/type/")
                 .param("action", "save")
-                .params(modelMap))
+                .params(modelMap).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("event/event_type"));
     }
@@ -176,7 +177,7 @@ public class ScheduleControllerTest {
 
     @Test
     public void shouldRedirect_whenProcessDeleteEventType() throws Exception {
-        mockMvc.perform(post("/event/type/" + eventType.getId() + "/delete"))
+        mockMvc.perform(post("/event/type/" + eventType.getId() + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/event/type/"));
     }

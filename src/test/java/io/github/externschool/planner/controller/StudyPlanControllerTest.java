@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -151,7 +152,7 @@ public class StudyPlanControllerTest {
         map.add("title", subject.getTitle());
         map.add("action", "add");
 
-        mockMvc.perform(post("/plan/").params(map))
+        mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/plan/grade/3"))
                 .andExpect(model().attribute("level", 3));
@@ -178,7 +179,7 @@ public class StudyPlanControllerTest {
         BeanUtils.copyProperties(plan, newPlan);
         newPlan.setTitle(newTitle);
 
-        mockMvc.perform(post("/plan/").params(map))
+        mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/plan/grade/3"))
                 .andExpect(model().attribute("level", 3));
@@ -191,7 +192,7 @@ public class StudyPlanControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
-        mockMvc.perform(post("/plan/" + plans.get(0).getId() + "/delete"))
+        mockMvc.perform(post("/plan/" + plans.get(0).getId() + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/plan/"));
 
