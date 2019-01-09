@@ -2,6 +2,7 @@ package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.User;
+import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import org.hamcrest.Matchers;
@@ -21,8 +22,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
-import static io.github.externschool.planner.util.Constants.UK_FORM_INVALID_KEY_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_NOT_CONFIRMED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -67,7 +69,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLoginError_WhenUserIsNotRegistered() throws Exception {
-        mockMvc.perform(formLogin().user("user@x.com").password("!Qwert"))
+        mockMvc.perform(formLogin().user("user@email.com").password("!Qwert"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login?error"));
     }
@@ -92,7 +94,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupParamsOk() throws Exception {
-        expectedUser = userService.createUser("user@x.com", "!Qwert", "ROLE_GUEST");
+        expectedUser = userService.createUser("user@somemail.com", "!Qwert", "ROLE_GUEST");
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("email",expectedUser.getEmail());
         map.add("password", expectedUser.getPassword());
@@ -106,19 +108,6 @@ public class UserControllerTest {
     }
 
     @Test
-    public void shouldRedirectToSignupWithError_WhenInvalidKey() throws Exception {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("email", "email@email.com");
-        map.add("password", "!Qwert");
-        map.add("verificationKey", "123");
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/signup"))
-                .andExpect(model().attribute("error", UK_FORM_INVALID_KEY_MESSAGE));
-    }
-
-    @Test
     public void shouldRedirectToSignupWithError_WhenBindingResultHasErrors() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("email", "");
@@ -128,5 +117,28 @@ public class UserControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
+    }
+
+    @Test
+    public void shouldRedirectToSignupForm_WhenConfirmEmail() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/confirm-registration?token="))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/signup"))
+                .andExpect(model().attribute("error", UK_USER_ACCOUNT_NOT_CONFIRMED));
+    }
+
+    @Test
+    public void shouldRedirectToLoginForm_WhenConfirmEmail() throws Exception {
+        User user = userService.createUser("user@x.com", "!Qwert", "ROLE_GUEST");
+        userService.save(user);
+        userService.createNewKeyWithNewPersonAndAddToUser(user);
+        VerificationKey key = user.getVerificationKey();
+
+        mockMvc.perform(get("/confirm-registration?token=" + key.getValue()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/login"));
+
+        assertThat(userService.getUserByEmail(user.getEmail()).isEnabled())
+                .isEqualTo(true);
     }
 }

@@ -126,6 +126,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                     Collections.singletonList(UK_EVENT_TYPE_TEST));
             inChargeTeacher.addVerificationKey(key);
             inCharge.addVerificationKey(key);
+            inCharge.setEnabled(true);
             teacherService.saveOrUpdateTeacher(inChargeTeacher);
             userService.save(inCharge);
 

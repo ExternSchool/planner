@@ -74,7 +74,7 @@ public class SpringSecurityConfigTest {
 
     @Test
     @WithMockUser(username="q@q", password = "q", roles={"GUEST"})
-    public void shouldReturnRedirection_WhenFormLogin() throws Exception {
+    public void shouldReturnUnauthenticated_WhenFormLoginNotEnabledUser() throws Exception {
         Mockito.when(userRepository.findByEmail("q@q"))
                 .thenReturn(null);
         User user = userService.createUser("q@q", "q", "ROLE_GUEST");
@@ -83,6 +83,21 @@ public class SpringSecurityConfigTest {
                 .thenReturn(user);
 
         mockMvc.perform(formLogin("/login").user("q@q").password("q"))
+                .andExpect(unauthenticated());
+    }
+
+    @Test
+    @WithMockUser(username="q@qq", password = "q", roles={"GUEST"})
+    public void shouldReturnRedirection_WhenFormLoginEnabledUser() throws Exception {
+        Mockito.when(userRepository.findByEmail("q@qq"))
+                .thenReturn(null);
+        User user = userService.createUser("q@qq", "q", "ROLE_GUEST");
+        user.setEnabled(true);
+        userService.save(user);
+        Mockito.when(userRepository.findByEmail("q@qq"))
+                .thenReturn(user);
+
+        mockMvc.perform(formLogin("/login").user("q@qq").password("q"))
                 .andExpect(authenticated())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/init"));
