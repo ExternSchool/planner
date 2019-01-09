@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Collections;
 import java.util.Optional;
 
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
 
 @Controller
@@ -53,14 +54,6 @@ public class SchoolSubjectController {
         return new ModelAndView("redirect:/subject/");
     }
 
-    @PostMapping("/{id}/delete")
-    public ModelAndView processSubjectListActionDelete(@PathVariable ("id") Long id) {
-        Optional.ofNullable(subjectService.findSubjectById(id))
-                .ifPresent(subject -> subjectService.deleteSubjectById(id));
-
-        return new ModelAndView("redirect:/subject/");
-    }
-
     @PostMapping("/add")
     public ModelAndView processSubjectListActionAdd(@ModelAttribute("new_title") String title) {
         try {
@@ -77,6 +70,26 @@ public class SchoolSubjectController {
         SchoolSubject subject = new SchoolSubject();
         subject.setTitle(title);
         subjectService.saveOrUpdateSubject(subject);
+
+        return new ModelAndView("redirect:/subject/");
+    }
+
+    @GetMapping(value = "/{id}/delete-modal")
+    public ModelAndView displaySubjectListDeleteModal(@PathVariable ("id") Long id) {
+        ModelAndView modelAndView = new ModelAndView("subject/subject_list :: deleteSchoolSubject");
+        SchoolSubject subject = subjectService.findSubjectById(id);
+        if (subject.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+            id = null;
+        }
+        modelAndView.addObject("editId", id);
+
+        return modelAndView;
+    }
+
+    @PostMapping("/{id}/delete")
+    public ModelAndView processSubjectListDelete(@PathVariable ("id") Long id) {
+        Optional.ofNullable(subjectService.findSubjectById(id))
+                .ifPresent(subject -> subjectService.deleteSubjectById(id));
 
         return new ModelAndView("redirect:/subject/");
     }

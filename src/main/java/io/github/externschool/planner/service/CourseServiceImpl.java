@@ -115,7 +115,7 @@ public class CourseServiceImpl implements CourseService {
                 if (!plansTaken.contains(plan)) {
                     Course newCourse = new Course(student.getId(), plan.getId());
                     newCourse.setTitle(plan.getTitle());
-                    if (plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+                    if (plan.getTitle() != null && plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
                         teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_ADMIN_IN_CHARGE).stream()
                                 .findAny()
                                 .ifPresent(teacher -> teacher.addCourse(newCourse));

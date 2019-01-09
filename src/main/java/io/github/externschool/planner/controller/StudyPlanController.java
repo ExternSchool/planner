@@ -88,7 +88,7 @@ public class StudyPlanController {
     }
 
     @GetMapping(value = "/{id}/delete-modal")
-    public ModelAndView displaySubjectListDeleteModal(@PathVariable ("id") Long id) {
+    public ModelAndView displayPlanListDeleteModal(@PathVariable ("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("plan/plan_list :: deleteStudyPlan");
         StudyPlan plan = planService.findById(id);
         StudyPlanDTO dto = conversionService.convert(plan, StudyPlanDTO.class);
@@ -101,7 +101,7 @@ public class StudyPlanController {
     }
 
     @PostMapping(value = "/{id}/delete")
-    public ModelAndView processSubjectListDelete(@PathVariable ("id") Long id) {
+    public ModelAndView processPlanListDelete(@PathVariable ("id") Long id) {
         Optional.ofNullable(planService.findById(id))
                 .ifPresent(planService::deletePlan);
 
