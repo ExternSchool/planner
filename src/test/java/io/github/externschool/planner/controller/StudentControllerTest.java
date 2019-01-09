@@ -61,6 +61,7 @@ import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -395,7 +396,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenPostId() throws Exception {
-        mockMvc.perform(post("/student/" + student.getId()))
+        mockMvc.perform(post("/student/" + student.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(content().string(Matchers.containsString("Student Profile")))
@@ -408,7 +409,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
-        mockMvc.perform(post("/student/{id}/delete", + student.getId()))
+        mockMvc.perform(post("/student/{id}/delete", + student.getId()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/"));
     }
@@ -439,7 +440,7 @@ public class StudentControllerTest {
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(false);
 
-        mockMvc.perform(post("/student/{id}/delete", id));
+        mockMvc.perform(post("/student/{id}/delete", id).with(csrf()));
 
         assertThat(studentService.findAllStudents().size()).isEqualTo(sizeBefore - 1);
 
@@ -472,7 +473,7 @@ public class StudentControllerTest {
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(true);
 
-        mockMvc.perform(post("/student/{id}/delete", id));
+        mockMvc.perform(post("/student/{id}/delete", id).with(csrf()));
 
         assertThat(studentService.findAllStudents())
                 .hasSize(sizeBefore - 1);
@@ -486,7 +487,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostAdd() throws Exception {
-        mockMvc.perform(post("/student/add"))
+        mockMvc.perform(post("/student/add").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"));
     }
@@ -570,7 +571,7 @@ public class StudentControllerTest {
         courseService.saveOrUpdateCourse(course);
 
         mockMvc.perform(post("/student/" + course.getStudentId() + "/plan/" + course.getPlanId())
-                .param("action", "teacher"))
+                .param("action", "teacher").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_plan"))
                 .andExpect(model().attribute("studentData", studentData))
@@ -586,7 +587,7 @@ public class StudentControllerTest {
     public void shouldRedirect_whenPostUpdateActionSaveStudent() throws Exception {
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId() + "/plan"));
@@ -600,7 +601,7 @@ public class StudentControllerTest {
 
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(model().attributeDoesNotExist("error"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId() + "/plan"));
@@ -685,7 +686,7 @@ public class StudentControllerTest {
 
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
-                .params(map));
+                .params(map).with(csrf()));
 
         assertThat(userRepository.count())
                 .isEqualTo(userNumber + 1);
@@ -703,7 +704,7 @@ public class StudentControllerTest {
 
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
@@ -716,7 +717,7 @@ public class StudentControllerTest {
         map.add("firstName", "");
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));
@@ -744,7 +745,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("student",
@@ -756,7 +757,7 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("student",
@@ -770,7 +771,7 @@ public class StudentControllerTest {
         long userNumber = userRepository.count();
         long keyNumber = keyRepository.count();
 
-        mockMvc.perform(post("/student/" + student.getId() + "/new-key"))
+        mockMvc.perform(post("/student/" + student.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_profile"))
                 .andExpect(model().attribute("student",
@@ -1013,7 +1014,7 @@ public class StudentControllerTest {
         ScheduleEvent event = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);
 
         mockMvc.perform(post("/student/" + student.getId()
-                + "/teacher/" + teacher.getId() + "/event/" + event.getId() + "/subscribe"))
+                + "/teacher/" + teacher.getId() + "/event/" + event.getId() + "/subscribe").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId()
                         + "/teacher/" + teacher.getId() + "/schedule"));
@@ -1057,7 +1058,7 @@ public class StudentControllerTest {
 
 
         mockMvc.perform(post("/student/" + student.getId() + "/teacher/"
-                + teacher.getId() + "/event/" + wrongEvent.getId() + "/subscribe"))
+                + teacher.getId() + "/event/" + wrongEvent.getId() + "/subscribe").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_schedule"))
                 .andExpect(model()
@@ -1153,7 +1154,7 @@ public class StudentControllerTest {
         scheduleService.addParticipant(user, event);
 
         mockMvc.perform(post("/student/" + student.getId()
-                + "/teacher/" + teacher.getId() + "/event/" + event.getId() + "/unsubscribe"))
+                + "/teacher/" + teacher.getId() + "/event/" + event.getId() + "/unsubscribe").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId()
                         + "/teacher/" + teacher.getId() + "/schedule"));
@@ -1195,7 +1196,7 @@ public class StudentControllerTest {
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);
 
         mockMvc.perform(post("/student/" + student.getId() + "/teacher/"
-                + teacher.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe"))
+                + teacher.getId() + "/event/" + wrongEvent.getId() + "/unsubscribe").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_schedule"))
                 .andExpect(model()

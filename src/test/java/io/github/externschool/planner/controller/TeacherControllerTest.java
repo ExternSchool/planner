@@ -49,6 +49,7 @@ import java.util.Optional;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -207,7 +208,7 @@ public class TeacherControllerTest {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
-        mockMvc.perform(post("/teacher/{id}", id))
+        mockMvc.perform(post("/teacher/{id}", id).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attributeExists("teacher"))
@@ -219,7 +220,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenGetRequestTeacherAdd() throws Exception {
-        mockMvc.perform(post("/teacher/add"))
+        mockMvc.perform(post("/teacher/add").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
@@ -279,7 +280,7 @@ public class TeacherControllerTest {
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .params(map));
+                .params(map).with(csrf()));
 
         assertThat(userRepository.count())
                 .isEqualTo(userNumber);
@@ -312,7 +313,7 @@ public class TeacherControllerTest {
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .params(map));
+                .params(map).with(csrf()));
 
         assertThat(userRepository.count())
                 .isEqualTo(userNumber + 1);
@@ -329,7 +330,7 @@ public class TeacherControllerTest {
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .requestAttr("teacher", new TeacherDTO()))
+                .requestAttr("teacher", new TeacherDTO()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }
@@ -339,7 +340,7 @@ public class TeacherControllerTest {
     public void shouldRedirectToRoot_WhenTeacherPostRequestUpdateSave() throws Exception {
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .requestAttr("teacher", new TeacherDTO()))
+                .requestAttr("teacher", new TeacherDTO()).with(csrf()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
     }
@@ -387,7 +388,7 @@ public class TeacherControllerTest {
 
         Long id = Optional.of(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
-        mockMvc.perform(post("/teacher/{id}/delete", id))
+        mockMvc.perform(post("/teacher/{id}/delete", id).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
     }
@@ -408,7 +409,7 @@ public class TeacherControllerTest {
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(false);
 
-        mockMvc.perform(post("/teacher/{id}/delete", id));
+        mockMvc.perform(post("/teacher/{id}/delete", id).with(csrf()));
 
         assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore);
 
@@ -434,7 +435,7 @@ public class TeacherControllerTest {
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(true);
 
-        mockMvc.perform(post("/teacher/{id}/delete", id));
+        mockMvc.perform(post("/teacher/{id}/delete", id).with(csrf()));
 
         assertThat(teacherService.findAllTeachers())
                 .hasSize(sizeBefore);
@@ -451,7 +452,7 @@ public class TeacherControllerTest {
         long userNumber = userRepository.count();
         long keyNumber = keyRepository.count();
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -469,7 +470,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldUnbindOldUserFromProfile_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -481,7 +482,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldSetNewKeyToDTO_whenPostUpdateActionNewKey() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-key").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -499,7 +500,7 @@ public class TeacherControllerTest {
                 .hasSize(1)
                 .doesNotContain(roleAdmin);
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -520,7 +521,7 @@ public class TeacherControllerTest {
                 .hasSize(2)
                 .containsExactlyInAnyOrder(roleAdmin, roleTeacher);
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/admin").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(model().attribute("teacher",
@@ -571,7 +572,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteCurrentWeekDay() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/cancel"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/current-week/" + 0 + "/cancel").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -608,7 +609,7 @@ public class TeacherControllerTest {
         map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
 
         mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-current/" + 0 + "/add")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -628,7 +629,7 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_WhenProcessTeacherDeleteNextWeekDay() throws Exception {
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/cancel"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/next-week/" + 0 + "/cancel").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -665,7 +666,7 @@ public class TeacherControllerTest {
         map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
 
         mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-next/" + 0 + "/add")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -685,7 +686,7 @@ public class TeacherControllerTest {
         scheduleService.saveEvent(event);
         userService.save(user);
         Long eventId = event.getId();
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/modal"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/modal").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_schedule :: deleteEvent"))
                 .andExpect(model().attributeExists("newEvent"))
@@ -714,7 +715,7 @@ public class TeacherControllerTest {
         assertThat(scheduleService.getEventById(eventId))
                 .isNotNull();
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -750,7 +751,7 @@ public class TeacherControllerTest {
         map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
 
         mockMvc.perform(post("/teacher/" + teacher.getId() + "/day/" + 0 + "/add-template")
-                .params(map))
+                .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }
@@ -771,7 +772,7 @@ public class TeacherControllerTest {
         scheduleService.saveTemplate(template);
         long id = template.getId();
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/template/" + id + "/delete"))
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/template/" + id + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
     }

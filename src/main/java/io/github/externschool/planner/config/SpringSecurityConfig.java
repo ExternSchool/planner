@@ -23,7 +23,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http
                 .authorizeRequests()
                     .antMatchers("/", "/index", "/home", "/main",
                             "/login*", "/logout*", "/signup/**","/signup", "/confirm-registration")
