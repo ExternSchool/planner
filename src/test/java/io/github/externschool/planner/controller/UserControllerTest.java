@@ -26,6 +26,7 @@ import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_E
 import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_NOT_CONFIRMED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -99,7 +100,7 @@ public class UserControllerTest {
         map.add("email",expectedUser.getEmail());
         map.add("password", expectedUser.getPassword());
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
+        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map).with(csrf()))
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(view().name("redirect:/login"))
@@ -113,7 +114,7 @@ public class UserControllerTest {
         map.add("email", "");
         map.add("password", "!Qwert");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map))
+        mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_MESSAGE));

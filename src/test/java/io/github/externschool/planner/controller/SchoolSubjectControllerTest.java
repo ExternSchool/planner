@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -90,7 +91,7 @@ public class SchoolSubjectControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnSubjectListTemplate_whenPostSubjectListSelectSubject() throws Exception {
         Long id = subjects.get(0).getId();
-        mockMvc.perform(post("/subject/" + id))
+        mockMvc.perform(post("/subject/" + id).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("subject/subject_list"))
                 .andExpect(content().string(Matchers.containsString("Subject List")))
@@ -106,7 +107,7 @@ public class SchoolSubjectControllerTest {
         map.add("new_title", title);
         Long id = subjects.get(0).getId();
 
-        mockMvc.perform(post("/subject/" + id + "/edit").params(map))
+        mockMvc.perform(post("/subject/" + id + "/edit").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/subject/"));
 
@@ -118,7 +119,7 @@ public class SchoolSubjectControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostDelete() throws Exception {
-        mockMvc.perform(post("/subject/" + subjects.get(0).getId() + "/delete"))
+        mockMvc.perform(post("/subject/" + subjects.get(0).getId() + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/subject/"));
     }
@@ -130,7 +131,7 @@ public class SchoolSubjectControllerTest {
         map.add("new_title", "New Title");
         int previousSize = subjectService.findAllByOrderByTitle().size();
 
-        mockMvc.perform(post("/subject/add").params(map))
+        mockMvc.perform(post("/subject/add").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/subject/"));
 
@@ -144,7 +145,7 @@ public class SchoolSubjectControllerTest {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         Integer previousSize = subjectService.findAllByOrderByTitle().size();
 
-        mockMvc.perform(post("/subject/add").params(map))
+        mockMvc.perform(post("/subject/add").params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("subject/subject_list"))
                 .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE));
