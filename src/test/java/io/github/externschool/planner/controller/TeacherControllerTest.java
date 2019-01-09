@@ -43,12 +43,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +58,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
 public class TeacherControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
@@ -205,6 +201,7 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_WhenPostRequestTeacherId() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
@@ -258,6 +255,7 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @Transactional
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldNotAddNewKeyAndNewUser_WhenAdminPostUpdateSaveExistingTeacher() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
@@ -372,8 +370,22 @@ public class TeacherControllerTest {
         userService.save(user);
 
         List<Teacher> teachers = teacherService.findAllTeachers();
-        TeacherDTO teacherDTO = conversionService.convert(teachers.get(0), TeacherDTO.class);
-        Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
+        Teacher t = teachers.get(0);
+        TeacherDTO teacherDTO = new TeacherDTO(
+                t.getId(),
+                t.getVerificationKey(),
+                Optional.ofNullable(t.getVerificationKey())
+                        .map(VerificationKey::getUser)
+                        .map(User::getEmail)
+                        .orElse(""),
+                t.getFirstName(),
+                t.getPatronymicName(),
+                t.getLastName(),
+                t.getPhoneNumber(),
+                t.getOfficial(),
+                t.getSubjects());
+
+        Long id = Optional.of(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
         mockMvc.perform(post("/teacher/{id}/delete", id))
                 .andExpect(status().is3xxRedirection())
@@ -383,29 +395,22 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldDeleteUser_WhenRequestDeleteInvalidEmail() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.save(user);
-
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
-        Teacher teacher = teachers.get(0);
-        User user = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_TEACHER");
-        VerificationKey key = teacher.getVerificationKey();
-        user.addVerificationKey(key);
-        userService.save(user);
-        Long id = Optional.ofNullable(teacher.getId()).orElse(0L);
-        String email = Optional.ofNullable(teacherService.findTeacherById(id))
-                .map(Teacher::getVerificationKey)
-                .map(VerificationKey::getUser)
-                .map(User::getEmail)
-                .orElse(null);
+        Teacher teacher = new Teacher();
+        VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+        User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_TEACHER");
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        Long id = teacher.getId();
+        String email = teacherService.findTeacherById(id).getVerificationKey().getUser().getEmail();
 
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(false);
 
         mockMvc.perform(post("/teacher/{id}/delete", id));
 
-        assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore - 1);
+        assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore);
 
         assertThat(userService.getUserByEmail(email))
                 .isNull();
@@ -414,22 +419,17 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldSetGuestRoleToUser_WhenRequestDeleteValidEmail() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.save(user);
-
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
-        Teacher teacher = teachers.get(0);
-        User user = userService.createUser("valid@email.com", "pass", "ROLE_TEACHER");
-        VerificationKey key = teacher.getVerificationKey();
-        user.addVerificationKey(key);
+        Teacher teacher = new Teacher();
+        VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
+        User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_TEACHER");
+        user.setEmail("email@email.nowhere");
         userService.save(user);
-        Long id = Optional.ofNullable(teacher.getId()).orElse(0L);
-        String email = Optional.ofNullable(teacherService.findTeacherById(id))
-                .map(Teacher::getVerificationKey)
-                .map(VerificationKey::getUser)
-                .map(User::getEmail)
-                .orElse(null);
+        teacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(teacher);
+        Long id = teacher.getId();
+        String email = teacherService.findTeacherById(id).getVerificationKey().getUser().getEmail();
 
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(true);
@@ -437,12 +437,12 @@ public class TeacherControllerTest {
         mockMvc.perform(post("/teacher/{id}/delete", id));
 
         assertThat(teacherService.findAllTeachers())
-                .hasSize(sizeBefore - 1);
+                .hasSize(sizeBefore);
 
         assertThat(userService.getUserByEmail(email))
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("roles",
-                        new HashSet<Role>(Collections.singletonList(roleService.getRoleByName("ROLE_GUEST"))));
+                .isNotNull();
+        assertThat(userService.userHasRole(user, "ROLE_GUEST"))
+                .isEqualTo(true);
     }
 
     @Test
@@ -672,8 +672,57 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayModalFormDeleteEvent() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(LocalDate.now().plusDays(7))
+                .withTitle(type.getName())
+                .withStartTime(LocalTime.MIN)
+                .withEventType(type.getName())
+                .withDescription("Description")
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(user, newEvent, 30);
+        scheduleService.saveEvent(event);
+        userService.save(user);
+        Long eventId = event.getId();
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/modal"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: deleteEvent"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("deleteEventModal")));
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldRedirect_WhenProcessModalFormDeleteEvent() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withDate(LocalDate.now().plusDays(7))
+                .withTitle(type.getName())
+                .withStartTime(LocalTime.MIN)
+                .withEventType(type.getName())
+                .withDescription("Description")
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(user, newEvent, 30);
+        scheduleService.saveEvent(event);
+        userService.save(user);
+        Long eventId = event.getId();
+        assertThat(teacherService.findTeacherById(teacher.getId()))
+                .isEqualTo(teacher);
+        assertThat(scheduleService.getEventById(eventId))
+                .isNotNull();
+
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_WhenDisplayTeacherNewScheduleModal() throws Exception {
-        mockMvc.perform(get("/teacher/" + teacher.getId() + "/new-schedule/" + 0))
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/day/" + 0 + "/modal-template"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_schedule :: newSchedule"))
                 .andExpect(model().attributeExists("eventTypes"))
@@ -700,7 +749,7 @@ public class TeacherControllerTest {
         map.add("eventType", newEvent.getEventType());
         map.add("startTime", newEvent.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")));
 
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/new-schedule/" + 0 + "/add")
+        mockMvc.perform(post("/teacher/" + teacher.getId() + "/day/" + 0 + "/add-template")
                 .params(map))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));

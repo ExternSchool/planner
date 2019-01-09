@@ -611,8 +611,45 @@ public class TeacherController {
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @GetMapping("/{id}/new-schedule/{day}")
-    public ModelAndView displayTeacherNewScheduleModal(@PathVariable("id") Long id,
+    @PostMapping(value = "/{id}/event/{eid}/modal")
+    public ModelAndView displayModalFormDeleteEvent(@PathVariable("id") Long teacherId,
+                                                            @PathVariable("eid") Long eventId,
+                                                            ModelMap model,
+                                                            final Principal principal) {
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteEvent", model);
+        Optional<User> optionalUser = getOptionalUser(teacherId);
+        ScheduleEvent event = scheduleService.getEventById(eventId);
+        modelAndView.addObject(
+                "teacher",
+                conversionService.convert(teacherService.findTeacherById(teacherId), TeacherDTO.class));
+        if (optionalUser.isPresent() && event != null && event.getParticipants().isEmpty()) {
+            modelAndView.addObject("newEvent", conversionService.convert(event, ScheduleEventDTO.class));
+        } else {
+            modelAndView.addObject("newEvent",
+                    ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
+        }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @PostMapping(value = "/{id}/event/{eid}/delete")
+    public ModelAndView processModalFormDeleteEvent(@PathVariable("id") Long teacherId,
+                                                    @PathVariable("eid") Long eventId,
+                                                    ModelMap modelMap,
+                                                    final Principal principal) {
+        Optional<User> optionalUser = getOptionalUser(teacherId);
+        ScheduleEvent event = scheduleService.getEventById(eventId);
+        if (optionalUser.isPresent() && event != null) {
+            scheduleService.deleteEventById(eventId);
+        }
+
+        return new ModelAndView("redirect:/teacher/" + teacherId + "/schedule", modelMap);
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/day/{day}/modal-template")
+    public ModelAndView displayTeacherModalTemplate(@PathVariable("id") Long id,
                                                        @PathVariable("day") int dayOfWeek,
                                                        ModelMap model,
                                                        final Principal principal) {
@@ -651,7 +688,7 @@ public class TeacherController {
                             .withDate(dateToStartNextEvent)
                             .withStartTime(timeToStartNextEvent)
                             .withEventType(latestEvent.map(ScheduleEvent::getType).toString())
-                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).toString())
+                            .withDescription(latestEvent.map(ScheduleEvent::getDescription).orElse(""))
                             .build());
             modelAndView = new ModelAndView("teacher/teacher_schedule :: newSchedule", model);
         }
@@ -660,12 +697,12 @@ public class TeacherController {
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping(value = "/{id}/new-schedule/{day}/add")
-    public ModelAndView processTeacherScheduleModalFormAddEvent(@PathVariable("id") Long id,
-                                                                @PathVariable("day") int dayOfWeek,
-                                                                @ModelAttribute("newEvent") ScheduleEventDTO eventDTO,
-                                                                ModelMap model,
-                                                                final Principal principal) {
+    @PostMapping(value = "/{id}/day/{day}/add-template")
+    public ModelAndView processTeacherScheduleModalFormAddTemplate(@PathVariable("id") Long id,
+                                                                   @PathVariable("day") int dayOfWeek,
+                                                                   @ModelAttribute("newEvent") ScheduleEventDTO eventDTO,
+                                                                   ModelMap model,
+                                                                   final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser != null && optionalUser.isPresent()) {
