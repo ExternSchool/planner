@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+
 @Controller
 @Secured("ROLE_ADMIN")
 @RequestMapping("/plan")
@@ -85,8 +87,21 @@ public class StudyPlanController {
         return modelAndView;
     }
 
-    @PostMapping("/{id}/delete")
-    public ModelAndView processSubjectListActionDelete(@PathVariable ("id") Long id) {
+    @GetMapping(value = "/{id}/delete-modal")
+    public ModelAndView displaySubjectListDeleteModal(@PathVariable ("id") Long id) {
+        ModelAndView modelAndView = new ModelAndView("plan/plan_list :: deleteStudyPlan");
+        StudyPlan plan = planService.findById(id);
+        StudyPlanDTO dto = conversionService.convert(plan, StudyPlanDTO.class);
+        if (plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+            dto.setId(null);
+        }
+        modelAndView.addObject("plan", dto);
+
+        return modelAndView;
+    }
+
+    @PostMapping(value = "/{id}/delete")
+    public ModelAndView processSubjectListDelete(@PathVariable ("id") Long id) {
         Optional.ofNullable(planService.findById(id))
                 .ifPresent(planService::deletePlan);
 

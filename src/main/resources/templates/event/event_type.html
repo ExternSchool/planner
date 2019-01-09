@@ -160,7 +160,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteEventTypeModalTitle">Вилучення типу подій</h5>
+                <h5 class="modal-title" id="deleteEventTypeModalTitle">Видалення типу подій</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -168,13 +168,13 @@
             <div class="modal-body text-center">
                 <div th:if="${eventType.id != null}">
                     <p>
-                        Ви впевнені, що бажаєте вилучити цей тип подій?
+                        Ви впевнені, що бажаєте видалити цей тип подій?
                     </p>
                 </div>
                 <div th:if="${eventType.id == null}">
                     <p>
                         Вибачте, цей тип використовується в поточному<br>
-                        розкладі, його вилучити неможливо. <br>
+                        розкладі, його видалити неможливо. <br>
                         Проте його можна переіменувати або відредагувати - <br>
                         запроваджені зміни матимуть вплив<br>
                         лише на дії нових організаторів та учасників подій.
@@ -188,7 +188,7 @@
                 <span th:if="${eventType.id != null}">
                     <form th:method="post" th:action="@{/event/type/{id}/delete(id=${eventType.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-primary">
-                            Так, вилучити!
+                            Так, видалити!
                         </button>
                     </form>
                 </span>
