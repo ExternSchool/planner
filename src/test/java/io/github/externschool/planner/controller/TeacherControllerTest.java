@@ -397,8 +397,6 @@ public class TeacherControllerTest {
     public void shouldDeleteUser_WhenRequestDeleteInvalidEmail() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
         int sizeBefore = teachers.size();
-//        User userInv = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_TEACHER");
-
         Teacher teacher = new Teacher();
         VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
         User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_TEACHER");
