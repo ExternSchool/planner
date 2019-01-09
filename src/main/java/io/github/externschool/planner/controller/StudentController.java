@@ -65,7 +65,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
-import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
@@ -554,8 +553,7 @@ public class StudentController {
         modelAndView.addObject("nextWeek", nextWeekDates);
         modelAndView.addObject("currentWeekEvents", convertListOfListsToDTO(currentWeekEvents));
         modelAndView.addObject("nextWeekEvents", convertListOfListsToDTO(nextWeekEvents));
-        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(
-                LocalDateTime.of(FIRST_MONDAY_OF_EPOCH, DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS)));
+        modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
         modelAndView.addObject("availableEvents", incomingEventsNumber);
         modelAndView.addObject("event",
                 subscribedEvent

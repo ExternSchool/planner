@@ -2,7 +2,7 @@
 
 function openNewScheduleModal(id, day) {
     $.ajax({
-       url: "/teacher/" + id + "/new-schedule/" + day,
+       url: "/teacher/" + id + "/day/" + day + "/modal-template",
        success: function (data) {
            $("#newScheduleModalHolder").html(data);
            $("#newScheduleModal").modal("show");
@@ -46,6 +46,17 @@ function openDeleteNextModal(id, day) {
         success: function (data) {
             $("#cancelNextModalHolder").html(data);
             $("#cancelNextModal").modal("show");
+        }
+    });
+}
+
+function openDeleteEventModal(id, eid) {
+    $.ajax({
+        url: "/teacher/" + id + "/event/" + eid + "/modal",
+        method: 'POST',
+        success: function (data) {
+            $("#deleteEventModalHolder").html(data);
+            $("#deleteEventModal").modal("show");
         }
     });
 }

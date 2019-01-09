@@ -65,7 +65,7 @@ public class ScheduleEventDTO {
         this.description = description;
     }
 
-    public Boolean getOpen() {
+    public Boolean isOpen() {
         return isOpen;
     }
 

@@ -50,16 +50,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
-import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
@@ -842,11 +839,7 @@ public class StudentControllerTest {
                                 "availableEvents",
                                 "event"))
                 .andExpect(model()
-                        //has to be year 1970 since there is no selected schedule yet
-                        .attribute("recentUpdate",
-                                Matchers.equalTo(LocalDateTime.of(
-                                        FIRST_MONDAY_OF_EPOCH,
-                                        DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS))))
+                        .attributeDoesNotExist("recentUpdate"))
                 .andExpect(model()
                         .attribute("availableEvents", 0L));
     }
@@ -928,12 +921,7 @@ public class StudentControllerTest {
                                 "availableEvents",
                                 "event"))
                 .andExpect(model()
-                        //if we provide an existing teacher id, who has any event, here should be another value
-                        //has to be year 1970 since there is no selected schedule yet
-                        .attribute("recentUpdate",
-                                Matchers.equalTo(LocalDateTime.of(
-                                        FIRST_MONDAY_OF_EPOCH,
-                                        DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS))))
+                        .attributeDoesNotExist("recentUpdate"))
                 .andExpect(model()
                         .attribute("availableEvents", 0L));
 

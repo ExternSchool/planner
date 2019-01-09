@@ -82,7 +82,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-1"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
                                         type="button">
-                                    Видалити
+                                    Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[dayNum]}"
@@ -102,7 +102,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${currentWeekEvents[dayNum]}"
-                                th:class="${!evnt.getOpen() ? 'text-primary' : ''}">
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -111,6 +111,12 @@
                                             class="font-italic">Опис події
                                         </li>
                                     </ul>
+                                </td>
+                                <td class="text-right" th:if="${evnt.isOpen()}">
+                                    <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
+                                            th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>
@@ -145,7 +151,7 @@
                                         class="float-left btn btn-sm btn-outline-danger mr-1"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
                                         type="button">
-                                    Видалити
+                                    Скасувати
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[dayNum]}"
@@ -165,7 +171,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${nextWeekEvents[dayNum]}"
-                                th:class="${!evnt.getOpen() ? 'text-primary' : ''}">
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -174,6 +180,12 @@
                                             class="font-italic">Опис події
                                         </li>
                                     </ul>
+                                </td>
+                                <td class="text-right" th:if="${evnt.isOpen()}">
+                                    <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
+                                            th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>
@@ -258,6 +270,7 @@
 <div id="cancelCurrentModalHolder"></div>
 <div id="newNextModalHolder"></div>
 <div id="cancelNextModalHolder"></div>
+<div id="deleteEventModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
@@ -272,7 +285,7 @@
             </div>
             <div class="modal-body text-justify">
                 <form th:method="post"
-                      th:action="@{/teacher/{id}/new-schedule/{day}/add(id=${teacher.id}, day=${thisDay})}"
+                      th:action="@{/teacher/{id}/day/{day}/add-template(id=${teacher.id}, day=${thisDay})}"
                       th:object="${newEvent}" class="form" id="formNewEvent">
                     <div class="floating mb-3">
                         <div class="form-group mb-0">
@@ -476,6 +489,42 @@
                         Так, скасувати!
                     </button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteEventModal" role="dialog" th:fragment="deleteEvent">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteEventModalTitle">Видалення події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${newEvent.id != null}">
+                    Ви впевнені, що бажаєте видалити цю подію?
+                </div>
+                <div th:if="${newEvent.id == null}">
+                    Вибачте, на цю подію вже є зареєстровані відвідувачі -
+                    окремо її видалити неможливо. Але її можна скасувати разом
+                    з іншими подіями, призначеними на цей день. Для скасування всіх
+                    подій скористайтеся розташованою вище кнопкою "Скасувати".
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися до розкладу
+                </button>
+                <span th:if="${newEvent.id != null}">
+                    <form th:method="post" th:action="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id},eid=${newEvent.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, видалити!
+                        </button>
+                    </form>
+                </span>
             </div>
         </div>
     </div>
