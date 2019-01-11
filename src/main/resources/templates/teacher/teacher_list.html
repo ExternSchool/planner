@@ -7,12 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
@@ -68,11 +66,10 @@
                     </form>
                 </td>
                 <td class="text-right">
-                    <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
-                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </form>
+                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                            th:onclick="'javascript:openDeleteTeacherModal(\'' + ${teacher.getId()} + '\');'">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
                 </td>
             </tr>
             </tbody>
@@ -86,6 +83,48 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<!-- ModalHolder -->
+<div id="deleteTeacherModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="deleteTeacherModal" role="dialog" th:fragment="deleteTeacher">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTeacherModalTitle">Видалення профіля</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${teacher != null}">
+                    <span th:text="${teacher.getLastName() + ' ' + teacher.getFirstName() + ' ' + teacher.getPatronymicName()}"></span><br>
+                    Ви впевнені, що бажаєте видалити цього вчителя?
+                </div>
+                <div th:if="${teacher == null}">
+                    Вибачте, цю операцію виконанти неможливо.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися до списку
+                </button>
+                <div th:if="${teacher != null}">
+                    <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, видалити!
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/teacherList.js"></script>
 
 </body>
 </html>

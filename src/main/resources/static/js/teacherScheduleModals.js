@@ -53,10 +53,19 @@ function openDeleteNextModal(id, day) {
 function openDeleteEventModal(id, eid) {
     $.ajax({
         url: "/teacher/" + id + "/event/" + eid + "/modal",
-        method: 'POST',
         success: function (data) {
             $("#deleteEventModalHolder").html(data);
             $("#deleteEventModal").modal("show");
+        }
+    });
+}
+
+function openDeleteTemplateModal(id, eid) {
+    $.ajax({
+        url: "/teacher/" + id + "/template/" + eid + "/delete-modal",
+        success: function (data) {
+            $("#deleteTemplateModalHolder").html(data);
+            $("#deleteTemplateModal").modal("show");
         }
     });
 }

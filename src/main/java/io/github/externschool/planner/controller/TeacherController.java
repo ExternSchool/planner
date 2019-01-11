@@ -56,6 +56,7 @@ import java.util.stream.Stream;
 import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE;
 import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
@@ -241,9 +242,21 @@ public class TeacherController {
     }
 
     @Secured("ROLE_ADMIN")
+    @GetMapping("/{id}/delete-modal")
+    public ModelAndView displayTeacherListFormDeleteModal(@PathVariable("id") Long id,
+                                                          final ModelMap model) {
+        TeacherDTO teacher = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
+        if (teacher != null && teacher.getLastName().equals(UK_COURSE_ADMIN_IN_CHARGE)) {
+            teacher = null;
+        }
+        model.addAttribute("teacher", teacher);
+
+        return new ModelAndView("teacher/teacher_list :: deleteTeacher", model);
+    }
+
+    @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
-    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, final Principal principal) {
-        //TODO Add delete confirmation
+    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, ModelMap model) {
         Optional.ofNullable(id).map(teacherService::findTeacherById)
                 .map(Teacher::getVerificationKey)
                 .map(VerificationKey::getUser)
@@ -256,7 +269,7 @@ public class TeacherController {
                 });
         teacherService.deleteTeacherById(id);
 
-        return redirectByRole(principal);
+        return new ModelAndView("redirect:/teacher/");
     }
 
     /**
@@ -611,11 +624,11 @@ public class TeacherController {
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping(value = "/{id}/event/{eid}/modal")
+    @GetMapping(value = "/{id}/event/{eid}/modal")
     public ModelAndView displayModalFormDeleteEvent(@PathVariable("id") Long teacherId,
-                                                            @PathVariable("eid") Long eventId,
-                                                            ModelMap model,
-                                                            final Principal principal) {
+                                                    @PathVariable("eid") Long eventId,
+                                                    ModelMap model,
+                                                    final Principal principal) {
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_schedule :: deleteEvent", model);
         Optional<User> optionalUser = getOptionalUser(teacherId);
         ScheduleEvent event = scheduleService.getEventById(eventId);
@@ -725,16 +738,34 @@ public class TeacherController {
     }
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
-    @PostMapping("/{id}/template/{eid}/delete")
+    @GetMapping(value = "/{id}/template/{eid}/delete-modal")
+    public ModelAndView displayTeacherTemplateDeleteModal(@PathVariable("id") Long id,
+                                                          @PathVariable("eid") Long templateId,
+                                                          ModelMap model) {
+        model.addAttribute(
+                "teacher",
+                conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
+        scheduleService.findTemplateById(templateId).ifPresent(template ->
+                model.addAttribute("newEvent", ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                        .withId(templateId)
+                        .withTitle(template.getTitle())
+                        .withDescription(template.getDescription())
+                        .withStartTime(template.getStartOfEvent()).build()));
+
+        return new ModelAndView("teacher/teacher_schedule :: deleteTemplate", model);
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @PostMapping(value = "/{id}/template/{eid}/delete")
     public ModelAndView processTeacherTemplateDelete(@PathVariable("id") Long id,
-                                                     @PathVariable("eid") Long eventId,
+                                                     @PathVariable("eid") Long templateId,
                                                      ModelMap model,
                                                      final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        Optional<ScheduleTemplate> template = scheduleService.findTemplateById(eventId);
+        Optional<ScheduleTemplate> template = scheduleService.findTemplateById(templateId);
         if (optionalUser.isPresent() && template.isPresent()) {
-            scheduleService.deleteTemplateById(eventId);
+            scheduleService.deleteTemplateById(templateId);
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 

@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -241,11 +240,10 @@
                                     </ul>
                                 </td>
                                 <td class="text-right">
-                                    <form th:method="post" th:action="@{/teacher/{id}/template/{eid}/delete(id=${teacher.id}, eid=${evnt.getId()})}">
-                                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                                            <i class="fa fa-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
+                                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                                            th:onclick="'javascript:openDeleteTemplateModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>
@@ -271,6 +269,7 @@
 <div id="newNextModalHolder"></div>
 <div id="cancelNextModalHolder"></div>
 <div id="deleteEventModalHolder"></div>
+<div id="deleteTemplateModalHolder"></div>
 <!-- /ModalHolder -->
 
 <!-- Modal -->
@@ -505,6 +504,7 @@
             </div>
             <div class="modal-body text-center">
                 <div th:if="${newEvent.id != null}">
+                    <span th:text="${newEvent.startTime + ': ' + newEvent.title}"></span><br>
                     Ви впевнені, що бажаєте видалити цю подію?
                 </div>
                 <div th:if="${newEvent.id == null}">
@@ -524,6 +524,40 @@
                             Так, видалити!
                         </button>
                     </form>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteTemplateModal" role="dialog" th:fragment="deleteTemplate">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTemplateModalTitle">Видалення події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${newEvent.id != null}">
+                    <span th:text="${newEvent.startTime + ': ' + newEvent.title}"></span><br>
+                    Ви впевнені, що бажаєте видалити цю подію?
+                </div>
+                <div th:if="${newEvent.id == null}">
+                    Виникла помилка. Подію не знайдено!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися до розкладу
+                </button>
+                <span th:if="${newEvent.id != null}">
+                <form th:method="post" th:action="@{/teacher/{id}/template/{eid}/delete(id=${teacher.id},eid=${newEvent.getId()})}">
+                    <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                        Так, видалити!
+                    </button>
+                </form>
                 </span>
             </div>
         </div>

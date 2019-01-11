@@ -366,7 +366,17 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
-    public void shouldRedirectToTeacherList_WhenRequestDelete() throws Exception {
+    public void shouldReturnMaV_whenDisplayTeacherListFormDeleteModal() throws Exception {
+        Long id = teacher.getId();
+
+        mockMvc.perform(get("/teacher/{id}/delete-modal", id).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_list :: deleteTeacher"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldRedirectToTeacherList_whenRequestDelete() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
@@ -686,7 +696,7 @@ public class TeacherControllerTest {
         scheduleService.saveEvent(event);
         userService.save(user);
         Long eventId = event.getId();
-        mockMvc.perform(post("/teacher/" + teacher.getId() + "/event/" + eventId + "/modal").with(csrf()))
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/event/" + eventId + "/modal").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_schedule :: deleteEvent"))
                 .andExpect(model().attributeExists("newEvent"))
@@ -754,6 +764,30 @@ public class TeacherControllerTest {
                 .params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/" + teacher.getId() + "/schedule"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
+    public void shouldReturnTemplate_WhenDisplayTeacherTemplateDeleteModal() throws Exception {
+        ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withDate(LocalDate.now())
+                .withStartTime(LocalTime.now())
+                .withDescription("")
+                .withTitle("")
+                .withCreated(LocalDateTime.now())
+                .withIsOpen(true)
+                .build();
+        ScheduleTemplate template = scheduleService.createTemplate(user, dto, DayOfWeek.MONDAY, 30);
+        scheduleService.saveTemplate(template);
+        long id = template.getId();
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() + "/template/" + id + "/delete-modal").with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_schedule :: deleteTemplate"))
+                .andExpect(model().attributeExists("newEvent"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("deleteTemplateModal")));
     }
 
     @Test
