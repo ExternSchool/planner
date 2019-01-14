@@ -72,16 +72,16 @@
                                 День тижня
                             </span>
                             <span class="float-right">
-                                <button class="float-left btn btn-sm btn-outline-success mr-1"
-                                        th:onclick="'javascript:openNewCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
-                                        th:if="${currentWeek[dayNum] &gt; #temporals.createToday()}" type="button">
-                                    Додати
-                                </button>
                                 <button th:if="${not #lists.isEmpty(currentWeekEvents[dayNum])}"
                                         class="float-left btn btn-sm btn-outline-danger mr-1"
                                         th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
                                         type="button">
-                                    Скасувати
+                                    <i class="fas fa-calendar-times"></i>
+                                </button>
+                                <button class="float-left btn btn-sm btn-outline-success mr-1"
+                                        th:onclick="'javascript:openNewCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        th:if="${currentWeek[dayNum] &gt; #temporals.createToday()}" type="button">
+                                    <i class="fas fa-calendar-plus"></i>
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${currentWeek[dayNum]}"
@@ -114,7 +114,7 @@
                                 <td class="text-right" th:if="${evnt.isOpen()}">
                                     <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -141,16 +141,16 @@
                             День тижня
                         </span>
                             <span class="float-right">
-                                <button class="float-left btn btn-sm btn-outline-success mr-1"
-                                        th:onclick="'javascript:openNewNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
-                                        type="button">
-                                    Додати
-                                </button>
                                 <button th:if="${not #lists.isEmpty(nextWeekEvents[dayNum])}"
                                         class="float-left btn btn-sm btn-outline-danger mr-1"
                                         th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
                                         type="button">
-                                    Скасувати
+                                   <i class="fas fa-calendar-times"></i>
+                                </button>
+                                <button class="float-left btn btn-sm btn-outline-success mr-1"
+                                        th:onclick="'javascript:openNewNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        type="button">
+                                    <i class="fas fa-calendar-plus"></i>
                                 </button>
                                 <span class="float-right badge badge-info badge-pill"
                                       th:value="${nextWeek[dayNum]}"
@@ -183,7 +183,7 @@
                                 <td class="text-right" th:if="${evnt.isOpen()}">
                                     <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -214,7 +214,7 @@
                                 <button class="float-right btn btn-sm btn-outline-success mr-3"
                                         th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
                                         type="button">
-                                    Додати
+                                    <i class="fas fa-calendar-plus"></i>
                                 </button>
                             </span>
                         </h5>
@@ -242,7 +242,7 @@
                                 <td class="text-right">
                                     <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
                                             th:onclick="'javascript:openDeleteTemplateModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>

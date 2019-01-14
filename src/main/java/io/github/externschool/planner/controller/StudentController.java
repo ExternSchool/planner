@@ -148,6 +148,24 @@ public class StudentController {
     }
 
     /**
+     * Searches student by id, and redirects to students list, completes search by the Last Name if student is found
+     * @param id student's id
+     * @param principal principal user
+     * @return ModelAndView
+     */
+    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @GetMapping("/search/{id}")
+    public ModelAndView displayStudentWithSearch(@PathVariable(value = "id", required = false) Long id,
+                                                 Principal principal) {
+        Student student = studentService.findStudentById(id);
+        if (student != null) {
+            return displayStudentListToTeacher(student.getLastName(), principal);
+        }
+
+        return redirectByRole(principal);
+    }
+
+    /**
      * Displays List of Students for All Grade Levels By Teacher Id
      * @param id Teacher Id
      * @return ModelAndView
@@ -285,9 +303,21 @@ public class StudentController {
     }
 
     @Secured("ROLE_ADMIN")
+    @GetMapping("/{id}/delete-modal")
+    public ModelAndView displayStudentListFormDeleteModal(final @PathVariable("id") Long id,
+                                                          final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("student/student_list :: deleteStudent", model);
+        StudentDTO student = conversionService.convert(studentService.findStudentById(id), StudentDTO.class);
+        if (student != null) {
+            modelAndView.addObject("student", student);
+        }
+
+        return modelAndView;
+    }
+
+    @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
     public ModelAndView processStudentListFormDelete(@PathVariable("id") Long id) {
-        //TODO Add deletion confirmation
         Optional.ofNullable(id).map(studentService::findStudentById)
                 .map(Student::getVerificationKey)
                 .map(VerificationKey::getUser)
@@ -665,9 +695,7 @@ public class StudentController {
 
     private ModelAndView prepareStudentListModelAndView(Long teacherId, Integer level) {
         List<StudentDTO> students = getStudentListByTeacherIdAndGradeLevel(teacherId, level);
-        ModelAndView modelAndView = new ModelAndView(
-                "student/student_list",
-                "students", students);
+        ModelAndView modelAndView = new ModelAndView("student/student_list", "students", students);
         modelAndView.addObject("level", level);
         modelAndView.addObject("teacherId", teacherId);
 
@@ -798,7 +826,6 @@ public class StudentController {
                 .map(teacherService::findTeacherById);
     }
 
-    //TODO Move to User Service
     private Boolean isUserAnAdmin(User user) {
         return Optional.ofNullable(user)
                 .map(User::getRoles)

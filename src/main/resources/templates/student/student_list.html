@@ -10,15 +10,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
 </head>
 
 <body class="text-center">
@@ -96,45 +94,44 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="student : ${students}">
-                <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
-                <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
-                <td class="text-left" th:text="${student.getPatronymicName()}">По батькові</td>
-                <td th:text="${student.getGradeLevel()}">Клас</td>
+            <tr th:each="stud : ${students}">
+                <td class="text-left" th:text="${stud.getLastName()}">Прізвище</td>
+                <td class="text-left" th:text="${stud.getFirstName()}">Ім'я</td>
+                <td class="text-left" th:text="${stud.getPatronymicName()}">По батькові</td>
+                <td th:text="${stud.getGradeLevel()}">Клас</td>
                 <!--<div sec:authorize="hasRole('ROLE_ADMIN')">-->
-                    <!--<td th:text="${student.getGender()}">Стать</td>-->
+                    <!--<td th:text="${stud.getGender()}">Стать</td>-->
                 <!--</div>-->
                 <div sec:authorize="hasRole('ROLE_TEACHER')">
-                    <td th:text="${student.getOptionalData()}">Предмет</td>
+                    <td th:text="${stud.getOptionalData()}">Предмет</td>
                 </div>
-                <td th:text="${student.getPhoneNumber()}">Телефон</td>
-                <td th:text="${#strings.abbreviate(student.getEmail(),20)}">Email</td>
+                <td th:text="${stud.getPhoneNumber()}">Телефон</td>
+                <td th:text="${#strings.abbreviate(stud.getEmail(),20)}">Email</td>
                 <div sec:authorize="hasRole('ROLE_ADMIN')">
                     <td class="text-right">
-                        <form th:method="get" th:action="@{/student/{id}/teacher/schedule(id=${student.id})}">
+                        <form th:method="get" th:action="@{/student/{id}/teacher/schedule(id=${stud.id})}">
                             <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
                                 <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                             </button>
                         </form>
                     </td>
                     <td class="text-right">
-                        <a th:href="@{/student/{id}/plan(id=${student.id})}" class="btn badge badge-secondary">
+                        <a th:href="@{/student/{id}/plan(id=${stud.id})}" class="btn badge badge-secondary">
                             <i class="fas fa-list-ol" style="color: white" aria-hidden="true"></i>
                         </a>
                     </td>
                     <td class="text-right">
-                        <form th:method="post" th:action="@{/student/{id}(id=${student.id})}">
+                        <form th:method="post" th:action="@{/student/{id}(id=${stud.id})}">
                             <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
                                 <i class="fas fa-edit" aria-hidden="true"></i>
                             </button>
                         </form>
                     </td>
                     <td class="text-right">
-                        <form th:method="post" th:action="@{/student/{id}/delete(id=${student.id})}">
-                            <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                                <i class="fas fa-trash" aria-hidden="true"></i>
-                            </button>
-                        </form>
+                        <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                                th:onclick="'javascript:openDeleteStudentModal(\'' + ${stud.getId()} + '\');'">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
                     </td>
                 </div>
             </tr>
@@ -149,5 +146,52 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<!-- ModalHolder -->
+<div id="deleteStudentModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="deleteStudentModal" role="dialog" th:fragment="deleteStudent">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteStudentModalTitle">Видалення профіля</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${student != null}">
+                    <span th:text="${student.getLastName() + ' ' + student.getFirstName() + ', ' + student.getGradeLevel()} + ' клас'"></span><br>
+                    Ви впевнені, що бажаєте видалити цього учня?
+                </div>
+                <div th:if="${student == null}">
+                    Вибачте, цю операцію виконанти неможливо.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися до списку
+                </button>
+                <div th:if="${student != null}">
+                    <form th:method="post" th:action="@{/student/{id}/delete(id=${student.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, видалити!
+                        </button>
+                    </form>
+                    <!--<form th:method="post" th:action="@{/student/{id}/delete(id=${stud.id})}">-->
+                    <!--<button type="submit" name="delete" value="delete" class="btn badge badge-danger">-->
+                    <!--<i class="fas fa-trash" aria-hidden="true"></i>-->
+                    <!--</button>-->
+                    <!--</form>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/studentList.js"></script>
 
 </body>

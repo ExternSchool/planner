@@ -256,7 +256,7 @@ public class TeacherController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/{id}/delete")
-    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id, ModelMap model) {
+    public ModelAndView processTeacherListFormDelete(@PathVariable("id") Long id) {
         Optional.ofNullable(id).map(teacherService::findTeacherById)
                 .map(Teacher::getVerificationKey)
                 .map(VerificationKey::getUser)
