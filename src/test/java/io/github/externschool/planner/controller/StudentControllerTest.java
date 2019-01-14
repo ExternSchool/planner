@@ -416,10 +416,9 @@ public class StudentControllerTest {
                                 Matchers.equalToIgnoringCase(firstName))));
     }
 
-
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnMaV_whenDisplayTeacherListFormDeleteModal() throws Exception {
+    public void shouldReturnMaV_whenDisplayStudentListFormDeleteModal() throws Exception {
         Long id = student.getId();
 
         mockMvc.perform(get("/student/{id}/delete-modal", id).with(csrf()))
