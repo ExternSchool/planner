@@ -96,7 +96,7 @@ public class GuestController {
     @Secured("ROLE_ADMIN")
     @GetMapping("/")
     @SuppressWarnings("unchecked")
-    public ModelAndView showGuestList(@RequestParam(value = "search", required = false) String request) {
+    public ModelAndView displayGuestList(@RequestParam(value = "search", required = false) String request) {
         ModelAndView modelAndView = prepareGuestList();
         if (request != null) {
             modelAndView.addObject("guests",
@@ -104,6 +104,18 @@ public class GuestController {
         }
 
         return modelAndView;
+    }
+
+    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @GetMapping("/search/{id}")
+    public ModelAndView displayPersonWithSearch(@PathVariable(value = "id", required = false) Long id,
+                                                 Principal principal) {
+        Person person = personService.findPersonById(id);
+        if (person != null) {
+            return displayGuestList(person.getLastName());
+        }
+
+        return redirectByRole(principal);
     }
 
     @Secured("ROLE_ADMIN")
@@ -228,6 +240,19 @@ public class GuestController {
     public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
 
         return redirectByRole(principal);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/{id}/delete-modal")
+    public ModelAndView displayPersonListFormDeleteModal(final @PathVariable("id") Long id,
+                                                          final ModelMap model) {
+        ModelAndView modelAndView = new ModelAndView("guest/guest_list :: deleteGuest", model);
+        PersonDTO person = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
+        if (person != null) {
+            modelAndView.addObject("person", person);
+        }
+
+        return modelAndView;
     }
 
     @Secured("ROLE_ADMIN")
@@ -569,7 +594,7 @@ public class GuestController {
         return modelAndView;
     }
 
-    //TODO Move to User Service
+    //TODO probably Move to User Service
     private Boolean isUserAnAdmin(User user) {
         return Optional.ofNullable(user)
                 .map(User::getRoles)

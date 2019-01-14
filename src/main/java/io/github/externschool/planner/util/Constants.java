@@ -59,8 +59,8 @@ public final class Constants {
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
     public static final String UK_COURSE_NO_TEACHER = "Не призначений";
-
-    //T standard event types
+    public static final String UK_COURSE_ADMIN_IN_CHARGE = "Адміністратор";
+    // standard event types
     public static final String UK_EVENT_TYPE_NOT_DEFINED = "Тип не визначений";
     public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
     public static final String UK_EVENT_TYPE_GROUP = "Групова консультація";

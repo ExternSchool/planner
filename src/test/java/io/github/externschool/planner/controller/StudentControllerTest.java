@@ -244,6 +244,16 @@ public class StudentControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"TEACHER","ADMIN"})
+    public void shouldReturnMaV_whenGetStudentSearch() throws Exception {
+        mockMvc.perform(get("/student/search/" + student.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list"))
+                .andExpect(content().string(Matchers.containsString("Student List")))
+                .andExpect(model().attributeExists("students"));
+    }
+
+    @Test
     @WithMockUser(username = nameTeacher, roles = "TEACHER")
     public void shouldReturnMAV_whenDisplayAllStudentsListByTeacherIdTeacherRole() throws Exception {
         mockMvc.perform(get("/student/teacher/" + teacher.getId()))
@@ -404,6 +414,16 @@ public class StudentControllerTest {
                 .andExpect(model().attribute("student",
                         Matchers.hasProperty("firstName",
                                 Matchers.equalToIgnoringCase(firstName))));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayStudentListFormDeleteModal() throws Exception {
+        Long id = student.getId();
+
+        mockMvc.perform(get("/student/{id}/delete-modal", id).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_list :: deleteStudent"));
     }
 
     @Test

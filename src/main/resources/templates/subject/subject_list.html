@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="uk">
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Subject List</title>
     <meta charset="utf-8">
@@ -10,9 +9,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
@@ -78,11 +76,10 @@
                     </form>
                 </td>
                 <td class="text-right">
-                    <form th:method="post" th:action="@{/subject/{id}/delete(id=${subject.id})}">
-                        <button type="submit" name="delete" value="delete" class="btn badge badge-danger">
-                            <i class="fa fa-trash" aria-hidden="true"></i>
-                        </button>
-                    </form>
+                    <button type="button" class="btn badge badge-danger"
+                            th:onclick="'javascript:openDeleteSchoolSubjectModal(\'' + ${subject.id} + '\');'">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
                 </td>
             </tr>
             </tbody>
@@ -96,6 +93,53 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<!-- ModalHolder -->
+<div id="deleteSchoolSubjectHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="deleteSchoolSubjectModal" role="dialog" th:fragment="deleteSchoolSubject">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSchoolSubjectModalTitle">Видалення навчального предмета</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${editId != null}">
+                    <p>
+                        Ви впевнені, що бажаєте видалити цей предмет?
+                    </p>
+                </div>
+                <div th:if="${editId == null}">
+                    <p>
+                        Вибачте, цей предмет видалити неможливо. <br>
+                        Його можна лише переіменувати та відредагувати.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися до редагування
+                </button>
+                <span th:if="${editId != null}">
+                    <form th:method="post" th:action="@{/subject/{id}/delete(id=${editId})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так, видалити!
+                        </button>
+                    </form>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Modal -->
+
+<!-- Script -->
+<script src="/js/subjectList.js"></script>
 
 </body>
 </html>

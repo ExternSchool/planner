@@ -38,6 +38,13 @@
             </span>
             Призначені зустрічі
         </small>
+        <span>
+            <a th:href="@{/student/search/{id}(id=${student.getId()})}">
+                <button type="button" class="btn badge badge-info ml-3">
+                    <i class="fas fa-external-link-square-alt"></i>
+                </button>
+            </a>
+        </span>
     </h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(participants)}">
         <table class="col-lg-12 table table-sm table-hover">

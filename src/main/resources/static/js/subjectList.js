@@ -1,11 +1,11 @@
 'use strict';
 
-function openDeleteEventTypeModal(id) {
+function openDeleteSchoolSubjectModal(id) {
     $.ajax({
-        url: "/event/type/" + id + "/modal",
+        url: "/subject/" + id + "/delete-modal",
         success: function (data) {
-            $("#deleteEventTypeHolder").html(data);
-            $("#deleteEventTypeModal").modal("show");
+            $("#deleteSchoolSubjectHolder").html(data);
+            $("#deleteSchoolSubjectModal").modal("show");
         }
     });
 }

@@ -15,12 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 
 @Service
 @Transactional
@@ -114,9 +115,15 @@ public class CourseServiceImpl implements CourseService {
                 if (!plansTaken.contains(plan)) {
                     Course newCourse = new Course(student.getId(), plan.getId());
                     newCourse.setTitle(plan.getTitle());
-                    teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER).stream()
-                            .findAny()
-                            .ifPresent(teacher -> teacher.addCourse(newCourse));
+                    if (plan.getTitle() != null && plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+                        teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_ADMIN_IN_CHARGE).stream()
+                                .findAny()
+                                .ifPresent(teacher -> teacher.addCourse(newCourse));
+                    } else {
+                        teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER).stream()
+                                .findAny()
+                                .ifPresent(teacher -> teacher.addCourse(newCourse));
+                    }
                     coursesToTake.add(newCourse);
                     saveOrUpdateCourse(newCourse);
                 }

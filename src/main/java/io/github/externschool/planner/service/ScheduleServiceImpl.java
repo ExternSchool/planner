@@ -277,6 +277,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 participantRepository.save(participant);
             });
             Optional.ofNullable(participant.getEvent()).ifPresent(event -> {
+                if (event.getType().getAmountOfParticipants() == 1 || event.getParticipants().size() == 1) {
+                    event.setOpen(true);
+                }
                 event.removeParticipant(participant);
                 eventRepository.save(event);
                 participantRepository.save(participant);
