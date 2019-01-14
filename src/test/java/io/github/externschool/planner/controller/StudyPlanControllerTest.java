@@ -191,7 +191,16 @@ public class StudyPlanControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
-    public void shouldRedirect_whenPostDelete() throws Exception {
+    public void shouldReturnModelAndView_whenDisplayPlanListDeleteModal() throws Exception {
+        mockMvc.perform(get("/plan/" + plans.get(0).getId() + "/delete-modal"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("plan/plan_list :: deleteStudyPlan"))
+                .andExpect(model().attributeExists("plan"));
+    }
+
+    @Test
+    @WithMockUser(username = USER_NAME, roles = "ADMIN")
+    public void shouldRedirect_whenProcessPlanListDelete() throws Exception {
         mockMvc.perform(post("/plan/" + plans.get(0).getId() + "/delete").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/plan/"));

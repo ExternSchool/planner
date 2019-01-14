@@ -35,18 +35,18 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <div  th:if="${not #lists.isEmpty(students)}">
-        <h4 class="font-weight-normal mb-1" th:inline="text">
-            <small>
-                Відвідувачі до вчителя (працівника)
-                <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+    <h4 class="font-weight-normal mb-1" th:inline="text">
+        <small>
+            Відвідувачі до вчителя (працівника)
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                     : [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
                 </span>
-            </small>
-        </h4>
-        <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
-            Роздрукувати
-        </button>
+        </small>
+    </h4>
+    <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+        Роздрукувати
+    </button>
+    <div  th:if="${not #lists.isEmpty(students)}">
         <h5 class="font-weight-normal" th:inline="text"><small>Екстерни</small></h5>
         <div class="table-responsive">
             <table class="col-lg-12 table table-sm table-hover">

@@ -8,5 +8,15 @@ function openCreateAccountModal() {
             $("#createAccountModal").modal("show");
         }
     });
-    console.log("openCreateAccountModal");
 }
+
+function openDeleteGuestModal(id) {
+    $.ajax({
+        url: "/guest/" + id + "/delete-modal",
+        success: function (data) {
+            $("#deleteGuestModalHolder").html(data);
+            $("#deleteGuestModal").modal("show");
+        }
+    });
+}
+

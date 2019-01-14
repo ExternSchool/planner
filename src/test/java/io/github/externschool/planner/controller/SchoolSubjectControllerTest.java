@@ -118,14 +118,6 @@ public class SchoolSubjectControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void shouldRedirect_whenPostDelete() throws Exception {
-        mockMvc.perform(post("/subject/" + subjects.get(0).getId() + "/delete").with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/subject/"));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostAdd() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("new_title", "New Title");
@@ -152,6 +144,24 @@ public class SchoolSubjectControllerTest {
 
         assertThat(subjectService.findAllByOrderByTitle().size())
                 .isEqualTo(previousSize);
+    }
+
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndView_whenDisplaySubjectListDeleteModal() throws Exception {
+        mockMvc.perform(get("/subject/" + subjects.get(0).getId() + "/delete-modal"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("subject/subject_list :: deleteSchoolSubject"))
+                .andExpect(model().attributeExists("editId"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldRedirect_whenProcessSubjectListDelete() throws Exception {
+        mockMvc.perform(post("/subject/" + subjects.get(0).getId() + "/delete").with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/subject/"));
     }
 
     @After

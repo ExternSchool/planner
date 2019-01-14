@@ -173,6 +173,16 @@ public class GuestControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"TEACHER","ADMIN"})
+    public void shouldReturnMaV_whenGetGuestSearch() throws Exception {
+        mockMvc.perform(get("/guest/search/" + person.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list"))
+                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(model().attributeExists("guests"));
+    }
+
+    @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnOk_whenShowCreatePersonProfileModal() throws Exception {
         mockMvc.perform(get("/guest/create"))
@@ -440,6 +450,16 @@ public class GuestControllerTest {
                 .param("action", "cancel").with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnMaV_whenDisplayGuestListFormDeleteModal() throws Exception {
+        Long id = person.getId();
+
+        mockMvc.perform(get("/guest/{id}/delete-modal", id).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("guest/guest_list :: deleteGuest"));
     }
 
     @Test
