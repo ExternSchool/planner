@@ -25,7 +25,7 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal mb-0" th:inline="text">
+    <h4 class="font-weight-normal" th:inline="text">
         <small>Гості</small>
     </h4>
     <button class="float-right btn btn-sm btn-outline-primary mb-1" type="button"
@@ -161,7 +161,7 @@
             </div>
             <div class="modal-body text-center">
                 <div th:if="${person != null}">
-                    <span th:text="${person.getLastName() + ' ' + person.getFirstName() + ' ' + person.getLastName()}"></span><br>
+                    <span th:text="${person.getLastName() + ' ' + person.getFirstName() + ' ' + person.getPatronymicName()}"></span><br>
                     Ви впевнені, що бажаєте видалити цього відвідувача?
                 </div>
                 <div th:if="${person == null}">
