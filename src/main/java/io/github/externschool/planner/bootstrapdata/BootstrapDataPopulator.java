@@ -177,7 +177,6 @@ public class BootstrapDataPopulator implements InitializingBean {
         }
         if (eventTypeRepository.findByName(UK_EVENT_TYPE_GROUP) == null) {
             eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
-            eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
             eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
             eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
             eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE);

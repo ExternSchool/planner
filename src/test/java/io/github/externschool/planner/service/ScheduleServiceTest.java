@@ -558,6 +558,25 @@ public class ScheduleServiceTest {
     }
 
     @Test
+    public void shouldReturnParticipant_whenSaveParticipant() {
+        long id = 100500L;
+        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        event.setId(id);
+        User user = new User("participant@email.com", "pass");
+        List<Participant> participants = Collections.singletonList(new Participant(user, event));
+        Participant participant = participants.get(0);
+
+        Mockito.when(participantRepository.save(participant))
+                .thenReturn(participant);
+
+        Participant actualParticipant = scheduleService.saveParticipant(participant);
+
+        assertThat(actualParticipant)
+                .isNotNull()
+                .isEqualTo(participant);
+    }
+
+    @Test
     public void shouldRemoveParticipant_whenRemoveParticipant() {
         long id = 100500L;
         ScheduleEvent anEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();

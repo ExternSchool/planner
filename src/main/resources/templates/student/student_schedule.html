@@ -248,12 +248,12 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
-            <form th:method="post"
-                  th:action="@{/student/{uid}/teacher/{id}/event/{eventId}/subscribe(uid=${student.id}, id=${teacher.id}, eventId=${event.id})}"
-                  th:object="${event.id}" class="form" id="formSubscribe">
+            <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+                Show some error msg
+            </small>
+            <form class="form" th:object="${participant}" method="post" id="formSubscribe"
+                  th:action="@{/student/{uid}/teacher/{id}/event/{eventId}/subscribe(uid=${student.id}, id=${teacher.id}, eventId=${event.id})}">
                 <div class="modal-body text-center">
-                    <p>
                         Подія:
                         <span style="white-space: pre;" th:text=" ${event.title}">назва події</span>
                         <br>
@@ -268,8 +268,52 @@
                         о
                         <span style="white-space: pre;" th:text="${event.getStartTime()}">час зустрічі</span>
                         <br>
-                        Зарезервувати вибраний час для зустрічі?
-                    </p>
+                    <div th:if="${not #lists.isEmpty(courses)}">
+                        <div class="input-group">
+                            <div class="col-sm-8 form-control mr-1">
+                                <select th:field="*{planOneId}" class="custom-select">
+                                    <option th:each="crs : ${courses}"
+                                            th:value="${crs.planId}"
+                                            th:text="${crs.title}">Предмет</option>
+                                </select>
+                            </div>
+                            <span class="col-sm-4 input-group-addon">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="planOneSemesterOne"
+                                           th:field="*{planOneSemesterOne}">
+                                    <label class="custom-control-label" th:for="planOneSemesterOne">Семестр 1</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="planOneSemesterTwo"
+                                           th:field="*{planOneSemesterTwo}">
+                                    <label class="custom-control-label" th:for="planOneSemesterTwo">Семестр 2</label>
+                                </div>
+                            </span>
+                        </div>
+                        <div class="input-group">
+                            <div class="col-sm-8 form-control mr-1">
+                                <select th:field="*{planTwoId}" class="custom-select">
+                                    <option th:each="crs : ${courses}"
+                                            th:value="${crs.planId}"
+                                            th:text="${crs.title}">Предмет</option>
+                                </select>
+                            </div>
+                            <span class="col-sm-4 input-group-addon">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="planTwoSemesterOne"
+                                           th:field="*{planTwoSemesterOne}">
+                                    <label class="custom-control-label" th:for="planTwoSemesterOne">Семестр 1</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="planTwoSemesterTwo"
+                                           th:field="*{planTwoSemesterTwo}">
+                                    <label class="custom-control-label" th:for="planTwoSemesterTwo">Семестр 2</label>
+                                </div>
+                            </span>
+                        </div>
+                        <br>
+                    </div>
+                    Зарезервувати вибраний час для зустрічі?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
@@ -279,7 +323,7 @@
                          <button type="submit" class="btn btn-sm btn-primary">
                              Так, резервувати!
                          </button>
-                </span>
+                    </span>
                 </div>
             </form>
         </div>

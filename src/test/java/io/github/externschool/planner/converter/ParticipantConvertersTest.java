@@ -58,23 +58,21 @@ public class ParticipantConvertersTest {
                 .build();
         Participant participant = new Participant(user, event);
         participant.setId(6L);
+        participant.setPlanOneId(101L);
+        participant.setPlanTwoId(102L);
+        participant.setPlanTwoSemesterOne(true);
+        participant.setPlanTwoSemesterTwo(true);
 
         ParticipantDTO dto = conversionService.convert(participant, ParticipantDTO.class);
 
         assertThat(dto)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("id", participant.getId())
-                .hasFieldOrPropertyWithValue("date", event.getStartOfEvent().toLocalDate())
-                .hasFieldOrPropertyWithValue("time", event.getStartOfEvent().toLocalTime())
-                .hasFieldOrPropertyWithValue("personName", person.getShortName())
-                .hasFieldOrPropertyWithValue("ownerName", personOwner.getShortName())
-                .hasFieldOrPropertyWithValue("eventTitle", event.getTitle())
-                .hasFieldOrPropertyWithValue("eventDescription", event.getDescription())
-                .hasFieldOrPropertyWithValue("personId", person.getId())
-                .hasFieldOrPropertyWithValue("ownerId", personOwner.getId())
-                .hasFieldOrPropertyWithValue("eventId", event.getId())
-                .hasFieldOrPropertyWithValue("person", person)
-                .hasFieldOrPropertyWithValue("owner", personOwner)
-                .hasFieldOrPropertyWithValue("event", event);
+                .hasFieldOrPropertyWithValue("planOneId", participant.getPlanOneId())
+                .hasFieldOrPropertyWithValue("planOneSemesterOne", false)
+                .hasFieldOrPropertyWithValue("planOneSemesterTwo", false)
+                .hasFieldOrPropertyWithValue("planTwoId", participant.getPlanTwoId())
+                .hasFieldOrPropertyWithValue("planTwoSemesterOne", true)
+                .hasFieldOrPropertyWithValue("planTwoSemesterTwo", true);
     }
 }

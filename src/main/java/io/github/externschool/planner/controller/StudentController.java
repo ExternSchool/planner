@@ -35,6 +35,7 @@ import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
 import io.github.externschool.planner.util.CollatorHolder;
 import io.github.externschool.planner.util.Utils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.access.annotation.Secured;
@@ -67,9 +68,12 @@ import java.util.stream.Collectors;
 import static io.github.externschool.planner.util.Constants.DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS;
 import static io.github.externschool.planner.util.Constants.UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
@@ -439,6 +443,19 @@ public class StudentController {
         modelAndView.addObject("event",
                 conversionService.convert(scheduleService.getEventById(eventId), ScheduleEventDTO.class));
         modelAndView.setViewName("student/student_schedule :: subscribeEvent");
+        List<CourseDTO> courses = new ArrayList<>();
+        boolean isTeacherAdminInCharge = teacherService.findAllByLastName(UK_COURSE_ADMIN_IN_CHARGE).stream()
+                .anyMatch(teacher -> teacher.getId().equals(teacherId));
+        if (isTeacherAdminInCharge) {
+            CourseDTO nullCourse = new CourseDTO(studentId, null);
+            nullCourse.setTitle("Макс.2 предмета АБО 2 семестра");
+            courses.add(nullCourse);
+            courses.addAll(courseService.findAllByStudentId(studentId).stream()
+                    .filter(course -> !course.getTitle().equals(UK_EVENT_TYPE_TEST))
+                    .map(course -> conversionService.convert(course, CourseDTO.class))
+                    .collect(Collectors.toList()));
+        }
+        modelAndView.addObject("courses", courses);
 
         return modelAndView;
     }
@@ -448,11 +465,32 @@ public class StudentController {
     public ModelAndView processSubscriptionModal(@PathVariable("gid") Long studentId,
                                                  @PathVariable("id") Long teacherId,
                                                  @PathVariable("event") Long eventId,
+                                                 @ModelAttribute("participant") ParticipantDTO participantDTO,
                                                  ModelMap model) {
+        User user = Optional.ofNullable(teacherId)
+                .map(personService::findPersonById)
+                .map(Person::getVerificationKey)
+                .map(VerificationKey::getUser)
+                .orElse(null);
+        if (user == null || participantDTO == null || isTeacher(user) || !isUserAnAdmin(user)
+                || (participantDTO.getPlanOneId() == null
+                    && (participantDTO.getPlanOneSemesterOne() || participantDTO.getPlanOneSemesterTwo()))
+                || (participantDTO.getPlanTwoId() == null
+                    && (participantDTO.getPlanTwoSemesterOne() || participantDTO.getPlanTwoSemesterTwo()))
+                ||  (participantDTO.getPlanOneSemesterOne() ? 1 : 0) +
+                    (participantDTO.getPlanTwoSemesterTwo() ? 1 : 0) +
+                    (participantDTO.getPlanTwoSemesterOne() ? 1 : 0) +
+                    (participantDTO.getPlanOneSemesterTwo() ? 1 : 0) > 2) {
+            ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+            modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS);
+
+            return modelAndView;
+        }
+
         ModelAndView modelAndView = new ModelAndView(
                 "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
         try {
-            subscribeScheduleEvent(studentId, eventId);
+            subscribeScheduleEvent(studentId, eventId, participantDTO);
         } catch (UserCanNotHandleEventException e) {
             modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
             modelAndView.addObject("error", e.getMessage());
@@ -575,6 +613,7 @@ public class StudentController {
                     }
                 });
 
+        modelAndView.addObject("participant", new ParticipantDTO(studentId));
         modelAndView.addObject("student", studentPerson);
         modelAndView.addObject("teacher", teacherTeacher);
         modelAndView.addObject("teachers", teachers);
@@ -655,8 +694,8 @@ public class StudentController {
         return filterEventsAvailableToStudent(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date));
     }
 
-    //TODO Refactor since GuestController has identical method. Probably move to service
-    private void subscribeScheduleEvent(Long studentId, Long eventId) throws UserCanNotHandleEventException {
+    private void subscribeScheduleEvent(Long studentId, Long eventId, ParticipantDTO participantDTO)
+            throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(studentId))
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
@@ -664,10 +703,14 @@ public class StudentController {
         Optional<Participant> participant = scheduleService.addParticipant(user, scheduleService.getEventById(eventId));
         if (!participant.isPresent()) {
             throw new UserCanNotHandleEventException(UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE);
+        } else {
+            Participant p = participant.get();
+            BeanUtils.copyProperties(participantDTO, p, "id");
+            scheduleService.saveParticipant(p);
         }
     }
 
-    //TODO same as previous - Probably move to Service
+    //TODO Probably move to Service
     private void unsubscribeScheduleEvent(Long studentId, Long eventId) throws UserCanNotHandleEventException {
         User user = Optional.ofNullable(personService.findPersonById(studentId))
                 .map(Person::getVerificationKey)

@@ -269,6 +269,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public Participant saveParticipant(final Participant participant) {
+        return participantRepository.save(participant);
+    }
+
+    @Override
     public void removeParticipant(final Participant participant) {
         if (participant != null) {
             Optional.ofNullable(participant.getUser()).ifPresent(user -> {
