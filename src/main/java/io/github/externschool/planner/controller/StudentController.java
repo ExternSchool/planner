@@ -448,7 +448,7 @@ public class StudentController {
                 .anyMatch(teacher -> teacher.getId().equals(teacherId));
         if (isTeacherAdminInCharge) {
             CourseDTO nullCourse = new CourseDTO(studentId, null);
-            nullCourse.setTitle("Макс.2 предмета АБО 2 семестра");
+            nullCourse.setTitle("2 предмета АБО 2 семестра");
             courses.add(nullCourse);
             courses.addAll(courseService.findAllByStudentId(studentId).stream()
                     .filter(course -> !course.getTitle().equals(UK_EVENT_TYPE_TEST))
@@ -474,13 +474,13 @@ public class StudentController {
                 .orElse(null);
         if (user == null || participantDTO == null || isTeacher(user) || !isUserAnAdmin(user)
                 || (participantDTO.getPlanOneId() == null
-                    && (participantDTO.getPlanOneSemesterOne() || participantDTO.getPlanOneSemesterTwo()))
+                    && (participantDTO.isPlanOneSemesterOne() || participantDTO.isPlanOneSemesterTwo()))
                 || (participantDTO.getPlanTwoId() == null
-                    && (participantDTO.getPlanTwoSemesterOne() || participantDTO.getPlanTwoSemesterTwo()))
-                ||  (participantDTO.getPlanOneSemesterOne() ? 1 : 0) +
-                    (participantDTO.getPlanTwoSemesterTwo() ? 1 : 0) +
-                    (participantDTO.getPlanTwoSemesterOne() ? 1 : 0) +
-                    (participantDTO.getPlanOneSemesterTwo() ? 1 : 0) > 2) {
+                    && (participantDTO.isPlanTwoSemesterOne() || participantDTO.isPlanTwoSemesterTwo()))
+                ||  (participantDTO.isPlanOneSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterTwo() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanOneSemesterTwo() ? 1 : 0) > 2) {
             ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
             modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS);
 
@@ -647,11 +647,20 @@ public class StudentController {
                 .map(User::getVerificationKey)
                 .map(VerificationKey::getPerson)
                 .orElse(null));
-        modelAndView.addObject("participants", Optional.ofNullable(user)
+        List<ParticipantDTO> participants = Optional.ofNullable(user)
                 .map(u -> scheduleService.getParticipantsByUser(u).stream()
                         .map(p -> conversionService.convert(p, ParticipantDTO.class))
                         .collect(Collectors.toList()))
-                .orElse(new ArrayList<>()));
+                .orElse(new ArrayList<>());
+        participants.forEach(participant -> {
+            Optional.ofNullable(participant.getPlanOneId()).ifPresent(id -> {
+                participant.setPlanOneTitle(planService.findById(id).getTitle());
+            });
+            Optional.ofNullable(participant.getPlanTwoId()).ifPresent(id -> {
+                participant.setPlanTwoTitle(planService.findById(id).getTitle());
+            });
+        });
+        modelAndView.addObject("participants", participants);
 
         return modelAndView;
     }

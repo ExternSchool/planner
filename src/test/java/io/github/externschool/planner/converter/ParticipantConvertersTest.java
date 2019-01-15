@@ -68,11 +68,21 @@ public class ParticipantConvertersTest {
         assertThat(dto)
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("id", participant.getId())
+                .hasFieldOrPropertyWithValue("date", event.getStartOfEvent().toLocalDate())
+                .hasFieldOrPropertyWithValue("time", event.getStartOfEvent().toLocalTime())
+                .hasFieldOrPropertyWithValue("personName", person.getShortName())
+                .hasFieldOrPropertyWithValue("ownerName", personOwner.getShortName())
+                .hasFieldOrPropertyWithValue("eventTitle", event.getTitle())
+                .hasFieldOrPropertyWithValue("eventDescription", event.getDescription())
+                .hasFieldOrPropertyWithValue("personId", person.getId())
+                .hasFieldOrPropertyWithValue("ownerId", personOwner.getId())
+                .hasFieldOrPropertyWithValue("eventId", event.getId())
                 .hasFieldOrPropertyWithValue("planOneId", participant.getPlanOneId())
                 .hasFieldOrPropertyWithValue("planOneSemesterOne", false)
                 .hasFieldOrPropertyWithValue("planOneSemesterTwo", false)
                 .hasFieldOrPropertyWithValue("planTwoId", participant.getPlanTwoId())
                 .hasFieldOrPropertyWithValue("planTwoSemesterOne", true)
                 .hasFieldOrPropertyWithValue("planTwoSemesterTwo", true);
+
     }
 }
