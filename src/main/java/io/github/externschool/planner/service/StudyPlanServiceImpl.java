@@ -4,14 +4,18 @@ import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.repository.StudyPlanRepository;
+import io.github.externschool.planner.util.CollatorHolder;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -34,7 +38,7 @@ public class StudyPlanServiceImpl implements StudyPlanService {
     @Override
     public List<StudyPlan> findAllByGradeLevelAndSubject(final GradeLevel gradeLevel, final SchoolSubject subject) {
         if (gradeLevel != null && subject != null) {
-            return planRepository.findAllByGradeLevelAndSubject(gradeLevel, subject);
+            return sort(planRepository.findAllByGradeLevelAndSubject(gradeLevel, subject));
         }
 
         return Collections.emptyList();
@@ -54,7 +58,7 @@ public class StudyPlanServiceImpl implements StudyPlanService {
 
     @Override
     public List<StudyPlan> findAll() {
-        return planRepository.findAllByOrderByGradeLevelAscTitleAsc();
+        return sort(planRepository.findAllByOrderByGradeLevelAscTitleAsc());
     }
 
     @Override
@@ -74,5 +78,14 @@ public class StudyPlanServiceImpl implements StudyPlanService {
 
             planRepository.delete(plan);
         }
+    }
+
+    private List<StudyPlan> sort(List<StudyPlan> list) {
+        return list.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(
+                        StudyPlan::getTitle,
+                        Comparator.nullsFirst(CollatorHolder.getUaCollator())))
+                .collect(Collectors.toList());
     }
 }

@@ -117,10 +117,10 @@ public class StudyPlanController {
             planId = 0L;
         }
         List<StudyPlanDTO> plans = Optional.of((level == 0
-                    ? planService.findAll().stream()
-                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
+                    ? planService.findAll()
+                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level))).stream()
                 .filter(Objects::nonNull)
-                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -131,7 +131,7 @@ public class StudyPlanController {
                 StudyPlanDTO.class));
         List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle().stream()
                 .filter(Objects::nonNull)
-                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .collect(Collectors.toList());
         modelAndView.addObject("subjects", subjects);
         modelAndView.addObject("level", GradeLevel.valueOf(level));
