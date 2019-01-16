@@ -33,18 +33,19 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
+            Призначені зустрічі
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 [[${student.getLastName()}]] [[${student.getFirstName()}]] [[${student.getPatronymicName()}]].
+                <a class="d-print-none" th:href="@{/student/search/{id}(id=${student.getId()})}">
+                    <button type="button" class="btn badge badge-info ml-3" aria-hidden="true">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
             </span>
-            Призначені зустрічі
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+                Роздрукувати
+            </button>
         </small>
-        <span>
-            <a th:href="@{/student/search/{id}(id=${student.getId()})}">
-                <button type="button" class="btn badge badge-info ml-3">
-                    <i class="fas fa-external-link-square-alt"></i>
-                </button>
-            </a>
-        </span>
     </h4>
     <div class="table-responsive" th:if="${not #lists.isEmpty(participants)}">
         <table class="col-lg-12 table table-sm table-hover">
@@ -56,7 +57,7 @@
                 <th class="text-left">Назва події</th>
                 <th class="text-left">Опис</th>
                 <th class="text-left">Деталі</th>
-                <th class="text-right" style="width: 10ch">Розклад</th>
+                <th  class="d-print-none text-right" style="width: 10ch">Розклад</th>
             </tr>
             </thead>
             <tbody>
@@ -86,10 +87,10 @@
                         Предмет 2
                     </span>
                 </td>
-                <td class="text-right">
+                <td class="d-print-none text-right">
                     <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
-                       class="btn btn-sm btn-info">
-                        <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
+                       class="d-print-none btn btn-sm btn-info" aria-hidden="true">
+                        <i class="fas fa-calendar-check" style="color: white"></i>
                     </a>
                 </td>
             </tr>
@@ -104,6 +105,8 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<script src="/js/studentSubscriptions.js"></script>
 
 </body>
 </html>

@@ -106,7 +106,7 @@ public class GuestController {
         return modelAndView;
     }
 
-    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @Secured("ROLE_ADMIN")
     @GetMapping("/search/{id}")
     public ModelAndView displayPersonWithSearch(@PathVariable(value = "id", required = false) Long id,
                                                  Principal principal) {
