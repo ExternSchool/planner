@@ -129,7 +129,7 @@ public class StudyPlanController {
                         .orElse(new StudyPlan(GradeLevel.valueOf(level), new SchoolSubject())),
                 StudyPlanDTO.class));
         List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle().stream()
-                .filter(s -> !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .collect(Collectors.toList());
         modelAndView.addObject("subjects", subjects);
         modelAndView.addObject("level", GradeLevel.valueOf(level));

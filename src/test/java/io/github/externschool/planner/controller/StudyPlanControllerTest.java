@@ -69,7 +69,7 @@ public class StudyPlanControllerTest {
         originalPlansNumber = planService.findAll().size();
         plans = new ArrayList<>();
         subjects = new ArrayList<>();
-        GradeLevel level = GradeLevel.LEVEL_3;
+        GradeLevel level = GradeLevel.LEVEL_7;
         Arrays.asList("Test_History", "Test_Math", "Test_Biology", "Test_English").forEach(title -> {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(title);
@@ -115,7 +115,7 @@ public class StudyPlanControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetDisplayStudyPlansListByGrade() throws Exception {
-        mockMvc.perform(get("/plan/grade/3"))
+        mockMvc.perform(get("/plan/grade/7"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
@@ -123,7 +123,7 @@ public class StudyPlanControllerTest {
                 .andExpect(model().attribute("plans",
                         Matchers.hasItem(
                                 Matchers.<StudyPlan> hasProperty("gradeLevel",
-                                        Matchers.equalTo(GradeLevel.LEVEL_3)))));
+                                        Matchers.equalTo(GradeLevel.LEVEL_7)))));
     }
 
     @Test
@@ -145,17 +145,17 @@ public class StudyPlanControllerTest {
     public void shouldReturnModelAndView_whenPostProcessStudyPlansListActionAdd() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         SchoolSubject subject = subjects.get(0);
-        map.add("gradeLevel", GradeLevel.LEVEL_3.toString());
+        map.add("gradeLevel", GradeLevel.LEVEL_7.toString());
         map.add("subject", subject.getId().toString());
         map.add("title", subject.getTitle());
         map.add("action", "add");
 
         mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/grade/3"))
-                .andExpect(model().attribute("level", 3));
+                .andExpect(view().name("redirect:/plan/grade/7"))
+                .andExpect(model().attribute("level", 7));
 
-        assertThat(planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_3, subject))
+        assertThat(planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_7, subject))
                 .isNotEmpty()
                 .hasSize(2);
     }
@@ -179,8 +179,8 @@ public class StudyPlanControllerTest {
 
         mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/grade/3"))
-                .andExpect(model().attribute("level", 3));
+                .andExpect(view().name("redirect:/plan/grade/7"))
+                .andExpect(model().attribute("level", 7));
 
         assertThat(planService.findAll())
                 .hasSize(previousSize)
