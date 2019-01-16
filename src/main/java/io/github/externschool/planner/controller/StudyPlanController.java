@@ -54,7 +54,7 @@ public class StudyPlanController {
 
     @GetMapping("/{id}")
     public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
-        if (id == null || planService.findById(id) == null) {
+        if (id == null || planService.findById(id) == null || planService.findById(id).getGradeLevel() == null) {
             return prepareModelAndView(0, 0L);
         }
         return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
@@ -116,7 +116,6 @@ public class StudyPlanController {
         if (planId == null) {
             planId = 0L;
         }
-
         List<StudyPlanDTO> plans = Optional.of((level == 0
                     ? planService.findAll().stream()
                     : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())

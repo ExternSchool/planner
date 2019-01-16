@@ -48,18 +48,13 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
     @Transactional(readOnly = true)
     @Override
     public List<SchoolSubject> findAllByOrderByTitle() {
-        return subjectRepository.findAll().stream()
-                .filter(Objects::nonNull)
-                .sorted(Comparator.comparing(
-                        SchoolSubject::getTitle,
-                        Comparator.nullsFirst(CollatorHolder.getUaCollator())))
-                .collect(Collectors.toList());
+        return sort(subjectRepository.findAll());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<SchoolSubject> findAllById(final List<Long> indices) {
-        return subjectRepository.findAllById(indices);
+    public List<SchoolSubject> findAllById(final List<Long> list) {
+        return sort(subjectRepository.findAllById(list.stream().filter(Objects::nonNull).collect(Collectors.toList())));
     }
 
     @Override
@@ -85,5 +80,14 @@ public class SchoolSubjectServiceImpl implements SchoolSubjectService {
 
             subjectRepository.delete(subject);
         }
+    }
+
+    private List<SchoolSubject> sort(List<SchoolSubject> list) {
+        return list.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(
+                        SchoolSubject::getTitle,
+                        Comparator.nullsFirst(CollatorHolder.getUaCollator())))
+                .collect(Collectors.toList());
     }
 }
