@@ -234,7 +234,7 @@ public class CourseServiceTest {
         Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
                 .thenReturn(Collections.singletonList(noTeacher));
 
-        List<Course> actualCourses = courseService.selectCoursesForStudent(expectedStudent);
+        List<Course> actualCourses = courseService.createAndSaveCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()
@@ -264,7 +264,7 @@ public class CourseServiceTest {
         Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
                 .thenReturn(Collections.singletonList(noTeacher));
 
-        List<Course> actualCourses = courseService.selectCoursesForStudent(expectedStudent);
+        List<Course> actualCourses = courseService.createAndSaveCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()

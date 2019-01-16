@@ -55,27 +55,36 @@
                 <th class="text-left">П.І.Б.</th>
                 <th class="text-left">Назва події</th>
                 <th class="text-left">Опис</th>
-                <th class="text-left">Примітки</th>
+                <th class="text-left">Деталі</th>
                 <th class="text-right" style="width: 10ch">Розклад</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="participant : ${participants}">
-                <td class="text-left" th:text="${participant.getDate()}">Дата</td>
-                <td class="text-left" th:text="${participant.getTime()}">Час</td>
+                <td class="text-left" th:text="${#temporals.format(participant.getDate(),'dd/MM ')}">Дата</td>
+                <td class="text-left" th:text="${#temporals.format(participant.getTime(),'HH:mm ')}">Час</td>
                 <td class="text-left" th:text="${participant.getOwnerName()}">П.І.Б.</td>
                 <td class="text-left" th:text="${participant.getEventTitle()}">Назва події</td>
                 <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
-                <td class="text-left" th:if="${participant.isPlanOneSemesterOne() || participant.isPlanOneSemesterTwo()
-                    || participant.isPlanTwoSemesterOne() || participant.isPlanTwoSemesterTwo()}">
+                <td class="text-left">
                     <span class="text-left" th:if="${participant.isPlanOneSemesterOne() || participant.isPlanOneSemesterTwo()}"
-                        th:text="${participant.getPlanOneTitle()
-                    + (participant.isPlanOneSemesterOne() ? ', c.1' : '')
-                    + (participant.isPlanOneSemesterTwo() ? ', c.2' : '')}">Предмет 1</span>
+                          th:text="${
+                        '[' + participant.getPlanOneTitle()
+                        + (participant.isPlanOneSemesterOne() ? ', cеместр 1' : '')
+                        + (participant.isPlanOneSemesterOne() && participant.isPlanOneSemesterTwo() ? ', ' : '')
+                        + (participant.isPlanOneSemesterTwo() ? ', cеместр 2' : '')
+                        + '] '}">
+                        Предмет 1
+                    </span>
                     <span class="text-left" th:if="${participant.isPlanTwoSemesterOne() || participant.isPlanTwoSemesterTwo()}"
-                        th:text="${participant.getPlanTwoTitle()
-                    + (participant.isPlanTwoSemesterOne() ? ', c.1' : '')
-                    + (participant.isPlanTwoSemesterTwo() ? ', c.2' : '')}">Предмет 2</span>
+                          th:text="${
+                        '[' + participant.getPlanTwoTitle()
+                        + (participant.isPlanTwoSemesterOne() ? ', cеместр 1' : '')
+                        + (participant.isPlanTwoSemesterOne() && participant.isPlanTwoSemesterTwo() ? ', ' : '')
+                        + (participant.isPlanTwoSemesterTwo() ? ', cеместр 2' : '')
+                        + ']'}">
+                        Предмет 2
+                    </span>
                 </td>
                 <td class="text-right">
                     <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"

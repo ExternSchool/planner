@@ -6,7 +6,6 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
@@ -32,7 +31,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -52,7 +53,6 @@ public class StudyPlanControllerTest {
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private UserService userService;
-    @Autowired private RoleService roleService;
     @Autowired VerificationKeyService keyService;
     private StudyPlanController controller;
 
@@ -76,8 +76,7 @@ public class StudyPlanControllerTest {
             subjectService.saveOrUpdateSubject(subject);
             subjects.add(subject);
             StudyPlan plan = new StudyPlan(level, subject);
-            planService.saveOrUpdatePlan(plan);
-            plans.add(plan);
+            plans.add(planService.saveOrUpdatePlan(plan));
         });
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
@@ -100,18 +99,17 @@ public class StudyPlanControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnPlanListTemplate_whenGetAllStudyPlansWithAdminRole() throws Exception {
-        String title = plans.get(0).getTitle();
+        List<StudyPlanDTO> expected = planService.findAll().stream()
+                .filter(plan -> !plan.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .map(s -> conversionService.convert(s, StudyPlanDTO.class))
+                .collect(Collectors.toList());
 
         mockMvc.perform(get("/plan/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
                 .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("plans", Matchers.hasSize(4 + originalPlansNumber)))
-                .andExpect(model().attribute("plans",
-                        Matchers.hasItem(
-                                Matchers.<SchoolSubject> hasProperty("title",
-                                        Matchers.equalToIgnoringCase(title)))));
+                .andExpect(model().attribute("plans", expected));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package io.github.externschool.planner.controller;
 
 import io.github.externschool.planner.dto.CourseDTO;
+import io.github.externschool.planner.dto.ParticipantDTO;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.emailservice.EmailService;
@@ -57,7 +58,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -162,8 +165,10 @@ public class StudentControllerTest {
         subject.setTitle("Subject");
         subjectService.saveOrUpdateSubject(subject);
         StudyPlan plan = new StudyPlan(student.getGradeLevel(), subject);
+        plan.setTitle(subject.getTitle());
         planService.saveOrUpdatePlan(plan);
         Course course = new Course(student.getId(), plan.getId());
+        course.setTitle(plan.getTitle());
         courseService.saveOrUpdateCourse(course);
 
         teacher = new Teacher();
@@ -616,9 +621,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldRedirect_whenPostUpdateActionSaveAdmin() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
-        userService.save(user);
-
         mockMvc.perform(post("/student/update")
                 .param("action", "save")
                 .params(map).with(csrf()))
@@ -945,7 +947,6 @@ public class StudentControllerTest {
                         .attributeDoesNotExist("recentUpdate"))
                 .andExpect(model()
                         .attribute("availableEvents", 0L));
-
     }
 
     @Test
@@ -1000,7 +1001,6 @@ public class StudentControllerTest {
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
                         .attributeExists("availableEvents"));
-
     }
 
     @Test
@@ -1018,6 +1018,7 @@ public class StudentControllerTest {
                 "Official",
                 new HashSet<>(),
                 new HashSet<>()));
+        teacher.setLastName("Teacher");
 
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
@@ -1038,7 +1039,6 @@ public class StudentControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/student/" + student.getId()
                         + "/teacher/" + teacher.getId() + "/schedule"));
-
     }
 
     @Test
@@ -1056,6 +1056,7 @@ public class StudentControllerTest {
                 "Official",
                 new HashSet<>(),
                 new HashSet<>()));
+        teacher.setLastName("Teacher");
 
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventUser.getRoles().forEach(type::addOwner);
@@ -1076,7 +1077,6 @@ public class StudentControllerTest {
         eventDTO.setEventType(wrongType.getName());
         ScheduleEvent wrongEvent = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
 
-
         mockMvc.perform(post("/student/" + student.getId() + "/teacher/"
                 + teacher.getId() + "/event/" + wrongEvent.getId() + "/subscribe").with(csrf()))
                 .andExpect(status().isOk())
@@ -1085,8 +1085,58 @@ public class StudentControllerTest {
                         .attributeExists("error"))
                 .andExpect(model()
                         .attribute("error", Matchers.notNullValue()));
+    }
 
 
+    @Test
+    @WithMockUser(username = userName, roles = {"STUDENT"})
+    public void shouldReturnMAVError_whenUnsuccessfulProcessSubscriptionForAdminInChargeEvent() throws Exception {
+        /*
+        @PostMapping("/{gid}/teacher/{id}/event/{event}/subscribe")
+        return modelAndView;
+        */
+        User eventUser = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
+        userService.createNewKeyWithNewPersonAndAddToUser(eventUser);
+        userService.assignNewRole(eventUser, "ROLE_TEACHER");
+        Teacher teacher = teacherService.saveOrUpdateTeacher(new Teacher(
+                eventUser.getVerificationKey().getPerson(),
+                UK_COURSE_ADMIN_IN_CHARGE,
+                new HashSet<>(),
+                new HashSet<>()));
+        teacher.setLastName(UK_COURSE_ADMIN_IN_CHARGE);
+
+        ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
+        eventUser.getRoles().forEach(type::addOwner);
+        user.getRoles().forEach(type::addParticipant);
+        typeService.saveEventType(type);
+
+        ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                .withTitle(UK_EVENT_TYPE_TEST)
+                .withDate(LocalDate.now())
+                .withEventType(type.getName())
+                .withStartTime(LocalTime.MAX)
+                .withIsOpen(true)
+                .build();
+        ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
+
+        ParticipantDTO participantDTO = scheduleService.addParticipant(user, event)
+                .map(participant -> scheduleService.saveParticipant(participant))
+                .map(participant -> conversionService.convert(participant, ParticipantDTO.class))
+                .orElse(new ParticipantDTO(100500L));
+        StudyPlan plan = planService.findById(courseService.findAllByStudentId(student.getId()).get(0).getPlanId());
+        participantDTO.setPlanOneTitle(plan.getTitle());
+        participantDTO.setPlanOneId(plan.getId());
+        participantDTO.setPlanOneSemesterOne(true);
+
+        mockMvc.perform(post("/student/" + student.getId() + "/teacher/"
+                + teacher.getId() + "/event/" + event.getId() + "/subscribe")
+                .requestAttr("participant", participantDTO).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("student/student_schedule"))
+                .andExpect(model()
+                        .attributeExists("error"))
+                .andExpect(model()
+                        .attribute("error", Matchers.notNullValue()));
     }
 
     @Test

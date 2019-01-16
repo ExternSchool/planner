@@ -49,14 +49,14 @@ public final class Constants {
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
     public static final String UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS = "Помилка вводу даних! " +
-            "Виберіть предмети та семестри так, щоб отримати не більше 2-х контрольних робіт.";
+            "Виберіть предмети та семестри так, щоб писати 1-2 контрольні роботи за раз";
     public static final String UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE =
             "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
     public static final String UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE =
             "За користувачем не зареєстровано вказану подію. \nСпробуйте ще або зверніться до адміністратора";
     public static final String UK_USER_ACCOUNT_NOT_CONFIRMED =
             "Користувач з вказаною адресою не знайдений або обліковий запис не активований!\n" +
-            "Після реєстрації активуйте обліковий запис за посиланням, яке надіслано на вказану при реєстрації адресу.";
+            "Після реєстрації активуйте обліковий запис за посиланням, яке надіслане на вказану при реєстрації адресу";
 
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";

@@ -2,7 +2,6 @@ package io.github.externschool.planner.service;
 
 import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Student;
-import io.github.externschool.planner.entity.profile.Teacher;
 
 import java.util.List;
 
@@ -23,5 +22,5 @@ public interface CourseService {
 
     String getCourseTitleAndTeacherByCourse(Course course);
 
-    List<Course> selectCoursesForStudent(Student student);
+    List<Course> createAndSaveCoursesForStudent(Student student);
 }

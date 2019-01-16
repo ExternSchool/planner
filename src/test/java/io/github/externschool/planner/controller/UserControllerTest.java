@@ -95,7 +95,7 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupParamsOk() throws Exception {
-        expectedUser = userService.createUser("user@somemail.com", "!Qwert", "ROLE_GUEST");
+        expectedUser = userService.createUser("user@somemail", "!Qwert", "ROLE_GUEST");
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("email",expectedUser.getEmail());
         map.add("password", expectedUser.getPassword());

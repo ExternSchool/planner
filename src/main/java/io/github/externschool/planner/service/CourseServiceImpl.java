@@ -103,7 +103,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> selectCoursesForStudent(final Student student) {
+    public List<Course> createAndSaveCoursesForStudent(final Student student) {
         List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
         List<Course> coursesToTake = new ArrayList<>(findAllByStudentId(student.getId()));
         if (plansToFulfill.size() != coursesToTake.size()) {

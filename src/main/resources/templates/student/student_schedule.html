@@ -267,17 +267,21 @@
                         <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">дата зустрічі</span>
                         о
                         <span style="white-space: pre;" th:text="${event.getStartTime()}">час зустрічі</span>
-                        <br>
+                    <br>
                     <div th:if="${not #lists.isEmpty(courses)}">
-                        <div class="input-group">
-                            <div class="col-sm-8 form-control mr-1">
+                        <div class="small text-center text-muted mt-1">
+                            вибирайте предмети і семестри так, щоб отримати <br>
+                            1-2 контрольні роботи за одне відвідування
+                        </div>
+                        <div class="input-group container-fluid col-lg-10 d-flex justify-content-center my-2">
+                            <div class="col-12">
                                 <select th:field="*{planOneId}" class="custom-select">
                                     <option th:each="crs : ${courses}"
                                             th:value="${crs.planId}"
                                             th:text="${crs.title}">Предмет</option>
                                 </select>
                             </div>
-                            <span class="col-sm-4 input-group-addon">
+                            <div class="form-check-inline mr-0 pr-0 col-12 justify-content-around">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="planOneSemesterOne"
                                            th:field="*{planOneSemesterOne}">
@@ -288,17 +292,17 @@
                                            th:field="*{planOneSemesterTwo}">
                                     <label class="custom-control-label" th:for="planOneSemesterTwo">Семестр 2</label>
                                 </div>
-                            </span>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <div class="col-sm-8 form-control mr-1">
+                        <div class="input-group container-fluid col-lg-10 d-flex justify-content-center">
+                            <div class="col-12">
                                 <select th:field="*{planTwoId}" class="custom-select">
                                     <option th:each="crs : ${courses}"
                                             th:value="${crs.planId}"
                                             th:text="${crs.title}">Предмет</option>
                                 </select>
                             </div>
-                            <span class="col-sm-4 input-group-addon">
+                            <span class="form-check-inline mr-0 pr-0 col-12 justify-content-around">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="planTwoSemesterOne"
                                            th:field="*{planTwoSemesterOne}">
@@ -313,7 +317,7 @@
                         </div>
                         <br>
                     </div>
-                    Зарезервувати вибраний час для зустрічі?
+                    Зарезервувати вибраний час?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">

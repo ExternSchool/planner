@@ -209,7 +209,7 @@ public class StudentController {
     public ModelAndView displayFormStudentPlanForStudent(final Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
         Student student = studentService.findStudentById(user.getVerificationKey().getPerson().getId());
-        List<Course> courses = courseService.selectCoursesForStudent(student);
+        List<Course> courses = courseService.createAndSaveCoursesForStudent(student);
 
         return showStudentPlanForm(student, courses, 0L);
     }
@@ -222,7 +222,7 @@ public class StudentController {
         if (student == null) {
             return redirectByRole(principal);
         }
-        List<Course> courses = courseService.selectCoursesForStudent(student);
+        List<Course> courses = courseService.createAndSaveCoursesForStudent(student);
 
         return showStudentPlanForm(student, courses, 0L);
     }
@@ -276,28 +276,39 @@ public class StudentController {
                 throw new BindingResultException(UK_FORM_VALIDATION_ERROR_MESSAGE);
             }
         } catch (BindingResultException e) {
-            ModelAndView modelAndView = showStudentProfileForm(studentDTO, true);
-            modelAndView.addObject("error", e.getMessage());
-
-            return modelAndView;
+            return showStudentProfileForm(studentDTO, true).addObject("error", e.getMessage());
         }
 
         studentDTO.setVerificationKey(keyService.saveOrUpdateKey(Optional.ofNullable(studentDTO.getVerificationKey())
                 .orElse(new VerificationKey())));
-        Student student = studentService.saveOrUpdateStudent(conversionService.convert(studentDTO, Student.class));
+        GradeLevel originalGradeLevel = Optional.ofNullable(studentDTO.getId())
+                .map(studentService::findStudentById)
+                .map(Student::getGradeLevel)
+                .orElse(null);
+        List<Course> originalCourses = Optional.ofNullable(studentDTO.getId())
+                .map(studentService::findStudentById)
+                .map(Student::getId)
+                .map(courseService::findAllByStudentId)
+                .orElse(Collections.emptyList());
+
+        Student updatedStudent = studentService.saveOrUpdateStudent(
+                conversionService.convert(studentDTO, Student.class));
+        if (updatedStudent == null || updatedStudent.getId() == null) {
+            return redirectByRole(principal);
+        }
         if (isPrincipalAnAdmin(principal)) {
-            Optional<User> user = Optional.ofNullable(student)
-                    .map(Student::getVerificationKey)
-                    .map(VerificationKey::getUser)
-                    .map(u -> userService.save(userService.assignNewRolesByKey(u, u.getVerificationKey())));
-            if (!user.isPresent()) {
-                Optional.ofNullable(student).ifPresent(t ->
-                        userService.createAndSaveFakeUserWithKeyAndRoleName(t.getVerificationKey(),
-                                "ROLE_STUDENT"));
-            }
+            Optional.ofNullable(updatedStudent.getGradeLevel()).filter(level -> !level.equals(originalGradeLevel))
+                    .ifPresent(level -> {
+                        originalCourses.forEach(courseService::deleteCourse);
+                        courseService.createAndSaveCoursesForStudent(updatedStudent);
+                    });
+            VerificationKey key = updatedStudent.getVerificationKey();
+            User finalUser = Optional.ofNullable(key.getUser())
+                    .map(user -> userService.save(userService.assignNewRolesByKey(user, key)))
+                    .orElse(userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_STUDENT"));
         }
 
-        return new ModelAndView("redirect:/student/" + student.getId() + "/plan", model);
+        return new ModelAndView("redirect:/student/" + updatedStudent.getId() + "/plan", model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
@@ -448,7 +459,7 @@ public class StudentController {
                 .anyMatch(teacher -> teacher.getId().equals(teacherId));
         if (isTeacherAdminInCharge) {
             CourseDTO nullCourse = new CourseDTO(studentId, null);
-            nullCourse.setTitle("2 предмета АБО 2 семестра");
+            nullCourse.setTitle("Виберіть предмет");
             courses.add(nullCourse);
             courses.addAll(courseService.findAllByStudentId(studentId).stream()
                     .filter(course -> !course.getTitle().equals(UK_EVENT_TYPE_TEST))
@@ -472,31 +483,39 @@ public class StudentController {
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
                 .orElse(null);
-        if (user == null || participantDTO == null || isTeacher(user) || !isUserAnAdmin(user)
-                || (participantDTO.getPlanOneId() == null
-                    && (participantDTO.isPlanOneSemesterOne() || participantDTO.isPlanOneSemesterTwo()))
-                || (participantDTO.getPlanTwoId() == null
-                    && (participantDTO.isPlanTwoSemesterOne() || participantDTO.isPlanTwoSemesterTwo()))
-                ||  (participantDTO.isPlanOneSemesterOne() ? 1 : 0) +
-                    (participantDTO.isPlanTwoSemesterTwo() ? 1 : 0) +
-                    (participantDTO.isPlanTwoSemesterOne() ? 1 : 0) +
-                    (participantDTO.isPlanOneSemesterTwo() ? 1 : 0) > 2) {
-            ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
-            modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS);
 
-            return modelAndView;
+        ModelAndView modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
+
+        if (user == null || participantDTO == null || personService.findPersonById(teacherId) == null) {
+            return modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_MESSAGE);
         }
 
-        ModelAndView modelAndView = new ModelAndView(
-                "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
+        if (personService.findPersonById(teacherId).getLastName().equals(UK_COURSE_ADMIN_IN_CHARGE)) {
+            if ((participantDTO.getPlanOneId() == null &&
+                    (participantDTO.isPlanOneSemesterOne() || participantDTO.isPlanOneSemesterTwo()))
+                    || (participantDTO.getPlanTwoId() == null &&
+                    (participantDTO.isPlanTwoSemesterOne() || participantDTO.isPlanTwoSemesterTwo()))
+                    || (participantDTO.getPlanOneId() == null && participantDTO.getPlanTwoId() == null)
+                    || (participantDTO.getPlanOneId() != null && participantDTO.getPlanTwoId() != null &&
+                    participantDTO.getPlanOneId().equals(participantDTO.getPlanTwoId()))
+                    || ((participantDTO.isPlanOneSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterTwo() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanOneSemesterTwo() ? 1 : 0) > 2)) {
+
+                return modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS);
+            }
+        }
+
         try {
             subscribeScheduleEvent(studentId, eventId, participantDTO);
         } catch (UserCanNotHandleEventException e) {
-            modelAndView = prepareScheduleModelAndView(studentId, teacherId, model);
-            modelAndView.addObject("error", e.getMessage());
+
+            return modelAndView.addObject("error", e.getMessage());
         }
 
-        return modelAndView;
+        return new ModelAndView(
+                "redirect:/student/" + studentId + "/teacher/" + teacherId + "/schedule", model);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_STUDENT"})
