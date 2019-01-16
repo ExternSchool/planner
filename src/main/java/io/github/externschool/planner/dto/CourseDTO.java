@@ -24,6 +24,8 @@ public class CourseDTO {
     private Integer worksPerSemesterOne;
     private Integer worksPerSemesterTwo;
 
+    private String optionalData;
+
     public CourseDTO(final Long studentId, final Long planId) {
         this.studentId = studentId;
         this.planId = planId;
@@ -157,6 +159,14 @@ public class CourseDTO {
         this.worksPerSemesterTwo = worksPerSemesterTwo;
     }
 
+    public String getOptionalData() {
+        return optionalData;
+    }
+
+    public void setOptionalData(final String optionalData) {
+        this.optionalData = optionalData;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -178,7 +188,8 @@ public class CourseDTO {
                 Objects.equals(getHoursPerSemesterOne(), courseDTO.getHoursPerSemesterOne()) &&
                 Objects.equals(getHoursPerSemesterTwo(), courseDTO.getHoursPerSemesterTwo()) &&
                 Objects.equals(getWorksPerSemesterOne(), courseDTO.getWorksPerSemesterOne()) &&
-                Objects.equals(getWorksPerSemesterTwo(), courseDTO.getWorksPerSemesterTwo());
+                Objects.equals(getWorksPerSemesterTwo(), courseDTO.getWorksPerSemesterTwo()) &&
+                Objects.equals(getOptionalData(), courseDTO.getOptionalData());
     }
 
     @Override
@@ -189,7 +200,7 @@ public class CourseDTO {
                 getExamScoreSemesterOne(), getExamScoreSemesterTwo(),
                 getFinalScoreSemesterOne(), getFinalScoreSemesterTwo(),
                 getFinalResultScore(), getHoursPerSemesterOne(), getHoursPerSemesterTwo(),
-                getWorksPerSemesterOne(), getWorksPerSemesterTwo());
+                getWorksPerSemesterOne(), getWorksPerSemesterTwo(), getOptionalData());
     }
 
     @Override

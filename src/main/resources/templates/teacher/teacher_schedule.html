@@ -96,6 +96,7 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-left" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -111,9 +112,9 @@
                                     </ul>
                                 </td>
                                 <td class="text-right" th:if="${evnt.isOpen()}">
-                                    <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
+                                    <button type="submit" name="delete-current" value="delete-current" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="far fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -165,6 +166,7 @@
                             <tr>
                                 <th class="text-left" style="width: 6ch">Час</th>
                                 <th class="text-left">Подія</th>
+                                <th class="text-left" style="width: 3ch"></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -180,9 +182,9 @@
                                     </ul>
                                 </td>
                                 <td class="text-right" th:if="${evnt.isOpen()}">
-                                    <button type="submit" name="cancel" value="cancel" class="btn badge badge-danger"
+                                    <button type="submit" name="delete-next" value="delete-next" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fa fa-trash"></i>
+                                        <i class="far fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -239,9 +241,9 @@
                                     </ul>
                                 </td>
                                 <td class="text-right">
-                                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteTemplateModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="fa fa-trash"></i>
+                                        <i class="far fa-trash-alt"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -288,7 +290,7 @@
                     <div class="floating mb-3">
                         <div class="form-group mb-0">
                             <label for="startOfEvent">Початок події: </label>
-                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
+                            <input class="form-control" type="datetime-local" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
                         <div class="form-group mb-0">
@@ -510,7 +512,10 @@
                     Вибачте, на цю подію вже є зареєстровані відвідувачі -
                     окремо її видалити неможливо. Але її можна скасувати разом
                     з іншими подіями, призначеними на цей день. Для скасування всіх
-                    подій скористайтеся розташованою вище кнопкою "Скасувати".
+                    подій скористайтеся розташованою вище кнопкою
+                    <span class="btn-outline-danger">
+                        <i class="fas fa-calendar-times"></i>
+                    </span>
                 </div>
             </div>
             <div class="modal-footer">

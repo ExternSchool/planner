@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public class StudyPlanController {
 
     @GetMapping("/{id}")
     public ModelAndView  displayStudyPlansListActionEdit(@PathVariable Long id) {
-        if (id == null || planService.findById(id) == null) {
+        if (id == null || planService.findById(id) == null || planService.findById(id).getGradeLevel() == null) {
             return prepareModelAndView(0, 0L);
         }
         return prepareModelAndView(planService.findById(id).getGradeLevel().getValue(), id);
@@ -116,8 +117,10 @@ public class StudyPlanController {
             planId = 0L;
         }
         List<StudyPlanDTO> plans = Optional.of((level == 0
-                    ? planService.findAll().stream()
-                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
+                    ? planService.findAll()
+                    : planService.findAllByGradeLevel(GradeLevel.valueOf(level))).stream()
+                .filter(Objects::nonNull)
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -126,7 +129,10 @@ public class StudyPlanController {
                 Optional.ofNullable(planService.findById(planId))
                         .orElse(new StudyPlan(GradeLevel.valueOf(level), new SchoolSubject())),
                 StudyPlanDTO.class));
-        List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle();
+        List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle().stream()
+                .filter(Objects::nonNull)
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .collect(Collectors.toList());
         modelAndView.addObject("subjects", subjects);
         modelAndView.addObject("level", GradeLevel.valueOf(level));
 
