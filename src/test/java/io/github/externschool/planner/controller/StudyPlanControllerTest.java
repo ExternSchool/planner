@@ -30,6 +30,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -100,7 +101,8 @@ public class StudyPlanControllerTest {
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnPlanListTemplate_whenGetAllStudyPlansWithAdminRole() throws Exception {
         List<StudyPlanDTO> expected = planService.findAll().stream()
-                .filter(plan -> !plan.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(Objects::nonNull)
+                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList());
 

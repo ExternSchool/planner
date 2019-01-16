@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -119,7 +120,8 @@ public class StudyPlanController {
         List<StudyPlanDTO> plans = Optional.of((level == 0
                     ? planService.findAll().stream()
                     : planService.findAllByGradeLevel(GradeLevel.valueOf(level)).stream())
-                .filter(s -> !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(Objects::nonNull)
+                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -129,6 +131,7 @@ public class StudyPlanController {
                         .orElse(new StudyPlan(GradeLevel.valueOf(level), new SchoolSubject())),
                 StudyPlanDTO.class));
         List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle().stream()
+                .filter(Objects::nonNull)
                 .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
                 .collect(Collectors.toList());
         modelAndView.addObject("subjects", subjects);
