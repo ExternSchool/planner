@@ -44,11 +44,18 @@
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
             Розклад вчителя (працівника): [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
-        </small>
-        <a class="float-right btn btn-sm btn-outline-info ml-3"
-           th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
+                    <button type="button" class="btn badge badge-info ml-3">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+            </span>
+            <a class="float-right btn btn-sm btn-outline-info ml-3"
+               th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
                 Список відвідувачів
-        </a>
+            </a>
+        </small>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
@@ -114,7 +121,7 @@
                                 <td class="text-right" th:if="${evnt.isOpen()}">
                                     <button type="submit" name="delete-current" value="delete-current" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="far fa-trash-alt"></i>
+                                        <i class="far fa-trash-alt" style="color: white"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -184,7 +191,7 @@
                                 <td class="text-right" th:if="${evnt.isOpen()}">
                                     <button type="submit" name="delete-next" value="delete-next" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="far fa-trash-alt"></i>
+                                        <i class="far fa-trash-alt" style="color: white"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -243,7 +250,7 @@
                                 <td class="text-right">
                                     <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-muted"
                                             th:onclick="'javascript:openDeleteTemplateModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
-                                        <i class="far fa-trash-alt"></i>
+                                        <i class="far fa-trash-alt" style="color: white"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -290,7 +297,7 @@
                     <div class="floating mb-3">
                         <div class="form-group mb-0">
                             <label for="startOfEvent">Початок події: </label>
-                            <input class="form-control" type="datetime-local" placeholder="Початок події" id="startOfEvent"
+                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
                         <div class="form-group mb-0">
@@ -340,7 +347,9 @@
                     <div class="floating mb-3">
                         <div class="form-group mb-0">
                             <label for="startOfEvent">Початок події: </label>
-                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEventCurrent"
+                            <input class="form-control"type="time"  placeholder="Початок події" id="startOfEventCurrent"
+                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
+                            <input class="form-control" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
                         <div class="form-group mb-0">

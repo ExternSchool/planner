@@ -157,7 +157,7 @@ public class StudentController {
      * @param principal principal user
      * @return ModelAndView
      */
-    @Secured({"ROLE_ADMIN", "ROLE_TEACHER"})
+    @Secured("ROLE_ADMIN")
     @GetMapping("/search/{id}")
     public ModelAndView displayStudentWithSearch(@PathVariable(value = "id", required = false) Long id,
                                                  Principal principal) {

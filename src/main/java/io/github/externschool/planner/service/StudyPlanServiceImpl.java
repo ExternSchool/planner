@@ -46,14 +46,14 @@ public class StudyPlanServiceImpl implements StudyPlanService {
 
     @Override
     public List<StudyPlan> findAllBySubject(final SchoolSubject subject) {
-        return Optional.ofNullable(subject).map(planRepository::findAllBySubjectOrderByGradeLevelAscTitleAsc)
-                .orElse(Collections.emptyList());
+        return sort(Optional.ofNullable(subject).map(planRepository::findAllBySubjectOrderByGradeLevelAscTitleAsc)
+                .orElse(Collections.emptyList()));
     }
 
     @Override
     public List<StudyPlan> findAllByGradeLevel(final GradeLevel gradeLevel) {
-        return Optional.ofNullable(gradeLevel).map(planRepository::findAllByGradeLevelOrderByTitleAsc)
-                .orElseGet(planRepository::findAllByOrderByGradeLevelAscTitleAsc);
+        return sort(Optional.ofNullable(gradeLevel).map(planRepository::findAllByGradeLevelOrderByTitleAsc)
+                .orElseGet(planRepository::findAllByOrderByGradeLevelAscTitleAsc));
     }
 
     @Override

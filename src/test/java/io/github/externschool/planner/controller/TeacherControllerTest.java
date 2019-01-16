@@ -171,6 +171,16 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"TEACHER","ADMIN"})
+    public void shouldReturnMaV_whenGetTeacherSearch() throws Exception {
+        mockMvc.perform(get("/teacher/search/" + teacher.getId()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_list"))
+                .andExpect(content().string(Matchers.containsString("Teacher List")))
+                .andExpect(model().attributeExists("teachers"));
+    }
+
+    @Test
     @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldReturnTeacherProfileTemplate_whenRequestWithTeacherRole() throws Exception {
         mockMvc.perform(get("/teacher/profile"))

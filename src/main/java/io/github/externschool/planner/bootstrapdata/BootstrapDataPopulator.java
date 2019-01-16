@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
+import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.CourseRepository;
@@ -120,6 +121,50 @@ public class BootstrapDataPopulator implements InitializingBean {
             inCharge.setEnabled(true);
             teacherService.saveOrUpdateTeacher(inChargeTeacher);
             userService.save(inCharge);
+        }
+        
+        //TODO Remove after been tested
+        if (userService.getUserByEmail("mailto.benkoff@gmail.com") == null) {
+            User testTeacher = userService.createUser("mailto.benkoff@gmail.com", "q", "ROLE_TEACHER");
+            testTeacher = userService.save(testTeacher);
+            VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+            Teacher testTeacherTeacher = createTeacher(
+                    new Person(null,
+                            "Test",
+                            "von Test",
+                            "Teacher",
+                            "000-0000"),
+                    verificationKey,
+                    "Official",
+                    Collections.emptyList());
+            testTeacherTeacher.addVerificationKey(verificationKey);
+            testTeacher.addVerificationKey(verificationKey);
+            testTeacher.setEnabled(true);
+            teacherService.saveOrUpdateTeacher(testTeacherTeacher);
+            userService.assignNewRole(testTeacher, "ROLE_OFFICER");
+            userService.save(testTeacher);
+        }
+
+        //TODO Remove after been tested
+        if (userService.getUserByEmail("bigopendatanet@gmail.com") == null) {
+            User testStudent = userService.createUser("bigopendatanet@gmail.com", "q", "ROLE_STUDENT");
+            testStudent = userService.save(testStudent);
+            VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
+            Student testStudentStudent = new Student(
+                    new Person(null,
+                            "Test-Student",
+                            "di Testo",
+                            "Student",
+                            "000-0000"),
+                    null,
+                    null,
+                    null,
+                    GradeLevel.LEVEL_11);
+            testStudentStudent.addVerificationKey(verificationKey);
+            testStudent.addVerificationKey(verificationKey);
+            testStudent.setEnabled(true);
+            studentService.saveOrUpdateStudent(testStudentStudent);
+            userService.save(testStudent);
         }
     }
 

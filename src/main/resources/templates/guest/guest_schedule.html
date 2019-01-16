@@ -51,20 +51,18 @@
             </span>
         </span>
             Запис на прийом до працівників школи
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/guest/search/{id}(id=${guest.getId()})}">
+                    <button type="button" class="btn badge badge-info ml-3">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+                <a class="float-right btn btn-sm btn-outline-info ml-3"
+                   th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
+                    Список зустрічей
+                </a>
+            </span>
         </small>
-        <span>
-            <a th:href="@{/guest/search/{id}(id=${guest.getId()})}">
-                <button type="button" class="btn badge badge-info ml-3">
-                    <i class="fas fa-external-link-square-alt"></i>
-                </button>
-            </a>
-        </span>
-        <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-        <a class="float-right btn btn-sm btn-outline-info ml-3"
-           th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
-            Список резервувань
-        </a>
-        </span>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
     <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">

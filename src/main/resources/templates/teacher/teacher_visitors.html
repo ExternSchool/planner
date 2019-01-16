@@ -39,13 +39,19 @@
         <small>
             Відвідувачі до вчителя (працівника)
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                    : [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
-                </span>
+                : [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
+                <a class="d-print-none" th:href="@{/teacher/search/{id}(id=${teacher.getId()})}" aria-hidden="true">
+                    <button type="button" class="btn badge badge-info ml-3">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+            </span>
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+                Роздрукувати
+            </button>
         </small>
     </h4>
-    <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
-        Роздрукувати
-    </button>
+
     <div  th:if="${not #lists.isEmpty(students)}">
         <h5 class="font-weight-normal" th:inline="text"><small>Екстерни</small></h5>
         <div class="table-responsive">
@@ -113,8 +119,8 @@
                     <td class="d-print-none text-right">
                         <span sec:authorize="hasRole('ROLE_ADMIN')">
                             <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${guest.id}, id=${teacher.id})}"
-                               class="btn badge badge-info">
-                                <i class="far fa-calendar-check" style="color: white" aria-hidden="true"></i>
+                               class="btn badge badge-info" aria-hidden="true">
+                                <i class="far fa-calendar-check" style="color: white"></i>
                             </a>
                         </span>
                     </td>
