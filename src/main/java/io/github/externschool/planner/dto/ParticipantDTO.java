@@ -1,16 +1,14 @@
 package io.github.externschool.planner.dto;
 
-import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.StringJoiner;
 
 public class ParticipantDTO {
-    private long id;
+    private Long id;
     private LocalDate date;
     private LocalTime time;
     private String personName;
@@ -20,24 +18,31 @@ public class ParticipantDTO {
     private long personId;
     private long ownerId;
     private long eventId;
-    private Person person;
-    private Person owner;
-    private ScheduleEvent event;
+    private Long planOneId;
+    private boolean planOneSemesterOne;
+    private boolean planOneSemesterTwo;
+    private Long planTwoId;
+    private boolean planTwoSemesterOne;
+    private boolean planTwoSemesterTwo;
+    private String planOneTitle;
+    private String planTwoTitle;
 
-    public ParticipantDTO() {
+    private ParticipantDTO() {
     }
 
-    public ParticipantDTO(final Long id, final Person person, final ScheduleEvent event) {
+    public ParticipantDTO(final Long id) {
         this.id = id;
-        this.person = person;
-        this.event = event;
+        planOneSemesterOne = false;
+        planOneSemesterTwo = false;
+        planTwoSemesterOne = false;
+        planTwoSemesterTwo = false;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(final long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -113,28 +118,68 @@ public class ParticipantDTO {
         this.eventId = eventId;
     }
 
-    public Person getPerson() {
-        return person;
+    public Long getPlanOneId() {
+        return planOneId;
     }
 
-    public void setPerson(final Person person) {
-        this.person = person;
+    public void setPlanOneId(final Long planOneId) {
+        this.planOneId = planOneId;
     }
 
-    public Person getOwner() {
-        return owner;
+    public boolean isPlanOneSemesterOne() {
+        return planOneSemesterOne;
     }
 
-    public void setOwner(final Person owner) {
-        this.owner = owner;
+    public void setPlanOneSemesterOne(final boolean planOneSemesterOne) {
+        this.planOneSemesterOne = planOneSemesterOne;
     }
 
-    public ScheduleEvent getEvent() {
-        return event;
+    public boolean isPlanOneSemesterTwo() {
+        return planOneSemesterTwo;
     }
 
-    public void setEvent(final ScheduleEvent event) {
-        this.event = event;
+    public void setPlanOneSemesterTwo(final boolean planOneSemesterTwo) {
+        this.planOneSemesterTwo = planOneSemesterTwo;
+    }
+
+    public Long getPlanTwoId() {
+        return planTwoId;
+    }
+
+    public void setPlanTwoId(final Long planTwoId) {
+        this.planTwoId = planTwoId;
+    }
+
+    public boolean isPlanTwoSemesterOne() {
+        return planTwoSemesterOne;
+    }
+
+    public void setPlanTwoSemesterOne(final boolean planTwoSemesterOne) {
+        this.planTwoSemesterOne = planTwoSemesterOne;
+    }
+
+    public boolean isPlanTwoSemesterTwo() {
+        return planTwoSemesterTwo;
+    }
+
+    public void setPlanTwoSemesterTwo(final boolean planTwoSemesterTwo) {
+        this.planTwoSemesterTwo = planTwoSemesterTwo;
+    }
+
+    public String getPlanOneTitle() {
+        return planOneTitle;
+    }
+
+    public void setPlanOneTitle(final String planOneTitle) {
+        this.planOneTitle = planOneTitle;
+    }
+
+    public String getPlanTwoTitle() {
+        return planTwoTitle;
+    }
+
+    public void setPlanTwoTitle(final String planTwoTitle) {
+        this.planTwoTitle = planTwoTitle;
     }
 
     @Override
@@ -146,19 +191,24 @@ public class ParticipantDTO {
         ParticipantDTO that = (ParticipantDTO) o;
 
         return new EqualsBuilder()
-                .append(getId(), that.getId())
                 .append(getPersonId(), that.getPersonId())
                 .append(getOwnerId(), that.getOwnerId())
                 .append(getEventId(), that.getEventId())
+                .append(isPlanOneSemesterOne(), that.isPlanOneSemesterOne())
+                .append(isPlanOneSemesterTwo(), that.isPlanOneSemesterTwo())
+                .append(isPlanTwoSemesterOne(), that.isPlanTwoSemesterOne())
+                .append(isPlanTwoSemesterTwo(), that.isPlanTwoSemesterTwo())
+                .append(getId(), that.getId())
                 .append(getDate(), that.getDate())
                 .append(getTime(), that.getTime())
                 .append(getPersonName(), that.getPersonName())
                 .append(getOwnerName(), that.getOwnerName())
                 .append(getEventTitle(), that.getEventTitle())
                 .append(getEventDescription(), that.getEventDescription())
-                .append(getPerson(), that.getPerson())
-                .append(getOwner(), that.getOwner())
-                .append(getEvent(), that.getEvent())
+                .append(getPlanOneId(), that.getPlanOneId())
+                .append(getPlanTwoId(), that.getPlanTwoId())
+                .append(getPlanOneTitle(), that.getPlanOneTitle())
+                .append(getPlanTwoTitle(), that.getPlanTwoTitle())
                 .isEquals();
     }
 
@@ -175,18 +225,38 @@ public class ParticipantDTO {
                 .append(getPersonId())
                 .append(getOwnerId())
                 .append(getEventId())
-                .append(getPerson())
-                .append(getOwner())
-                .append(getEvent())
+                .append(getPlanOneId())
+                .append(isPlanOneSemesterOne())
+                .append(isPlanOneSemesterTwo())
+                .append(getPlanTwoId())
+                .append(isPlanTwoSemesterOne())
+                .append(isPlanTwoSemesterTwo())
+                .append(getPlanOneTitle())
+                .append(getPlanTwoTitle())
                 .toHashCode();
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("id: ", id)
-                .append("person id: ", person.getId())
-                .append("event id: ", event.getId())
+        return new StringJoiner(", ", ParticipantDTO.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("date=" + date)
+                .add("time=" + time)
+                .add("personName='" + personName + "'")
+                .add("ownerName='" + ownerName + "'")
+                .add("eventTitle='" + eventTitle + "'")
+                .add("eventDescription='" + eventDescription + "'")
+                .add("personId=" + personId)
+                .add("ownerId=" + ownerId)
+                .add("eventId=" + eventId)
+                .add("planOneId=" + planOneId)
+                .add("planOneSemesterOne=" + planOneSemesterOne)
+                .add("planOneSemesterTwo=" + planOneSemesterTwo)
+                .add("planTwoId=" + planTwoId)
+                .add("planTwoSemesterOne=" + planTwoSemesterOne)
+                .add("planTwoSemesterTwo=" + planTwoSemesterTwo)
+                .add("planOneTitle='" + planOneTitle + "'")
+                .add("planTwoTitle='" + planTwoTitle + "'")
                 .toString();
     }
 }

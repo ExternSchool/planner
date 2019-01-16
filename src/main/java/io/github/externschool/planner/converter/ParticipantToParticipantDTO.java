@@ -6,6 +6,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.convert.converter.Converter;
 
 import java.util.Optional;
@@ -22,10 +23,9 @@ public class ParticipantToParticipantDTO implements Converter<Participant, Parti
                 .map(User::getVerificationKey)
                 .map(VerificationKey::getPerson)
                 .orElse(new Person());
-        ParticipantDTO participantDTO = new ParticipantDTO(
-                participant.getId(),
-                person,
-                event);
+        ParticipantDTO participantDTO = new ParticipantDTO(participant.getId());
+        BeanUtils.copyProperties(participant, participantDTO, "id");
+
         participantDTO.setDate(event.getStartOfEvent().toLocalDate());
         participantDTO.setTime(event.getStartOfEvent().toLocalTime());
         participantDTO.setPersonName(person.getShortName());
@@ -35,7 +35,6 @@ public class ParticipantToParticipantDTO implements Converter<Participant, Parti
         participantDTO.setPersonId(person.getId());
         participantDTO.setOwnerId(eventOwner.getId());
         participantDTO.setEventId(event.getId());
-        participantDTO.setOwner(eventOwner);
 
         return participantDTO;
     }

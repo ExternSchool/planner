@@ -238,14 +238,13 @@ public class GuestController {
     @Secured({"ROLE_ADMIN", "ROLE_GUEST"})
     @PostMapping(value = "/update", params = "action=cancel")
     public ModelAndView processFormPersonProfileActionCancel(final Principal principal) {
-
         return redirectByRole(principal);
     }
 
     @Secured("ROLE_ADMIN")
     @GetMapping("/{id}/delete-modal")
     public ModelAndView displayPersonListFormDeleteModal(final @PathVariable("id") Long id,
-                                                          final ModelMap model) {
+                                                         final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("guest/guest_list :: deleteGuest", model);
         PersonDTO person = conversionService.convert(personService.findPersonById(id), PersonDTO.class);
         if (person != null) {

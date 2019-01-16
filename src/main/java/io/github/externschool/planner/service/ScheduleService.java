@@ -54,6 +54,8 @@ public interface ScheduleService {
 
     Optional<Participant> addParticipant(User user, ScheduleEvent event);
 
+    Participant saveParticipant(Participant participant);
+
     void removeParticipant(Participant participant);
 
     // Calendar Days

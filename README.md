@@ -136,7 +136,7 @@ Future projects:
 ### 5.1. Functional Requirements. User stories
 This project has to provide the following features:</br>
  * schedule reception time for the principal, vice-principals, psychologist;
- * set every teacher's usual routines for a long period of time (semester or two), specifying the time when they are 
+ * set every teacher's usual routines for a long period of time (planOneSemesterOne or two), specifying the time when they are 
  present at school and ready to meet their students; 
  * hosts may have possibilities to adjust predefined schedule if such a necessity arises (illness, holidays so on); 
  * if hosts make changes to their timetables, visitors should be automatically notified by email/sms etc.;

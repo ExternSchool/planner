@@ -10,11 +10,14 @@ import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.github.externschool.planner.entity.course.Course;
+import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
+import io.github.externschool.planner.service.CourseService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -73,6 +76,7 @@ public class TeacherController {
     private final ScheduleService scheduleService;
     private final ScheduleEventTypeService typeService;
     private final EmailService emailService;
+    @Autowired private CourseService courseService;
 
     @Autowired
     public TeacherController(final TeacherService teacherService,
@@ -160,25 +164,26 @@ public class TeacherController {
 
             for (LocalDate date : dates) {
                 scheduleService.getNonCancelledEventsByOwnerAndDate(user, date).forEach(event -> {
-                    event.getParticipants().stream()
-                            .map(Participant::getUser)
-                            .map(User::getVerificationKey)
-                            .map(VerificationKey::getPerson)
-                            .forEach(person -> {
-                                if (person instanceof Student) {
-                                    Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
-                                            .ifPresent(studentDTO -> {
-                                                studentDTO.setOptionalData(getEventDetails(event));
-                                                students.add(studentDTO);
-                                            });
-                                } else {
-                                    Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
-                                            .ifPresent(guestDTO -> {
-                                                guestDTO.setOptionalData(getEventDetails(event));
-                                                guests.add(guestDTO);
-                                            });
-                                }
-                            });
+                    event.getParticipants().forEach(participant -> {
+                        Optional.ofNullable(participant.getUser())
+                                .map(User::getVerificationKey)
+                                .map(VerificationKey::getPerson)
+                                .ifPresent(person -> {
+                                    if (person instanceof Student) {
+                                        Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
+                                                .ifPresent(studentDTO -> {
+                                                    studentDTO.setOptionalData(getEventDetails(participant));
+                                                    students.add(studentDTO);
+                                                });
+                                    } else {
+                                        Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
+                                                .ifPresent(guestDTO -> {
+                                                    guestDTO.setOptionalData(getEventDetails(participant));
+                                                    guests.add(guestDTO);
+                                                });
+                                    }
+                                });
+                    });
                 });
             }
             modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
@@ -826,17 +831,58 @@ public class TeacherController {
                 .orElse(null);
     }
 
-    private String getEventDetails(ScheduleEvent event) {
-        return event.getStartOfEvent()
-                .format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))
-                + " "
-                + event.getTitle()
-                + (event.getDescription().isEmpty() ? "" : ": ")
-                + event.getDescription();
+    private String getEventDetails(Participant participant) {
+        return Optional.ofNullable(participant.getEvent()).map(event -> {
+            StringBuilder builder = new StringBuilder()
+                    .append(event.getStartOfEvent().format(DateTimeFormatter.ofPattern("dd/MM HH:mm ")));
+            // if event owner is an admin-in-charge, get test works details
+            if (isParticipantAnAdminInCharge(event.getOwner())) {
+                Optional.ofNullable(participant.getPlanOneId()).ifPresent(planId -> {
+                    Course course = courseService.findCourseByStudentIdAndPlanId(
+                            participant.getUser().getVerificationKey().getPerson().getId(),
+                            planId);
+                    builder.append(participant.getPlanOneSemesterOne()
+                            ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 1] "
+                            : "");
+                    builder.append(participant.getPlanOneSemesterOne() && participant.getPlanOneSemesterTwo()
+                            ? ", "
+                            : "\n    ");
+                    builder.append(participant.getPlanOneSemesterTwo()
+                            ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 2] "
+                            : "");
+                });
+                Optional.ofNullable(participant.getPlanTwoId()).ifPresent(planId -> {
+                    Course course = courseService.findCourseByStudentIdAndPlanId(
+                            participant.getUser().getVerificationKey().getPerson().getId(),
+                            planId);
+                    builder.append(participant.getPlanTwoSemesterOne()
+                            ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 1] "
+                            : "");
+                    builder.append(participant.getPlanTwoSemesterOne() && participant.getPlanTwoSemesterTwo()
+                            ? ", "
+                            : "\n    ");
+                    builder.append(participant.getPlanTwoSemesterTwo()
+                            ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 2] "
+                            : "");
+                });
+            } else {
+                //or else event owner is a teacher so get event title
+                builder.append(event.getTitle());
+            }
+            builder.append(event.getDescription().isEmpty() ? "" : ": ").append(event.getDescription());
+            return builder.toString();
+        }).orElse("");
+    }
+
+    private boolean isParticipantAnAdminInCharge(User user) {
+        return Optional.ofNullable(user.getVerificationKey())
+                .map(VerificationKey::getPerson)
+                .map(Person::getLastName)
+                .map(name -> name.equals(UK_COURSE_ADMIN_IN_CHARGE))
+                .orElse(false);
     }
 
     private List<ScheduleEventDTO> addDescriptionAndConvertToDTO(final List<ScheduleEvent> events) {
-
         return events.stream()
                 .map(event -> {
                     StringBuilder description = new StringBuilder(event.getDescription());

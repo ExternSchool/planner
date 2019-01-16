@@ -6,7 +6,6 @@ import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
-import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
@@ -31,8 +30,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -52,8 +54,7 @@ public class StudyPlanControllerTest {
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private UserService userService;
-    @Autowired private RoleService roleService;
-    @Autowired VerificationKeyService keyService;
+    @Autowired private VerificationKeyService keyService;
     private StudyPlanController controller;
 
     private MockMvc mockMvc;
@@ -69,15 +70,15 @@ public class StudyPlanControllerTest {
         originalPlansNumber = planService.findAll().size();
         plans = new ArrayList<>();
         subjects = new ArrayList<>();
-        GradeLevel level = GradeLevel.LEVEL_3;
+        GradeLevel level = GradeLevel.LEVEL_7;
         Arrays.asList("Test_History", "Test_Math", "Test_Biology", "Test_English").forEach(title -> {
             SchoolSubject subject = new SchoolSubject();
             subject.setTitle(title);
             subjectService.saveOrUpdateSubject(subject);
             subjects.add(subject);
             StudyPlan plan = new StudyPlan(level, subject);
-            planService.saveOrUpdatePlan(plan);
-            plans.add(plan);
+            plan.setTitle(title);
+            plans.add(planService.saveOrUpdatePlan(plan));
         });
 
         user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
@@ -100,24 +101,24 @@ public class StudyPlanControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnPlanListTemplate_whenGetAllStudyPlansWithAdminRole() throws Exception {
-        String title = plans.get(0).getTitle();
+        List<StudyPlanDTO> expected = planService.findAll().stream()
+                .filter(Objects::nonNull)
+                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .map(s -> conversionService.convert(s, StudyPlanDTO.class))
+                .collect(Collectors.toList());
 
         mockMvc.perform(get("/plan/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
                 .andExpect(model().attributeExists("subjects"))
-                .andExpect(model().attribute("plans", Matchers.hasSize(4 + originalPlansNumber)))
-                .andExpect(model().attribute("plans",
-                        Matchers.hasItem(
-                                Matchers.<SchoolSubject> hasProperty("title",
-                                        Matchers.equalToIgnoringCase(title)))));
+                .andExpect(model().attribute("plans", expected));
     }
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetDisplayStudyPlansListByGrade() throws Exception {
-        mockMvc.perform(get("/plan/grade/3"))
+        mockMvc.perform(get("/plan/grade/7"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("plan/plan_list"))
                 .andExpect(content().string(Matchers.containsString("Plan List")))
@@ -125,7 +126,7 @@ public class StudyPlanControllerTest {
                 .andExpect(model().attribute("plans",
                         Matchers.hasItem(
                                 Matchers.<StudyPlan> hasProperty("gradeLevel",
-                                        Matchers.equalTo(GradeLevel.LEVEL_3)))));
+                                        Matchers.equalTo(GradeLevel.LEVEL_7)))));
     }
 
     @Test
@@ -147,17 +148,17 @@ public class StudyPlanControllerTest {
     public void shouldReturnModelAndView_whenPostProcessStudyPlansListActionAdd() throws Exception {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         SchoolSubject subject = subjects.get(0);
-        map.add("gradeLevel", GradeLevel.LEVEL_3.toString());
+        map.add("gradeLevel", GradeLevel.LEVEL_7.toString());
         map.add("subject", subject.getId().toString());
         map.add("title", subject.getTitle());
         map.add("action", "add");
 
         mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/grade/3"))
-                .andExpect(model().attribute("level", 3));
+                .andExpect(view().name("redirect:/plan/grade/7"))
+                .andExpect(model().attribute("level", 7));
 
-        assertThat(planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_3, subject))
+        assertThat(planService.findAllByGradeLevelAndSubject(GradeLevel.LEVEL_7, subject))
                 .isNotEmpty()
                 .hasSize(2);
     }
@@ -181,8 +182,8 @@ public class StudyPlanControllerTest {
 
         mockMvc.perform(post("/plan/").params(map).with(csrf()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(view().name("redirect:/plan/grade/3"))
-                .andExpect(model().attribute("level", 3));
+                .andExpect(view().name("redirect:/plan/grade/7"))
+                .andExpect(model().attribute("level", 7));
 
         assertThat(planService.findAll())
                 .hasSize(previousSize)

@@ -28,7 +28,7 @@
 <main role="main" class="container">
     <!--<img src="../static/img/pic.png" th:src="@{/img/pic.png}" width="200" height="200" /></a>-->
     <!--<h1 class="h3 mb-3 font-weight-normal">Welcome to Extern School</h1>-->
-    <div class="container-fluid">
+    <div>
         <h4 class="font-weight-normal" th:inline="text"><small>
             Планування відвідувань Школи Екстернів</small></h4>
 
@@ -40,7 +40,7 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <ul>
+                    <div>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             On-line реєстрація користувачів
                             <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
@@ -65,7 +65,7 @@
                             Надання прав адміністратора вповноваженим користувачам
                             <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
                         </li>
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -78,48 +78,46 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <ul>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд списку та вилучення з нього зареєстрованих Відвідувачів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Правка особистих даних гостьового запису Відвідувача
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд списку, додавання та вилучення Студентів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Правка особистих даних Студента
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд списку, додавання та вилучення Вчителів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Правка особистих даних Вчителя
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд переліку, додавання та вилучення навчальних дисциплін
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Встановлення відповідності між дисциплінами та навчальними планами для кожного класу
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд і коригування кількості консультацій та контрольних робіт в навчальних планах кожного класу
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Призначення Студентам консультантів з числа Вчителів відповідно до індивідуальних навчальних планів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                    </ul>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Перегляд списку та вилучення з нього зареєстрованих Відвідувачів
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Правка особистих даних гостьового запису Відвідувача
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Перегляд списку, додавання та вилучення Студентів
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Правка особистих даних Студента
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Перегляд списку, додавання та вилучення Вчителів
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Правка особистих даних Вчителя
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Перегляд переліку, додавання та вилучення навчальних дисциплін
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Встановлення відповідності між дисциплінами та навчальними планами для кожного класу
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Перегляд і коригування кількості консультацій та контрольних робіт в навчальних планах кожного класу
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Призначення Студентам консультантів з числа Вчителів відповідно до індивідуальних навчальних планів
+                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    </li>
                 </div>
             </div>
         </div>
@@ -134,7 +132,7 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <ul>
+                    <div>
                         <!--Адміністратори-->
                         <li class="list-group-item py-0"><small><strong>адміністратори</strong></small></li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -215,7 +213,7 @@
                             Перегляд призначених зустрічей Вчителя та даних відповідних Студентів (ПІБ, клас, телефон, email)
                             <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
                         </li>
-                    </ul>
+                    </div>
                 </div>
             </div>
             <!--<span class="badge badge-secondary badge-pill">to do <i class="fa fa-circle"></i></span>-->
