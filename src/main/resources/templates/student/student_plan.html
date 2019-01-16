@@ -34,14 +34,14 @@
     <h4 class="font-weight-normal" th:inline="text">
         <small>
             Навчальний план екстерна: [[${studentData}]]
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/student/search/{id}(id=${studentId})}">
+                    <button type="button" class="btn badge badge-info ml-3">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+            </span>
         </small>
-        <span>
-            <a th:href="@{/student/search/{id}(id=${studentId})}">
-                <button type="button" class="btn badge badge-info ml-3">
-                    <i class="fas fa-external-link-square-alt"></i>
-                </button>
-            </a>
-        </span>
     </h4>
     <fieldset>
         <form th:action="@{/student/{sid}/plan/{id}(sid=${studentId}, id=${coursePlanId})}" th:object="${course}"

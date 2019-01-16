@@ -118,6 +118,24 @@ public class TeacherController {
         return modelAndView;
     }
 
+    /**
+     * Searches teacher by id, and redirects to teachers list, completes search by the Last Name if teacher is found
+     * @param id teacher's id
+     * @param principal principal user
+     * @return ModelAndView
+     */
+    @Secured({"ROLE_ADMIN"})
+    @GetMapping("/search/{id}")
+    public ModelAndView displayTeacherWithSearch(@PathVariable(value = "id", required = false) Long id,
+                                                 Principal principal) {
+        Teacher teacher = teacherService.findTeacherById(id);
+        if (teacher != null) {
+            return displayTeacherList(teacher.getLastName());
+        }
+
+        return redirectByRole(principal);
+    }
+
     @Secured("ROLE_TEACHER")
     @GetMapping("/profile")
     public ModelAndView displayTeacherProfileToTeacher(final Principal principal) {
