@@ -111,7 +111,7 @@ public final class Constants {
     // mailing service text messages
     public static final String FAKE_MAIL_DOMAIN = "x";
     public static final String SCHOOL_EMAIL = "extern.school@gmail.com";
-    public static final String HOST_NAME = "http://localhost:8080"; //"https://extern.com.ua";
+    public static final String HOST_NAME = "https://extern.com.ua";//"http://localhost:8080";
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";
