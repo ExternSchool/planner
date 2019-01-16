@@ -54,7 +54,7 @@ public class StudyPlanControllerTest {
     @Autowired private ConversionService conversionService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private UserService userService;
-    @Autowired VerificationKeyService keyService;
+    @Autowired private VerificationKeyService keyService;
     private StudyPlanController controller;
 
     private MockMvc mockMvc;
@@ -77,6 +77,7 @@ public class StudyPlanControllerTest {
             subjectService.saveOrUpdateSubject(subject);
             subjects.add(subject);
             StudyPlan plan = new StudyPlan(level, subject);
+            plan.setTitle(title);
             plans.add(planService.saveOrUpdatePlan(plan));
         });
 
