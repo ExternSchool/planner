@@ -130,12 +130,12 @@ public class BootstrapDataPopulator implements InitializingBean {
             VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Teacher testTeacherTeacher = createTeacher(
                     new Person(null,
-                            "Test",
-                            "von Test",
-                            "Teacher",
+                            "Тест",
+                            "Тестович",
+                            "Вчитель",
                             "000-0000"),
                     verificationKey,
-                    "Official",
+                    "Якась посада є",
                     Collections.emptyList());
             testTeacherTeacher.addVerificationKey(verificationKey);
             testTeacher.addVerificationKey(verificationKey);
@@ -152,9 +152,9 @@ public class BootstrapDataPopulator implements InitializingBean {
             VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Student testStudentStudent = new Student(
                     new Person(null,
-                            "Test-Student",
-                            "di Testo",
-                            "Student",
+                            "Студент",
+                            "Гостьович",
+                            "Тестовий",
                             "000-0000"),
                     null,
                     null,
