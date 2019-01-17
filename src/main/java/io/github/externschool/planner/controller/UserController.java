@@ -70,7 +70,11 @@ public class UserController {
             user = userService.createNewUser(userDTO);
             userService.createNewKeyWithNewPersonAndAddToUser(user);
             userService.save(user);
-            executor.execute(() -> emailService.sendVerificationMail(user));
+            executor.execute(() -> {
+                if(emailService.emailIsValid(user.getEmail())) {
+                    emailService.sendVerificationMail(user);
+                }
+            });
         } catch (BindingResultException | EmailExistsException | RoleNotFoundException e) {
             ModelAndView modelAndView = new ModelAndView("redirect:/signup");
             modelAndView.addObject("error", e.getMessage());

@@ -47,7 +47,6 @@ public class UserControllerTest {
     @Autowired private EmailService emailService;
     private UserController controller;
     private MockMvc mockMvc;
-    private User expectedUser;
 
     @Before
     public void setup() {
@@ -59,7 +58,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user@x.com", roles = "ADMIN")
+    @WithMockUser(roles = "ADMIN")
     public void shouldReturnsSuccessTemplate_WhenGetRequestAuthorized() throws Exception {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
@@ -95,9 +94,9 @@ public class UserControllerTest {
 
     @Test
     public void shouldRedirectToLogin_WhenPostSignupParamsOk() throws Exception {
-        expectedUser = userService.createUser("user@somemail", "!Qwert", "ROLE_GUEST");
+        User expectedUser = userService.createUser("user@x", "!Qwert", "ROLE_GUEST");
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("email",expectedUser.getEmail());
+        map.add("email", expectedUser.getEmail());
         map.add("password", expectedUser.getPassword());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/signup").params(map).with(csrf()))
