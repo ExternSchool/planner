@@ -23,7 +23,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
-import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_NOT_CONFIRMED;
+import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_CANNOT_BE_CONFIRMED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -64,7 +64,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Guest List")));
+                .andExpect(content().string(Matchers.containsString("Guests List")));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/confirm-registration?token="))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/signup"))
-                .andExpect(model().attribute("error", UK_USER_ACCOUNT_NOT_CONFIRMED));
+                .andExpect(model().attribute("error", UK_USER_ACCOUNT_CANNOT_BE_CONFIRMED));
     }
 
     @Test
