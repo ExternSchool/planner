@@ -23,7 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -140,12 +141,27 @@ public class SchoolSubjectControllerTest {
         mockMvc.perform(post("/subject/add").params(map).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("subject/subject_list"))
-                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE));
+                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE));
 
         assertThat(subjectService.findAllByOrderByTitle().size())
                 .isEqualTo(previousSize);
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    public void shouldReturnModelAndViewWithError_whenPostAddExistingSubjectTitle() throws Exception {
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("new_title", subjects.get(0).getTitle());
+        Integer previousSize = subjectService.findAllByOrderByTitle().size();
+
+        mockMvc.perform(post("/subject/add").params(map).with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("subject/subject_list"))
+                .andExpect(model().attribute("error", UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE));
+
+        assertThat(subjectService.findAllByOrderByTitle().size())
+                .isEqualTo(previousSize);
+    }
 
     @Test
     @WithMockUser(roles = "ADMIN")
