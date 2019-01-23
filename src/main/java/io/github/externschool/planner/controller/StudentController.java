@@ -491,17 +491,19 @@ public class StudentController {
         }
 
         if (personService.findPersonById(teacherId).getLastName().equals(UK_COURSE_ADMIN_IN_CHARGE)) {
+            int semesters = (participantDTO.isPlanOneSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterTwo() ? 1 : 0) +
+                    (participantDTO.isPlanTwoSemesterOne() ? 1 : 0) +
+                    (participantDTO.isPlanOneSemesterTwo() ? 1 : 0);
             if ((participantDTO.getPlanOneId() == null &&
                     (participantDTO.isPlanOneSemesterOne() || participantDTO.isPlanOneSemesterTwo()))
+                    || semesters < 1
+                    || semesters > 2
                     || (participantDTO.getPlanTwoId() == null &&
                     (participantDTO.isPlanTwoSemesterOne() || participantDTO.isPlanTwoSemesterTwo()))
                     || (participantDTO.getPlanOneId() == null && participantDTO.getPlanTwoId() == null)
                     || (participantDTO.getPlanOneId() != null && participantDTO.getPlanTwoId() != null &&
-                    participantDTO.getPlanOneId().equals(participantDTO.getPlanTwoId()))
-                    || ((participantDTO.isPlanOneSemesterOne() ? 1 : 0) +
-                    (participantDTO.isPlanTwoSemesterTwo() ? 1 : 0) +
-                    (participantDTO.isPlanTwoSemesterOne() ? 1 : 0) +
-                    (participantDTO.isPlanOneSemesterTwo() ? 1 : 0) > 2)) {
+                    participantDTO.getPlanOneId().equals(participantDTO.getPlanTwoId()))) {
 
                 return modelAndView.addObject("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS);
             }

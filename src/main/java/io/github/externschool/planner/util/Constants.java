@@ -54,9 +54,10 @@ public final class Constants {
             "Вибачте, виникла помилка під час резервування. \nСпробуйте повторити пізніше";
     public static final String UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE =
             "За користувачем не зареєстровано вказану подію. \nСпробуйте ще або зверніться до адміністратора";
-    public static final String UK_USER_ACCOUNT_NOT_CONFIRMED =
-            "Користувач з вказаною адресою не знайдений або обліковий запис не активований!\n" +
-            "Після реєстрації активуйте обліковий запис за посиланням, яке надіслане на вказану при реєстрації адресу";
+    public static final String UK_USER_ACCOUNT_CANNOT_BE_CONFIRMED =
+            "Користувач з вказаною адресою не знайдений або обліковий запис вже активований! " +
+            "Після реєстрації обліковий запис активується один раз за посиланням, " +
+                    "яке насилається на вказану при реєстрації адресу";
 
     // default constants set when a new course created
     public static final String UK_COURSE_NO_TITLE = "Назва курсу відсутня";
