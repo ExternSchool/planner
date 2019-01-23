@@ -46,7 +46,8 @@ public final class Constants {
     public static final String UK_FORM_INVALID_KEY_MESSAGE = "Введено недійсний ключ!";
     public static final String UK_FORM_VALIDATION_ERROR_MESSAGE = "Виникла помилка вводу даних! \n" +
             "Перевірте отриманий результат і за необхідності спробуйте повторити пізніше";
-    public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE = "Будь ласка, введіть назву нового предмета!";
+    public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE = "Будь ласка, введіть назву нового предмета!";
+    public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE = "Предмет з такою назвою вже існує!";
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
     public static final String UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS = "Помилка вводу даних! " +
             "Виберіть предмети та семестри так, щоб писати 1-2 контрольні роботи за раз";
@@ -65,8 +66,8 @@ public final class Constants {
     public static final String UK_COURSE_ADMIN_IN_CHARGE = "Адміністратор";
     // standard event types
     public static final String UK_EVENT_TYPE_TEST = "Контрольне тестування"; //in use, don't remove please
+    public static final String UK_EVENT_TYPE_NOT_DEFINED = "Тип не визначений"; //in use, don't remove please
 
-    public static final String UK_EVENT_TYPE_NOT_DEFINED = "Тип не визначений";
     public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
     public static final String UK_EVENT_TYPE_GROUP = "Групова консультація";
     public static final String UK_EVENT_TYPE_PSYCHOLOGIST = "Співбесіда з психологом";
