@@ -17,7 +17,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
-import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE;
+import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE;
 
 @Controller
 @Secured("ROLE_ADMIN")
@@ -58,7 +59,10 @@ public class SchoolSubjectController {
     public ModelAndView processSubjectListActionAdd(@ModelAttribute("new_title") String title) {
         try {
             if (title.isEmpty()) {
-                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_SUBJECT_MESSAGE);
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE);
+            }
+            if (subjectService.findSubjectByTitle(title) != null) {
+                throw new BindingResultException(UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE);
             }
         } catch (BindingResultException e) {
             ModelAndView modelAndView = prepareSubjectList(0L);
