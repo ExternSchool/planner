@@ -70,19 +70,19 @@
                 <td class="text-left">
                     <span class="text-left" th:if="${participant.isPlanOneSemesterOne() || participant.isPlanOneSemesterTwo()}"
                           th:text="${
-                        '[' + participant.getPlanOneTitle()
-                        + (participant.isPlanOneSemesterOne() ? ', cеместр 1' : '')
+                        '[' + participant.getPlanOneTitle() + ', '
+                        + (participant.isPlanOneSemesterOne() ? 'cеместр 1' : '')
                         + (participant.isPlanOneSemesterOne() && participant.isPlanOneSemesterTwo() ? ', ' : '')
-                        + (participant.isPlanOneSemesterTwo() ? ', cеместр 2' : '')
+                        + (participant.isPlanOneSemesterTwo() ? 'cеместр 2' : '')
                         + '] '}">
                         Предмет 1
                     </span>
                     <span class="text-left" th:if="${participant.isPlanTwoSemesterOne() || participant.isPlanTwoSemesterTwo()}"
                           th:text="${
-                        '[' + participant.getPlanTwoTitle()
-                        + (participant.isPlanTwoSemesterOne() ? ', cеместр 1' : '')
+                        '[' + participant.getPlanTwoTitle() + ', '
+                        + (participant.isPlanTwoSemesterOne() ? 'cеместр 1' : '')
                         + (participant.isPlanTwoSemesterOne() && participant.isPlanTwoSemesterTwo() ? ', ' : '')
-                        + (participant.isPlanTwoSemesterTwo() ? ', cеместр 2' : '')
+                        + (participant.isPlanTwoSemesterTwo() ? 'cеместр 2' : '')
                         + ']'}">
                         Предмет 2
                     </span>

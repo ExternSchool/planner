@@ -862,9 +862,6 @@ public class TeacherController {
                     builder.append(participant.getPlanOneSemesterOne()
                             ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 1] "
                             : "");
-                    builder.append(participant.getPlanOneSemesterOne() && participant.getPlanOneSemesterTwo()
-                            ? ", "
-                            : "\n    ");
                     builder.append(participant.getPlanOneSemesterTwo()
                             ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 2] "
                             : "");
@@ -876,9 +873,6 @@ public class TeacherController {
                     builder.append(participant.getPlanTwoSemesterOne()
                             ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 1] "
                             : "");
-                    builder.append(participant.getPlanTwoSemesterOne() && participant.getPlanTwoSemesterTwo()
-                            ? ", "
-                            : "\n    ");
                     builder.append(participant.getPlanTwoSemesterTwo()
                             ? "[" + course.getTitle() + " - " + course.getTeacher().getShortName() + ": семестр 2] "
                             : "");

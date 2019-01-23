@@ -133,7 +133,7 @@ public class GuestControllerTest {
         mockMvc.perform(get("/guest/"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(content().string(Matchers.containsString("Guests List")))
                 .andExpect(model().attributeExists("guests"))
                 .andExpect(model().attribute("guests",
                         Matchers.hasItem(
@@ -147,7 +147,7 @@ public class GuestControllerTest {
         mockMvc.perform(get("/guest/").param("search", ""))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(content().string(Matchers.containsString("Guests List")))
                 .andExpect(model().attributeExists("guests"))
                 .andExpect(model().attribute("guests",
                         Matchers.hasItem(
@@ -161,7 +161,7 @@ public class GuestControllerTest {
         mockMvc.perform(get("/guest/").param("search", "RequestDoesNotMatch"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(content().string(Matchers.containsString("Guests List")))
                 .andExpect(model().attribute("guests", Matchers.empty()));
     }
 
@@ -178,7 +178,7 @@ public class GuestControllerTest {
         mockMvc.perform(get("/guest/search/" + person.getId()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/guest_list"))
-                .andExpect(content().string(Matchers.containsString("Guest List")))
+                .andExpect(content().string(Matchers.containsString("Guests List")))
                 .andExpect(model().attributeExists("guests"));
     }
 
@@ -211,7 +211,7 @@ public class GuestControllerTest {
         mockMvc.perform(get("/guest/profile"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
-                .andExpect(content().string(Matchers.containsString("Guest Profile")))
+                .andExpect(content().string(Matchers.containsString("Person Profile")))
                 .andExpect(model().attributeExists("isNew", "person"))
                 .andExpect(model().attribute("person",
                         Matchers.hasProperty("firstName",
@@ -227,7 +227,7 @@ public class GuestControllerTest {
         mockMvc.perform(post("/guest/" + person.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("guest/person_profile"))
-                .andExpect(content().string(Matchers.containsString("Guest Profile")))
+                .andExpect(content().string(Matchers.containsString("Person Profile")))
                 .andExpect(model().attributeExists("isNew", "person"))
                 .andExpect(model().attribute("person",
                         Matchers.hasProperty("firstName",

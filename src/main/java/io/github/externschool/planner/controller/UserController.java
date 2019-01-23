@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
-import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_NOT_CONFIRMED;
+import static io.github.externschool.planner.util.Constants.UK_USER_ACCOUNT_CANNOT_BE_CONFIRMED;
 
 @Controller
 public class UserController {
@@ -118,7 +118,7 @@ public class UserController {
             return new ModelAndView("redirect:/login");
         }
         ModelAndView modelAndView = new ModelAndView("redirect:/signup");
-        modelAndView.addObject("error", UK_USER_ACCOUNT_NOT_CONFIRMED);
+        modelAndView.addObject("error", UK_USER_ACCOUNT_CANNOT_BE_CONFIRMED);
 
         return modelAndView;
     }
