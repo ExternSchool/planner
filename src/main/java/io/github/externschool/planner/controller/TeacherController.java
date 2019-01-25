@@ -28,6 +28,7 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import io.github.externschool.planner.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -162,52 +163,79 @@ public class TeacherController {
 
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/visitors")
-    public ModelAndView displayTeacherVisitors(@PathVariable("id") Long id,
+    public ModelAndView displayTeacherVisitors(final @PathVariable("id") Long id,
                                                final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
 
         if (optionalUser != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
-            Teacher teacher = teacherService.findTeacherById(id);
-            TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
-            List<StudentDTO> students = new ArrayList<>();
-            List<PersonDTO> guests = new ArrayList<>();
-
             LocalDate start = LocalDate.now();
             LocalDate end = scheduleService.getNextWeekFirstDay().plusDays(6);
-            List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
-                    .limit(ChronoUnit.DAYS.between(start, end))
-                    .collect(Collectors.toList());
-
-            for (LocalDate date : dates) {
-                scheduleService.getNonCancelledEventsByOwnerAndDate(user, date).forEach(event -> {
-                    event.getParticipants().forEach(participant -> {
-                        Optional.ofNullable(participant.getUser())
-                                .map(User::getVerificationKey)
-                                .map(VerificationKey::getPerson)
-                                .ifPresent(person -> {
-                                    if (person instanceof Student) {
-                                        Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
-                                                .ifPresent(studentDTO -> {
-                                                    studentDTO.setOptionalData(getEventDetails(participant));
-                                                    students.add(studentDTO);
-                                                });
-                                    } else {
-                                        Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
-                                                .ifPresent(guestDTO -> {
-                                                    guestDTO.setOptionalData(getEventDetails(participant));
-                                                    guests.add(guestDTO);
-                                                });
-                                    }
-                                });
-                    });
-                });
-            }
-            modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
-            modelAndView.addObject("students", students);
-            modelAndView.addObject("guests", guests);
+            modelAndView = prepareVisitorsList(user, id, start, end);
         }
+
+        return modelAndView;
+    }
+
+    @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
+    @GetMapping("/{id}/visitors/history-start/{start}/history-end/{end}")
+    public ModelAndView displayTeacherVisitorsHistory(final @PathVariable("id") Long id,
+                                                      final @PathVariable("start")
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                  LocalDate historyStart,
+                                                      final @PathVariable("end")
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                                  LocalDate historyEnd,
+                                                      final Principal principal) {
+        ModelAndView modelAndView = redirectByRole(principal);
+        Optional<User> optionalUser = getOptionalUser(id);
+
+        if (optionalUser != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            modelAndView = prepareVisitorsList(user, id, historyStart, historyEnd);
+        }
+
+        return modelAndView;
+    }
+
+    private ModelAndView prepareVisitorsList(User user, Long teacherId, LocalDate start, LocalDate end) {
+        Teacher teacher = teacherService.findTeacherById(teacherId);
+        TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
+        List<StudentDTO> students = new ArrayList<>();
+        List<PersonDTO> guests = new ArrayList<>();
+        List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
+                .limit(ChronoUnit.DAYS.between(start, end))
+                .collect(Collectors.toList());
+        for (LocalDate date : dates) {
+            scheduleService.getNonCancelledEventsByOwnerAndDate(user, date).forEach(event -> {
+                event.getParticipants().forEach(participant -> {
+                    Optional.ofNullable(participant.getUser())
+                            .map(User::getVerificationKey)
+                            .map(VerificationKey::getPerson)
+                            .ifPresent(person -> {
+                                if (person instanceof Student) {
+                                    Optional.ofNullable(conversionService.convert(person, StudentDTO.class))
+                                            .ifPresent(studentDTO -> {
+                                                studentDTO.setOptionalData(getEventDetails(participant));
+                                                students.add(studentDTO);
+                                            });
+                                } else {
+                                    Optional.ofNullable(conversionService.convert(person, PersonDTO.class))
+                                            .ifPresent(guestDTO -> {
+                                                guestDTO.setOptionalData(getEventDetails(participant));
+                                                guests.add(guestDTO);
+                                            });
+                                }
+                            });
+                });
+            });
+        }
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
+        modelAndView.addObject("students", students);
+        modelAndView.addObject("guests", guests);
+        modelAndView.addObject("historyStart", LocalDate.now().minusWeeks(2));
+        modelAndView.addObject("historyEnd", LocalDate.now());
 
         return modelAndView;
     }
