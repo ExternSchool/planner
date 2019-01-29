@@ -3,6 +3,7 @@ package io.github.externschool.planner.controller;
 import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.TeacherDTO;
 import io.github.externschool.planner.emailservice.EmailService;
+import io.github.externschool.planner.entity.Participant;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.User;
@@ -14,6 +15,8 @@ import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
+import io.github.externschool.planner.service.CourseService;
+import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
@@ -43,6 +46,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +78,8 @@ public class TeacherControllerTest {
     @Autowired private UserRepository userRepository;
     @Autowired private VerificationKeyRepository keyRepository;
     @Autowired private EmailService emailService;
+    @Autowired private CourseService courseService;
+    @Autowired private PersonService personService;
     private TeacherController controller;
     private MockMvc mockMvc;
 
@@ -95,7 +102,8 @@ public class TeacherControllerTest {
                 roleService,
                 scheduleService,
                 typeService,
-                emailService);
+                emailService,
+                courseService);
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
@@ -209,6 +217,123 @@ public class TeacherControllerTest {
                 .andExpect(model().attributeExists("guests"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Transactional
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistory() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        getEvents(historyStart, historyEnd, type);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyStart + "&end=" + historyEnd + "&search="))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Transactional
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndPositiveSearch() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        Participant participant = events.get(0).getParticipants().stream().findAny().get();
+        Person person = new Person();
+        person.setLastName("LastName");
+        person.addVerificationKey(participant.getUser().getVerificationKey());
+        personService.saveOrUpdatePerson(person);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyEnd + "&end=" + historyStart + "&search=" + "tN"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("guests",
+                        Matchers.contains(
+                                Matchers.hasProperty("id", Matchers.equalTo(person.getId())))))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Transactional
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndNegativeSearch() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        Participant participant = events.get(0).getParticipants().stream().findAny().get();
+        Person person = new Person();
+        person.setLastName("WrongName");
+        person.addVerificationKey(participant.getUser().getVerificationKey());
+        personService.saveOrUpdatePerson(person);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyEnd + "&end=" + historyStart + "&search=" + "tN"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("guests", Matchers.empty()))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    private List<ScheduleEvent> getEvents(LocalDate historyStart, LocalDate historyEnd, ScheduleEventType type) {
+        List<ScheduleEventDTO> dtos = Arrays.asList(
+                ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                        .withDate(historyStart)
+                        .withTitle(type.getName())
+                        .withStartTime(LocalTime.MIN)
+                        .withEventType(type.getName())
+                        .withDescription("Start")
+                        .build(),
+                ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
+                        .withDate(historyEnd)
+                        .withTitle(type.getName())
+                        .withStartTime(LocalTime.MIN)
+                        .withEventType(type.getName())
+                        .withDescription("End")
+                        .build());
+
+        List<ScheduleEvent> events = new ArrayList<>();
+        for (ScheduleEventDTO event : dtos) {
+            ScheduleEvent e = scheduleService.saveEvent(scheduleService.createEventWithDuration(user, event, 30));
+            userService.save(user);
+            VerificationKey key = new VerificationKey();
+            keyService.saveOrUpdateKey(key);
+            type.getParticipants().stream().findAny().ifPresent(role -> {
+                User tempUser = userService.createAndSaveFakeUserWithKeyAndRoleName(key, role.getName());
+                scheduleService.addParticipant(tempUser, e).ifPresent(scheduleService::saveParticipant);
+            });
+
+            ScheduleEvent actualEvent = scheduleService.getEventById(e.getId());
+
+            assertThat(teacherService.findTeacherById(teacher.getId()))
+                    .isEqualTo(teacher);
+            assertThat(actualEvent.getParticipants())
+                    .isNotNull()
+                    .isNotEmpty();
+
+            events.add(actualEvent);
+        }
+
+        return events;
     }
 
     @Test

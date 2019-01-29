@@ -26,10 +26,10 @@
 <!--Header content here-->
 <header class="header">
     <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
-         <div th:replace="fragments/header :: header(activeTab='visitors')"></div>
+        <div th:replace="fragments/header :: header(activeTab='visitors')"></div>
     </div>
     <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-         <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+        <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
     </div>
 </header>
 
@@ -37,6 +37,10 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
+            <button class="float-left btn btn-sm btn-outline-primary mb-1 hidden-print d-print-none"
+                    data-toggle="modal" data-target="#getHistoryModal">
+                Історія записів
+            </button>
             Відвідувачі до вчителя (працівника)
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 : [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
@@ -137,6 +141,59 @@
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
+
+<!-- Modal -->
+<div class="modal fade" id="getHistoryModal" role="dialog" th:fragment="getHistory">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="getHistoryModalTitle">Перегляд історії записів</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="form mb-0" id="formHistory" th:action="@{/teacher/{id}/visitors(id=${teacher.id})}" method="get">
+                <fieldset>
+                    <div class="modal-body text-center">
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="width: 22ch;">Початкова дата</span>
+                            </div>
+                            <input class="form-control pull-right" type="date" th:type="date"
+                                   th:name="start" th:value="${historyStart}" id="historyStart">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="width: 22ch;">Кінцева дата</span>
+                            </div>
+                            <input class="form-control pull-right" type="date" th:type="date"
+                                   th:name="end" th:value="${historyEnd}" id="historyEnd">
+                        </div>
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="width: 22ch;">Прізвище відвідувача</span>
+                            </div>
+                            <input class="form-control pull-right" type="date" th:type="text"
+                                   th:name="search" th:value="${searchPattern}" id="searchPattern">
+                        </div>
+                        Якщо вище дані не введені, відображається список всіх відвідувачів, записаних на поточний та наступний тижні.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Скасувати
+                        </button>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                Вивести історію записів
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
 
 <script src="/js/teacherVisitors.js"></script>
 
