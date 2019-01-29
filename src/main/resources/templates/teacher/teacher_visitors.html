@@ -76,7 +76,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="student : ${students}">
+                <tr th:each="student : ${students}"
+                    th:style="${#strings.contains(student.getOptionalData(), '--')} ? 'text-decoration: line-through;' : ''">
                     <td class="text-left" th:text="${student.getOptionalData()}">Дата, Час, Предмет</td>
                     <td class="text-left" th:text="${student.getLastName()}">Прізвище</td>
                     <td class="text-left" th:text="${student.getFirstName()}">Ім'я</td>
@@ -114,7 +115,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="guest : ${guests}">
+                <tr th:each="guest : ${guests}"
+                    th:style="${#strings.contains(guest.getOptionalData(), '--')} ? 'text-decoration: line-through;' : ''">
                     <td class="text-left" th:text="${guest.getOptionalData()}">Дата, час, назва та опис події</td>
                     <td class="text-left" th:text="${guest.getLastName()}">Прізвище</td>
                     <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
@@ -157,26 +159,37 @@
                     <div class="modal-body text-center">
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 22ch;">Початкова дата</span>
+                                <span class="input-group-text" style="width: 28ch;">Початкова дата</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="date"
                                    th:name="start" th:value="${historyStart}" id="historyStart">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 22ch;">Кінцева дата</span>
+                                <span class="input-group-text" style="width: 28ch;">Кінцева дата</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="date"
                                    th:name="end" th:value="${historyEnd}" id="historyEnd">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 22ch;">Прізвище відвідувача</span>
+                                <span class="input-group-text" style="width: 28ch;">Прізвище відвідувача</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="text"
                                    th:name="search" th:value="${searchPattern}" id="searchPattern">
                         </div>
-                        Якщо вище дані не введені, відображається список всіх відвідувачів, записаних на поточний та наступний тижні.
+                        <div class="input-group mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="width: 28ch;">Включити скасовані записи</span>
+                            </div>
+                            <select class="form-control pull-right form-control" th:name="cancelled" id="showCancelled">
+                                <option th:each="i : ${#numbers.sequence(0, 1)}" th:value="${i}"
+                                        th:text="${i == 0 ? 'ні' : 'так'}">
+                                </option>
+                            </select>
+                        </div>
+                        <small>Стандартний набір значень виводить список всіх відвідувачів, які мають нескасовані
+                            призначення на поточний та наступний тижні.</small>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">

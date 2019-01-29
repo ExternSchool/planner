@@ -17,7 +17,7 @@
     <title>Extern School</title>
 </head>
 
-<body class="text-center">
+<body class="text-justify">
 
 <!--Header content here-->
 <header class="header">
@@ -25,45 +25,59 @@
 </header>
 
 <!-- Begin page content -->
-<main role="main" class="container">
+<main role="main" class="container text-center">
     <!--<img src="../static/img/pic.png" th:src="@{/img/pic.png}" width="200" height="200" /></a>-->
     <!--<h1 class="h3 mb-3 font-weight-normal">Welcome to Extern School</h1>-->
     <div>
-        <h4 class="font-weight-normal" th:inline="text"><small>
-            Планування відвідувань Школи Екстернів</small></h4>
+        <h4 class="font-weight-normal">
+            <small>Сервіс планування візитів до Школи Екстернів</small>
+        </h4>
 
         <div class="card mb-3">
             <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    Реєстрація в системі та надання доступу Гостям, Студентам, Вчителям, шкільній адміністрації
+                <div class="d-flex justify-content-start align-items-start">
+                    <strong>Реєстрація в системі й отримання доступу</strong>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body text-justify">
                 <div class="list-group">
                     <div>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            On-line реєстрація користувачів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">1</span>
+                            Для реєстрації в системі й отримання доступу оберіть в верхньому меню або на сторінці входу опцію
+                            <span class="btn btn-outline-primary ml-3">Реєстрація</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Надання on-line доступу користувачам
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">2</span>
+                            В формі реєстрації введіть адресу електронної пошти, на яку буде надіслано підтвердження та
+                            посилання на активацію облікового запису. Рекомендуємо уважно поставитися до вибору поштової
+                            скриньки й паролю до неї - в разі втрати контролю над поштою можна втратити доступ до
+                            цього застосунку. Оптимальним вибором, з погляду на можливості подальшої інтеграції, є вибір
+                            поштового сервісу в домені gmail.com.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Введення власником гостьового облікового запису особистих даних
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">3</span>
+                            Введіть пароль латиною: довжина - шість і більше символів, серед яких - щонайменше одна велика літера
+                            та мінімум один спеціальний символ (наприклад !@#$%^&* тощо). Повторіть пароль ще раз в наступній
+                            строчці.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Надання прав доступу за ключем підтвердження облікового запису при реєстрації
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">4</span>
+                            Ознайомтеся з умовами користування й поставте відповідну позначку, що ви погоджуєтеся з ними.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Зміна прав доступу після зміни ключа підтвердження облікового запису
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">5</span>
+                            Щоб завершити процедуру реєстрації, натисніть на відповідну кнопку внизу форми:
+                            <span class="btn btn-primary ml-3">Зареєструватися</span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Надання прав адміністратора вповноваженим користувачам
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-success badge-pill mr-3"><i class="fa fa-check-circle"></i></span>
+                            Вітаємо! Ви зареєструвалися в онлайн сервісі планування візитів до Школи Екстернів, наступний крок -
+                            активація Вашого облікового запису.
+                            <span></span>
                         </li>
                     </div>
                 </div>
@@ -72,51 +86,43 @@
 
         <div class="card mb-3">
             <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    Ведення бази даних Відвідувачів, Вчителів і Студентів, їх навантаження відповідно програм та індивідуальних планів
+                <div class="d-flex justify-content-start align-items-start">
+                    <strong>Активація облікового запису. Гостьовий запис</strong>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body text-justify">
                 <div class="list-group">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Перегляд списку та вилучення з нього зареєстрованих Відвідувачів
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    <li class="list-group-item d-flex justify-content-start align-items-start">
+                        <span class="badge badge-info badge-pill mr-3">1</span>
+                        Перевірте свою поштову скриньку - на неї Вам було надіслано посилання, яким треба скористатися
+                        для активації облікового запису.
+                        <span class="btn btn-outline-primary my-0 ml-3">Вхід</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Правка особистих даних гостьового запису Відвідувача
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    <li class="list-group-item d-flex justify-content-start align-items-start">
+                        <span class="badge badge-info badge-pill mr-3">2</span>
+                        На сторінці входу, що відкривається після активації Вашого облікового запису, введіть
+                        поштову адресу, яку Ви вказали при реєстрації, та Ваш пароль.
+                        <span></span>                        
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Перегляд списку, додавання та вилучення Студентів
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    <li class="list-group-item d-flex justify-content-start align-items-start">
+                        <span class="badge badge-info badge-pill mr-3">3</span>
+                        Натисніть на розташовану на відповідній сторінці кнопку:
+                        <span class="btn btn-primary ml-3">Увійти</span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Правка особистих даних Студента
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    <li class="list-group-item d-flex justify-content-start align-items-start">
+                        <span class="badge badge-info badge-pill mr-3">4</span>
+                        Ви ввійшли як Гість, Вам доступний запис до працівників Школи, які ведуть адміністративний
+                        прийом. Але спочатку в розділі "Особові дані" треба ввести своє прізвище, ім'я, по батькові та
+                        номер телефона, за яким з Вами можна зв'язатися в разі потреби. Зверніть увагу: вийти з цього
+                        розділу можна лише скориставшись кнопками "Скасувати" та "Зберегти зміни".
+                        <span></span>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Перегляд списку, додавання та вилучення Вчителів
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Правка особистих даних Вчителя
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Перегляд переліку, додавання та вилучення навчальних дисциплін
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Встановлення відповідності між дисциплінами та навчальними планами для кожного класу
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Перегляд і коригування кількості консультацій та контрольних робіт в навчальних планах кожного класу
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Призначення Студентам консультантів з числа Вчителів відповідно до індивідуальних навчальних планів
-                        <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                    <li class="list-group-item d-flex justify-content-start align-items-start">
+                        <span class="badge badge-success badge-pill mr-3"><i class="fa fa-check-circle"></i></span>
+                        Роль Гостя створена для батьків і нерегулярних відвідувачів. Власники таких облікових записів
+                        можуть потрапити до директора, психолога, записатися на прийом до заступників
+                        директора, щоб погодити індивідуальні учбові плани, отримати залікову книжку тощо.
+                        <span></span>
                     </li>
                 </div>
             </div>
@@ -124,94 +130,109 @@
 
         <div class="card mb-3">
             <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    Створення та ведення розкладів відвідування школи
+                <div class="d-flex justify-content-between align-items-start">
+                    <strong>Учнівський обліковий запис. Призначення зустрічей з вчителями</strong>
                     <a href="https://extern.kiev.ua/вступникам/порядок-атестації-у-школі/" target="_blank">
                         Порядок атестації екстернів у Школі</a>
                 </div>
             </div>
-            <div class="card-body">
+            <div class="card-body text-justify">
                 <div class="list-group">
                     <div>
-                        <!--Адміністратори-->
-                        <li class="list-group-item py-0"><small><strong>адміністратори</strong></small></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Створення й редагування типів подій, які організуються в Школі
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">1</span>
+                            Щоб скористатися можливістю доступу до учбових планів та розкладу вчителів, учні школи (або їх
+                            батьки) мають зареєструвати окремий обліковий запис Гостя, який буде перетворений на учнівський
+                            після вводу у відповідне поле форми особистих даних спеціального ключа підтвердження особи.
+                            Ключ отримується учнями (їх батьками) особисто в Школі.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Створення й коригування розкладів прийому Директором, Психологом, Заступниками директора з
-                            екстернату
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">2</span>
+                            Після прив'язки облікового запису до учнівського профіля треба повторно увійти зі своїми
+                            даними (поштовою адресою та паролем).
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Створення й коригування графіків проведення Вчителями консультацій та підсумкових атестацій
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">3</span>
+                            Розділ "Учбовий план" містить перелік навчальних дисциплін, кількість годин консультацій для
+                            кожного семестру, відомості щодо контрольних робіт з кожного предмета за семестрами, прізвища та
+                            ініціали вчителів, які допомагають опанувати відповідні дисципліни.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Створення й коригування графіків проведення підсумкових контрольних робіт з навчальних
-                            предметів
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">4</span>
+                            Вчитель на ім'я "Адміністратор", має єдиний "предмет" - Контрольне тестування. Так
+                            позначено написання контрольних робіт з будь-якого справжнього шкільного предмета, що регулярно
+                            проводиться черговими адміністраторами Школи.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд призначених візитів до обраного працівника Школи та даних відвідувачів (ПІБ, телефон)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">5</span>
+                            Розділ "Розклади" поділений на три частини. Перша з них містить перелік всіх Ваших вчителів, дві
+                            інші - розклади на поточний та наступний тиждень. Щоб переглянути розклад обраного вчителя,
+                            потрібно вибрати в першому стовпчику його прізвище та натиснути на відповідну строку - відкриється
+                            розклад обраного вчителя на 2 тижні.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд призначених зустрічей обраного Вчителя та даних Студентів (ПІБ, клас, телефон, email)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">6</span>
+                            Час, доступний для резервування, позначений стилізованою іконкою календаря зеленого кольору,
+                            натискання на яку відкриває додаткове віконце, де міститься інформація щодо призначення
+                            зустрічі, а саме: назва й опис події (наприклад, індивідуальна конультація), організатор -
+                            Ваш педагог, дата, час, кнопки з пропозицією зарезервувати обраний час або скасувати призначення.
+                            До будь якого вчителя можна призначити повторну зустріч, якщо пройшов запланований час, а також у
+                            випадках, коли Ви, Ваш вчитель чи шкільний адміністратор скасували дійсне призначення достроково.
+                            <h4>
+                                <span class="badge badge-lg badge-success badge-pill ml-3">
+                                    <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                </span>
+                            </h4>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд записів на контрольні роботи з даними Студентів (ПІБ, клас, предмет, Вчитель, телефон)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">7</span>
+                            Призначені зустрічі помічені іконкою червоного кольору, що активує вікно
+                            скасування резерву. Час, який вивільняється після скасування, стає доступним
+                            іншим учням Школи. Скасування Вами запланованих зустрічей, на які Ви не зможете потрапити, не тільки
+                            допоможе вчителями краще спланувати своє робоче навантаження, але й надасть можливість скористатися
+                            вивільнившимся часом тим, хто не встиг зареєструватися раніше.
+                            <h4>
+                                <span class="badge badge-danger badge-pill ml-3">
+                                    <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                </span>
+                            </h4>
                         </li>
-
-                        <!--Гості-->
-                        <li class="list-group-item py-0"><small><strong>гості</strong></small></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд розкладів прийому адміністративними працівниками Школи
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">8</span>
+                            Повний перелік призначених зустрічей міститься в розділі "Призначені зустрічі" із зазначенням
+                            дати, часу, П.І.Б. вчителя, назви й опису події, а також додаткових деталей щодо контрольних робіт
+                            (предмет і семестри, за які Ви пишете роботи). Є можливість роздрукувати Ваш розклад.
+                            Кнопка справа повертає до розкладу відповідного вчителя.
+                            <h4>
+                                <span class="badge badge-info badge-pill ml-3">
+                                    <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
+                                </span>
+                            </h4>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Запис на зустріч до адміністративних працівників Школи
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-info badge-pill mr-3">9</span>
+                            Запис на контрольне тестування дозволяє вибрати предмети й семестри
+                            так, щоб написати 1-2 контрольні роботи за одне відвідування. Можна вибрати один предмет і контрольні
+                            роботи за 1-й і 2-й семестр, або 2 предмета з написанням по одній семестровій роботі з кожного.
+                            <span></span>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд призначених зустрічей з представниками Школи (з можливістю скасування)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-
-                        <!--Учні-->
-                        <li class="list-group-item py-0"><small><strong>студенти</strong></small></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд індівідуального плану: предмети, Вчителі, кількість консультацій та контрольних
-                            за семестрами
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд графіку прийому Вчителя з обраного предмету, запис на консультацію або
-                            підсумкову атестацію
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Запис на написання підсумкових контрольних робіт з предметів за І, ІІ семестри або рік
-                            (вказати)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд призначених відвідувань Вчителів, написання контрольних робіт (з можливістю скасування)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-
-                        <!--Вчителі-->
-                        <li class="list-group-item py-0"><small><strong>вчителі</strong></small></li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Створення й коригування графіку проведення Вчителем консультацій та підсумкових атестацій
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            Перегляд призначених зустрічей Вчителя та даних відповідних Студентів (ПІБ, клас, телефон, email)
-                            <span class="badge badge-success badge-pill">done <i class="fa fa-check-circle"></i></span>
+                        <li class="list-group-item d-flex justify-content-start align-items-start">
+                            <span class="badge badge-success badge-pill mr-3"><i class="fa fa-exclamation-circle" aria-hidden="true"></i></span>
+                            Слідкуйте за поштовою скринькою, яку Ви зареєстрували в шкільному сервісі. До неї надходитимуть повідомлення
+                            про скасування призначень вчителями (у випадку хвороби та інших непередбачуваних обставин), а
+                            також нагадування про час зустрічі в Школі напередодні Вашого наступного відвідування. В
+                            планах - інформування електронною поштою про результати перевірки контрольних робіт,
+                            надсилання іншої важливої та користної інформації стосовно Вашого навчання. Поставтеся відповідально
+                            до вибору поштового сервісу, запишіть і зберігайте в надійному місці паролі доступу до Вашої
+                            поштової скриньки та дані реєстрації в цьому сервісі, відновити
+                            доступ до нього наразі можливо лише через повторну реєстрацію та особисте отримання нового
+                            ключа підтвердження особи в Школі.
+                            <span></span>
                         </li>
                     </div>
                 </div>
@@ -226,7 +247,7 @@
 
 <!--Footer content here-->
 <footer class="footer">
-    <div class="container">
+    <div class="container text-center">
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>
