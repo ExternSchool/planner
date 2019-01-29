@@ -84,7 +84,7 @@
                             <!--</div>-->
                         <!--</div>-->
                     <!--</div>-->
-                    <div class="row mb-3">
+                    <div class="row mb-0">
                         <div class="form-group col-lg-6 mb-0">
                             <label for="grade" class="col-form-label float-left">Клас</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
@@ -104,6 +104,14 @@
                                    pattern="^(([ \.\-])?)?([\(]{1}[0-9]{2,3}[\)])?([0-9 \.\-]{7,10})$" title='Зразки:(044)123-45-67, (044) 123 45 67, 123-4567 і т.ін.'
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
+                    </div>
+                    <div class="text-danger col-lg-12 mb-3" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        <small>
+                            Увага! Механізм зміни класу для учнів, що навчаються, не реалізований.<br>
+                        </small>
+                        <small>
+                            В разі зміни класу рекомендується видалити існуючий профіль і завести новий, для іншого класу.
+                        </small>
                     </div>
                     <!--<div class="row">-->
                         <!--<div class="form-group col-lg-12 mb-3">-->
