@@ -46,7 +46,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -54,13 +53,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE;
 import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WORKING_DAY_BEGINS;
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_CANCELLED_DETAILS_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_WEEK_WORKING_DAYS;
 
@@ -168,6 +167,7 @@ public class TeacherController {
                                                final @RequestParam(value="start",required=false) LocalDate historyStart,
                                                final @RequestParam(value="end",required=false) LocalDate historyEnd,
                                                final @RequestParam(value="search",required=false) String searchFrag,
+                                               final @RequestParam(value="cancelled",required=false) Integer cancelled,
                                                final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
@@ -177,12 +177,13 @@ public class TeacherController {
             LocalDate start = historyStart != null ? historyStart : LocalDate.now();
             LocalDate end = historyEnd != null ? historyEnd : scheduleService.getNextWeekFirstDay().plusDays(6);
             String search = searchFrag != null ? searchFrag : "";
+            boolean showCancelled = cancelled != null && cancelled.equals(1);
             if (end.isBefore(start)) {
                 LocalDate temp = start;
                 start = end;
                 end = temp;
             }
-            modelAndView = prepareVisitorsList(user, id, start, end, search);
+            modelAndView = prepareVisitorsList(user, id, start, end, search, showCancelled);
         }
 
         return modelAndView;
@@ -828,6 +829,9 @@ public class TeacherController {
         return Optional.ofNullable(participant.getEvent()).map(event -> {
             StringBuilder builder = new StringBuilder()
                     .append(event.getStartOfEvent().format(DateTimeFormatter.ofPattern("dd/MM HH:mm ")));
+            if (event.isCancelled()) {
+                builder.append(UK_EVENT_CANCELLED_DETAILS_MESSAGE);
+            }
             // if event owner is an admin-in-charge, get test works details
             if (isParticipantAnAdminInCharge(event.getOwner())) {
                 Optional.ofNullable(participant.getPlanOneId()).ifPresent(planId -> {
@@ -902,16 +906,18 @@ public class TeacherController {
         return dayOfWeek >= 0 && dayOfWeek < 5;
     }
 
-    private ModelAndView prepareVisitorsList(User user, Long teacherId, LocalDate start, LocalDate end, String search) {
+    private ModelAndView prepareVisitorsList(User user,
+                                             Long teacherId,
+                                             LocalDate start,
+                                             LocalDate end,
+                                             String search,
+                                             boolean showCancelled) {
         Teacher teacher = teacherService.findTeacherById(teacherId);
         TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
         List<StudentDTO> students = new ArrayList<>();
         List<PersonDTO> guests = new ArrayList<>();
-        List<LocalDate> dates = Stream.iterate(start, date -> date.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(start, end))
-                .collect(Collectors.toList());
-        for (LocalDate date : dates) {
-            scheduleService.getNonCancelledEventsByOwnerAndDate(user, date).forEach(event -> {
+        for (ScheduleEvent event : scheduleService.getEventsByOwnerStartingBetweenDates(user, start, end)) {
+            if (!event.isCancelled() || showCancelled) {
                 event.getParticipants().forEach(participant -> {
                     Optional.ofNullable(participant.getUser())
                             .map(User::getVerificationKey)
@@ -933,7 +939,7 @@ public class TeacherController {
                                 }
                             });
                 });
-            });
+            }
         }
         ModelAndView modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
         modelAndView.addObject("students", students);

@@ -294,6 +294,64 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }
 
+    @Transactional
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchAndCancelled() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        ScheduleEvent currentEvent = events.get(0);
+        currentEvent.setCancelled(true);
+        Participant participant = currentEvent.getParticipants().stream().findAny().get();
+        Person person = new Person();
+        person.setLastName("LastName");
+        person.addVerificationKey(participant.getUser().getVerificationKey());
+        personService.saveOrUpdatePerson(person);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyEnd + "&end=" + historyStart + "&search=" + "tN" + "&cancelled=1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("guests",
+                        Matchers.contains(
+                                Matchers.hasProperty("id", Matchers.equalTo(person.getId())))))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Transactional
+    @Test
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchNotCancelled() throws Exception {
+        ScheduleEventType type = typeService.loadEventTypes().get(0);
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        ScheduleEvent currentEvent = events.get(0);
+        currentEvent.setCancelled(true);
+        Participant participant = currentEvent.getParticipants().stream().findAny().get();
+        Person person = new Person();
+        person.setLastName("LastName");
+        person.addVerificationKey(participant.getUser().getVerificationKey());
+        personService.saveOrUpdatePerson(person);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyEnd + "&end=" + historyStart + "&search=" + "tN" + "&cancelled=0"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attribute("guests", Matchers.empty()))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
     private List<ScheduleEvent> getEvents(LocalDate historyStart, LocalDate historyEnd, ScheduleEventType type) {
         List<ScheduleEventDTO> dtos = Arrays.asList(
                 ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
