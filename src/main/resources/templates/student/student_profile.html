@@ -27,7 +27,14 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal" th:inline="text"><small>Персональні дані екстерна [[${student.getEmail()}]]</small></h4>
+    <h4 class="font-weight-normal" th:inline="text">
+        <small>
+            Персональні дані екстерна [[${student.getEmail()}]]
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+                Роздрукувати
+            </button>
+        </small>
+    </h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Show some error msg
     </small>
@@ -105,7 +112,8 @@
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                     </div>
-                    <div class="text-info col-lg-12 mb-0" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    <div class="text-info col-lg-12 mb-0 hidden-print d-print-none"
+                         th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         <small>
                             Увага! Механізм зміни класу для учнів, що навчаються, не реалізований.<br>
                         </small>
@@ -135,8 +143,8 @@
                                            placeholder="для автентифікації облікового запису">
                                     <div class="input-group-append">
                                         <!-- Button trigger modal -->
-                                        <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalKey"
-                                                th:disabled="${isNew}" type="button">
+                                        <button class="btn btn-outline-primary hidden-print d-print-none" data-toggle="modal"
+                                                data-target="#modalKey" th:disabled="${isNew}" type="button">
                                             Згенерувати новий ключ
                                         </button>
                                     </div>
@@ -147,13 +155,15 @@
                     <div class="form-group row col-md-8 mx-auto">
                         <div class="col-md-4">
                             <a th:href="@{/student/cancel}">
-                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                <button class="btn btn-secondary btn-block hidden-print d-print-none" name="action"
+                                        value="cancel" type="button">
                                     Скасувати
                                 </button>
                             </a>
                         </div>
                         <div class="col-md-8">
-                            <button class="btn btn-primary btn-block" name="action" value="save" type="submit">
+                            <button class="btn btn-primary btn-block hidden-print d-print-none" name="action"
+                                    value="save" type="submit">
                                 Зберегти зміни
                             </button>
                         </div>
@@ -209,6 +219,8 @@
     </div>
 </div>
 <!-- / Modal -->
+
+<script src="/js/studentProfile.js"></script>
 
 </body>
 </html>
