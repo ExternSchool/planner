@@ -29,7 +29,7 @@ public class BootstrapDataPopulatorTest {
     @Autowired private RoleService roleService;
     @Autowired private ScheduleEventTypeService typeService;
 
-    @Value("${app.incharge.mail}") private String inchargeEmail;
+    @Value("${app.mail}") private String inchargeEmail;
 
     @Test
     public void shouldReturnScheduleEventTypesList_afterPropertiesSet() {
