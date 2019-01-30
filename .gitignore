@@ -3,7 +3,7 @@
 
 # My own Special offer
 .idea
-
+.env
 *.iml
 
 /target/

@@ -30,7 +30,8 @@
     <h4 class="font-weight-normal" th:inline="text">
         <small>
             Персональні дані екстерна [[${student.getEmail()}]]
-            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none d-none d-lg-block"
+                    th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" onclick="printFunction()">
                 Роздрукувати
             </button>
         </small>
@@ -47,16 +48,16 @@
                 <div class="col-lg-2">
 
                 </div>
-                <div class="col-lg-8">
-                    <div class="row">
-                        <div class="form-group col-lg-12 mb-0">
+                <div class="col-lg-8 d-print-inline-block">
+                    <div class="row hidden-print d-print-none">
+                        <div class="form-group col-lg-12 mb-0 d-print-inline-block">
                             <label for="lastName" class="col-form-label float-left mb-0">Прізвище</label>
-                            <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                            <input class="form-control d-print-inline" type="text" placeholder="Прізвище" id = "lastName"
                                    th:field="*{lastName}" required
                                    th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row hidden-print d-print-none">
                         <div class="form-group col-lg-6 mb-0">
                             <label for="firstName" class="col-form-label float-left">Ім'я</label>
                             <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
@@ -91,7 +92,7 @@
                             <!--</div>-->
                         <!--</div>-->
                     <!--</div>-->
-                    <div class="row mb-0">
+                    <div class="row mb-0 hidden-print d-print-none">
                         <div class="form-group col-lg-6 mb-0">
                             <label for="grade" class="col-form-label float-left">Клас</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
@@ -128,8 +129,7 @@
                                    <!--th:field="*{address}" id="address">-->
                         <!--</div>-->
                     <!--</div>-->
-                    <div class="col-lg-12 mb-3"></div>
-                    <div class="row">
+                    <div class="row hidden-print d-print-none">
                         <div class="form-group col-lg-12 mb-0">
                             <input type="hidden" th:field="${student.verificationKey}"
                                    th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
@@ -150,6 +150,18 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="h4 d-none d-print-block">
+                        <tr>
+                            <td class="text-left" th:text="${student.lastName}"></td>
+                            <td class="text-left" th:text="${student.firstName}">Ім'я</td>
+                            <td class="text-left" th:text="${student.patronymicName} + ', '">По батькові</td>
+                            <td class="text-right" th:text="${student.gradeLevel} + ' клас, '">Клас</td>
+                            <td class="text-right" th:text="'тел.' + ${student.phoneNumber}">Номер телефона</td>
+                        </tr>
+                        <div class="h3 text-center d-print-block" th:text="${student.verificationKey}">
+                            Ключ підтвердження
                         </div>
                     </div>
                     <div class="form-group row col-md-8 mx-auto">

@@ -20,7 +20,6 @@ import io.github.externschool.planner.service.VerificationKeyService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +43,6 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 @Service
 @Transactional
 @ExcludeFromTests
-@PropertySource(ignoreResourceNotFound=true,value="file:/var/local/app.properties")
 public class BootstrapDataPopulator implements InitializingBean {
     private final UserService userService;
     private final TeacherService teacherService;
@@ -55,16 +53,8 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final StudentService studentService;
     private final RoleService roleService;
 
-    @Value("${app.mail}") private String adminEmail;
-    @Value("${app.pass}") private String adminPass;
-
-    //TODO Remove
-    @Value("${spring.mail.username}") private String mailBox;
-    @Value("${spring.mail.password}") private String mailPass;
-    @Value("${app.mail1}") private String test1Email;
-    @Value("${app.pass1}") private String test1Pass;
-    @Value("${app.mail2}") private String test2Email;
-    @Value("${app.pass2}") private String test2Pass;
+    @Value("${app.username}") private String adminUsername;
+    @Value("${app.password}") private String adminPassword;
 
     @Autowired
     public BootstrapDataPopulator(final UserService userService,
@@ -102,8 +92,8 @@ public class BootstrapDataPopulator implements InitializingBean {
             teacherService.saveOrUpdateTeacher(noTeacher);
         }
 
-        if (userService.getUserByEmail(adminEmail) == null) {
-            User inCharge = userService.createUser(adminEmail, adminPass, "ROLE_ADMIN");
+        if (userService.getUserByEmail(adminUsername) == null) {
+            User inCharge = userService.createUser(adminUsername, adminPassword, "ROLE_ADMIN");
             inCharge = userService.save(inCharge);
             VerificationKey key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Teacher inChargeTeacher = createTeacher(
@@ -123,7 +113,10 @@ public class BootstrapDataPopulator implements InitializingBean {
         }
 
         //TODO Remove after been tested
-        System.out.println("\n\n\n" + adminEmail + ":" + adminPass + "\n" + mailBox + ":" + mailPass + "\n\n\n");
+        String test1Email = "mailto.benkoff@gmail.com";
+        String test1Pass = "q";
+        String test2Email = "bigopendatanet@gmail.com";
+        String test2Pass = "q";
 
         //TODO Remove after been tested
         if (userService.getUserByEmail(test1Email) == null) {
