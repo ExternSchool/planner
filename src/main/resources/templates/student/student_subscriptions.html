@@ -35,7 +35,7 @@
         <small>
             Призначені зустрічі
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                [[${student.getLastName()}]] [[${student.getFirstName()}]] [[${student.getPatronymicName()}]].
+                [[${student.getLastName()}]] [[${student.getFirstName()}]] [[${student.getPatronymicName()}]]
                 <a class="d-print-none" th:href="@{/student/search/{id}(id=${student.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3" aria-hidden="true">
                         <i class="fas fa-external-link-square-alt"></i>
@@ -61,7 +61,8 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="participant : ${participants}">
+            <tr th:each="participant : ${participants}"
+                th:style="${#strings.contains(participant.getEventDescription(), '--')} ? 'text-decoration: line-through;' : ''">
                 <td class="text-left" th:text="${#temporals.format(participant.getDate(),'dd/MM ')}">Дата</td>
                 <td class="text-left" th:text="${#temporals.format(participant.getTime(),'HH:mm ')}">Час</td>
                 <td class="text-left" th:text="${participant.getOwnerName()}">П.І.Б.</td>
@@ -89,7 +90,7 @@
                 </td>
                 <td class="d-print-none text-right">
                     <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
-                       class="d-print-none btn btn-sm btn-info" aria-hidden="true">
+                       class="btn btn-sm btn-info" aria-hidden="true">
                         <i class="fas fa-calendar-check" style="color: white"></i>
                     </a>
                 </td>

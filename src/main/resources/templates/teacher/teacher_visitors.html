@@ -86,7 +86,8 @@
                     <td th:text="${student.getPhoneNumber()}">Телефон</td>
                     <td class="d-print-none text-right">
                     <span sec:authorize="hasRole('ROLE_ADMIN')">
-                        <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${student.id}, id=${teacher.id})}" class="btn badge badge-info">
+                        <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${student.id}, id=${teacher.id})}"
+                           class="btn badge badge-info" aria-hidden="true">
                             <i class="far fa-calendar-check" style="color: white" aria-hidden="true"></i>
                         </a>
                     </span>
