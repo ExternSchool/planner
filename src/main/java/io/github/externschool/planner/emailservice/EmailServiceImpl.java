@@ -21,6 +21,7 @@ import java.util.Optional;
 import static io.github.externschool.planner.util.Constants.ADMINISTRATION_EMAIL_SIGNATURE;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_PROPOSAL;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_SUBJECT;
+import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TESTS_SUBJECT;
 import static io.github.externschool.planner.util.Constants.APPOINTMENT_CANCELLATION_TEXT;
 import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_DISCLAIMER_EN;
 import static io.github.externschool.planner.util.Constants.EMAIL_CONFIRMATION_SUBJECT;
@@ -29,6 +30,7 @@ import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static io.github.externschool.planner.util.Constants.HOST_NAME;
 import static io.github.externschool.planner.util.Constants.LOCALE;
 import static io.github.externschool.planner.util.Constants.SCHOOL_EMAIL;
+import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 
 @Service
 @Transactional
@@ -49,7 +51,6 @@ public class EmailServiceImpl implements EmailService {
                     String eventOwnersName = Optional.ofNullable(eventOwner.getVerificationKey())
                             .map(VerificationKey::getPerson)
                             .map(Person::getShortName)
-                            .map(name -> " з " + name)
                             .orElse("");
                     String eventDateTime =
                             event.getStartOfEvent()
@@ -59,8 +60,10 @@ public class EmailServiceImpl implements EmailService {
                                     .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(LOCALE));
                     String textMessage = APPOINTMENT_CANCELLATION_TEXT
                             + eventDateTime
-                            + eventOwnersName
-                            + "\n"
+                            + (eventOwnersName.contains(UK_COURSE_ADMIN_IN_CHARGE)
+                            ? ""
+                            : " (Вчитель - " + eventOwnersName + ")")
+                            + ".\n"
                             + APPOINTMENT_CANCELLATION_PROPOSAL
                             + "\n\n"
                             + ADMINISTRATION_EMAIL_SIGNATURE
@@ -70,7 +73,10 @@ public class EmailServiceImpl implements EmailService {
 
                     SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
                     simpleMailMessage.setTo(participant.getUser().getEmail());
-                    simpleMailMessage.setSubject(APPOINTMENT_CANCELLATION_SUBJECT + eventDateTime + eventOwnersName);
+                    simpleMailMessage.setSubject(
+                            eventOwnersName.contains(UK_COURSE_ADMIN_IN_CHARGE)
+                                    ? APPOINTMENT_CANCELLATION_TESTS_SUBJECT + eventDateTime
+                                    : APPOINTMENT_CANCELLATION_SUBJECT + eventDateTime + ". Вчитель - " + eventOwnersName);
                     simpleMailMessage.setFrom(eventOwner.getEmail());
                     simpleMailMessage.setText(textMessage);
 

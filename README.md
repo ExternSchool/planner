@@ -120,16 +120,14 @@ Future projects:
  * Guests - everyone who visits service without any authorization or registration, unverified users
 
 ### 4.3. Environmental requirements
- * russian/ukrainian localization
+ * ukrainian localization
  * Ukrainian holidays
 
 ### 4.4. Support requirements
- * should not require operational maintenance
- * no support/devops team available - preferably serverless and/or cloud based service
+ * should require minimal operational maintenance - no devops team available 
  * minimal cost, preferably use free tier service providers
  
-### 4.5. Interaction requirements 
- * RESTful API 
+### 4.5. Interaction requirements  
  * *TBD*
 
 ## 5. Visit Planner Requirements
@@ -163,90 +161,12 @@ This project has to provide the following features:</br>
 ### 5.2. Domain model and database implementation (skeleton): 
  
 ### 5.3. Visit Planner External API. Option #1. Concise.
- * POST     /hosts                                              
- * GET      /hosts
- * GET      /hosts/{hostId}
- * DELETE   /hosts/{hostId}                                    
- * GET      /hosts/{hostId}/timeslots
- * POST     /hosts/{hostId}/timeslots                           
- * DELETE   /hosts/{hostId}/timeslots/{timeslotId}              
- * GET      /hosts/{hostId}/timeslots/{timeslotId}/appointments
- * GET      /visitors/{visitorId}/appointments
- * POST     /visitors/{visitorId}/appointments
- * DELETE   /visitors/{visitorId}/appointments/{appointmentId}
+ **TBD*
  
 #### 5.3.1. External API Rights 
- Method |                            URI                      |  Admin  |  Host   | Visitor | Guest*
- ------ | --------------------------------------------------- | ------- | ------- | ------- | -------
- POST   | /hosts                                              |    x    |         |         | 
- GET    | /hosts                                              |    x    |    x    |    x    |    x
- GET    | /hosts/{hostId}                                     |    x    |    x    |    x    |    x
- DELETE | /hosts/{hostId}                                     |    x    |         |         | 
- GET    | /hosts/{hostId}/timeslots                           |    x    |    x    |    x    |    x
- POST   | /hosts/{hostId}/timeslots                           |    x    |    x    |         | 
- DELETE | /hosts/{hostId}/timeslots/{timeslotId}              |    x    |    x    |         | 
- GET    | /hosts/{hostId}/timeslots/{timeslotId}/appointments |    x    |    x    |    x    |    x
- GET    | /visitors/{visitorId}/appointments                  |    x    |    x    |    x    |    
- POST   | /visitors/{visitorId}/appointments                  |         |         |    x    |     
- DELETE | /visitors/{visitorId}/appointments/{appointmentId}  |         |         |    x    |      
- **TBD*
-
-### 5.4. Visit Planner External API. Option #2. Extended.
-**Officers:**
- * POST     /officers                                              
- * GET      /officers
- * GET      /officers/{officerId}
- * DELETE   /officers/{officerId}                                    
- * GET      /officers/{officerId}/timeslots
- * POST     /officers/{officerId}/timeslots                           
- * DELETE   /officers/{officerId}/timeslots/{timeslotId}              
- * GET      /officers/{officerId}/timeslots/{timeslotId}/appointment
- 
-**Teachers:**
- * POST     /teachers                                              
- * GET      /teachers
- * GET      /teachers/{teacherId}
- * DELETE   /teachers/{teacherId}                                    
- * GET      /teachers/{teacherId}/timeslots
- * POST     /teachers/{teacherId}/timeslots                           
- * DELETE   /teachers/{teacherId}/timeslots/{timeslotId}              
- * GET      /teachers/{teacherId}/timeslots/{timeslotId}/appointments
- 
-**Students:**
- * GET      /students/{studentId}/appointments
- * POST     /students/{studentId}/appointments
- * DELETE   /students/{studentId}/appointments/{appointmentId}
- 
-**Guests:**
- * GET      /guests/{guestId}/appointments
- * POST     /guests/{guestId}/appointments
- * DELETE   /guests/{guestId}/appointments/{appointmentId}
-
- #### 5.4.1. External API Rights 
  Method |                            URI                           |  Admin  | Off./Teacher| Student | Guest*
  ------ | -------------------------------------------------------- | ------- | ----------- | ------- | -------
- POST   | /officers                                                |    x    |             |         | 
- GET    | /officers                                                |    x    |      x      |    x    |    x
- GET    | /officers/{officerId}                                    |    x    |      x      |    x    |    x
- DELETE | /officers/{officerId}                                    |    x    |             |         |                                    
- GET    | /officers/{officerId}/timeslots                          |    x    |      x      |    x    |    x
- POST   | /officers/{officerId}/timeslots                          |    x    |      x      |         |                          
- DELETE | /officers/{officerId}/timeslots/{timeslotId}             |    x    |      x      |         |               
- GET    | /officers/{officerId}/timeslots/{timeslotId}/appointment |    x    |      x      |    x    |    
- POST   | /teachers                                                |    x    |             |         |                                               
- GET    | /teachers                                                |    x    |      x      |    x    |    x
- GET    | /teachers/{teacherId}                                    |    x    |      x      |    x    |    x
- DELETE | /teachers/{teacherId}                                    |    x    |             |         |                                      
- GET    | /teachers/{teacherId}/timeslots                          |    x    |      x      |    x    |    x
- POST   | /teachers/{teacherId}/timeslots                          |    x    |      x      |         |                           
- DELETE | /teachers/{teacherId}/timeslots/{timeslotId}             |    x    |      x      |         |                
- GET    | /teachers/{teacherId}/timeslots/{timeslotId}/appointments|    x    |      x      |    x    |    
- GET    | /students/{studentId}/appointments                       |    x    |      x      |    x    |   
- POST   | /students/{studentId}/appointments                       | **???** |             |    x    |     
- DELETE | /students/{studentId}/appointments/{appointmentId}       | **???** |             |    x    |     
- GET    | /guests/{guestId}/appointments                           |    x    |      x      |    x    |    x
- POST   | /guests/{guestId}/appointments                           | **???** |             |         |    x 
- DELETE | /guests/{guestId}/appointments/{appointmentId}           | **???** |             |         |    x
+    |                                                |       |             |         | 
  **TBD*
 
 
@@ -272,21 +192,20 @@ The app should demonstrate following user flows:
 
 ### 5.6. Cloud infrastructure
  * *TBD*
-  
-### 5.7. Microservice Integration diagram 
-![Microservices diagram](https://user-images.githubusercontent.com/10642971/38766137-7368b23a-3fd6-11e8-9679-69b12c7939f8.png)
 
-### 5.8. Server/client platform
+### 5.7. Server/client platform
  * Java 8, Spring Boot 2, Spring 5, Maven, Spring Data, Spring Web, Spring Security
- * Liquibase, H2, PostgeSQL
+ * Liquibase, H2, PostgreSQL
  * Mockito, AssertJ, JUnit, DbUnit
  * Thymeleaf3, Bootstrap4, CSS3
 
-### 5.9. Security
+### 5.8. Security
  * Spring Security 
- * OAuth with {okta} (free tier up to 7000 active users) -- *TBD* 
+ * CSRF enabled
+ * Sensitive Credentials stored in server environment variables. Use external .env file to populate: `export $(cat .env | xargs)`
  
-### 5.10. Clients
+### 5.9. Clients
  * standard HTML5 web browser
  * RESTful clients -- *TBD* 
+
 
