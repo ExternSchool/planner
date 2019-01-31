@@ -117,11 +117,12 @@ public final class Constants {
     public static final String SCHOOL_EMAIL = "extern.school@gmail.com";
     public static final String HOST_NAME = "https://extern.com.ua";//"http://localhost:8080";
     public static final String APPOINTMENT_CANCELLATION_SUBJECT = "Відміна зустрічі ";
+    public static final String APPOINTMENT_CANCELLATION_TESTS_SUBJECT = "Скасовано контрольні роботи ";
     public static final String APPOINTMENT_CANCELLATION_TEXT =
             "Вибачте, але в зв'язку з поважними причинами скасовано Вашу зустріч ";
     public static final String APPOINTMENT_CANCELLATION_PROPOSAL = "Зателефонуйте до школи за номером:"
                     + SCHOOL_PHONE_NUMBER
-                    + " або скористайтеся цим посиланням для призначення нової зустрічі в зручний для Вас час: "
+                    + " або скористайтеся цим посиланням для нового призначення в зручний для Вас час: "
                     + HOST_NAME
                     + "\n"
                     + "Цей лист сформований та відправлений в автоматичному режимі, будь ласка, не відповідайте на нього."

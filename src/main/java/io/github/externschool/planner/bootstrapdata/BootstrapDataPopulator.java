@@ -9,12 +9,9 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
-import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
-import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
-import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudentService;
 import io.github.externschool.planner.service.TeacherService;
@@ -54,12 +51,10 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final VerificationKeyService verificationKeyService;
     private final StudyPlanRepository planRepository;
     private final StudentService studentService;
-    private final CourseRepository courseRepository;
-    private final PersonService personService;
     private final RoleService roleService;
-    private final ScheduleService scheduleService;
-    @Value("${app.incharge.mail}") private String inchargeEmail;
-    @Value("${app.incharge.pass}") private String inchargePass;
+
+    @Value("${app.username}") private String adminUsername;
+    @Value("${app.password}") private String adminPassword;
 
     @Autowired
     public BootstrapDataPopulator(final UserService userService,
@@ -69,10 +64,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                                   final VerificationKeyService verificationKeyService,
                                   final RoleService roleService,
                                   final StudyPlanRepository planRepository,
-                                  final StudentService studentService,
-                                  final CourseRepository courseRepository,
-                                  final PersonService personService,
-                                  final ScheduleService scheduleService) {
+                                  final StudentService studentService) {
         this.userService = userService;
         this.teacherService = teacherService;
         this.schoolSubjectService = schoolSubjectService;
@@ -81,9 +73,6 @@ public class BootstrapDataPopulator implements InitializingBean {
         this.roleService = roleService;
         this.planRepository = planRepository;
         this.studentService = studentService;
-        this.courseRepository = courseRepository;
-        this.personService = personService;
-        this.scheduleService = scheduleService;
     }
 
     @Override
@@ -103,8 +92,8 @@ public class BootstrapDataPopulator implements InitializingBean {
             teacherService.saveOrUpdateTeacher(noTeacher);
         }
 
-        if (userService.getUserByEmail(inchargeEmail) == null) {
-            User inCharge = userService.createUser(inchargeEmail, inchargePass, "ROLE_ADMIN");
+        if (userService.getUserByEmail(adminUsername) == null) {
+            User inCharge = userService.createUser(adminUsername, adminPassword, "ROLE_ADMIN");
             inCharge = userService.save(inCharge);
             VerificationKey key = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Teacher inChargeTeacher = createTeacher(
@@ -122,10 +111,16 @@ public class BootstrapDataPopulator implements InitializingBean {
             teacherService.saveOrUpdateTeacher(inChargeTeacher);
             userService.save(inCharge);
         }
-        
+
         //TODO Remove after been tested
-        if (userService.getUserByEmail("mailto.benkoff@gmail.com") == null) {
-            User testTeacher = userService.createUser("mailto.benkoff@gmail.com", "q", "ROLE_TEACHER");
+        String test1Email = "mailto.benkoff@gmail.com";
+        String test1Pass = "q";
+        String test2Email = "bigopendatanet@gmail.com";
+        String test2Pass = "q";
+
+        //TODO Remove after been tested
+        if (userService.getUserByEmail(test1Email) == null) {
+            User testTeacher = userService.createUser(test1Email, test1Pass, "ROLE_TEACHER");
             testTeacher = userService.save(testTeacher);
             VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Teacher testTeacherTeacher = createTeacher(
@@ -146,8 +141,8 @@ public class BootstrapDataPopulator implements InitializingBean {
         }
 
         //TODO Remove after been tested
-        if (userService.getUserByEmail("bigopendatanet@gmail.com") == null) {
-            User testStudent = userService.createUser("bigopendatanet@gmail.com", "q", "ROLE_STUDENT");
+        if (userService.getUserByEmail(test2Email) == null) {
+            User testStudent = userService.createUser(test2Email, test2Pass, "ROLE_STUDENT");
             testStudent = userService.save(testStudent);
             VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
             Student testStudentStudent = new Student(
