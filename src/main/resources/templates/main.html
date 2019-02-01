@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
 <head>
     <title>Main Page</title>
     <meta charset="utf-8">
@@ -8,16 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
-    <link rel="stylesheet" type="text/css" href="/css/main.css"/>
-    <title>Extern School</title>
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
 </head>
 
-<body class="text-justify">
+<body class="text-center">
 
 <!--Header content here-->
 <header class="header">
@@ -25,7 +26,7 @@
 </header>
 
 <!-- Begin page content -->
-<main role="main" class="container text-center">
+<main role="main" class="container">
     <!--<img src="../static/img/pic.png" th:src="@{/img/pic.png}" width="200" height="200" /></a>-->
     <!--<h1 class="h3 mb-3 font-weight-normal">Welcome to Extern School</h1>-->
     <div>
@@ -244,10 +245,9 @@
     </div>
 </main>
 
-
 <!--Footer content here-->
 <footer class="footer">
-    <div class="container text-center">
+    <div class="container">
         <div class="text-muted" th:replace="fragments/footer :: footer"></div>
     </div>
 </footer>

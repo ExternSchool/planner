@@ -452,11 +452,12 @@ public class GuestController {
                     LocalDate.now(),
                     currentWeekFirstDay.plusDays(14));
             subscribedEvent = allCurrentEvents.stream()
-                        .map(ScheduleEvent::getParticipants)
-                        .flatMap(Set::stream)
-                        .filter(participant -> participant.getUser().equals(guestUser))
-                        .findFirst()
-                        .map(Participant::getEvent);
+                    .filter(event -> !event.isCancelled())
+                    .map(ScheduleEvent::getParticipants)
+                    .flatMap(Set::stream)
+                    .filter(participant -> participant.getUser().equals(guestUser))
+                    .findFirst()
+                    .map(Participant::getEvent);
             if (subscribedEvent.isPresent()) {
                 ScheduleEvent singleEvent = subscribedEvent.get();
                 addByDatesSingletonListToEventsListOfLists(currentWeekDates, currentWeekEvents, singleEvent);

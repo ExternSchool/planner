@@ -15,17 +15,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
-    <style>
-        .card-title{
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .card{
-                max-width: 50%
-            }
-        }
-    </style>
 </head>
 
 <body class="text-center">
@@ -44,13 +33,11 @@
 <main role="main" class="container-fluid">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
-        <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-            Відвідувач:
-            <span th:text="${guest.getShortName()} + ' '">
-                П.І.Б.
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                Відвідувач:
+                <span th:text="${guest.getShortName()} + ' '">П.І.Б.</span>
             </span>
-        </span>
-            Запис на прийом до працівників школи
+            <span class="full-text">Запис на прийом до працівників школи</span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a th:href="@{/guest/search/{id}(id=${guest.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3">
@@ -59,7 +46,8 @@
                 </a>
                 <a class="float-right btn btn-sm btn-outline-info ml-3"
                    th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
-                    Список зустрічей
+                    <span class="full-text">Список резервувань</span>
+                    <span class="short-text">Резервування</span>
                 </a>
             </span>
         </small>
@@ -325,7 +313,7 @@
                     </button>
                     <span th:if="${official != null}">
                          <button type="submit" class="btn btn-sm btn-primary">
-                             Так, скасувати!
+                             Так!
                          </button>
                     </span>
                 </div>

@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
-      lang="uk">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4" lang="uk">
 <head>
     <title>Teacher Visitors</title>
     <meta charset="utf-8">
@@ -10,12 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css">
@@ -39,11 +35,11 @@
         <small>
             <button class="float-left btn btn-sm btn-outline-primary mb-1 hidden-print d-print-none"
                     data-toggle="modal" data-target="#getHistoryModal">
-                Історія записів
+                Історія
             </button>
-            Відвідувачі до вчителя (працівника)
+            <span class="full-text">Відвідувачі до вчителя (працівника) </span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                : [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
+                [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
                 <a class="d-print-none" th:href="@{/teacher/search/{id}(id=${teacher.getId()})}" aria-hidden="true">
                     <button type="button" class="btn badge badge-info ml-3">
                         <i class="fas fa-external-link-square-alt"></i>
@@ -51,7 +47,7 @@
                 </a>
             </span>
             <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
-                Роздрукувати
+                Друк
             </button>
         </small>
     </h4>
@@ -62,16 +58,18 @@
             <table class="col-lg-12 table table-sm table-hover">
                 <thead class="">
                 <tr>
-                    <th class="text-left">Дата, час, назва та опис події</th>
+                    <th class="text-left">
+                        <span class="full-text">Дата, час, назва та опис події</span>
+                        <span class="short-text">Подія</span>
+                    </th>
                     <th class="text-left">Прізвище</th>
                     <th class="text-left">Ім'я</th>
                     <th class="text-left">По батькові</th>
                     <th>Клас</th>
                     <th style="width: 15ch">Телефон</th>
-                    <th class="d-print-none text-right">
-                    <span sec:authorize="hasRole('ROLE_ADMIN')">
-                        Записи
-                    </span>
+                    <th class="width-resized d-print-none text-right" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <span class="full-text">Записи</span>
+                        <span class="short-text"> </span>
                     </th>
                 </tr>
                 </thead>
@@ -84,13 +82,11 @@
                     <td class="text-left" th:text="${student.getPatronymicName()}">По батькові</td>
                     <td th:text="${student.getGradeLevel()}">Клас</td>
                     <td th:text="${student.getPhoneNumber()}">Телефон</td>
-                    <td class="d-print-none text-right">
-                    <span sec:authorize="hasRole('ROLE_ADMIN')">
+                    <td class="width-resized d-print-none text-right" sec:authorize="hasRole('ROLE_ADMIN')">
                         <a th:href="@{/student/{gid}/teacher/{id}/schedule(gid=${student.id}, id=${teacher.id})}"
                            class="btn badge badge-info" aria-hidden="true">
                             <i class="far fa-calendar-check" style="color: white" aria-hidden="true"></i>
                         </a>
-                    </span>
                     </td>
                 </tr>
                 </tbody>
@@ -103,15 +99,17 @@
             <table class="col-lg-12 table table-sm table-hover">
                 <thead class="">
                 <tr>
-                    <th class="text-left">Дата, час, назва та опис події</th>
+                    <th class="text-left">
+                        <span class="full-text">Дата, час, назва та опис події</span>
+                        <span class="short-text">Подія</span>
+                    </th>
                     <th class="text-left">Прізвище</th>
                     <th class="text-left">Ім'я</th>
                     <th class="text-left">По батькові</th>
                     <th style="width: 15ch">Телефон</th>
-                    <th class="d-print-none text-right">
-                        <span sec:authorize="hasRole('ROLE_ADMIN')">
-                            Записи
-                        </span>
+                    <th class="width-resized d-print-none text-right" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <span class="full-text">Записи</span>
+                        <span class="short-text"> </span>
                     </th>
                 </tr>
                 </thead>
@@ -123,13 +121,11 @@
                     <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
                     <td class="text-left" th:text="${guest.getPatronymicName()}">По батькові</td>
                     <td th:text="${guest.getPhoneNumber()}">Телефон</td>
-                    <td class="d-print-none text-right">
-                        <span sec:authorize="hasRole('ROLE_ADMIN')">
-                            <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${guest.id}, id=${teacher.id})}"
-                               class="btn badge badge-info" aria-hidden="true">
-                                <i class="far fa-calendar-check" style="color: white"></i>
-                            </a>
-                        </span>
+                    <td class="width-resized d-print-none text-right" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${guest.id}, id=${teacher.id})}"
+                           class="btn badge badge-info" aria-hidden="true">
+                            <i class="far fa-calendar-check" style="color: white"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -157,31 +153,35 @@
             </div>
             <form class="form mb-0" id="formHistory" th:action="@{/teacher/{id}/visitors(id=${teacher.id})}" method="get">
                 <fieldset>
-                    <div class="modal-body text-center">
+                    <div class="modal-body text-left">
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 28ch;">Початкова дата</span>
+                                <span class="input-group-text full-text text-left" style="width: 28ch;">Початкова дата</span>
+                                <span class="input-group-text short-text text-left" style="width: 18ch;">З дати</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="date"
                                    th:name="start" th:value="${historyStart}" id="historyStart">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 28ch;">Кінцева дата</span>
+                                <span class="input-group-text full-text text-left" style="width: 28ch;">Кінцева дата</span>
+                                <span class="input-group-text short-text text-left" style="width: 18ch;">По дату</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="date"
                                    th:name="end" th:value="${historyEnd}" id="historyEnd">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 28ch;">Прізвище відвідувача</span>
+                                <span class="input-group-text full-text text-left" style="width: 28ch;">Прізвище відвідувача</span>
+                                <span class="input-group-text short-text text-left" style="width: 18ch;">Пошук (прізвище)</span>
                             </div>
                             <input class="form-control pull-right" type="date" th:type="text"
                                    th:name="search" th:value="${searchPattern}" id="searchPattern">
                         </div>
                         <div class="input-group mb-1">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" style="width: 28ch;">Включити скасовані записи</span>
+                                <span class="input-group-text full-text text-left" style="width: 28ch;">Включити скасовані записи</span>
+                                <span class="input-group-text short-text text-left" style="width: 18ch;">Додати скасовані</span>
                             </div>
                             <select class="form-control pull-right form-control" th:name="cancelled" id="showCancelled">
                                 <option th:each="i : ${#numbers.sequence(0, 1)}" th:value="${i}"
@@ -189,8 +189,8 @@
                                 </option>
                             </select>
                         </div>
-                        <small>Стандартний набір значень виводить список всіх відвідувачів, які мають нескасовані
-                            призначення на поточний та наступний тижні.</small>
+                        <span class="text-info text-center"><small>За усталеним налаштуванням виводиться список всіх відвідувачів,
+                            які мають нескасовані резервування на поточний та наступний тижні</small></span>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -198,7 +198,7 @@
                         </button>
                         <div>
                             <button type="submit" class="btn btn-primary">
-                                Вивести історію записів
+                                Вивести історію
                             </button>
                         </div>
                     </div>

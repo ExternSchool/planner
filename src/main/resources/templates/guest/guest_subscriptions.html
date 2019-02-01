@@ -9,9 +9,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css">
@@ -33,10 +32,10 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
+            <span class="full-text">Призначені зустрічі </span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]].
+                [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]]
             </span>
-            Призначені зустрічі
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a class="d-print-none" th:href="@{/guest/search/{id}(id=${guest.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3" aria-hidden="true">
@@ -45,7 +44,7 @@
                 </a>
             </span>
             <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
-                Роздрукувати
+                Друк
             </button>
         </small>
     </h4>
@@ -58,17 +57,20 @@
                 <th class="text-left">П.І.Б.</th>
                 <th class="text-left">Назва події</th>
                 <th class="text-left">Опис події</th>
-                <th  class="d-print-none text-right" style="width: 10ch">Розклад</th>
+                <th class="width-resized">
+                    <span class="full-text">Розклад</span>
+                    <span class="short-text"> </span>
+                </th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="participant : ${participants}">
-                <td class="text-left" th:text="${participant.getDate()}">Дата</td>
-                <td class="text-left" th:text="${participant.getTime()}">Час</td>
+                <td class="text-left" th:text="${#temporals.format(participant.getDate(),'dd/MM ')}">Дата</td>
+                <td class="text-left" th:text="${#temporals.format(participant.getTime(),'HH:mm ')}">Час</td>
                 <td class="text-left" th:text="${participant.getOwnerName()}">П.І.Б.</td>
                 <td class="text-left" th:text="${participant.getEventTitle()}">Назва події</td>
                 <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
-                <td class="d-print-none text-right">
+                <td class="width-resized d-print-none text-right">
                     <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
                        class="d-print-none btn btn-sm btn-info" aria-hidden="true">
                         <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>

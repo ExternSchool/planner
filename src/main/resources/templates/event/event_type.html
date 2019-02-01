@@ -53,10 +53,16 @@
                         <th class="text-left">Назва типу події</th>
                         <th class="text-left">Організатори події</th>
                         <th class="text-left">Учасники події</th>
-                        <th class="text-left" style="width: 15ch">Макс.учасників</th>
-                        <th class="text-left" style="width: 15ch">Тривалість, хв</th>
-                        <th class="text-right" style="width: 10ch">Змінити</th>
-                        <th class="text-right" style="width: 10ch">Видалити</th>
+                        <th class="text-left">Макс. учасників</th>
+                        <th class="text-left" style="width: 8ch">Час, хв</th>
+                        <th class="width-resized">
+                            <span class="full-text">Змінити</span>
+                            <span class="short-text"> </span>
+                        </th>
+                        <th class="width-resized">
+                            <span class="full-text">Видалити</span>
+                            <span class="short-text"> </span>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -75,14 +81,14 @@
                             </td>
                             <td class="text-center" th:text="${type.getAmountOfParticipants()}">Кількість</td>
                             <td class="text-center" th:text="${type.getDurationInMinutes()}">Хвилини</td>
-                            <td class="text-right">
+                            <td class="width-resized">
                                 <a th:href="@{/event/type/{id}(id=${type.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </button>
                                 </a>
                             </td>
-                            <td class="text-right">
+                            <td class="width-resized">
                                 <button type="button" class="btn badge badge-danger"
                                         th:onclick="'javascript:openDeleteEventTypeModal(\'' + ${type.getId()} + '\');'">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
@@ -183,12 +189,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до редагування
+                    Повернутися
                 </button>
                 <span th:if="${eventType.id != null}">
                     <form th:method="post" th:action="@{/event/type/{id}/delete(id=${eventType.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-primary">
-                            Так, видалити!
+                            Так!
                         </button>
                     </form>
                 </span>

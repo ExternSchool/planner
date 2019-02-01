@@ -39,31 +39,17 @@
                         <nav id="selector" aria-label="Grades navigation">
                             <ul class="pagination pagination-sm  float-left mb-1">
                                 <li th:class="${level.getValue() == 0}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/">Всі класи</a></li>
-                                <li th:class="${level.getValue() == 1}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/1"> 1</a></li>
-                                <li th:class="${level.getValue() == 2}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/2"> 2</a></li>
-                                <li th:class="${level.getValue() == 3}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/3"> 3</a></li>
-                                <li th:class="${level.getValue() == 4}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/4"> 4</a></li>
-                                <li th:class="${level.getValue() == 5}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/5"> 5</a></li>
-                                <li th:class="${level.getValue() == 6}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/6"> 6</a></li>
-                                <li th:class="${level.getValue() == 7}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/7"> 7</a></li>
-                                <li th:class="${level.getValue() == 8}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/8"> 8</a></li>
-                                <li th:class="${level.getValue() == 9}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/9"> 9</a></li>
-                                <li th:class="${level.getValue() == 10}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/10">10</a></li>
-                                <li th:class="${level.getValue() == 11}? 'page-item active' : 'page-item'">
-                                    <a class="page-link" href="/plan/grade/11">11</a></li>
+                                    <a class="page-link" th:href="@{/plan/}">Всі</a>
+                                </li>
+                                <li th:each="lvl : ${#numbers.sequence( 1, 11)}">
+                                    <span th:class="${level.getValue() == lvl}? 'page-item active' : 'page-item'">
+                                        <a class="page-link" th:text="${lvl}"
+                                           th:href="@{/plan/grade/{gradLvl}(gradLvl=${lvl})}">клас</a>
+                                    </span>
+                                </li>
                                 <li class="page-item disabled">
-                                    <a class="page-link" href="#">12</a></li>
+                                    <a class="page-link" href="#">12</a>
+                                </li>
                             </ul>
                         </nav>
                     </div>
@@ -87,16 +73,37 @@
             </div>
             <div class="table-responsive" th:if="${not #lists.isEmpty(plans)}">
                 <table class="col-lg-12 table table-sm table-hover">
-                    <thead class="">
+                    <thead>
                     <tr>
                         <th class="text-left" style="width: 10ch">Клас</th>
-                        <th class="text-left">Назва річного курсу</th>
-                        <th>Конс. с.1</th>
-                        <th>Конс. с.2</th>
-                        <th>К/р с.1</th>
-                        <th>К/р с.2</th>
-                        <th class="text-right" style="width: 10ch">Змінити</th>
-                        <th class="text-right" style="width: 10ch">Видалити</th>
+                        <th class="text-left">
+                            <span class="full-text">Назва річного курсу</span>
+                            <span class="short-text">Курс</span>
+                        </th>
+                        <th>
+                            <span class="full-text">Консультації сем.1</span>
+                            <span class="short-text">Конс-1</span>
+                        </th>
+                        <th>
+                            <span class="full-text">Консультації сем.2</span>
+                            <span class="short-text">Конс-2</span>
+                        </th>
+                        <th>
+                            <span class="full-text">К/робота сем.1</span>
+                            <span class="short-text">КР-1</span>
+                        </th>
+                        <th>
+                            <span class="full-text">К/робота сем.2</span>
+                            <span class="short-text">КР-2</span>
+                        </th>
+                        <th class="width-resized">
+                            <span class="full-text">Змінити</span>
+                            <span class="short-text"> </span>
+                        </th>
+                        <th class="width-resized">
+                            <span class="full-text">Видалити</span>
+                            <span class="short-text"> </span>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -110,14 +117,14 @@
                                 Год.семестр 2</td>
                             <td th:text="${p.getWorksPerSemesterOne() == 0 ? '-' : '+'}">К/р семестр 1</td>
                             <td th:text="${p.getWorksPerSemesterTwo() == 0 ? '-' : '+'}">К/р семестр 2</td>
-                            <td class="text-right">
+                            <td class="width-resized">
                                 <a th:href="@{/plan/{id}(id=${p.id})}">
                                     <button type="button" name="action" id="edit" value="edit" class="btn badge badge-primary">
                                         <i class="far fa-edit" aria-hidden="true"></i>
                                     </button>
                                 </a>
                             </td>
-                            <td class="text-right">
+                            <td class="width-resized">
                                 <button type="button" class="btn badge badge-danger"
                                         th:onclick="'javascript:openDeleteStudyPlanModal(\'' + ${p.id} + '\');'">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
@@ -210,14 +217,14 @@
                 </div>
                 <div th:if="${plan.id == null}">
                     <p>
-                        Вибачте, цей план видалити неможливо. <br>
-                        Його можна лише переіменувати та відредагувати.
+                        Вибачте, цей план видалити неможливо! <br>
+                        Його можна лише переіменувати.
                     </p>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до редагування
+                    Повернутися
                 </button>
                 <span th:if="${plan.id != null}">
                     <form th:method="post" th:action="@{/plan/{id}/delete(id=${plan.id})}">
