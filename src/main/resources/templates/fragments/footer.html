@@ -10,9 +10,13 @@
 <div th:fragment="footer">
     <div class="container d-print-none">
         © 2018-2019
-        <span sec:authorize="isAuthenticated()">
+        <span class="full-text my-0 mx-auto" sec:authorize="isAuthenticated()">
                 | Logged user: <span sec:authentication="name"></span> |
                 Roles: <span sec:authentication="principal.authorities"></span> |
+                <a th:href="@{/logout}">Log Out</a>
+        </span>
+        <span class="short-text my-0 mx-auto" sec:authorize="isAuthenticated()">
+                | Logged user: <span sec:authentication="name"></span> |
                 <a th:href="@{/logout}">Log Out</a>
         </span>
     </div>

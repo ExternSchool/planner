@@ -28,7 +28,7 @@
     <h4 class="font-weight-normal" th:inline="text"><small>Вчителі та інші працівники</small></h4>
     <form th:method="post" th:action="@{/teacher/add}">
         <button type="submit" name="add" value="add" class="float-right btn btn-outline-primary btn-sm mb-1">
-            Додати нового вчителя</button>
+            Додати вчителя</button>
     </form>
     <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
         <table class="col-lg-12 table table-sm table-hover">
@@ -40,9 +40,18 @@
                 <th class="text-left">Адм. посада</th>
                 <th style="width: 15ch">Телефон</th>
                 <th style="width: 20ch">Email</th>
-                <th class="text-right" style="width: 10ch">Розклад</th>
-                <th class="text-right" style="width: 10ch">Змінити</th>
-                <th class="text-right" style="width: 10ch">Видалити</th>
+                <th class="width-resized">
+                    <span class="full-text">Розклад</span>
+                    <span class="short-text"></span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Змінити</span>
+                    <span class="short-text"> </span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Видалити</span>
+                    <span class="short-text"> </span>
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -53,19 +62,19 @@
                 <td class="text-left" th:text="${teacher.getOfficial()}">Посада за розкладом</td>
                 <td th:text="${teacher.getPhoneNumber()}">Телефон</td>
                 <td th:text="${#strings.abbreviate(teacher.getEmail(),20)}">Email</td>
-                <td class="text-right">
+                <td class="width-resized">
                     <a th:href="@{/teacher/{id}/schedule(id=${teacher.id})}" class="btn badge badge-success">
                         <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
                     </a>
                 </td>
-                <td class="text-right">
+                <td class="width-resized">
                     <form th:method="post" th:action="@{/teacher/{id}(id=${teacher.id})}">
                         <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
                             <i class="fas fa-edit" aria-hidden="true"></i>
                         </button>
                     </form>
                 </td>
-                <td class="text-right">
+                <td class="width-resized">
                     <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
                             th:onclick="'javascript:openDeleteTeacherModal(\'' + ${teacher.getId()} + '\');'">
                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -109,12 +118,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до списку
+                    Повернутися
                 </button>
                 <div th:if="${teacher != null}">
                     <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-primary">
-                            Так, видалити!
+                            Так!
                         </button>
                     </form>
                 </div>
