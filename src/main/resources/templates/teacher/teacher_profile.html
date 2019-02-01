@@ -6,7 +6,7 @@
     <!--To ensure proper rendering and touch zooming-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--Font Awesome-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <!--Latest minified Bootstrap, JQuery, Moment-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
@@ -25,14 +25,23 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="font-weight-normal mb-0" th:inline="text">
-        <small>Персональні дані вчителя (працівника) [[${teacher.getEmail()}]]</small>
+    <h4 class="font-weight-normal" th:inline="text">
+        <small>
+            <span class="full-text">Персональні дані працівника </span>
+            <span th:if="${teacher.getEmail() != null && not #strings.endsWith(teacher.getEmail(),'@x')}">
+                [[${teacher.getEmail()}]]
+            </span>
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none d-none d-lg-block"
+                    th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" onclick="printFunction()">
+                Друк
+            </button>
+        </small>
     </h4>
-    <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Місце для відображення повідомлень про помилки
     </small>
     <fieldset>
-        <form class="form mb-0" th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" id="form">
+        <form class="form mb-0 hidden-print d-print-none" th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" id="form">
             <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="${isAdmin}"/>
             <input type="hidden" th:field="*{id}"/>
@@ -87,8 +96,7 @@
                 </div>
                 <div class=" col-lg-6 mb-0">
                     <div class="form-group mb-1">
-                        <label class="col-form-label " for="schoolSubjects">
-                            Навчальні предмети (утримуйте Ctrl, щоб вибрати декілька)</label>
+                        <label class="col-form-label " for="schoolSubjects">Навчальні предмети</label>
                         <div class="input-group">
                             <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
                                     th:field="*{schoolSubjects}" size="11"
@@ -121,17 +129,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 mb-0">
-                </div>
-                <div class="col-lg-6 form-group row mb-0">
-                    <div class="col-md-4 mb-0">
-                        <a href="/teacher/update">
+                <div class="form-group row col-md-8 mx-auto">
+                    <div class="col-md-4">
+                        <a th:href="@{/teacher/update}">
                             <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                 Скасувати
                             </button>
                         </a>
                     </div>
-                    <div class="col-md-8 mb-0">
+                    <div class="col-md-8">
                         <button class="btn btn-primary btn-block" name="action" value="save"
                                 type="submit" onclick="javascript='this.disabled = true; form.submit();'">
                             Зберегти зміни
@@ -139,10 +145,25 @@
                     </div>
                 </div>
             </div>
-            <div th:each="subject : ${teacher.schoolSubjects}">
-                <input type="text" th:value="${{subject}}" style="display:none;" id="invisibleSubject">
-            </div>
+            <!--<div th:each="subject : ${teacher.schoolSubjects}">-->
+                <!--<input type="text" th:value="${{subject}}" style="display:none;" id="invisibleSubject">-->
+            <!--</div>-->
         </form>
+        <div class="h4 d-none d-print-block">
+            <tr>
+                <td class="text-left" th:text="${teacher.lastName}">Прізвище</td>
+                <td class="text-left" th:text="${teacher.firstName}">Ім'я</td>
+                <td class="text-left" th:text="${teacher.patronymicName} + ', '">По батькові</td>
+                <td class="text-right" th:text="${teacher.official} + ', '">Посада</td>
+                <td class="text-right" th:text="'тел.' + ${teacher.phoneNumber}">Номер телефона</td>
+            </tr>
+            <div class="text-center" th:if="${not #lists.isEmpty(teacher.schoolSubjects)}">Предмети:
+                <span th:each="subject : ${teacher.schoolSubjects}" th:text="${'[' + subject.title + '] '}">Предмет</span>
+            </div>
+            <div class="h3 text-center d-print-block" th:text="${teacher.verificationKey}">
+                Ключ підтвердження
+            </div>
+        </div>
     </fieldset>
 </main>
 
@@ -181,7 +202,7 @@
                     </button>
                     <button type="submit" onclick="javascript='this.disabled = true; form.submit();'"
                             class="btn btn-primary" name="action" id="newKey" value="newKey">
-                        Так, згенерувати!
+                        Так!
                     </button>
                 </form>
             </div>
@@ -216,8 +237,8 @@
                     </button>
                     <button type="submit" onclick="javascript='this.disabled = true; form.submit();'"
                             class="btn btn-primary" name="modalAdminButton" id="modalAdminButton"
-                            th:text="${isAdmin} ? 'Так, Скасувати права' : 'Так, Надати права'">
-                        Так, змінити!
+                            th:text="${isAdmin} ? 'Так, Скасувати!' : 'Так, Надати!'">
+                        Так!
                     </button>
                 </form>
             </div>
@@ -225,6 +246,8 @@
     </div>
 </div>
 <!-- / Modal -->
+
+<script src="/js/teacherProfile.js"></script>
 
 </body>
 </html>

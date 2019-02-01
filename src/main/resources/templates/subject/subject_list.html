@@ -35,9 +35,9 @@
                 <span class="input-group-text">Введіть назву предмета</span>
             </div>
             <input class="form-control form-control-sm" type="text" id="new_title"
-                   placeholder="Назва навчального предмета" th:name="new_title" >
+                   placeholder="Назва нового предмета" th:name="new_title" >
             <div class="input-group-append">
-                <button class="btn btn-outline-success btn-sm" type="submit">Додати новий предмет</button>
+                <button class="btn btn-outline-success btn-sm" type="submit">Додати предмет</button>
             </div>
         </div>
     </form>
@@ -45,7 +45,10 @@
         <table class="col-lg-12 table table-sm table-hover">
             <thead class="">
             <tr>
-                <th class="text-left">Назва навчального предмета (дисципліни)</th>
+                <th class="text-left">
+                    <span class="full-text">Назва навчального предмета</span>
+                    <span class="short-text">Назва предмета</span>
+                </th>
                 <th class="text-right" style="width: 10ch">Змінити</th>
                 <th class="text-right" style="width: 10ch">Видалити</th>
             </tr>
@@ -116,14 +119,14 @@
                 </div>
                 <div th:if="${editId == null}">
                     <p>
-                        Вибачте, цей предмет видалити неможливо. <br>
-                        Його можна лише переіменувати та відредагувати.
+                        Вибачте, цей предмет видалити неможливо! <br>
+                        Але його можна переіменувати.
                     </p>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до редагування
+                    Повернутися
                 </button>
                 <span th:if="${editId != null}">
                     <form th:method="post" th:action="@{/subject/{id}/delete(id=${editId})}">

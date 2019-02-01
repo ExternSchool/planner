@@ -29,35 +29,36 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal" th:inline="text">
         <small>
-            Персональні дані екстерна [[${student.getEmail()}]]
+            <span class="full-text">Персональні дані екстерна</span>
+            <span th:if="${student.getEmail() != null && not #strings.endsWith(student.getEmail(),'@x')}">
+                [[${student.getEmail()}]]
+            </span>
             <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none d-none d-lg-block"
                     th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" onclick="printFunction()">
-                Роздрукувати
+                Друк
             </button>
         </small>
     </h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
-        Show some error msg
+        Місце для відображення повідомлень про помилки
     </small>
     <fieldset>
-        <form class="form" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
+        <form class="form mb-0 hidden-print d-print-none" th:object="${student}" method="post" th:action="@{/student/update}" id="form">
             <input type="hidden" th:field="${isNew}"/>
             <input type="hidden" th:field="*{id}"/>
             <input type="hidden" th:field="*{email}"/>
             <div class="form-row">
-                <div class="col-lg-2">
-
-                </div>
-                <div class="col-lg-8 d-print-inline-block">
-                    <div class="row hidden-print d-print-none">
-                        <div class="form-group col-lg-12 mb-0 d-print-inline-block">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="form-group col-lg-12 mb-0">
                             <label for="lastName" class="col-form-label float-left mb-0">Прізвище</label>
-                            <input class="form-control d-print-inline" type="text" placeholder="Прізвище" id = "lastName"
+                            <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
                                    th:field="*{lastName}" required
                                    th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         </div>
                     </div>
-                    <div class="row hidden-print d-print-none">
+                    <div class="row">
                         <div class="form-group col-lg-6 mb-0">
                             <label for="firstName" class="col-form-label float-left">Ім'я</label>
                             <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
@@ -72,27 +73,27 @@
                         </div>
                     </div>
                     <!--<div class="row">-->
-                        <!--<div class="form-group col-lg-6 mb-0">-->
-                            <!--<label for="gender" class="col-form-label float-left">Стать</label>-->
-                            <!--<select class="form-control" name="gender" id="gender" th:field="*{gender}"-->
-                                    <!--th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">-->
-                                <!--<option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">-->
-                                    <!--Стать-->
-                                <!--</option>-->
-                            <!--</select>-->
-                            <!--<input type="hidden" th:field="*{gender}"-->
-                                   <!--th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>-->
-                        <!--</div>-->
-                        <!--<div class="form-group col-lg-6 mb-0">-->
-                            <!--<label for="dateOfBirth" class="col-form-label float-left">Дата народження</label>-->
-                            <!--<input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"-->
-                                   <!--th:field="*{dateOfBirth}" id="dateOfBirth" required-->
-                                   <!--th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">-->
-                            <!--<div class="input-group-addon">-->
-                            <!--</div>-->
-                        <!--</div>-->
+                    <!--<div class="form-group col-lg-6 mb-0">-->
+                    <!--<label for="gender" class="col-form-label float-left">Стать</label>-->
+                    <!--<select class="form-control" name="gender" id="gender" th:field="*{gender}"-->
+                    <!--th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">-->
+                    <!--<option th:each="gender : ${genders}" th:value="${gender}" th:text="${gender}">-->
+                    <!--Стать-->
+                    <!--</option>-->
+                    <!--</select>-->
+                    <!--<input type="hidden" th:field="*{gender}"-->
+                    <!--th:disabled="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>-->
                     <!--</div>-->
-                    <div class="row mb-0 hidden-print d-print-none">
+                    <!--<div class="form-group col-lg-6 mb-0">-->
+                    <!--<label for="dateOfBirth" class="col-form-label float-left">Дата народження</label>-->
+                    <!--<input class="form-control pull-right" type="date" th:value="*{dateOfBirth}"-->
+                    <!--th:field="*{dateOfBirth}" id="dateOfBirth" required-->
+                    <!--th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">-->
+                    <!--<div class="input-group-addon">-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <div class="row mb-0">
                         <div class="form-group col-lg-6 mb-0">
                             <label for="grade" class="col-form-label float-left">Клас</label>
                             <select class="form-control" name="grade" id="grade" th:field="*{gradeLevel}"
@@ -113,23 +114,21 @@
                                    id="phone" th:field="*{phoneNumber}" required>
                         </div>
                     </div>
-                    <div class="text-info col-lg-12 mb-0 hidden-print d-print-none"
+                    <div class="text-info col-lg-12 mb-0"
                          th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         <small>
                             Увага! Механізм зміни класу для учнів, що навчаються, не реалізований.<br>
-                        </small>
-                        <small>
                             В разі зміни класу рекомендується видалити існуючий профіль і створити новий, для іншого класу.
                         </small>
                     </div>
                     <!--<div class="row">-->
-                        <!--<div class="form-group col-lg-12 mb-3">-->
-                            <!--<label for="address" class="col-form-label float-left">Адреса</label>-->
-                            <!--<input class="form-control" type="text" placeholder="Домашня адреса"-->
-                                   <!--th:field="*{address}" id="address">-->
-                        <!--</div>-->
+                    <!--<div class="form-group col-lg-12 mb-3">-->
+                    <!--<label for="address" class="col-form-label float-left">Адреса</label>-->
+                    <!--<input class="form-control" type="text" placeholder="Домашня адреса"-->
+                    <!--th:field="*{address}" id="address">-->
                     <!--</div>-->
-                    <div class="row hidden-print d-print-none">
+                    <!--</div>-->
+                    <div class="row mb-3">
                         <div class="form-group col-lg-12 mb-0">
                             <input type="hidden" th:field="${student.verificationKey}"
                                    th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
@@ -143,7 +142,7 @@
                                            placeholder="для автентифікації облікового запису">
                                     <div class="input-group-append">
                                         <!-- Button trigger modal -->
-                                        <button class="btn btn-outline-primary hidden-print d-print-none" data-toggle="modal"
+                                        <button class="btn btn-outline-primary" data-toggle="modal"
                                                 data-target="#modalKey" th:disabled="${isNew}" type="button">
                                             Згенерувати новий ключ
                                         </button>
@@ -152,40 +151,77 @@
                             </div>
                         </div>
                     </div>
-                    <div class="h4 d-none d-print-block">
-                        <tr>
-                            <td class="text-left" th:text="${student.lastName}"></td>
-                            <td class="text-left" th:text="${student.firstName}">Ім'я</td>
-                            <td class="text-left" th:text="${student.patronymicName} + ', '">По батькові</td>
-                            <td class="text-right" th:text="${student.gradeLevel} + ' клас, '">Клас</td>
-                            <td class="text-right" th:text="'тел.' + ${student.phoneNumber}">Номер телефона</td>
-                        </tr>
-                        <div class="h3 text-center d-print-block" th:text="${student.verificationKey}">
-                            Ключ підтвердження
-                        </div>
-                    </div>
                     <div class="form-group row col-md-8 mx-auto">
                         <div class="col-md-4">
                             <a th:href="@{/student/cancel}">
-                                <button class="btn btn-secondary btn-block hidden-print d-print-none" name="action"
-                                        value="cancel" type="button">
+                                <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
                                     Скасувати
                                 </button>
                             </a>
                         </div>
                         <div class="col-md-8">
-                            <button class="btn btn-primary btn-block hidden-print d-print-none" name="action"
+                            <button class="btn btn-primary btn-block" name="action"
                                     value="save" type="submit">
                                 Зберегти зміни
                             </button>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-2">
-
-                </div>
             </div>
         </form>
+        <div class="h4 d-none d-print-block">
+            <tr>
+                <td class="text-left" th:text="${student.lastName}">Прізвище</td>
+                <td class="text-left" th:text="${student.firstName}">Ім'я</td>
+                <td class="text-left" th:text="${student.patronymicName} + ', '">По батькові</td>
+                <td class="text-right" th:text="${student.gradeLevel} + ' клас, '">Клас</td>
+                <td class="text-right" th:text="'тел.' + ${student.phoneNumber}">Номер телефона</td>
+            </tr>
+            <div class="h3 text-center d-print-block" th:text="${student.verificationKey}">
+                Ключ підтвердження
+            </div>
+            <br>
+            Індивідуальний графік екстерна (приклад)
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Предмет</th>
+                    <th>Сч</th>
+                    <th>Лт</th>
+                    <th>Бр</th>
+                    <th>Кв</th>
+                    <th>Тр</th>
+                    <th>Чр</th>
+                    <th>Лп</th>
+                    <th>Ср</th>
+                    <th>Вр</th>
+                    <th>Жв</th>
+                    <th>Лс</th>
+                    <th>Гр</th>
+                    <th>Всього:</th>
+                    <th>Вчитель</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Українська мова</td>
+                    <div th:with="numList=${#numbers.sequence(0,11)}">
+                        <td th:each="s : ${numList}" th:text="|${(s%3)%2}|"></td>
+                        <td th:text="${''}"></td>
+                    </div>
+                    <td>Вчитель Т.Т.</td>
+                </tr>
+                <tr>
+                    <td>Англійська мова</td>
+                    <div th:with="numList=${#numbers.sequence(0,11)}">
+                        <td th:each="s : ${numList}" th:text="${(s%5)%2}"></td>
+                        <td th:text="${''}"></td>
+                    </div>
+                    <td>Хтосьінший Т.Т.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </fieldset>
 </main>
 
@@ -223,7 +259,7 @@
                         Ні, дякую
                     </button>
                     <button type="submit" class="btn btn-primary" name="action" id="newKey" value="newKey">
-                        Так, згенерувати!
+                        Так!
                     </button>
                 </form>
             </div>

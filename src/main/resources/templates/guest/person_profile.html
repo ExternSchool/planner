@@ -27,7 +27,14 @@
 
 <!-- Begin page content -->
 <main role="main" class="container">
-    <h4 class="mb-0 font-weight-normal" th:inline="text"><small>Відвідувач [[${person.getEmail()}]]</small></h4>
+    <h4 class="mb-0 font-weight-normal" th:inline="text">
+        <small>
+            <span class="full-text">Персональні дані відвідувача</span>
+            <span th:if="${person.getEmail() != null && not #strings.endsWith(person.getEmail(),'@x')}">
+                [[${person.getEmail()}]]
+            </span>
+        </small>
+    </h4>
     <small class="text-danger" th:text="${error}" th:unless="${error == null}">
         Місце індикації помилок введення даних
     </small>

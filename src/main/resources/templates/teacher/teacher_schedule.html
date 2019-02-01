@@ -14,17 +14,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
-    <style>
-        .card-title{
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .card{
-                max-width: 50%
-            }
-        }
-    </style>
 </head>
 
 <body class="text-center">
@@ -43,7 +32,8 @@
 <main role="main" class="container-fluid">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
-            Розклад вчителя (працівника): [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
+            <span class="full-text">Розклад вчителя (працівника): </span>
+            [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3">
@@ -53,7 +43,8 @@
             </span>
             <a class="float-right btn btn-sm btn-outline-info ml-3"
                th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
-                Список відвідувачів
+                <span class="full-text">Список відвідувачів</span>
+                <span class="short-text">Відвідувачі</span>
             </a>
         </small>
     </h4>
@@ -408,7 +399,7 @@
                 </button>
                 <form th:method="post" th:action="@{/teacher/{id}/current-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
                     <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
-                        Так, скасувати!
+                        Так!
                     </button>
                 </form>
             </div>
@@ -493,7 +484,7 @@
                 </button>
                 <form th:method="post" th:action="@{/teacher/{id}/next-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
                     <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
-                        Так, скасувати!
+                        Так!
                     </button>
                 </form>
             </div>
@@ -527,12 +518,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до розкладу
+                    Повернутися
                 </button>
                 <span th:if="${newEvent.id != null}">
                     <form th:method="post" th:action="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id},eid=${newEvent.id})}">
                         <button type="submit" name="delete" value="delete" class="btn btn-primary">
-                            Так, видалити!
+                            Так!
                         </button>
                     </form>
                 </span>
@@ -561,12 +552,12 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    Повернутися до розкладу
+                    Повернутися
                 </button>
                 <span th:if="${newEvent.id != null}">
                 <form th:method="post" th:action="@{/teacher/{id}/template/{eid}/delete(id=${teacher.id},eid=${newEvent.getId()})}">
                     <button type="submit" name="delete" value="delete" class="btn btn-primary">
-                        Так, видалити!
+                        Так!
                     </button>
                 </form>
                 </span>

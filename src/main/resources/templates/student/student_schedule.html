@@ -15,17 +15,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <!-- Custom styles for this template -->
     <link rel="stylesheet" type="text/css" href="/css/main.css"/>
-    <style>
-        .card-title{
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .card{
-                max-width: 50%
-            }
-        }
-    </style>
 </head>
 
 <body class="text-center">
@@ -48,7 +37,7 @@
                 Студент:
                 <span th:text="${student.getShortName()} + ' '">П.І.Б.</span>
             </span>
-            Запис на прийом до працівників школи
+            <span class="full-text">Запис на прийом до працівників школи</span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a th:href="@{/student/search/{id}(id=${student.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3">
@@ -57,7 +46,8 @@
                 </a>
                 <a class="float-right btn btn-sm btn-outline-info ml-3"
                    th:href="@{/student/{id}/subscriptions(id=${student.getId()})}">
-                    Список резервувань
+                    <span class="full-text">Список резервувань</span>
+                    <span class="short-text">Резервування</span>
                 </a>
             </span>
         </small>
@@ -271,7 +261,7 @@
                             вибирайте предмети і семестри так, щоб отримати <br>
                             1-2 контрольні роботи за одне відвідування
                         </div>
-                        <div class="input-group container-fluid col-lg-10 d-flex justify-content-center my-2">
+                        <div class="input-group container-fluid col-lg-10 d-flex justify-content-center my-3">
                             <div class="col-12">
                                 <select th:field="*{planOneId}" class="custom-select">
                                     <option th:each="crs : ${courses}"
@@ -369,7 +359,7 @@
                     </button>
                     <span th:if="${teacher != null}">
                          <button type="submit" class="btn btn-sm btn-primary">
-                             Так, скасувати!
+                             Так!
                          </button>
                     </span>
                 </div>
