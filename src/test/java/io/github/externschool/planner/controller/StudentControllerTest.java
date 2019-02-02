@@ -874,7 +874,7 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
@@ -949,7 +949,7 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
@@ -1142,7 +1142,7 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)

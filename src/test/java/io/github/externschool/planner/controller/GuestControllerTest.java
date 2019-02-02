@@ -553,7 +553,7 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
@@ -629,7 +629,7 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)
@@ -796,7 +796,7 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(LocalDate.now())
+                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
                 .withStartTime(LocalTime.MAX)
                 .withIsOpen(true)

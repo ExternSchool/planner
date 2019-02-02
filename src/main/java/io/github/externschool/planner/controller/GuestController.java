@@ -463,8 +463,8 @@ public class GuestController {
                 addByDatesSingletonListToEventsListOfLists(currentWeekDates, currentWeekEvents, singleEvent);
                 addByDatesSingletonListToEventsListOfLists(nextWeekDates, nextWeekEvents, singleEvent);
             } else {
-                currentWeekDates.forEach(date -> currentWeekEvents.add(getEventsAvailableToGuest(officialUser, date)));
-                nextWeekDates.forEach(date -> nextWeekEvents.add(getEventsAvailableToGuest(officialUser, date)));
+                currentWeekDates.forEach(date -> currentWeekEvents.add(getOpenEventsAvailableToGuest(officialUser, date)));
+                nextWeekDates.forEach(date -> nextWeekEvents.add(getOpenEventsAvailableToGuest(officialUser, date)));
             }
             List<ScheduleEvent> incomingEvents = filterEventsAvailableToGuest(
                     guestUser,
@@ -472,13 +472,9 @@ public class GuestController {
                             officialUser,
                             currentWeekFirstDay,
                             currentWeekFirstDay.plusDays(13)));
-            mostRecentUpdate = incomingEvents.stream()
-                    .map(ScheduleEvent::getModifiedAt)
-                    .filter(Objects::nonNull)
-                    .max(Comparator.naturalOrder());
-            incomingEventsNumber = incomingEvents.stream()
-                    .filter(event -> !event.isCancelled() && event.isOpen())
-                    .count();
+            mostRecentUpdate = incomingEvents.stream().map(ScheduleEvent::getModifiedAt).max(Comparator.naturalOrder());
+            incomingEvents = incomingEvents.stream().filter(ScheduleEvent::isOpen).collect(Collectors.toList());
+            incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
         } else {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
@@ -550,7 +546,6 @@ public class GuestController {
 
         return events.stream()
                 .filter(event -> availableTypes.contains(event.getType()))
-                .filter(ScheduleEvent::isOpen)
                 .filter(event -> event.getStartOfEvent().isAfter(LocalDateTime.now()
                         // min date and time before new appointments
                         .plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT)
@@ -558,9 +553,12 @@ public class GuestController {
                 .collect(Collectors.toList());
     }
 
-    private List<ScheduleEvent> getEventsAvailableToGuest(User user, LocalDate date) {
+    private List<ScheduleEvent> getOpenEventsAvailableToGuest(User user, LocalDate date) {
 
-        return filterEventsAvailableToGuest(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date));
+        return filterEventsAvailableToGuest(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))
+                .stream()
+                .filter(ScheduleEvent::isOpen)
+                .collect(Collectors.toList());
     }
 
     private Optional<User> getOptionalOfficialUser(final Long id) {

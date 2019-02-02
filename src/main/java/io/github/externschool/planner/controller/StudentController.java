@@ -597,8 +597,8 @@ public class StudentController {
                 addByDatesSingletonListToEventsListOfLists(currentWeekDates, currentWeekEvents, singleEvent);
                 addByDatesSingletonListToEventsListOfLists(nextWeekDates, nextWeekEvents, singleEvent);
             } else {
-                currentWeekDates.forEach(date -> currentWeekEvents.add(getEventsAvailableToStudent(teacherUser, date)));
-                nextWeekDates.forEach(date -> nextWeekEvents.add(getEventsAvailableToStudent(teacherUser, date)));
+                currentWeekDates.forEach(date -> currentWeekEvents.add(getOpenEventsAvailableToStudent(teacherUser, date)));
+                nextWeekDates.forEach(date -> nextWeekEvents.add(getOpenEventsAvailableToStudent(teacherUser, date)));
             }
             List<ScheduleEvent> incomingEvents = filterEventsAvailableToStudent(
                     studentUser,
@@ -606,13 +606,9 @@ public class StudentController {
                             teacherUser,
                             currentWeekFirstDay,
                             currentWeekFirstDay.plusDays(13)));
-            mostRecentUpdate = incomingEvents.stream()
-                    .map(ScheduleEvent::getModifiedAt)
-                    .filter(Objects::nonNull)
-                    .max(Comparator.naturalOrder());
-            incomingEventsNumber = incomingEvents.stream()
-                    .filter(event -> !event.isCancelled() && event.isOpen())
-                    .count();
+            mostRecentUpdate = incomingEvents.stream().map(ScheduleEvent::getModifiedAt).max(Comparator.naturalOrder());
+            incomingEvents = incomingEvents.stream().filter(ScheduleEvent::isOpen).collect(Collectors.toList());
+            incomingEventsNumber = incomingEvents.stream().filter(event -> !event.isCancelled()).count();
         } else {
             currentWeekDates.forEach(date -> currentWeekEvents.add(new ArrayList<>()));
             nextWeekDates.forEach(date -> nextWeekEvents.add(new ArrayList<>()));
@@ -719,7 +715,6 @@ public class StudentController {
 
         return events.stream()
                 .filter(event -> availableTypes.contains(event.getType()))
-                .filter(ScheduleEvent::isOpen)
                 .filter(event -> event.getStartOfEvent().isAfter(LocalDateTime.now()
                         // min date and time before new appointments
                         .plus(DAYS_BETWEEN_LATEST_RESERVE_AND_EVENT)
@@ -727,9 +722,12 @@ public class StudentController {
                 .collect(Collectors.toList());
     }
 
-    private List<ScheduleEvent> getEventsAvailableToStudent(User user, LocalDate date) {
+    private List<ScheduleEvent> getOpenEventsAvailableToStudent(User user, LocalDate date) {
 
-        return filterEventsAvailableToStudent(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date));
+        return filterEventsAvailableToStudent(user, scheduleService.getNonCancelledEventsByOwnerAndDate(user, date))
+                .stream()
+                .filter(ScheduleEvent::isOpen)
+                .collect(Collectors.toList());
     }
 
     private void subscribeScheduleEvent(Long studentId, Long eventId, ParticipantDTO participantDTO)
