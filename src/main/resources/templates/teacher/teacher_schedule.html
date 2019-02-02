@@ -32,20 +32,25 @@
 <main role="main" class="container-fluid">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
-            <span class="full-text">Розклад вчителя (працівника): </span>
-            [[${teacher.getLastName()}]] [[${teacher.getFirstName()}]] [[${teacher.getPatronymicName()}]]
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                Вчитель: [[${teacher.getShortName()}]].
+            </span>
+            <span class="full-text">Розклад</span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
-                    <button type="button" class="btn badge badge-info ml-3">
+                    <button type="button" class="btn badge badge-info ml-1">
                         <i class="fas fa-external-link-square-alt"></i>
                     </button>
                 </a>
+                <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                    <button class="full-text float-right btn btn-sm btn-outline-info ml-1">
+                        Список відвідувачів
+                    </button>
+                    <button type="button" class="short-text btn badge badge-info ml-1">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                    </button>
+                </a>
             </span>
-            <a class="float-right btn btn-sm btn-outline-info ml-3"
-               th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
-                <span class="full-text">Список відвідувачів</span>
-                <span class="short-text">Відвідувачі</span>
-            </a>
         </small>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
