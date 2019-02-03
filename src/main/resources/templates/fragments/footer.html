@@ -16,7 +16,7 @@
                 <a th:href="@{/logout}">Log Out</a>
         </span>
         <span class="short-text my-0 mx-auto" sec:authorize="isAuthenticated()">
-                | Logged user: <span sec:authentication="name"></span> |
+                | <span sec:authentication="name"></span> |
                 <a th:href="@{/logout}">Log Out</a>
         </span>
     </div>

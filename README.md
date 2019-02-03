@@ -158,15 +158,17 @@ This project has to provide the following features:</br>
  punctual students, competitions could be organized and so on; 
 </br>
 
-### 5.2. Domain model and database implementation (skeleton): 
+### 5.2. Domain model and database implementation (skeleton).
+ visit [Docs](https://externschool.github.io)
  
 ### 5.3. Visit Planner External API. Option #1. Concise.
  **TBD*
  
 #### 5.3.1. External API Rights 
- Method |                            URI                           |  Admin  | Off./Teacher| Student | Guest*
+ Method |                            URI                           |  Admin  | Teacher| Student | Guest*
  ------ | -------------------------------------------------------- | ------- | ----------- | ------- | -------
     |                                                |       |             |         | 
+ 
  **TBD*
 
 
@@ -202,7 +204,7 @@ The app should demonstrate following user flows:
 ### 5.8. Security
  * Spring Security 
  * CSRF enabled
- * Sensitive Credentials stored in server environment variables. Use external .env file to populate: `export $(cat .env | xargs)`
+ * Sensitive Credentials stored in server environment variables with a service creation script.
  
 ### 5.9. Clients
  * standard HTML5 web browser

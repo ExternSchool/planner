@@ -6,7 +6,6 @@ import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
-import io.github.externschool.planner.repository.profiles.StudentRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
@@ -27,17 +27,14 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 @Transactional
 public class CourseServiceImpl implements CourseService {
     private final CourseRepository courseRepository;
-    private final StudentRepository studentRepository;
     private final StudyPlanRepository planRepository;
     private final TeacherRepository teacherRepository;
 
     @Autowired
     public CourseServiceImpl(final CourseRepository courseRepository,
-                             final StudentRepository studentRepository,
                              final StudyPlanRepository planRepository,
                              final TeacherRepository teacherRepository) {
         this.courseRepository = courseRepository;
-        this.studentRepository = studentRepository;
         this.planRepository = planRepository;
         this.teacherRepository = teacherRepository;
     }
@@ -103,11 +100,23 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> createAndSaveCoursesForStudent(final Student student) {
+    public List<Course> findCoursesForStudent(final Student student) {
+        List<Course> courses = new ArrayList<>(findAllByStudentId(student.getId()));
+        Set<Long> coursesPlansIds = courses.stream().map(Course::getPlanId).collect(Collectors.toSet());
+        Set<Long> supposedPlansIds = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel()).stream()
+                .map(StudyPlan::getId)
+                .collect(Collectors.toSet());
+        if (!coursesPlansIds.equals(supposedPlansIds)) {
+            return createCourses(student, courses);
+        }
+
+        return courses;
+    }
+
+    private List<Course> createCourses(final Student student, List<Course> courses) {
         List<StudyPlan> plansToFulfill = planRepository.findAllByGradeLevelOrderByTitleAsc(student.getGradeLevel());
-        List<Course> coursesToTake = new ArrayList<>(findAllByStudentId(student.getId()));
-        if (plansToFulfill.size() != coursesToTake.size()) {
-            List<StudyPlan> plansTaken = coursesToTake.stream()
+        if (plansToFulfill.size() != courses.size()) {
+            List<StudyPlan> plansTaken = courses.stream()
                     .map(Course::getPlanId)
                     .map(planRepository::findStudyPlanById)
                     .collect(Collectors.toList());
@@ -124,12 +133,12 @@ public class CourseServiceImpl implements CourseService {
                                 .findAny()
                                 .ifPresent(teacher -> teacher.addCourse(newCourse));
                     }
-                    coursesToTake.add(newCourse);
+                    courses.add(newCourse);
                     saveOrUpdateCourse(newCourse);
                 }
             }
         }
 
-        return coursesToTake;
+        return courses;
     }
 }

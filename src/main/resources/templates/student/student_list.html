@@ -51,22 +51,16 @@
                                th:href="@{/student/grade/{gradLvl}(gradLvl=${lvl})}">клас</a>
                         </span>
                 </li>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">12</a>
-                </li>
             </ul>
             <ul class="pagination pagination-sm  float-left mb-1" th:if="${teacherId != null}">
                 <li th:class="${level == 0}? 'page-item active' : 'page-item'">
                     <a class="page-link" th:href="@{/student/teacher/{id}(id=${teacherId})}">Всі</a>
                 </li>
                 <li th:each="lvl : ${#numbers.sequence( 1, 11)}">
-                        <span th:class="${level == lvl}? 'page-item active' : 'page-item'">
-                            <a class="page-link" th:text="${lvl}"
-                               th:href="@{/student/teacher/{id}/grade/{gradLvl}(id=${teacherId},gradLvl=${lvl})}">клас</a>
-                        </span>
-                </li>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">12</a>
+                    <span th:class="${level == lvl}? 'page-item active' : 'page-item'">
+                        <a class="page-link" th:text="${lvl}"
+                           th:href="@{/student/teacher/{id}/grade/{gradLvl}(id=${teacherId},gradLvl=${lvl})}">клас</a>
+                    </span>
                 </li>
             </ul>
         </nav>
