@@ -7,7 +7,6 @@ import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
-import io.github.externschool.planner.repository.profiles.StudentRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +24,8 @@ import java.util.List;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -32,7 +33,6 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 public class CourseServiceTest {
     @Mock private CourseRepository courseRepository;
-    @Mock private StudentRepository studentRepository;
     @Mock private StudyPlanRepository planRepository;
     @Mock private TeacherRepository teacherRepository;
     private CourseService courseService;
@@ -45,7 +45,7 @@ public class CourseServiceTest {
 
     @Before
     public void setUp() {
-        courseService = new CourseServiceImpl(courseRepository, studentRepository, planRepository, teacherRepository);
+        courseService = new CourseServiceImpl(courseRepository, planRepository, teacherRepository);
 
         expectedStudent = new Student();
         expectedStudent.setId(1L);
@@ -214,7 +214,7 @@ public class CourseServiceTest {
     }
 
     @Test
-    public void shouldReturnStudentsCourses_whenSelectCoursesForStudent() {
+    public void shouldReturnStudentsCourses_whenFindCoursesForStudent() {
         StudyPlan newPlan = new StudyPlan();
         newPlan.setId(11L);
         Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
@@ -234,16 +234,19 @@ public class CourseServiceTest {
         Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
                 .thenReturn(Collections.singletonList(noTeacher));
 
-        List<Course> actualCourses = courseService.createAndSaveCoursesForStudent(expectedStudent);
+        List<Course> actualCourses = courseService.findCoursesForStudent(expectedStudent);
+        actualCourses = courseService.findCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()
                 .containsExactlyInAnyOrder(expectedCourse, newCourse)
                 .containsExactlyInAnyOrderElementsOf(expectedCourses);
+
+        Mockito.verify(courseRepository, never()).save(any(Course.class));
     }
 
     @Test
-    public void shouldAddNewCourse_whenSelectCoursesForStudent() {
+    public void shouldAddOneNewCourse_whenFindCoursesForStudent() {
         StudyPlan newPlan = new StudyPlan();
         newPlan.setId(11L);
         Course newCourse = new Course(expectedStudent.getId(), newPlan.getId());
@@ -264,11 +267,14 @@ public class CourseServiceTest {
         Mockito.when(teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_NO_TEACHER))
                 .thenReturn(Collections.singletonList(noTeacher));
 
-        List<Course> actualCourses = courseService.createAndSaveCoursesForStudent(expectedStudent);
+        List<Course> actualCourses = courseService.findCoursesForStudent(expectedStudent);
+        actualCourses = courseService.findCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()
                 .containsExactlyInAnyOrder(expectedCourse, newCourse)
                 .containsExactlyInAnyOrderElementsOf(expectedCourses);
+
+        Mockito.verify(courseRepository, times(1)).save(any(Course.class));
     }
 }

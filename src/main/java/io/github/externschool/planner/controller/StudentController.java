@@ -210,7 +210,7 @@ public class StudentController {
     public ModelAndView displayFormStudentPlanForStudent(final Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
         Student student = studentService.findStudentById(user.getVerificationKey().getPerson().getId());
-        List<Course> courses = courseService.createAndSaveCoursesForStudent(student);
+        List<Course> courses = courseService.findCoursesForStudent(student);
 
         return showStudentPlanForm(student, courses, 0L);
     }
@@ -223,7 +223,7 @@ public class StudentController {
         if (student == null) {
             return redirectByRole(principal);
         }
-        List<Course> courses = courseService.createAndSaveCoursesForStudent(student);
+        List<Course> courses = courseService.findCoursesForStudent(student);
 
         return showStudentPlanForm(student, courses, 0L);
     }
@@ -301,7 +301,7 @@ public class StudentController {
             Optional.ofNullable(updatedStudent.getGradeLevel()).filter(level -> !level.equals(originalGradeLevel))
                     .ifPresent(level -> {
                         originalCourses.forEach(courseService::deleteCourse);
-                        courseService.createAndSaveCoursesForStudent(updatedStudent);
+                        courseService.findCoursesForStudent(updatedStudent);
                     });
             VerificationKey key = updatedStudent.getVerificationKey();
             User finalUser = Optional.ofNullable(key.getUser())

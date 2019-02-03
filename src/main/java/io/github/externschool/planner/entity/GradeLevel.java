@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_1;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_10;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_11;
-import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_12;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_2;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_3;
 import static io.github.externschool.planner.util.Constants.UK_GRADE_LEVEL_4;
@@ -66,10 +65,6 @@ public enum GradeLevel {
     }, LEVEL_11(11) {
         public String toString() {
             return UK_GRADE_LEVEL_11;
-        }
-    }, LEVEL_12(12) {
-        public String toString() {
-            return UK_GRADE_LEVEL_12;
         }
     };
 
