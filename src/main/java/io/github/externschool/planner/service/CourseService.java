@@ -22,5 +22,5 @@ public interface CourseService {
 
     String getCourseTitleAndTeacherByCourse(Course course);
 
-    List<Course> createAndSaveCoursesForStudent(Student student);
+    List<Course> findCoursesForStudent(Student student);
 }

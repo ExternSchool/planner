@@ -32,9 +32,13 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                Відвідувач:
+                <span class="full-text"> [[${student.getLastName()}]] [[${student.getFirstName()}]] [[${student.getPatronymicName()}]]</span>
+                <span class="short-text"> [[${student.getShortName()}]]</span>
+            </span>
             <span class="full-text">Призначені зустрічі </span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                [[${student.getLastName()}]] [[${student.getFirstName()}]] [[${student.getPatronymicName()}]]
                 <a class="d-print-none" th:href="@{/student/search/{id}(id=${student.getId()})}">
                     <button type="button" class="btn badge badge-info ml-3" aria-hidden="true">
                         <i class="fas fa-external-link-square-alt"></i>

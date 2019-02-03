@@ -32,9 +32,14 @@
 <main role="main" class="container">
     <h4 class="font-weight-normal mb-1" th:inline="text">
         <small>
-            <span class="full-text">Призначені зустрічі </span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]]
+                <span class="full-text">
+                    Відвідувач: [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]]
+                    <br>Призначені зустрічі
+                </span>
+                <span class="short-text">
+                    [[${guest.getShortName()}]]
+                </span>
             </span>
             <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                 <a class="d-print-none" th:href="@{/guest/search/{id}(id=${guest.getId()})}">

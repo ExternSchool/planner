@@ -377,7 +377,6 @@ public class TeacherController {
                     currentWeekFirstDay.plusDays(13));
             Optional<LocalDateTime> mostRecentUpdate = incomingEvents.stream()
                     .map(ScheduleEvent::getModifiedAt)
-                    .filter(Objects::nonNull)
                     .max(Comparator.naturalOrder());
             long incomingEventsNumber = incomingEvents.stream()
                     .filter(event -> !event.isCancelled() && event.isOpen())
