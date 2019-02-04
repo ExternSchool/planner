@@ -409,7 +409,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> restoreNextWeekEventsFromTemplatesForOwner(final User owner) {
+    public List<ScheduleEvent> recreateNextWeekEventsFromTemplatesForOwner(final User owner) {
         List<ScheduleEvent> result;
         List<LocalDateTime> presentEventsStartTime =
                 eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner,

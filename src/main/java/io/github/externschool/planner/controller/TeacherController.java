@@ -61,7 +61,6 @@ import static io.github.externschool.planner.util.Constants.DEFAULT_TIME_WHEN_WO
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_CANCELLED_DETAILS_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_NO_EVENT_TYPE_MESSAGE;
@@ -569,7 +568,6 @@ public class TeacherController {
         return modelAndView;
     }
 
-
     @Secured({"ROLE_TEACHER", "ROLE_ADMIN"})
     @GetMapping("/{id}/new-next/{day}")
     public ModelAndView displayTeacherNewNextModal(@PathVariable("id") Long id,
@@ -819,7 +817,7 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
         if (optionalUser.isPresent()) {
-            scheduleService.restoreNextWeekEventsFromTemplatesForOwner(optionalUser.get());
+            scheduleService.recreateNextWeekEventsFromTemplatesForOwner(optionalUser.get());
             modelAndView = new ModelAndView("redirect:/teacher/" + id + "/schedule");
         }
 
@@ -883,9 +881,6 @@ public class TeacherController {
         return Optional.ofNullable(participant.getEvent()).map(event -> {
             StringBuilder builder = new StringBuilder()
                     .append(event.getStartOfEvent().format(DateTimeFormatter.ofPattern("dd/MM HH:mm ")));
-            if (event.isCancelled()) {
-                builder.append(UK_EVENT_CANCELLED_DETAILS_MESSAGE);
-            }
             // if event owner is an admin-in-charge, get test works details
             if (isParticipantAnAdminInCharge(event.getOwner())) {
                 Optional.ofNullable(participant.getPlanOneId()).ifPresent(planId -> {

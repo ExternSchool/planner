@@ -66,7 +66,7 @@ public interface ScheduleService {
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
 
-    List<ScheduleEvent> restoreNextWeekEventsFromTemplatesForOwner(User owner);
+    List<ScheduleEvent> recreateNextWeekEventsFromTemplatesForOwner(User owner);
 
     ScheduleHoliday saveHoliday(LocalDate holiday, LocalDate substitutionDay);
 
