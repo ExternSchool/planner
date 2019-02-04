@@ -70,7 +70,6 @@ import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOC
 import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST_RESERVE_AND_EVENT;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_CANCELLED_DETAILS_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
@@ -668,13 +667,7 @@ public class StudentController {
                 .orElse(null));
         List<ParticipantDTO> participants = Optional.ofNullable(user)
                 .map(u -> scheduleService.getParticipantsByUser(u).stream()
-                        .map(p -> {
-                            ParticipantDTO dto = conversionService.convert(p, ParticipantDTO.class);
-                            if (p.getEvent().isCancelled() && dto != null) {
-                                dto.setEventDescription(UK_EVENT_CANCELLED_DETAILS_MESSAGE);
-                            }
-                            return dto;
-                        })
+                        .map(p -> conversionService.convert(p, ParticipantDTO.class))
                         .collect(Collectors.toList()))
                 .orElse(new ArrayList<>());
         participants.forEach(participant -> {

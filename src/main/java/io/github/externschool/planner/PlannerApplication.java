@@ -3,8 +3,10 @@ package io.github.externschool.planner;
 import io.github.externschool.planner.bootstrapdata.ExcludeFromTests;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @ExcludeFromTests
 public class PlannerApplication {
 

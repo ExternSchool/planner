@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static io.github.externschool.planner.util.Constants.FIRST_MONDAY_OF_EPOCH;
 import static io.github.externschool.planner.util.Constants.LOCALE;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_CANCELLED_DETAILS_MESSAGE;
 
 @Service
 @Transactional
@@ -201,19 +202,29 @@ public class ScheduleServiceImpl implements ScheduleService {
         eventRepository.findById(id).ifPresent(event -> {
             event.setCancelled(true);
             event.setOpen(false);
+            event.setDescription(UK_EVENT_CANCELLED_DETAILS_MESSAGE + event.getDescription());
             eventRepository.save(event);
         });
 
         return eventRepository.findById(id);
     }
 
+    /**
+     * Deletes events which have no participants.
+     * Cancels events which have participants, and sends them emails.
+     *
+     * @param events list of events
+     */
     @Override
-    public void cancelEventsAndMailToParticipants(final List<ScheduleEvent> events) {
+    public void cancelOrDeleteEventsAndMailToParticipants(final List<ScheduleEvent> events) {
 
         events.forEach(event -> {
-            executor.execute(() -> emailService.sendCancelEventMail(event));
-
-            findEventByIdSetCancelledNotOpenAndSave(event.getId());
+            if (event.getParticipants().isEmpty()) {
+                deleteEventById(event.getId());
+            } else {
+                executor.execute(() -> emailService.sendCancelEventMail(event));
+                findEventByIdSetCancelledNotOpenAndSave(event.getId());
+            }
         });
     }
 
@@ -398,8 +409,24 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleEvent> createNextWeekEventsForOwner(final User owner) {
-        return eventRepository.saveAll(createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay()));
+    public List<ScheduleEvent> recreateNextWeekEventsFromTemplatesForOwner(final User owner) {
+        List<ScheduleEvent> result;
+        List<LocalDateTime> presentEventsStartTime =
+                eventRepository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner,
+                        getNextWeekFirstDay().atStartOfDay(),
+                        getNextWeekFirstDay().plusDays(6L).atTime(23, 59, 59)).stream()
+                .map(ScheduleEvent::getStartOfEvent)
+                .collect(Collectors.toList());
+        List<ScheduleEvent> newEvents = createEventsForOwnerByFirstDayOfWeek(owner, getNextWeekFirstDay());
+        if (presentEventsStartTime.isEmpty()) {
+            result = newEvents;
+        } else {
+            result = newEvents.stream()
+                    .filter(event -> !(presentEventsStartTime.contains(event.getStartOfEvent())))
+                    .collect(Collectors.toList());
+        }
+
+        return eventRepository.saveAll(result);
     }
 
     /**

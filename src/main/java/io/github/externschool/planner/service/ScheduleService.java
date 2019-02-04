@@ -40,7 +40,7 @@ public interface ScheduleService {
 
     Optional<ScheduleEvent> findEventByIdSetCancelledNotOpenAndSave(long id);
 
-    void cancelEventsAndMailToParticipants(List<ScheduleEvent> events);
+    void cancelOrDeleteEventsAndMailToParticipants(List<ScheduleEvent> events);
 
     // Event Owners and Participants
 
@@ -66,7 +66,7 @@ public interface ScheduleService {
 
     List<LocalDate> getWeekStartingFirstDay(LocalDate firstDay);
 
-    List<ScheduleEvent> createNextWeekEventsForOwner(User owner);
+    List<ScheduleEvent> recreateNextWeekEventsFromTemplatesForOwner(User owner);
 
     ScheduleHoliday saveHoliday(LocalDate holiday, LocalDate substitutionDay);
 
