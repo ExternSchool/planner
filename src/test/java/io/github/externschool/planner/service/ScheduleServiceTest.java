@@ -373,10 +373,11 @@ public class ScheduleServiceTest {
         assertThat(events)
                 .containsExactly(event, event2);
 
-        scheduleService.cancelEventsAndMailToParticipants(events);
+        scheduleService.cancelOrDeleteEventsAndMailToParticipants(events);
 
         verify(eventRepository, times(2)).findById(event.getId());
         verify(eventRepository, times(2)).findById(event2.getId());
+        verify(eventRepository, times(1)).deleteById(event2.getId());
         verify(emailService, after(100).times(1)).sendCancelEventMail(event);
         verify(emailService, after(100).times(1)).sendCancelEventMail(event2);
     }
@@ -821,7 +822,7 @@ public class ScheduleServiceTest {
 
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchema() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplates() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -838,7 +839,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.restoreNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -846,7 +847,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithHoliday() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithHoliday() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -868,7 +869,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.restoreNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -876,7 +877,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayThisWeek() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithSubstitutionDayThisWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -908,7 +909,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.restoreNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -916,7 +917,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayPreviousWeek() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithSubstitutionDayPreviousWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -944,7 +945,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.restoreNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()

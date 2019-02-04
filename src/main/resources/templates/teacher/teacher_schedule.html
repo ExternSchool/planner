@@ -30,27 +30,56 @@
 
 <!-- Begin page content -->
 <main role="main" class="container-fluid">
-    <h4 class="font-weight-normal mb-1" th:inline="text">
+    <h4>
         <small>
-            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                Вчитель: [[${teacher.getShortName()}]].
-            </span>
-            <span class="full-text">Розклад</span>
-            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
-                    <button type="button" class="btn badge badge-info ml-1">
-                        <i class="fas fa-external-link-square-alt"></i>
-                    </button>
-                </a>
-                <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
-                    <button class="full-text float-right btn btn-sm btn-outline-info ml-1">
-                        Список відвідувачів
-                    </button>
-                    <button type="button" class="short-text btn badge badge-info ml-1">
-                        <i class="fas fa-list" aria-hidden="true"></i>
-                    </button>
-                </a>
-            </span>
+            <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <div class="full-text row align-items-center font-weight-normal mb-1">
+                    <div class="col-2"></div>
+                    <div class="col-6 justify-content-center">
+                        Розклад працівника: [[${teacher.getShortName()}]]
+                        <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-external-link-square-alt"></i>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-4 justify-content-end">
+                        <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                            <button class="float-right btn btn-sm btn-outline-info ml-1">
+                                Список відвідувачів
+                            </button>
+                        </a>
+                        <form th:method="post" th:action="@{/teacher/{id}/template/publish(id=${teacher.id})}">
+                            <button type="submit" class="float-right btn btn-sm btn-outline-success ml-1">
+                                Додати з плану
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="short-text row align-items-center font-weight-normal mb-1 col-12 justify-content-center">
+                    <div class="col-12">
+                        <span>
+                            [[${teacher.getShortName()}]]
+                        </span>
+                        <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-external-link-square-alt"></i>
+                            </button>
+                        </a>
+                        <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-list" aria-hidden="true"></i>
+                            </button>
+                        </a>
+                        <form th:method="post" th:action="@{/teacher/{id}/template/publish(id=${teacher.id})}"
+                              style="display: inline;">
+                            <button type="submit" class="btn badge badge-success ml-1">
+                                <i class="far fa-calendar" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </small>
     </h4>
     <!--/*@thymesVar id="error" type="java.lang.String"*/-->
@@ -104,7 +133,8 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${currentWeekEvents[dayNum]}"
-                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}">
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}"
+                                th:style="${#strings.contains(evnt.getDescription(), '--')} ? 'text-decoration: line-through;' : ''">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -174,7 +204,8 @@
                             </thead>
                             <tbody>
                             <tr th:each="evnt : ${nextWeekEvents[dayNum]}"
-                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}">
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}"
+                                th:style="${#strings.contains(evnt.getDescription(), '--')} ? 'text-decoration: line-through;' : ''">
                                 <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
                                 <td class="text-left">
                                     <ul class="list-unstyled mb-0">
@@ -290,15 +321,16 @@
                 <form th:method="post"
                       th:action="@{/teacher/{id}/day/{day}/add-template(id=${teacher.id}, day=${thisDay})}"
                       th:object="${newEvent}" class="form" id="formNewEvent">
-                    <div class="floating mb-3">
-                        <div class="form-group mb-0">
-                            <label for="startOfEvent">Початок події: </label>
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEvent">Початок події: </label>
                             <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventType">Тип події: </label>
-                            <select class="custom-select" name="inputGroupSelectEventType" id="eventType" th:field="${newEvent.eventType}">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventType">Тип події: </label>
+                            <select class="form-control" size="3" name="inputGroupSelectEventType" id="eventType"
+                                    th:field="${newEvent.eventType}">
                                 <option th:each="type : ${eventTypes}"
                                         th:value="${type.name}"
                                         th:text="${type.name}">
@@ -306,8 +338,8 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventDescription">Опис події: </label>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescription">Опис події: </label>
                             <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescription"
                                       th:field="*{description}">Опис події
                             </textarea>
@@ -318,7 +350,7 @@
                             Скасувати
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            Додати нову подію
+                            Додати подію
                         </button>
                     </div>
                 </form>
@@ -340,15 +372,16 @@
                 <form th:method="post"
                       th:action="@{/teacher/{id}/new-current/{day}/add(id=${teacher.id}, day=${thisDay})}"
                       th:object="${newEvent}" class="form" id="formNewCurrentEvent">
-                    <div class="floating mb-3">
-                        <div class="form-group mb-0">
-                            <label for="startOfEvent">Початок події: </label>
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEventCurrent">Початок події: </label>
                             <input class="form-control" type="time" placeholder="Початок події" id="startOfEventCurrent"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventType">Тип події: </label>
-                            <select class="custom-select" name="inputGroupSelectEventType" id="eventTypeCurrent" th:field="${newEvent.eventType}">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventTypeCurrent">Тип події: </label>
+                            <select class="form-control" size="3" name="inputGroupSelectEventType" id="eventTypeCurrent"
+                                    th:field="${newEvent.eventType}">
                                 <option th:each="type : ${eventTypes}"
                                         th:value="${type.name}"
                                         th:text="${type.name}">
@@ -356,8 +389,8 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventDescription">Опис події: </label>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescriptionCurrent">Опис події: </label>
                             <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescriptionCurrent"
                                       th:field="*{description}">Опис події
                             </textarea>
@@ -368,7 +401,7 @@
                             Скасувати
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            Додати нову подію
+                            Додати подію
                         </button>
                     </div>
                 </form>
@@ -388,14 +421,12 @@
             </div>
             <div class="modal-body text-center">
                 <p>
-                    Виконання цієї дії приведе<br>
-                    до скасування всіх призначень на цей день!<br>
-                    Всім зареєстрованим відвідувачам буде відправлено<br>
-                    відповідні повідомлення електронною поштою.
+                    Виконання цієї дії приведе до видалення за цей день всіх подій, які не мають відвідувачів,
+                    та скасування всіх заброньованих подій. Зареєстрованим відвідувачам
+                    електронною поштою будуть відправлені повідомлення про скасування зустрічей.
                 </p>
                 <p>
-                    Ви впевнені, що бажаєте скасувати всі події,<br>
-                    заплановані на цей день?
+                    Ви впевнені, що бажаєте видалити й скасувати всі події в розкладі на цей день?
                 </p>
             </div>
             <div class="modal-footer">
@@ -425,15 +456,16 @@
                 <form th:method="post"
                       th:action="@{/teacher/{id}/new-next/{day}/add(id=${teacher.id}, day=${thisDay})}"
                       th:object="${newEvent}" class="form" id="formNewNextEvent">
-                    <div class="floating mb-3">
-                        <div class="form-group mb-0">
-                            <label for="startOfEvent">Початок події: </label>
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEventNext">Початок події: </label>
                             <input class="form-control" type="time" placeholder="Початок події" id="startOfEventNext"
                                    min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventType">Тип події: </label>
-                            <select class="custom-select" name="inputGroupSelectEventType" id="eventTypeNext" th:field="${newEvent.eventType}">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventTypeNext">Тип події: </label>
+                            <select multiple class="form-control" size="3" name="inputGroupSelectEventType" id="eventTypeNext"
+                                    th:field="${newEvent.eventType}">
                                 <option th:each="type : ${eventTypes}"
                                         th:value="${type.name}"
                                         th:text="${type.name}">
@@ -441,8 +473,8 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="eventDescription">Опис події: </label>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescriptionNext">Опис події: </label>
                             <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescriptionNext"
                                       th:field="*{description}">Опис події
                             </textarea>
@@ -453,7 +485,7 @@
                             Скасувати
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            Додати нову подію
+                            Додати подію
                         </button>
                     </div>
                 </form>
@@ -473,14 +505,12 @@
             </div>
             <div class="modal-body text-center">
                 <p>
-                    Виконання цієї дії приведе<br>
-                    до скасування всіх призначень на цей день!<br>
-                    Всім зареєстрованим відвідувачам буде відправлено<br>
-                    відповідні повідомлення електронною поштою.
+                    Виконання цієї дії приведе до видалення за цей день всіх подій, які не мають відвідувачів,
+                    та скасування всіх заброньованих подій. Зареєстрованим відвідувачам
+                    електронною поштою будуть відправлені повідомлення про скасування зустрічей.
                 </p>
                 <p>
-                    Ви впевнені, що бажаєте скасувати всі події,<br>
-                    заплановані на цей день?
+                    Ви впевнені, що бажаєте видалити й скасувати всі події в розкладі на цей день?
                 </p>
             </div>
             <div class="modal-footer">
