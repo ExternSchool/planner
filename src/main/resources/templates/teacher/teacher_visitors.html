@@ -52,7 +52,7 @@
         </small>
     </h4>
 
-    <div  th:if="${not #lists.isEmpty(students)}">
+    <div th:if="${not #lists.isEmpty(students)}">
         <h5 class="font-weight-normal" th:inline="text"><small>Екстерни</small></h5>
         <div class="table-responsive">
             <table class="col-lg-12 table table-sm table-hover">
@@ -93,7 +93,7 @@
             </table>
         </div>
     </div>
-    <div  th:if="${not #lists.isEmpty(guests)}">
+    <div th:if="${not #lists.isEmpty(guests)}">
         <h5 class="font-weight-normal" th:inline="text"><small>Гості</small></h5>
         <div class="table-responsive">
             <table class="col-lg-12 table table-sm table-hover">

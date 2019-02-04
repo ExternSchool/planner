@@ -49,6 +49,7 @@ public final class Constants {
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE = "Будь ласка, введіть назву нового предмета!";
     public static final String UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE = "Предмет з такою назвою вже існує!";
     public static final String UK_FORM_VALIDATION_ERROR_EVENT_TYPE_MESSAGE = "Будь ласка, введіть назву нового типу події!";
+    public static final String UK_FORM_VALIDATION_ERROR_NO_EVENT_TYPE_MESSAGE = "Будь ласка, виберіть тип події!";
     public static final String UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS = "Помилка вводу даних! " +
             "Виберіть предмети та семестри так, щоб писати 1-2 контрольні роботи за раз";
     public static final String UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE =

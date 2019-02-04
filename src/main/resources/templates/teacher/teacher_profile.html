@@ -113,9 +113,6 @@
                            th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                     <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
                         <div class="input-group mb-0">
-                            <!--<div class="input-group-prepend">-->
-                                <!--<span class="input-group-text" id="key-label">Ключ</span>-->
-                            <!--</div>-->
                             <input type="hidden" th:field="${teacher.verificationKey}"/>
                             <input class="form-control" type="text" id="key" th:field="${teacher.verificationKey.value}" readonly
                                    placeholder="Ключ для автентифікації облікового запису">

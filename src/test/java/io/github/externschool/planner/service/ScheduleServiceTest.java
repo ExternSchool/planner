@@ -367,18 +367,22 @@ public class ScheduleServiceTest {
         Participant participant = new Participant(user, event);
         participant.setId(++id);
         ScheduleEvent event2 = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        BeanUtils.copyProperties(event, event2);
+        BeanUtils.copyProperties(event, event2, "participants");
         event2.setId(++id);
         List<ScheduleEvent> events = Arrays.asList(event, event2);
         assertThat(events)
                 .containsExactly(event, event2);
 
-        scheduleService.cancelEventsAndMailToParticipants(events);
+        when(eventRepository.findById(event2.getId()))
+                .thenReturn(Optional.of(event2));
+
+        scheduleService.cancelOrDeleteEventsAndMailToParticipants(events);
 
         verify(eventRepository, times(2)).findById(event.getId());
-        verify(eventRepository, times(2)).findById(event2.getId());
+        verify(eventRepository, times(1)).findById(event2.getId());
+        verify(eventRepository, times(1)).deleteById(event2.getId());
         verify(emailService, after(100).times(1)).sendCancelEventMail(event);
-        verify(emailService, after(100).times(1)).sendCancelEventMail(event2);
+        verify(emailService, after(100).never()).sendCancelEventMail(event2);
     }
 
     @Test(expected = UserCanNotHandleEventException.class)
@@ -821,7 +825,7 @@ public class ScheduleServiceTest {
 
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchema() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplates() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -838,7 +842,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.recreateNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -846,7 +850,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithHoliday() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithHoliday() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -868,7 +872,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.recreateNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -876,7 +880,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayThisWeek() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithSubstitutionDayThisWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -908,7 +912,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.recreateNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
@@ -916,7 +920,7 @@ public class ScheduleServiceTest {
     }
 
     @Test
-    public void shouldReturnList_whenCreateNextWeekEventsBasedOnStandardSchemaWithSubstitutionDayPreviousWeek() {
+    public void shouldReturnList_whenRestoreNextWeekEventsFromTemplatesWithSubstitutionDayPreviousWeek() {
         User owner = new User("owner@email.com", "pass");
         LocalDate date = scheduleService.getNextWeekFirstDay();
         List<ScheduleTemplate> templates = populateEventTemplates(owner);
@@ -944,7 +948,7 @@ public class ScheduleServiceTest {
             return true;
         }))).thenReturn(expectedEvents);
 
-        List<ScheduleEvent> actualEvents = scheduleService.createNextWeekEventsForOwner(owner);
+        List<ScheduleEvent> actualEvents = scheduleService.recreateNextWeekEventsFromTemplatesForOwner(owner);
 
         assertThat(actualEvents)
                 .isNotEmpty()
