@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -17,6 +18,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PersonRepositoryTest {
     @Autowired private PersonRepository personRepository;
     @Autowired TestEntityManager entityManager;
@@ -26,7 +28,7 @@ public class PersonRepositoryTest {
     @Before
     public void setUp() {
         expectedPersons = new ArrayList<>();
-        List<String> names = Arrays.asList("A", "B", "C");
+        List<String> names = Arrays.asList("А", "Б", "В");
         for (String name : names) {
             Person person = new Person();
             person.setLastName(name);
@@ -57,7 +59,7 @@ public class PersonRepositoryTest {
 
     @Test
     public void shouldReturnOrderedListOfThreePersons_whenFindAllByOrderByLastName(){
-        List<Person> actualPersons = personRepository.findAll();
+        List<Person> actualPersons = personRepository.findAllByOrderByLastName();
 
         assertThat(actualPersons)
                 .isNotNull()

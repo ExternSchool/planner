@@ -36,7 +36,9 @@ public class ScheduledTasks {
     public void doScheduledWork() {
         CompletableFuture<List<ScheduleEvent>> future =  recreateEventsForAllTeachers();
         future.thenApply(eventList -> {
-        // eventList.forEach(System.out::println);
+            for (ScheduleEvent event : eventList) {
+                log.debug("Add event: {} ", event.getId());
+            }
             return null;
         });
 

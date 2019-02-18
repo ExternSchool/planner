@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SchoolSubjectRepositoryIntegrationTest {
     @Autowired
     private SchoolSubjectRepository subjectRepository;
@@ -81,22 +83,20 @@ public class SchoolSubjectRepositoryIntegrationTest {
     public void shouldContainTeachers_WhenFindAllSubjects() {
         List<SchoolSubject> actualSubjects = subjectRepository.findAll();
 
-        actualSubjects.forEach(subject -> {
-            assertThat(subject.getTeachers())
-                    .hasSize(1)
-                    .containsExactly(expectedSubjectTeacher.get(subject));
-        });
+        actualSubjects.forEach(subject ->
+                assertThat(subject.getTeachers())
+                        .hasSize(1)
+                        .containsExactly(expectedSubjectTeacher.get(subject)));
     }
 
     @Test
     public void shouldContainSubjects_WhenFindAllTeachers() {
         List<Teacher> actualTeachers = teacherRepository.findAll();
 
-        actualTeachers.forEach(teacher -> {
-            assertThat(teacher.getSubjects())
-                    .hasSize(1)
-                    .containsExactly(expectedTeacherSubject.get(teacher));
-        });
+        actualTeachers.forEach(teacher ->
+                assertThat(teacher.getSubjects())
+                        .hasSize(1)
+                        .containsExactly(expectedTeacherSubject.get(teacher)));
     }
 
     @Test
