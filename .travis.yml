@@ -18,4 +18,6 @@ env:
     - PGPORT=5432
 
 before_script:
+  - sudo /etc/init.d/mysql stop
+  - sudo /etc/init.d/postgresql stop
   - psql -c 'create database travis_ci_test;' -U postgres planner --password postgres --locale=uk_UA.UTF-8
