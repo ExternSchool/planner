@@ -874,9 +874,9 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);
@@ -949,9 +949,9 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);
@@ -1142,9 +1142,9 @@ public class StudentControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(type.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);

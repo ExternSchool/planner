@@ -28,14 +28,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest (classes = TestPlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserDetailsServiceTest {
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    @Autowired UserDetailsServiceImpl userDetailsService;
 
-    @MockBean
-    UserRepository userRepository;
+    @MockBean UserRepository userRepository;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    @Rule public ExpectedException thrown = ExpectedException.none();
 
     private UserDetails expectedUserDetails;
     private final String userEmail = "dmytro@gmail.com";
