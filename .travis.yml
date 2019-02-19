@@ -7,17 +7,20 @@ cache:
 services:
   - postgresql
 
+before_script:
+#  - sudo /etc/init.d/mysql stop
+#  - sudo /etc/init.d/postgresql stop
+  - sudo service mysql stop
+  - sudo service postgresql stop
+  - psql -c 'create database travis_ci_test;' -U postgres planner --password postgres --locale=uk_UA.UTF-8
+
 addons:
   postgresql: "11"
   apt:
     packages:
-      - postgresql-11
-      - postgresql-client-11
+    - postgresql-11
+    - postgresql-client-11
 env:
   global:
     - PGPORT=5432
 
-before_script:
-  - sudo /etc/init.d/mysql stop
-  - sudo /etc/init.d/postgresql stop
-  - psql -c 'create database travis_ci_test;' -U postgres planner --password postgres --locale=uk_UA.UTF-8
