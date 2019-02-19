@@ -5,19 +5,10 @@ cache:
   directories:
   - "$HOME/.m2"
 
-addons:
-  postgresql: "11"
-  apt:
-    packages:
-    - postgresql-11
-    - postgresql-client-11
-env:
-  global:
-    - PGPORT=5432
+services:
+  - postgresql
 
 before_script:
-  #  - sudo /etc/init.d/mysql stop
-  #  - sudo /etc/init.d/postgresql stop
-  #  - sudo service mysql stop
-  #  - sudo service postgresql stop
-  - psql -c 'create database travis_ci_test;' -U postgres planner --password postgres --locale=uk_UA.UTF-8
+  - psql -c "CREATE DATABASE planner --locale=uk_UA.UTF-8;" -U postgres
+  - psql -c "CREATE USER planner WITH PASSWORD 'postgres';" -U postgres
+#  - psql -c 'create database travis_ci_test;' -U postgres planner --password postgres --locale=uk_UA.UTF-8
