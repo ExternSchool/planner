@@ -553,9 +553,9 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
@@ -629,9 +629,9 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
@@ -796,14 +796,16 @@ public class GuestControllerTest {
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withTitle("Test")
-                .withDate(scheduleService.getCurrentWeekFirstDay())
                 .withEventType(eventType.getName())
-                .withStartTime(LocalTime.MAX)
+                .withDate(scheduleService.getNextWeekFirstDay())
+                .withStartTime(LocalTime.of(9, 0))
                 .withIsOpen(true)
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
         scheduleService.removeOwner(event);
         scheduleService.addOwner(eventUser, event);
+
+        scheduleService.getEventsByOwner(eventUser).forEach(System.out::println);
 
         mockMvc.perform(get("/guest/" + person.getId()
                 + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe"))
