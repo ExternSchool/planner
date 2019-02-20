@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -53,11 +54,11 @@ public class ScheduleTemplate {
     private LocalDateTime modifiedAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_owner"))
     private User owner;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_type_id")
+    @JoinColumn(name = "event_type_id", foreignKey = @ForeignKey(name = "fk_event_type"))
     private ScheduleEventType type;
 
     private ScheduleTemplate() {

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -66,11 +67,11 @@ public class ScheduleEvent {
     private Boolean isAccomplished;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", foreignKey = @ForeignKey(name = "fk_owner"))
     private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "event_type_id")
+    @JoinColumn(name = "event_type_id", foreignKey = @ForeignKey(name = "fk_event_type"))
     private ScheduleEventType type;
 
     @OneToMany(mappedBy = "event", fetch = FetchType.EAGER)
