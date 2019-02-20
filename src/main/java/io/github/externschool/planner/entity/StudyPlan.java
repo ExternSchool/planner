@@ -27,7 +27,7 @@ public class StudyPlan {
     private GradeLevel gradeLevel;
 
     @ManyToOne
-    @JoinColumn(name = "subject", foreignKey = @ForeignKey(name = "SUBJECT_FK"))
+    @JoinColumn(name = "subject", foreignKey = @ForeignKey(name = "fk_subject"))
     private SchoolSubject subject;
 
     private String title;

@@ -31,8 +31,7 @@ public class ScheduledTasks {
         this.teacherService = teacherService;
     }
 
-    //TODO change to Saturday 1:01 a.m.
-    @Scheduled(cron="0 1 1 * * *", zone="Europe/Kiev")
+    @Scheduled(cron="0 1 1 * * Sat", zone="Europe/Kiev")
     public void doScheduledWork() {
         CompletableFuture<List<ScheduleEvent>> future =  recreateEventsForAllTeachers();
         future.thenApply(eventList -> {
