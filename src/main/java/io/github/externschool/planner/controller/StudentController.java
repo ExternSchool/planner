@@ -401,6 +401,9 @@ public class StudentController {
     @GetMapping("/subscriptions")
     public ModelAndView displaySubscriptionsToStudent(final ModelMap model, final Principal principal) {
         User user = userService.getUserByEmail(principal.getName());
+        if (user == null) {
+            return redirectByRole(principal);
+        }
 
         return prepareSubscriptionsModelAndView(user, model);
     }
@@ -412,6 +415,9 @@ public class StudentController {
                 .map(Person::getVerificationKey)
                 .map(VerificationKey::getUser)
                 .orElse(null);
+        if (user == null) {
+            return new ModelAndView("redirect:/student/");
+        }
 
         return prepareSubscriptionsModelAndView(user, model);
     }
@@ -658,16 +664,16 @@ public class StudentController {
         return modelAndView;
     }
 
-
     private ModelAndView prepareSubscriptionsModelAndView(final User user, final ModelMap model) {
         ModelAndView modelAndView = new ModelAndView("student/student_subscriptions", model);
-        modelAndView.addObject("student", Optional.ofNullable(user)
-                .map(User::getVerificationKey)
-                .map(VerificationKey::getPerson)
-                .orElse(null));
+        modelAndView.addObject(
+                "student",
+                Optional.ofNullable(user).map(User::getVerificationKey).map(VerificationKey::getPerson).get());
         List<ParticipantDTO> participants = Optional.ofNullable(user)
                 .map(u -> scheduleService.getParticipantsByUser(u).stream()
                         .map(p -> conversionService.convert(p, ParticipantDTO.class))
+                        .sorted(Comparator.comparing(ParticipantDTO::getDate).reversed()
+                                .thenComparing(Comparator.comparing(ParticipantDTO::getTime)))
                         .collect(Collectors.toList()))
                 .orElse(new ArrayList<>());
         participants.forEach(participant -> {
