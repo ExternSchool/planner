@@ -396,7 +396,7 @@ public class TeacherController {
             modelAndView.addObject("currentWeekEvents", currentWeekEvents);
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
             modelAndView.addObject("standardWeekEvents", standardWeekEvents);
-            modelAndView.addObject("recentUpdate", mostRecentUpdate.get());
+            modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
             modelAndView.addObject("availableEvents", incomingEventsNumber);
             modelAndView.addObject("newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
