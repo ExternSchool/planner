@@ -396,7 +396,7 @@ public class TeacherController {
             modelAndView.addObject("currentWeekEvents", currentWeekEvents);
             modelAndView.addObject("nextWeekEvents", nextWeekEvents);
             modelAndView.addObject("standardWeekEvents", standardWeekEvents);
-            modelAndView.addObject("recentUpdate", mostRecentUpdate.orElse(null));
+            modelAndView.addObject("recentUpdate", mostRecentUpdate.get());
             modelAndView.addObject("availableEvents", incomingEventsNumber);
             modelAndView.addObject("newEvent",
                     ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO().build());
@@ -961,7 +961,11 @@ public class TeacherController {
         TeacherDTO teacherDTO = conversionService.convert(teacher, TeacherDTO.class);
         List<StudentDTO> students = new ArrayList<>();
         List<PersonDTO> guests = new ArrayList<>();
-        for (ScheduleEvent event : scheduleService.getEventsByOwnerStartingBetweenDates(user, start, end)) {
+        List<ScheduleEvent> sortedEvents = scheduleService.getEventsByOwnerStartingBetweenDates(user, start, end)
+                .stream()
+                .sorted(Comparator.comparing(ScheduleEvent::getStartOfEvent))
+                .collect(Collectors.toList());
+        for (ScheduleEvent event : sortedEvents) {
             if (!event.isCancelled() || showCancelled) {
                 event.getParticipants().forEach(participant -> {
                     Optional.ofNullable(participant.getUser())
@@ -986,7 +990,8 @@ public class TeacherController {
                 });
             }
         }
-        ModelAndView modelAndView = new ModelAndView("teacher/teacher_visitors", "teacher", teacherDTO);
+        ModelAndView modelAndView = new ModelAndView("teacher/teacher_visitors",
+                "teacher", teacherDTO);
         modelAndView.addObject("students", students);
         modelAndView.addObject("guests", guests);
         modelAndView.addObject("historyStart", LocalDate.now());
