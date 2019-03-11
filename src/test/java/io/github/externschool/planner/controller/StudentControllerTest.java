@@ -133,11 +133,8 @@ public class StudentControllerTest {
         student.setLastName("A");
         student.setFirstName(firstName);
         student.setPatronymicName("B");
-        student.setGender(Gender.FEMALE);
-        student.setDateOfBirth(LocalDate.of(2010, 5, 20));
         student.setGradeLevel(GradeLevel.LEVEL_3);
         student.setPhoneNumber("(000)000-0000");
-        student.setAddress("Address 123");
         student.addVerificationKey(key);
         studentService.saveOrUpdateStudent(student);
 
@@ -507,7 +504,7 @@ public class StudentControllerTest {
         assertThat(userService.getUserByEmail(email))
                 .isNotNull()
                 .hasFieldOrPropertyWithValue("roles",
-                        new HashSet<Role>(Collections.singletonList(roleService.getRoleByName("ROLE_GUEST"))));
+                        new HashSet<>(Collections.singletonList(roleService.getRoleByName("ROLE_GUEST"))));
     }
 
     @Test

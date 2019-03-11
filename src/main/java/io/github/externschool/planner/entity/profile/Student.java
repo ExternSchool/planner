@@ -15,17 +15,6 @@ import java.util.Objects;
 @Entity
 @Table(name = "student")
 public class Student extends Person {
-    @Column(name = "date_of_birth")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate dateOfBirth;
-
-    @Column(name = "gender")
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    @Column(name = "address")
-    private String address;
-
     @Column(name = "grade_level")
     @Enumerated(EnumType.ORDINAL)
     private GradeLevel gradeLevel;
@@ -45,9 +34,6 @@ public class Student extends Person {
                    final GradeLevel gradeLevel) {
         super(id, firstName, patronymicName, lastName, phoneNumber);
         this.addVerificationKey(verificationKey);
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.address = address;
         this.gradeLevel = gradeLevel;
     }
 
@@ -68,30 +54,6 @@ public class Student extends Person {
                 gradeLevel);
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public GradeLevel getGradeLevel() {
         return gradeLevel;
     }
@@ -106,23 +68,18 @@ public class Student extends Person {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         final Student student = (Student) o;
-        return Objects.equals(dateOfBirth, student.dateOfBirth) &&
-                gender == student.gender &&
-                Objects.equals(address, student.address) &&
-                gradeLevel == student.gradeLevel;
+        return Objects.equals(this.getId(), student.getId()) && gradeLevel == student.gradeLevel;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), dateOfBirth, gender, address, gradeLevel);
+        return Objects.hash(super.hashCode(), gradeLevel);
     }
 
     @Override
     public String toString() {
         return "Student{" +
-                "dateOfBirth=" + dateOfBirth +
-                ", gender=" + gender +
-                ", address='" + address + '\'' +
+                "personId=" + this.getId() + '\'' +
                 ", gradeLevel=" + gradeLevel +
                 '}';
     }

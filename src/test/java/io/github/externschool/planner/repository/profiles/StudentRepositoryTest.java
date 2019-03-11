@@ -31,17 +31,14 @@ public class StudentRepositoryTest {
     @Before
     public void setUp() {
         student1 = new Student();
-        student1.setGender(Gender.FEMALE);
         student1.setGradeLevel(GradeLevel.LEVEL_1);
         student1.setLastName("C");
 
         student2 = new Student();
-        student2.setGender(Gender.MALE);
         student2.setGradeLevel(GradeLevel.LEVEL_3);
         student2.setLastName("B");
 
         student3 = new Student();
-        student3.setGender(Gender.MALE);
         student3.setGradeLevel(GradeLevel.LEVEL_3);
         student3.setLastName("A");
 

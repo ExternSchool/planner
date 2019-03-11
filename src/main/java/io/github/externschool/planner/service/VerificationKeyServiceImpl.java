@@ -5,6 +5,7 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.exceptions.KeyNotValidException;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class VerificationKeyServiceImpl implements VerificationKeyService {
     private VerificationKeyRepository repository;
 
+    @Autowired
     public VerificationKeyServiceImpl(VerificationKeyRepository verificationKeyRepository) {
         this.repository = verificationKeyRepository;
     }

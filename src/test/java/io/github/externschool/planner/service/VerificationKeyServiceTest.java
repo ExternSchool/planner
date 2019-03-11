@@ -6,10 +6,9 @@ import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -23,17 +22,13 @@ import static org.mockito.Mockito.verify;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestPlannerApplication.class)
 public class VerificationKeyServiceTest {
-
-    @MockBean
-    private VerificationKeyRepository repository;
-
-    @Autowired
+    @Mock private VerificationKeyRepository repository;
     private VerificationKeyService service;
-
     private VerificationKey expectedKey;
 
     @Before
     public void setUp() {
+        service = new VerificationKeyServiceImpl(repository);
         expectedKey = new VerificationKey();
         expectedKey.setId(1L);
     }
