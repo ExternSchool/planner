@@ -189,9 +189,6 @@
     </changeSet>
     <changeSet author="ben (generated)" id="1550694687391-15">
         <createTable tableName="student">
-            <column name="address" type="VARCHAR(255)"/>
-            <column name="date_of_birth" type="date"/>
-            <column name="gender" type="VARCHAR(255)"/>
             <column name="grade_level" type="INTEGER"/>
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" primaryKeyName="student_pkey"/>

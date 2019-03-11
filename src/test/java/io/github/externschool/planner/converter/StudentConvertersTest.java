@@ -34,9 +34,6 @@ public class StudentConvertersTest {
         String patronymicName = "Johnovich";
         String lastName = "Doe";
         String phoneNumber = "(099)999-9999";
-        LocalDate dateOfBirth = LocalDate.of(2010, 7, 9);
-        Gender gender = Gender.MALE;
-        String address = "Khreschatyk St, 1, Kyiv, Ukraine, 02000";
         GradeLevel gradeLevel = GradeLevel.LEVEL_1;
 
         expectedStudent = new Student();
@@ -45,9 +42,6 @@ public class StudentConvertersTest {
         expectedStudent.setPatronymicName(patronymicName);
         expectedStudent.setLastName(lastName);
         expectedStudent.setPhoneNumber(phoneNumber);
-        expectedStudent.setDateOfBirth(dateOfBirth);
-        expectedStudent.setGender(gender);
-        expectedStudent.setAddress(address);
         expectedStudent.setGradeLevel(gradeLevel);
 
         expectedDTO = new StudentDTO();
@@ -57,9 +51,6 @@ public class StudentConvertersTest {
         expectedDTO.setPatronymicName(patronymicName);
         expectedDTO.setLastName(lastName);
         expectedDTO.setPhoneNumber(phoneNumber);
-        expectedDTO.setDateOfBirth(dateOfBirth);
-        expectedDTO.setGender(gender);
-        expectedDTO.setAddress(address);
         expectedDTO.setGradeLevel(gradeLevel.ordinal());
     }
 
