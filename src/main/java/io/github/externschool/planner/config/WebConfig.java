@@ -25,11 +25,17 @@ import io.github.externschool.planner.converter.UserDTOToUser;
 import io.github.externschool.planner.converter.UserToUserDTO;
 import io.github.externschool.planner.converter.VerificationKeyFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.concurrent.TimeUnit;
+
 @Configuration
+@ComponentScan
 public class WebConfig implements WebMvcConfigurer {
     @Autowired private VerificationKeyFormatter keyFormatter;
     @Autowired private SchoolSubjectFormatter subjectFormatter;
@@ -67,5 +73,14 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addFormatter(gradeLevelEnumFormatter);
         registry.addFormatter(courseFormatter);
         registry.addFormatter(roleFormatter);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry
+                .addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/")
+                .setCacheControl(CacheControl.maxAge(30L, TimeUnit.DAYS).cachePublic())
+                .resourceChain(true);
     }
 }
