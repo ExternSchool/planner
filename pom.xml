@@ -22,11 +22,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <postgres.version>42.2.5</postgres.version>
-        <pg-embedded.version>0.13.1</pg-embedded.version>
         <apache-commons.version>3.1</apache-commons.version>
         <assertj-core.version>3.9.1</assertj-core.version>
         <assertj-swing.version>3.8.0</assertj-swing.version>
+
+        <postgres.version>42.2.5</postgres.version>
+        <pg-embedded.version>0.13.1</pg-embedded.version>
+
+        <webjars-locator.version>0.32-1</webjars-locator.version>
+        <jquery.version>3.3.1-2</jquery.version>
+        <bootstrap.version>4.3.1</bootstrap.version>
+        <font-awesome.version>5.7.2</font-awesome.version>
+        <moment.version>2.24.0</moment.version>
     </properties>
 
     <dependencies>
@@ -75,26 +82,6 @@
             <artifactId>thymeleaf-extras-springsecurity4</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgres.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <version>${pg-embedded.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
@@ -114,6 +101,55 @@
             <artifactId>assertj-swing-junit</artifactId>
             <version>${assertj-swing.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+        </dependency>
+
+        <!-- Database -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+            <version>${pg-embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Webjars -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator</artifactId>
+            <version>${webjars-locator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>${jquery.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${bootstrap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>font-awesome</artifactId>
+            <version>${font-awesome.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>moment</artifactId>
+            <version>${moment.version}</version>
         </dependency>
     </dependencies>
 

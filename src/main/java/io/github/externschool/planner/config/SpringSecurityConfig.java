@@ -28,7 +28,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/", "/index", "/home", "/main",
                             "/login*", "/logout*", "/signup/**","/signup", "/confirm-registration")
                     .permitAll()
-                    .antMatchers("/admin/**").hasRole("ADMIN")
+                    .antMatchers("/admin/**", "/actuator/**").hasRole("ADMIN")
                     .antMatchers("/guest/**").hasAnyRole("ADMIN", "GUEST")
                     .antMatchers("/teacher/**").hasAnyRole("ADMIN", "TEACHER")
                     .antMatchers("/student/**").hasAnyRole("ADMIN", "STUDENT", "TEACHER")
@@ -57,6 +57,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/static/**",
                         "/css/**",
                         "/img/**",
+                        "/webjars/**",
                         "/h2-console/**");
     }
 
