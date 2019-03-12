@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UtilsTest {
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnEmptyList_whenFilterDoesNotMatch() {
         PersonDTO personDTO = new PersonDTO();
         personDTO.setLastName("test");
@@ -28,7 +27,6 @@ public class UtilsTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnList_whenFilterMatches() {
         PersonDTO personDTO = new PersonDTO();
         personDTO.setLastName("test");

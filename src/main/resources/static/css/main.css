@@ -54,14 +54,6 @@ html{
     border-top-right-radius: 0;
 }
 
-/*Sign Out*/
-.form-signout {
-    width: 100%;
-    max-width: 330px;
-    padding: 15px;
-    margin: 0 auto;
-}
-
 .form-group {
     align-items: start;
     justify-content: space-evenly;
