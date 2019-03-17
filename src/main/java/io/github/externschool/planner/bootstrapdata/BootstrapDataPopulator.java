@@ -32,13 +32,9 @@ import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR
 import static io.github.externschool.planner.util.Constants.SCHOOL_PHONE_NUMBER;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_DEPUTY;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_GRADE_BOOK;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_GROUP;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSONAL;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PRINCIPAL;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PSYCHOLOGIST;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONSULT;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_OFFICIAL;
 
 @Service
 @Transactional
@@ -53,6 +49,7 @@ public class BootstrapDataPopulator implements InitializingBean {
     private final StudentService studentService;
     private final RoleService roleService;
 
+    //TODO REMOVE WHEN MIGRATED
     @Value("${app.username}") private String adminUsername;
     @Value("${app.password}") private String adminPassword;
 
@@ -104,7 +101,7 @@ public class BootstrapDataPopulator implements InitializingBean {
                             SCHOOL_PHONE_NUMBER),
                     key,
                     "",
-                    Collections.singletonList(UK_EVENT_TYPE_TEST));
+                    Collections.singletonList(UK_EVENT_TYPE_CONTROL));
             inChargeTeacher.addVerificationKey(key);
             inCharge.addVerificationKey(key);
             inCharge.setEnabled(true);
@@ -208,53 +205,25 @@ public class BootstrapDataPopulator implements InitializingBean {
     
     private void createPresetScheduleEventTypes() {
         ScheduleEventType eventType;
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_PERSONAL) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1);
-            eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE);
-            eventTypeRepository.save(eventType);
-        }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_GROUP) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_GROUP, 2);
-            eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
-            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE);
-            eventTypeRepository.save(eventType);
-        }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_TEST) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_TEST, 30);
+        if (eventTypeRepository.findByName(UK_EVENT_TYPE_CONTROL) == null) {
+            eventType = new ScheduleEventType(UK_EVENT_TYPE_CONTROL, 30);
             eventType.addOwner(roleService.getRoleByName("ROLE_ADMIN"));
             eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
             eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE * 4);
             eventTypeRepository.save(eventType);
         }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_PRINCIPAL) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_PRINCIPAL, 1);
-            eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
-            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE / 3 * 2);
-            eventTypeRepository.save(eventType);
-        }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_DEPUTY) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_DEPUTY, 1);
-            eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
-            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE / 3 * 2);
-            eventTypeRepository.save(eventType);
-        }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_GRADE_BOOK) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_GRADE_BOOK, 1);
-            eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
-            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE / 3);
-            eventTypeRepository.save(eventType);
-        }
-        if (eventTypeRepository.findByName(UK_EVENT_TYPE_PSYCHOLOGIST) == null) {
-            eventType = new ScheduleEventType(UK_EVENT_TYPE_PSYCHOLOGIST, 1);
-            eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
-            eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
+        if (eventTypeRepository.findByName(UK_EVENT_TYPE_CONSULT) == null) {
+            eventType = new ScheduleEventType(UK_EVENT_TYPE_CONSULT, 1);
+            eventType.addOwner(roleService.getRoleByName("ROLE_TEACHER"));
+            eventType.addParticipant(roleService.getRoleByName("ROLE_STUDENT"));
             eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE);
+            eventTypeRepository.save(eventType);
+        }
+        if (eventTypeRepository.findByName(UK_EVENT_TYPE_OFFICIAL) == null) {
+            eventType = new ScheduleEventType(UK_EVENT_TYPE_OFFICIAL, 1);
+            eventType.addOwner(roleService.getRoleByName("ROLE_OFFICER"));
+            eventType.addParticipant(roleService.getRoleByName("ROLE_GUEST"));
+            eventType.setDurationInMinutes(DEFAULT_DURATION_FOR_UNDEFINED_EVENT_TYPE / 3 * 2);
             eventTypeRepository.save(eventType);
         }
     }

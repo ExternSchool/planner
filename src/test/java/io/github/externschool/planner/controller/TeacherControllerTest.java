@@ -36,6 +36,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -87,9 +88,10 @@ public class TeacherControllerTest {
     private Teacher noTeacher;
     private VerificationKey key;
     private VerificationKey keyNoTeacher;
+    private SchoolSubject subject;
     private User user;
     private static final String USER_NAME = "some@email.com";
-    private ScheduleEvent event;
+    private ScheduleEventType eventType;
 
     @Before
     public void setup() {
@@ -107,13 +109,13 @@ public class TeacherControllerTest {
 
         noTeacher = new Teacher();
         noTeacher.setLastName(UK_COURSE_NO_TEACHER);
+        noTeacher.setOfficial("");
         keyNoTeacher = new VerificationKey();
         keyService.saveOrUpdateKey(keyNoTeacher);
         noTeacher.addVerificationKey(keyNoTeacher);
         teacherService.saveOrUpdateTeacher(noTeacher);
 
-        SchoolSubject subject = new SchoolSubject();
-        subjectService.saveOrUpdateSubject(subject);
+        subject = subjectService.saveOrUpdateSubject(new SchoolSubject());
 
         key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
@@ -130,6 +132,8 @@ public class TeacherControllerTest {
         user = userService.createUser(USER_NAME,"pass", "ROLE_TEACHER");
         user.addVerificationKey(key);
         userService.save(user);
+
+        eventType = typeService.getAllEventTypesByUserRoles(user).get(0);
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
@@ -219,36 +223,14 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }
 
-    @Transactional
     @Test
-    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
-    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistory() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
-        LocalDate historyStart = LocalDate.now().minusDays(28);
-        LocalDate historyEnd = LocalDate.now().minusDays(7);
-
-        getEvents(historyStart, historyEnd, type);
-
-        mockMvc.perform(get("/teacher/" + teacher.getId() +
-                "/visitors?start=" + historyStart + "&end=" + historyEnd + "&search="))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher/teacher_visitors"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attributeExists("students"))
-                .andExpect(model().attributeExists("guests"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"))
-                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
-    }
-
-    @Transactional
-    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndPositiveSearch() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         LocalDate historyStart = LocalDate.now().minusDays(28);
         LocalDate historyEnd = LocalDate.now().minusDays(7);
 
-        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, eventType);
         Participant participant = events.get(0).getParticipants().stream().findAny().get();
         Person person = new Person();
         person.setLastName("LastName");
@@ -268,15 +250,34 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }
 
-    @Transactional
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
-    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndNegativeSearch() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistory() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
         LocalDate historyEnd = LocalDate.now().minusDays(7);
 
-        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        getEvents(historyStart, historyEnd, eventType);
+
+        mockMvc.perform(get("/teacher/" + teacher.getId() +
+                "/visitors?start=" + historyStart + "&end=" + historyEnd + "&search="))
+                .andExpect(status().isOk())
+                .andExpect(view().name("teacher/teacher_visitors"))
+                .andExpect(model().attributeExists("teacher"))
+                .andExpect(model().attributeExists("students"))
+                .andExpect(model().attributeExists("guests"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
+    public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndNegativeSearch() throws Exception {
+        LocalDate historyStart = LocalDate.now().minusDays(28);
+        LocalDate historyEnd = LocalDate.now().minusDays(7);
+
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, eventType);
         Participant participant = events.get(0).getParticipants().stream().findAny().get();
         Person person = new Person();
         person.setLastName("WrongName");
@@ -294,15 +295,14 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }
 
-    @Transactional
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchAndCancelled() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         LocalDate historyStart = LocalDate.now().minusDays(28);
         LocalDate historyEnd = LocalDate.now().minusDays(7);
 
-        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, eventType);
         ScheduleEvent currentEvent = events.get(0);
         currentEvent.setCancelled(true);
         Participant participant = currentEvent.getParticipants().stream().findAny().get();
@@ -324,15 +324,14 @@ public class TeacherControllerTest {
                 .andExpect(content().string(Matchers.containsString("Teacher Visitors")));
     }
 
-    @Transactional
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchNotCancelled() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         LocalDate historyStart = LocalDate.now().minusDays(28);
         LocalDate historyEnd = LocalDate.now().minusDays(7);
 
-        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, type);
+        List<ScheduleEvent> events = getEvents(historyStart, historyEnd, eventType);
         ScheduleEvent currentEvent = events.get(0);
         currentEvent.setCancelled(true);
         Participant participant = currentEvent.getParticipants().stream().findAny().get();
@@ -395,9 +394,9 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
-    public void shouldReturnModelAndView_whenPostRequestTeacherId() throws Exception {
+    public void shouldReturnModelAndView_whenDisplayTeacherProfileToEdit() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
         Long id = Optional.ofNullable(teacherDTO).map(TeacherDTO::getId).orElse(0L);
 
@@ -411,13 +410,19 @@ public class TeacherControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetRequestTeacherAdd() throws Exception {
+        List<Teacher> teachers = teacherService.findAllTeachers();
+
         mockMvc.perform(post("/teacher/add").with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher/teacher_profile"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(content().string(Matchers.containsString("Teacher Profile")));
+
+        assertThat(teacherService.findAllTeachers())
+                .containsExactlyElementsOf(teachers);
     }
 
     @Test
@@ -433,6 +438,7 @@ public class TeacherControllerTest {
 
         long userNumber = userRepository.count();
         long keyNumber = keyRepository.count();
+        long teachersNumber = teacherService.findAllTeachers().size();
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
@@ -446,10 +452,13 @@ public class TeacherControllerTest {
 
         assertThat(keyRepository.findAll())
                 .contains(key);
+
+        assertThat(teacherService.findAllTeachers().size())
+                .isEqualTo(teachersNumber);
     }
 
     @Test
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldNotAddNewKeyAndNewUser_whenAdminPostUpdateSaveExistingTeacher() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
@@ -495,8 +504,9 @@ public class TeacherControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
+        String lastName = "lastName";
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("lastName", "lastName");
+        map.add("lastName", lastName);
         map.add("firstName", "firstName");
         map.add("patronymicName", "patronymicName");
         map.add("phoneNumber", "123-4567");
@@ -513,29 +523,50 @@ public class TeacherControllerTest {
 
         assertThat(keyRepository.count())
                 .isEqualTo(keyNumber + 1);
+
+        teacherService.findAllByLastName(lastName).stream()
+                .map(Teacher::getId)
+                .forEach(teacherService::deleteTeacherById);
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_whenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
+        List<Teacher> teachers = teacherService.findAllTeachers();
+        TeacherDTO dto = new TeacherDTO();
 
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .requestAttr("teacher", new TeacherDTO()).with(csrf()))
+                .requestAttr("teacher", dto).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/teacher/"));
+
+        teacherService.findAllTeachers().stream()
+                .filter(t -> !teachers.contains(t))
+                .map(Teacher::getId)
+                .forEach(teacherService::deleteTeacherById);
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldRedirectToRoot_whenTeacherPostRequestUpdateSave() throws Exception {
+        List<Teacher> teachers = teacherService.findAllTeachers();
+        TeacherDTO dto = new TeacherDTO();
+
         mockMvc.perform(post("/teacher/update")
                 .param("action", "save")
-                .requestAttr("teacher", new TeacherDTO()).with(csrf()).with(csrf()))
+                .requestAttr("teacher", dto).with(csrf()).with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/"));
+
+        teacherService.findAllTeachers().stream()
+                .filter(t -> !teachers.contains(t))
+                .map(Teacher::getId)
+                .forEach(teacherService::deleteTeacherById);
     }
 
     @Test
@@ -573,8 +604,7 @@ public class TeacherControllerTest {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
-        List<Teacher> teachers = teacherService.findAllTeachers();
-        Teacher t = teachers.get(0);
+        Teacher t = teacher;
         TeacherDTO teacherDTO = new TeacherDTO(
                 t.getId(),
                 t.getVerificationKey(),
@@ -598,23 +628,21 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
-    public void shouldDeleteUser_whenRequestDeleteInvalidEmail() throws Exception {
-        List<Teacher> teachers = teacherService.findAllTeachers();
-        int sizeBefore = teachers.size();
-        Teacher teacher = new Teacher();
+    public void shouldDeleteTeacher_whenRequestDeleteTeacherWithoutUser() throws Exception {
+        Teacher localTeacher = new Teacher();
         VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
-        User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_TEACHER");
-        teacher.addVerificationKey(key);
-        teacherService.saveOrUpdateTeacher(teacher);
-        Long id = teacher.getId();
-        String email = teacherService.findTeacherById(id).getVerificationKey().getUser().getEmail();
+        localTeacher.addVerificationKey(key);
+        localTeacher = teacherService.saveOrUpdateTeacher(localTeacher);
+        Long id = localTeacher.getId();
+        String email = "";
 
         assertThat(emailService.emailIsValid(email))
                 .isEqualTo(false);
 
         mockMvc.perform(post("/teacher/{id}/delete", id).with(csrf()));
 
-        assertThat(teacherService.findAllTeachers().size()).isEqualTo(sizeBefore);
+        assertThat(teacherService.findAllTeachers())
+                .doesNotContain(localTeacher);
 
         assertThat(userService.getUserByEmail(email))
                 .isNull();
@@ -622,17 +650,15 @@ public class TeacherControllerTest {
 
     @Test
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
-    public void shouldSetGuestRoleToUser_whenRequestDeleteValidEmail() throws Exception {
-        List<Teacher> teachers = teacherService.findAllTeachers();
-        int sizeBefore = teachers.size();
-        Teacher teacher = new Teacher();
+    public void shouldSetGuestRoleToUser_whenRequestDeleteTeacherWithValidUser() throws Exception {
+        Teacher localTeacher = new Teacher();
         VerificationKey key = keyService.saveOrUpdateKey(new VerificationKey());
         User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_TEACHER");
         user.setEmail("email@email.nowhere");
         userService.save(user);
-        teacher.addVerificationKey(key);
-        teacherService.saveOrUpdateTeacher(teacher);
-        Long id = teacher.getId();
+        localTeacher.addVerificationKey(key);
+        teacherService.saveOrUpdateTeacher(localTeacher);
+        Long id = localTeacher.getId();
         String email = teacherService.findTeacherById(id).getVerificationKey().getUser().getEmail();
 
         assertThat(emailService.emailIsValid(email))
@@ -641,8 +667,7 @@ public class TeacherControllerTest {
         mockMvc.perform(post("/teacher/{id}/delete", id).with(csrf()));
 
         assertThat(teacherService.findAllTeachers())
-                .hasSize(sizeBefore);
-
+                .doesNotContain(localTeacher);
         assertThat(userService.getUserByEmail(email))
                 .isNotNull();
         assertThat(userService.userHasRole(user, "ROLE_GUEST"))
@@ -798,11 +823,10 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_whenProcessTeacherCurrentModalFormAddEvent() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(LocalDate.now())
                 .withStartTime(LocalTime.MIN)
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withDescription("Description")
                 .build();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -855,11 +879,10 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_whenProcessTeacherNextModalFormAddEvent() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(LocalDate.now().plusDays(7))
                 .withStartTime(LocalTime.MIN)
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withDescription("Description")
                 .build();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -877,12 +900,11 @@ public class TeacherControllerTest {
     @Test
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_whenDisplayModalFormDeleteEvent() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(LocalDate.now().plusDays(7))
-                .withTitle(type.getName())
+                .withTitle(eventType.getName())
                 .withStartTime(LocalTime.MIN)
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withDescription("Description")
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(user, newEvent, 30);
@@ -898,15 +920,14 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_whenProcessModalFormDeleteEvent() throws Exception {
-        ScheduleEventType type = typeService.loadEventTypes().get(0);
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(LocalDate.now().plusDays(7))
-                .withTitle(type.getName())
+                .withTitle(eventType.getName())
                 .withStartTime(LocalTime.MIN)
-                .withEventType(type.getName())
+                .withEventType(eventType.getName())
                 .withDescription("Description")
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(user, newEvent, 30);
@@ -943,8 +964,8 @@ public class TeacherControllerTest {
     public void shouldRedirect_whenProcessTeacherScheduleModalFormAddEvent() throws Exception {
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
                 .withDate(FIRST_MONDAY_OF_EPOCH.plusDays(0))
-                .withDescription(typeService.loadEventTypes().get(0).getName())
-                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withDescription(eventType.getName())
+                .withEventType(eventType.getName())
                 .withStartTime(LocalTime.now())
                 .build();
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
@@ -963,7 +984,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldReturnTemplate_whenDisplayTeacherTemplateDeleteModal() throws Exception {
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withEventType(eventType.getName())
                 .withDate(LocalDate.now())
                 .withStartTime(LocalTime.now())
                 .withDescription("")
@@ -987,7 +1008,7 @@ public class TeacherControllerTest {
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_whenProcessTeacherTemplateDelete() throws Exception {
         ScheduleEventDTO dto = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withEventType(typeService.loadEventTypes().get(0).getName())
+                .withEventType(eventType.getName())
                 .withDate(LocalDate.now())
                 .withStartTime(LocalTime.now())
                 .withDescription("")
@@ -1010,6 +1031,7 @@ public class TeacherControllerTest {
         teacherService.deleteTeacherById(noTeacher.getId());
         keyService.deleteById(key.getId());
         keyService.deleteById(keyNoTeacher.getId());
+        subjectService.deleteSubjectById(subject.getId());
         userService.deleteUser(user);
     }
 }

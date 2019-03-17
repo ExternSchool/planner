@@ -6,7 +6,6 @@ import io.github.externschool.planner.dto.ScheduleEventDTO;
 import io.github.externschool.planner.dto.StudentDTO;
 import io.github.externschool.planner.emailservice.EmailService;
 import io.github.externschool.planner.entity.GradeLevel;
-import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
@@ -45,6 +44,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -60,7 +60,7 @@ import java.util.Optional;
 import static io.github.externschool.planner.util.Constants.FAKE_MAIL_DOMAIN;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS;
 import static io.github.externschool.planner.util.Constants.UK_UNSUBSCRIBE_SCHEDULE_EVENT_USER_NOT_FOUND_ERROR_MESSAGE;
@@ -74,7 +74,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -106,9 +105,10 @@ public class StudentControllerTest {
     private MultiValueMap<String, String> map;
     private Course course;
     private StudyPlan plan;
+    private SchoolSubject subject;
     private Teacher teacher;
     private User userTeacher;
-    private static final String nameTeacher = "teacher@email.com";
+    private final String nameTeacher = "nameTeacher@mail";
 
     @Before
     public void setup(){
@@ -159,13 +159,13 @@ public class StudentControllerTest {
         VerificationKey keyTeacher = new VerificationKey();
         keyService.saveOrUpdateKey(keyTeacher);
 
-        SchoolSubject subject = new SchoolSubject();
+        subject = new SchoolSubject();
         subject.setTitle("Subject");
         subjectService.saveOrUpdateSubject(subject);
-        StudyPlan plan = new StudyPlan(student.getGradeLevel(), subject);
+        plan = new StudyPlan(student.getGradeLevel(), subject);
         plan.setTitle(subject.getTitle());
         planService.saveOrUpdatePlan(plan);
-        Course course = new Course(student.getId(), plan.getId());
+        course = new Course(student.getId(), plan.getId());
         course.setTitle(plan.getTitle());
         courseService.saveOrUpdateCourse(course);
 
@@ -331,7 +331,7 @@ public class StudentControllerTest {
     public void shouldReturnStudentListTemplate_whenGetStudentWithTeacherRole() throws Exception {
         VerificationKey key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
-        User userTeacher = userService.createUser("teacher", "hhh", "ROLE_TEACHER");
+        userTeacher = userService.createUser("teacher", "hhh", "ROLE_TEACHER");
         userTeacher.addVerificationKey(key);
         teacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
@@ -360,7 +360,7 @@ public class StudentControllerTest {
     public void shouldReturnStudentListTemplate_whenGetStudentListByGradeWithTeacherRole() throws Exception {
         VerificationKey key = new VerificationKey();
         keyService.saveOrUpdateKey(key);
-        User userTeacher = userService.createUser("teacher2", "hhh", "ROLE_TEACHER");
+        userTeacher = userService.createUser("teacher2", "hhh", "ROLE_TEACHER");
         userTeacher.addVerificationKey(key);
         teacher.addVerificationKey(key);
         teacherService.saveOrUpdateTeacher(teacher);
@@ -441,7 +441,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldDeleteUser_WhenRequestDeleteInvalidEmail() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
         Student student = new Student();
@@ -450,7 +449,7 @@ public class StudentControllerTest {
         studentService.saveOrUpdateStudent(student);
         List<Student> students = studentService.findAllStudents();
         int sizeBefore = students.size();
-        User user = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_STUDENT");
+        user = userService.createUser("fake@" + FAKE_MAIL_DOMAIN, "pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
         userService.save(user);
         Long id = Optional.ofNullable(student.getId()).orElse(0L);
@@ -474,7 +473,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldSetGuestRoleToUser_WhenRequestDeleteValidEmail() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
         Student student = new Student();
@@ -483,7 +481,7 @@ public class StudentControllerTest {
         studentService.saveOrUpdateStudent(student);
         List<Student> students = studentService.findAllStudents();
         int sizeBefore = students.size();
-        User user = userService.createUser("valid@mail", "pass", "ROLE_STUDENT");
+        user = userService.createUser("valid@mail", "pass", "ROLE_STUDENT");
         user.addVerificationKey(key);
         userService.save(user);
         Long id = Optional.ofNullable(student.getId()).orElse(0L);
@@ -659,7 +657,6 @@ public class StudentControllerTest {
     @Test
     @WithMockUser(username = userName, roles = "ADMIN")
     public void shouldNotAddNewKeyAndNewUser_whenAdminPostUpdateSaveExistingStudent() throws Exception {
-        user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
 
         map = new LinkedMultiValueMap<>();
@@ -693,6 +690,7 @@ public class StudentControllerTest {
     public void shouldAddNewKeyAndNewUser_whenAdminPostUpdateSaveNewProfile() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
         userService.save(user);
+        List<Student> students = studentService.findAllStudents();
 
         map = new LinkedMultiValueMap<>();
         map.add("lastName", "lastName");
@@ -713,6 +711,13 @@ public class StudentControllerTest {
 
         assertThat(keyRepository.count())
                 .isEqualTo(keyNumber + 1);
+
+        studentService.findAllStudents().stream()
+                .filter(s -> !students.contains(s))
+                .forEach(s -> {
+                    userService.deleteUser(s.getVerificationKey().getUser());
+                    studentService.deleteStudentById(s.getId());
+                });
     }
 
 
@@ -853,6 +858,7 @@ public class StudentControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnMAV_whenDisplayTeachersListToAdmin() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -927,6 +933,7 @@ public class StudentControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenDisplaySubscriptionModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -977,6 +984,7 @@ public class StudentControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"ADMIN"})
     public void shouldReturnMAV_whenProcessSubscriptionModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1011,6 +1019,7 @@ public class StudentControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = userName, roles = {"STUDENT"})
     public void shouldReturnMAV_whenUnsuccessfulProcessSubscriptionModal() throws Exception {
         User eventUser = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1045,9 +1054,13 @@ public class StudentControllerTest {
                         .attributeExists("error"))
                 .andExpect(model()
                         .attribute("error", Matchers.notNullValue()));
+
+        scheduleService.deleteEventById(wrongEvent.getId());
+        userService.deleteUser(eventUser);
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = "anyone@x", roles = {"STUDENT"})
     public void shouldReturnMAVError_whenUnsuccessfulProcessSubscriptionForAdminInChargeEvent() throws Exception {
         Student studentPerson =   new Student(new Person(),
@@ -1067,23 +1080,23 @@ public class StudentControllerTest {
         User eventOwner = userService.createUser("teacher2@x", "pass", "ROLE_ADMIN");
         userService.createNewKeyWithNewPersonAndAddToUser(eventOwner);
         userService.assignNewRole(eventOwner, "ROLE_ADMIN");
-        Teacher teacher = teacherService.saveOrUpdateTeacher(new Teacher(
+        Teacher localTeacher = teacherService.saveOrUpdateTeacher(new Teacher(
                 eventOwner.getVerificationKey().getPerson(),
                 UK_COURSE_ADMIN_IN_CHARGE,
                 new HashSet<>(),
                 new HashSet<>()));
-        teacher.setLastName(UK_COURSE_ADMIN_IN_CHARGE);
+        localTeacher.setLastName(UK_COURSE_ADMIN_IN_CHARGE);
 
-        SchoolSubject subject = new SchoolSubject();
-        subject.setTitle("Subject");
-        subjectService.saveOrUpdateSubject(subject);
-        StudyPlan plan = new StudyPlan(studentPerson.getGradeLevel(), subject);
-        plan.setTitle(subject.getTitle());
-        planService.saveOrUpdatePlan(plan);
-        Course course = new Course(studentPerson.getId(), plan.getId());
-        course.setTitle(plan.getTitle());
-        course.setTeacher(teacher);
-        courseService.saveOrUpdateCourse(course);
+        SchoolSubject localSubject = new SchoolSubject();
+        localSubject.setTitle("Subject");
+        subjectService.saveOrUpdateSubject(localSubject);
+        StudyPlan localPlan = new StudyPlan(studentPerson.getGradeLevel(), localSubject);
+        localPlan.setTitle(localSubject.getTitle());
+        planService.saveOrUpdatePlan(localPlan);
+        Course localCourse = new Course(studentPerson.getId(), localPlan.getId());
+        localCourse.setTitle(localPlan.getTitle());
+        localCourse.setTeacher(localTeacher);
+        courseService.saveOrUpdateCourse(localCourse);
 
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         eventOwner.getRoles().forEach(type::addOwner);
@@ -1091,7 +1104,7 @@ public class StudentControllerTest {
         typeService.saveEventType(type);
 
         ScheduleEventDTO eventDTO = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()
-                .withTitle(UK_EVENT_TYPE_TEST)
+                .withTitle(UK_EVENT_TYPE_CONTROL)
                 .withDate(LocalDate.now())
                 .withEventType(type.getName())
                 .withStartTime(LocalTime.MAX)
@@ -1103,12 +1116,12 @@ public class StudentControllerTest {
                 .map(participant -> scheduleService.saveParticipant(participant))
                 .map(participant -> conversionService.convert(participant, ParticipantDTO.class))
                 .orElse(new ParticipantDTO(100500L));
-        participantDTO.setPlanOneTitle(plan.getTitle());
-        participantDTO.setPlanOneId(plan.getId());
+        participantDTO.setPlanOneTitle(localPlan.getTitle());
+        participantDTO.setPlanOneId(localPlan.getId());
         participantDTO.setPlanOneSemesterOne(true);
 
         mockMvc.perform(post("/student/" + studentPerson.getId() + "/teacher/"
-                + teacher.getId() + "/event/" + event.getId() + "/subscribe")
+                + localTeacher.getId() + "/event/" + event.getId() + "/subscribe")
                 .requestAttr("participant", participantDTO).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student/student_schedule"))
@@ -1118,20 +1131,20 @@ public class StudentControllerTest {
                         .attribute("error", UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS));
 
         scheduleService.deleteEventById(event.getId());
+        courseService.deleteCourse(localCourse);
+        planService.deletePlan(localPlan);
+        subjectService.deleteSubjectById(localSubject.getId());
+
+        studentService.deleteStudentById(studentPerson.getId());
+        keyService.deleteById(verificationKey.getId());
+        userService.deleteUser(studentUser);
+        userService.deleteUser(eventOwner);
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenDisplayUnsubscribeModal() throws Exception {
-        userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
-        userService.createNewKeyWithNewPersonAndAddToUser(userTeacher);
-        userService.assignNewRole(userTeacher, "ROLE_TEACHER");
-        Teacher teacher = teacherService.saveOrUpdateTeacher(new Teacher(
-                userTeacher.getVerificationKey().getPerson(),
-                "Official",
-                new HashSet<>(),
-                new HashSet<>()));
-
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
         userTeacher.getRoles().forEach(type::addOwner);
         user.getRoles().forEach(type::addParticipant);
@@ -1147,6 +1160,8 @@ public class StudentControllerTest {
         ScheduleEvent event = scheduleService.createEventWithDuration(userTeacher, eventDTO, 30);
         scheduleService.removeOwner(event);
         scheduleService.addOwner(userTeacher, event);
+        scheduleService.addParticipant(user, event);
+        scheduleService.saveEvent(event);
 
         mockMvc.perform(get("/student/" + student.getId()
                 + "/teacher/" + teacher.getId() + "/event/" + event.getId() + "/unsubscribe"))
@@ -1167,9 +1182,13 @@ public class StudentControllerTest {
                         .attribute("recentUpdate", Matchers.notNullValue()))
                 .andExpect(model()
                         .attributeExists("availableEvents"));
+
+        scheduleService.deleteEventById(event.getId());
+        typeService.deleteEventType(type);
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenSuccessfulProcessUnsubscribeModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1204,6 +1223,7 @@ public class StudentControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenUnsuccessfulProcessUnsubscribeModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1239,12 +1259,18 @@ public class StudentControllerTest {
     }
 
     @After
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void tearDown() {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);
         userService.deleteUser(userTeacher);
+
         keyService.deleteById(key.getId());
         Optional.ofNullable(plan).ifPresent(p -> planService.deletePlan(p));
         teacherService.deleteTeacherById(teacher.getId());
+        subjectService.deleteSubjectById(subject.getId());
+
+        Optional.ofNullable(userService.getUserByEmail(userName)).ifPresent(userService::deleteUser);
+        Optional.ofNullable(userService.getUserByEmail(nameTeacher)).ifPresent(userService::deleteUser);
     }
 }

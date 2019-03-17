@@ -34,7 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -103,7 +103,7 @@ public class StudyPlanControllerTest {
     public void shouldReturnPlanListTemplate_whenGetAllStudyPlansWithAdminRole() throws Exception {
         List<StudyPlanDTO> expected = planService.findAll().stream()
                 .filter(Objects::nonNull)
-                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> !s.getTitle().isEmpty() && !s.getTitle().equals(UK_EVENT_TYPE_CONTROL))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList());
 

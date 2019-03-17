@@ -120,8 +120,9 @@ public class SchoolSubjectControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void shouldRedirect_whenPostAdd() throws Exception {
+        String title = "New Title";
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("new_title", "New Title");
+        map.add("new_title", title);
         int previousSize = subjectService.findAllByOrderByTitle().size();
 
         mockMvc.perform(post("/subject/add").params(map).with(csrf()))
@@ -130,6 +131,8 @@ public class SchoolSubjectControllerTest {
 
         assertThat(subjectService.findAllByOrderByTitle().size())
                 .isEqualTo(previousSize + 1);
+        Optional.ofNullable(subjectService.findSubjectByTitle(title)).map(SchoolSubject::getId)
+                .ifPresent(subjectService::deleteSubjectById);
     }
 
     @Test
@@ -182,9 +185,6 @@ public class SchoolSubjectControllerTest {
 
     @After
     public void tearDown() {
-        Optional.ofNullable(subjects)
-                .ifPresent(subjects ->
-                        subjects.forEach(subject ->
-                                subjectService.deleteSubjectById(subject.getId())));
+        subjects.forEach(subject -> subjectService.deleteSubjectById(subject.getId()));
     }
 }

@@ -68,25 +68,16 @@ public final class Constants {
     // cancelled event message
     public static final String UK_EVENT_CANCELLED_DETAILS_MESSAGE = "СКАСОВАНО--"; //should contain -- to display line-through
     // standard event types
-    public static final String UK_EVENT_TYPE_TEST = "Контрольне тестування"; //in use, don't remove please
     public static final String UK_EVENT_TYPE_NOT_DEFINED = "Тип не визначений"; //in use, don't remove please
-
-    public static final String UK_EVENT_TYPE_PERSONAL = "Індивідуальна консультація";
-    public static final String UK_EVENT_TYPE_GROUP = "Групова консультація";
-    public static final String UK_EVENT_TYPE_PSYCHOLOGIST = "Співбесіда з психологом";
-    public static final String UK_EVENT_TYPE_GRADE_BOOK = "Видача залікових книжок";
-    public static final String UK_EVENT_TYPE_PRINCIPAL = "Прийом директора";
-    public static final String UK_EVENT_TYPE_DEPUTY = "Прийом заступника директора";
+    public static final String UK_EVENT_TYPE_CONTROL = "Контрольні роботи"; //in use, don't remove please
+    public static final String UK_EVENT_TYPE_CONSULT = "Консультація";
+    public static final String UK_EVENT_TYPE_OFFICIAL = "Особистий прийом";
     public static final List<String> UK_EVENT_TYPES;
     static {
         UK_EVENT_TYPES = Arrays.asList(
-                UK_EVENT_TYPE_PERSONAL,
-                UK_EVENT_TYPE_GROUP,
-                UK_EVENT_TYPE_TEST,
-                UK_EVENT_TYPE_PSYCHOLOGIST,
-                UK_EVENT_TYPE_GRADE_BOOK,
-                UK_EVENT_TYPE_PRINCIPAL,
-                UK_EVENT_TYPE_DEPUTY
+                UK_EVENT_TYPE_CONTROL,
+                UK_EVENT_TYPE_CONSULT,
+                UK_EVENT_TYPE_OFFICIAL
         );
     }
 
