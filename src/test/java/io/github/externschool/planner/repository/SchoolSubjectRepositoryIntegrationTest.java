@@ -1,9 +1,11 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.SchoolSubject;
-import io.github.externschool.planner.entity.profile.Teacher;
-import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,105 +25,103 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SchoolSubjectRepositoryIntegrationTest {
-    @Autowired
-    private SchoolSubjectRepository subjectRepository;
+    @Autowired private SchoolSubjectRepository subjectRepository;
 
-    @Autowired
-    private TeacherRepository teacherRepository;
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-    @Autowired
-    private EntityManager entityManager;
-
-    private static final List<String> NAMES = Arrays.asList("History", "English", "Geometry");
-    private static final List<String> JOBS = Arrays.asList("Historian", "Linguist", "Mathematician");
-    private HashMap<SchoolSubject, Teacher> expectedSubjectTeacher;
-    private HashMap<Teacher, SchoolSubject> expectedTeacherSubject;
+    private List<SchoolSubject> expectedSubjects;
 
     @Before
     public void setUp() {
-        expectedSubjectTeacher = new HashMap<>();
-        expectedTeacherSubject = new HashMap<>();
-        for (int i = 0; i < NAMES.size(); i++) {
+        expectedSubjects = new ArrayList<>();
+        Arrays.asList("History", "English", "Geometry").forEach(title -> {
             SchoolSubject subject = new SchoolSubject();
-            subject.setTitle(NAMES.get(i));
-            entityManager.persist(subject);
-
-            Teacher teacher = new Teacher();
-            teacher.setOfficial(JOBS.get(i));
-            teacher.addSubject(subject);
-            entityManager.persist(teacher);
-
-            expectedSubjectTeacher.put(subject, teacher);
-            expectedTeacherSubject.put(teacher, subject);
-        }
+            subject.setTitle(title);
+            expectedSubjects.add(subject);
+        });
     }
 
     @Test
-    public void shouldReturnThreeSubjects_WhenFindAll() {
-        List<SchoolSubject> subjects = subjectRepository.findAll();
-
-        assertThat(subjects)
-                .isNotEmpty()
-                .size().isEqualTo(3);
-
-        subjects.forEach(subject -> assertThat(subject.getTitle())
-                .isIn(NAMES));
-    }
-
-    @Test
-    public void shouldCorrespondSubjectsToTeachers_WhenFindAll() {
-        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
-        List<Teacher> actualTeachers = teacherRepository.findAll();
-
-        assertThat(actualTeachers)
-                .isNotEmpty()
-                .size()
-                .isEqualTo(3)
-                .isEqualTo(actualSubjects.size());
-    }
-
-    @Test
-    public void shouldContainTeachers_WhenFindAllSubjects() {
+    public void shouldReturnSavedSubjects_WhenFindAll() {
+        subjectRepository.saveAll(expectedSubjects);
         List<SchoolSubject> actualSubjects = subjectRepository.findAll();
 
-        actualSubjects.forEach(subject ->
-                assertThat(subject.getTeachers())
-                        .hasSize(1)
-                        .containsExactly(expectedSubjectTeacher.get(subject)));
+        assertThat(actualSubjects)
+                .isNotEmpty()
+                .containsAll(expectedSubjects);
     }
 
     @Test
-    public void shouldContainSubjects_WhenFindAllTeachers() {
-        List<Teacher> actualTeachers = teacherRepository.findAll();
+    public void shouldSaveOnlyOnce_WhenMultipleSavesOccurred() {
+        int initialCount = (int)subjectRepository.count();
+        subjectRepository.saveAll(expectedSubjects);
+        subjectRepository.saveAll(expectedSubjects);
 
-        actualTeachers.forEach(teacher ->
-                assertThat(teacher.getSubjects())
-                        .hasSize(1)
-                        .containsExactly(expectedTeacherSubject.get(teacher)));
+        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
+
+        assertThat(actualSubjects)
+                .isNotEmpty()
+                .hasSize(initialCount + expectedSubjects.size());
     }
 
     @Test
-    public void shouldAddOneSubject_WhenSaveNew() {
+    public void shouldReturnSavedSubject_WhenFindByTitle() {
+        SchoolSubject expectedSubject = expectedSubjects.stream().findAny().orElse(null);
+        assertThat(expectedSubject)
+                .isNotNull();
+
+        subjectRepository.save(expectedSubject);
+        SchoolSubject actualSubject = subjectRepository.findByTitle(expectedSubject.getTitle());
+
+        assertThat(actualSubject)
+                .isNotNull()
+                .isEqualTo(expectedSubject);
+    }
+
+    @Test
+    public void shouldContainSortedSubjects_WhenFindAllByOrderByTitle() {
+        List<SchoolSubject> sortedSubjects = expectedSubjects.stream()
+                .sorted(Comparator.comparing(SchoolSubject::getTitle))
+                .collect(Collectors.toList());
+        subjectRepository.saveAll(expectedSubjects);
+
+        List<SchoolSubject> actualSubjects = subjectRepository.findAllByOrderByTitle();
+
+        assertThat(actualSubjects)
+                .isNotNull()
+                .containsSequence(sortedSubjects);
+    }
+
+    @Test
+    public void shouldAddOneSubject_WhenSave() {
+        int initialCount = (int)subjectRepository.count();
         SchoolSubject subject = new SchoolSubject();
         subject.setTitle("Algebra");
+
         subjectRepository.save(subject);
         List<SchoolSubject> subjects = subjectRepository.findAll();
 
         assertThat(subjects)
                 .contains(subject)
-                .size().isEqualTo(4);
+                .size().isEqualTo(initialCount + 1);
     }
 
     @Test
     public void shouldSubtractOneSubject_WhenDelete() {
+        int initialCount = (int)subjectRepository.count();
         SchoolSubject subject = new SchoolSubject();
         subject.setTitle("Chemistry");
+
         subjectRepository.save(subject);
+        assertThat(subjectRepository.findAll())
+                .hasSize(initialCount + 1);
+
         subjectRepository.delete(subject);
         List<SchoolSubject> subjects = subjectRepository.findAll();
 
         assertThat(subjects)
                 .doesNotContain(subject)
-                .size().isEqualTo(3);
+                .size().isEqualTo(initialCount);
     }
 }

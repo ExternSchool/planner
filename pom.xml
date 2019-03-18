@@ -27,7 +27,7 @@
         <assertj-swing.version>3.8.0</assertj-swing.version>
 
         <postgres.version>42.2.5</postgres.version>
-        <pg-embedded.version>0.13.1</pg-embedded.version>
+        <zonky-embedded.version>1.2.3</zonky-embedded.version>
 
         <webjars-locator.version>0.32-1</webjars-locator.version>
         <jquery.version>3.3.1-2</jquery.version>
@@ -119,9 +119,9 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-            <version>${pg-embedded.version}</version>
+            <groupId>io.zonky.test</groupId>
+            <artifactId>embedded-postgres</artifactId>
+            <version>${zonky-embedded.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -152,6 +152,18 @@
             <version>${moment.version}</version>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.zonky.test.postgres</groupId>
+                <artifactId>embedded-postgres-binaries-bom</artifactId>
+                <version>11.2.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
