@@ -17,13 +17,16 @@ import io.github.externschool.planner.service.ScheduleService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -54,10 +57,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
+@Transactional
 public class GuestControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private PersonService personService;
@@ -68,9 +70,11 @@ public class GuestControllerTest {
     @Autowired private TeacherService teacherService;
     @Autowired private ScheduleService scheduleService;
     @Autowired private ScheduleEventTypeService typeService;
-
     private GuestController controller;
     private MockMvc mockMvc;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private Person person;
     private VerificationKey key;
@@ -856,7 +860,7 @@ public class GuestControllerTest {
                 .build();
         ScheduleEvent event = scheduleService.createEventWithDuration(eventUser, eventDTO, 30);
         Optional<Participant> participant;
-        participant = scheduleService.addParticipant(user, scheduleService.getEventById(event.getId()));
+        scheduleService.addParticipant(user, scheduleService.getEventById(event.getId()));
 
         mockMvc.perform(post("/guest/" + person.getId()
                 + "/official/" + official.getId() + "/event/" + event.getId() + "/unsubscribe").with(csrf()))

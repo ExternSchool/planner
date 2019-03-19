@@ -31,9 +31,13 @@ import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +48,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -76,7 +79,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
+@Transactional
 public class StudentControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private StudentService studentService;
@@ -95,8 +98,11 @@ public class StudentControllerTest {
     @Autowired private VerificationKeyRepository keyRepository;
     @Autowired private EmailService emailService;
     private StudentController controller;
-
     private MockMvc mockMvc;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
+
     private Student student;
     private User user;
     private VerificationKey key;
@@ -858,7 +864,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnMAV_whenDisplayTeachersListToAdmin() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -933,7 +938,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenDisplaySubscriptionModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -984,7 +988,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"ADMIN"})
     public void shouldReturnMAV_whenProcessSubscriptionModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1019,7 +1022,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = userName, roles = {"STUDENT"})
     public void shouldReturnMAV_whenUnsuccessfulProcessSubscriptionModal() throws Exception {
         User eventUser = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1060,7 +1062,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = "anyone@x", roles = {"STUDENT"})
     public void shouldReturnMAVError_whenUnsuccessfulProcessSubscriptionForAdminInChargeEvent() throws Exception {
         Student studentPerson =   new Student(new Person(),
@@ -1142,7 +1143,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenDisplayUnsubscribeModal() throws Exception {
         ScheduleEventType type = ScheduleEventTypeFactory.createScheduleEventType();
@@ -1188,7 +1188,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenSuccessfulProcessUnsubscribeModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1223,7 +1222,6 @@ public class StudentControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = {"STUDENT", "ADMIN"})
     public void shouldReturnMAV_whenUnsuccessfulProcessUnsubscribeModal() throws Exception {
         userTeacher = userService.createUser("teacher2@mail.co", "pass", "ROLE_TEACHER");
@@ -1259,18 +1257,17 @@ public class StudentControllerTest {
     }
 
     @After
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void tearDown() {
         studentService.deleteStudentById(student.getId());
         userService.deleteUser(user);
         userService.deleteUser(userTeacher);
 
+        Optional.ofNullable(userService.getUserByEmail(userName)).ifPresent(userService::deleteUser);
+        Optional.ofNullable(userService.getUserByEmail(nameTeacher)).ifPresent(userService::deleteUser);
+
         keyService.deleteById(key.getId());
         Optional.ofNullable(plan).ifPresent(p -> planService.deletePlan(p));
         teacherService.deleteTeacherById(teacher.getId());
         subjectService.deleteSubjectById(subject.getId());
-
-        Optional.ofNullable(userService.getUserByEmail(userName)).ifPresent(userService::deleteUser);
-        Optional.ofNullable(userService.getUserByEmail(nameTeacher)).ifPresent(userService::deleteUser);
     }
 }

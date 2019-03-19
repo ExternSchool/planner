@@ -1,6 +1,10 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.Role;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class RoleRepositoryIntegrationTest {
+public class RoleRepositoryTest {
     @Autowired private RoleRepository roleRepository;
+
+    @Rule
+    public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     @Test
     public void shouldReturnPresetRoles_WhenFindAllRoles() {

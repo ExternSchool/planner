@@ -24,9 +24,13 @@ import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.TeacherService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +40,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -66,6 +69,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class TeacherControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private TeacherService teacherService;
@@ -83,6 +87,9 @@ public class TeacherControllerTest {
     @Autowired private PersonService personService;
     private TeacherController controller;
     private MockMvc mockMvc;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private Teacher teacher;
     private Teacher noTeacher;
@@ -224,7 +231,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndPositiveSearch() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
@@ -251,7 +257,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistory() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
@@ -271,7 +276,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryAndNegativeSearch() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
@@ -296,7 +300,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchAndCancelled() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
@@ -325,7 +328,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER"})
     public void shouldReturnTemplate_whenDisplayTeacherVisitorsHistoryWithSearchNotCancelled() throws Exception {
         LocalDate historyStart = LocalDate.now().minusDays(28);
@@ -394,7 +396,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenDisplayTeacherProfileToEdit() throws Exception {
         TeacherDTO teacherDTO = conversionService.convert(teacherService.findAllTeachers().get(0), TeacherDTO.class);
@@ -410,7 +411,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(roles = "ADMIN")
     public void shouldReturnModelAndView_whenGetRequestTeacherAdd() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
@@ -458,7 +458,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldNotAddNewKeyAndNewUser_whenAdminPostUpdateSaveExistingTeacher() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
@@ -530,7 +529,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "ADMIN")
     public void shouldRedirectToTeacherList_whenAdminPostRequestUpdateSave() throws Exception {
         user.addRole(roleService.getRoleByName("ROLE_ADMIN"));
@@ -551,7 +549,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = "TEACHER")
     public void shouldRedirectToRoot_whenTeacherPostRequestUpdateSave() throws Exception {
         List<Teacher> teachers = teacherService.findAllTeachers();
@@ -920,7 +917,6 @@ public class TeacherControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @WithMockUser(username = USER_NAME, roles = {"TEACHER", "ADMIN"})
     public void shouldRedirect_whenProcessModalFormDeleteEvent() throws Exception {
         ScheduleEventDTO newEvent = ScheduleEventDTO.ScheduleEventDTOBuilder.aScheduleEventDTO()

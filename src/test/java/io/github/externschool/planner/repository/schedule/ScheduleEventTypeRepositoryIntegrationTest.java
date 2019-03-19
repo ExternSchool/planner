@@ -1,48 +1,61 @@
 package io.github.externschool.planner.repository.schedule;
 
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
-import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- */
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ScheduleEventTypeRepositoryIntegrationTest {
-    @Autowired private ScheduleEventTypeRepository repo;
+    @Autowired private ScheduleEventTypeRepository repository;
+    @Autowired private TestEntityManager entityManager;
 
-    @Test
-    @Sql("/datasets/scheduleEventType/oneType.sql")
-    public void shouldReturnListScheduleEventTypes() {
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-        List<ScheduleEventType> eventTypes = this.repo.findAll();
+    private ScheduleEventType oneType;
 
-        assertThat(eventTypes)
-                .isNotNull()
-                .containsExactlyInAnyOrder(ScheduleEventTypeFactory.createScheduleEventType());
+    @Before
+    public void setUp() {
+        oneType = new ScheduleEventType();
+        oneType.setName("TestEventType");
+        oneType.setAmountOfParticipants(1);
     }
 
     @Test
-    @Sql("/datasets/scheduleEventType/oneType.sql")
-    public void shouldReturnEventTypeByName() {
-        final ScheduleEventType eventType = this.repo.findByName(ScheduleEventTypeFactory.SCHEDULE_EVENT_TYPE_NAME);
+    public void shouldReturnListScheduleEventTypes() {
+        int initialCount = (int)repository.count();
+        entityManager.persist(oneType);
+        List<ScheduleEventType> eventTypes = repository.findAll();
 
-        final ScheduleEventType expectedType = ScheduleEventTypeFactory.createScheduleEventType();
+        assertThat(eventTypes)
+                .isNotNull()
+                .hasSize(initialCount + 1)
+                .contains(oneType);
+    }
+
+    @Test
+    public void shouldReturnEventTypeByName() {
+        entityManager.persist(oneType);
+        final ScheduleEventType eventType = repository.findByName(oneType.getName());
 
         assertThat(eventType)
                 .isNotNull()
-                .isEqualTo(expectedType);
+                .isEqualTo(oneType);
     }
 }

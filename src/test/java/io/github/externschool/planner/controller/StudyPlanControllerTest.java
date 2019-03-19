@@ -10,8 +10,12 @@ import io.github.externschool.planner.service.SchoolSubjectService;
 import io.github.externschool.planner.service.StudyPlanService;
 import io.github.externschool.planner.service.UserService;
 import io.github.externschool.planner.service.VerificationKeyService;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeanUtils;
@@ -46,8 +50,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
+@Transactional
 public class StudyPlanControllerTest {
     @Autowired private WebApplicationContext webApplicationContext;
     @Autowired private StudyPlanService planService;
@@ -57,11 +61,13 @@ public class StudyPlanControllerTest {
     @Autowired private VerificationKeyService keyService;
     private StudyPlanController controller;
 
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
+
     private MockMvc mockMvc;
     private List<StudyPlan> plans;
     private List<SchoolSubject> subjects;
     private Integer originalPlansNumber;
-    private User user;
     private static final String USER_NAME = "some@email.com";
 
     @Before
@@ -81,7 +87,7 @@ public class StudyPlanControllerTest {
             plans.add(planService.saveOrUpdatePlan(plan));
         });
 
-        user = userService.createUser(USER_NAME,"pass", "ROLE_ADMIN");
+        User user = userService.createUser(USER_NAME, "pass", "ROLE_ADMIN");
         user.addVerificationKey(keyService.saveOrUpdateKey(new VerificationKey()));
         userService.save(user);
 

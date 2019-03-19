@@ -12,8 +12,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +30,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@Transactional
 public class ScheduleEventTypeServiceTest {
     @Mock private ScheduleEventTypeRepository eventTypeRepository;
     @Mock private ScheduleEventRepository eventRepository;
@@ -37,6 +45,21 @@ public class ScheduleEventTypeServiceTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         this.eventTypeService = new ScheduleEventTypeServiceImpl(this.eventTypeRepository, this.eventRepository);
+    }
+
+    @Test
+    public void shouldReturnListOfEventTypes() {
+        ScheduleEventType oneType = new ScheduleEventType();
+        oneType.setName("TestEventType");
+        oneType.setAmountOfParticipants(1);
+        Mockito.when(eventTypeRepository.findAll())
+                .thenReturn(Collections.singletonList(oneType));
+
+        List<ScheduleEventType> scheduleEventTypes = this.eventTypeService.loadEventTypes();
+
+        assertThat(scheduleEventTypes)
+                .isNotNull()
+                .containsExactlyInAnyOrder(oneType);
     }
 
     @Test

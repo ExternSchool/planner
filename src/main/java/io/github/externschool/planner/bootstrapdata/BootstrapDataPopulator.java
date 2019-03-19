@@ -6,7 +6,6 @@ import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.entity.profile.Person;
-import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.repository.StudyPlanRepository;
@@ -32,8 +31,8 @@ import static io.github.externschool.planner.util.Constants.DEFAULT_DURATION_FOR
 import static io.github.externschool.planner.util.Constants.SCHOOL_PHONE_NUMBER;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONSULT;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_OFFICIAL;
 
 @Service
@@ -107,56 +106,6 @@ public class BootstrapDataPopulator implements InitializingBean {
             inCharge.setEnabled(true);
             teacherService.saveOrUpdateTeacher(inChargeTeacher);
             userService.save(inCharge);
-        }
-
-        //TODO Remove after been tested
-        String test1Email = "mailto.benkoff@gmail.com";
-        String test1Pass = "q";
-        String test2Email = "bigopendatanet@gmail.com";
-        String test2Pass = "q";
-
-        //TODO Remove after been tested
-        if (userService.getUserByEmail(test1Email) == null) {
-            User testTeacher = userService.createUser(test1Email, test1Pass, "ROLE_TEACHER");
-            testTeacher = userService.save(testTeacher);
-            VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
-            Teacher testTeacherTeacher = createTeacher(
-                    new Person(null,
-                            "Тест",
-                            "Тестович",
-                            "Вчитель",
-                            "000-0000"),
-                    verificationKey,
-                    "Якась посада є",
-                    Collections.emptyList());
-            testTeacherTeacher.addVerificationKey(verificationKey);
-            testTeacher.addVerificationKey(verificationKey);
-            testTeacher.setEnabled(true);
-            teacherService.saveOrUpdateTeacher(testTeacherTeacher);
-            userService.assignNewRole(testTeacher, "ROLE_OFFICER");
-            userService.save(testTeacher);
-        }
-
-        //TODO Remove after been tested
-        if (userService.getUserByEmail(test2Email) == null) {
-            User testStudent = userService.createUser(test2Email, test2Pass, "ROLE_STUDENT");
-            testStudent = userService.save(testStudent);
-            VerificationKey verificationKey = verificationKeyService.saveOrUpdateKey(new VerificationKey());
-            Student testStudentStudent = new Student(
-                    new Person(null,
-                            "Студент",
-                            "Гостьович",
-                            "Тестовий",
-                            "000-0000"),
-                    null,
-                    null,
-                    null,
-                    GradeLevel.LEVEL_11);
-            testStudentStudent.addVerificationKey(verificationKey);
-            testStudent.addVerificationKey(verificationKey);
-            testStudent.setEnabled(true);
-            studentService.saveOrUpdateStudent(testStudentStudent);
-            userService.save(testStudent);
         }
     }
 

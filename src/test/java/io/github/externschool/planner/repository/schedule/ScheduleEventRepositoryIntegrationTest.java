@@ -4,14 +4,17 @@ import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.factories.schedule.ScheduleEventFactory;
-import io.github.externschool.planner.repository.UserRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlGroup;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -21,102 +24,86 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * @author Danil Kuznetsov (kuznetsov.danil.v@gmail.com)
- */
 @RunWith(SpringRunner.class)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ScheduleEventRepositoryIntegrationTest {
     @Autowired private ScheduleEventRepository repository;
-    @Autowired private UserRepository userRepository;
+    @Autowired private TestEntityManager entityManager;
 
-    @Test
-    @SqlGroup(value = {
-            @Sql("/datasets/user/oneUser.sql"),
-            @Sql("/datasets/scheduleEventType/oneType.sql"),
-            @Sql("/datasets/scheduleEvent/oneEvent.sql")
-    })
-    public void shouldReturnListEvents() {
-        List<ScheduleEvent> events = repository.findAll();
-        ScheduleEvent event = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
-        ScheduleEvent expectedEvent = events.get(0);
-        event.setCreatedAt(expectedEvent.getCreatedAt());
-        event.setOwner(expectedEvent.getOwner());
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-        assertThat(events)
-                .isNotNull();
-        assertThat(event)
-                .isEqualToIgnoringGivenFields(expectedEvent, "modifiedAt");
+    private User oneUser;
+    private ScheduleEventType oneType;
+    private ScheduleEvent oneEvent;
+
+    @Before
+    public void setUp() {
+        oneUser = new User();
+        oneUser.setEmail("user@email.com");
+        oneUser.setPassword("TestPassword");
+        entityManager.persist(oneUser);
+
+        oneType = new ScheduleEventType();
+        oneType.setName("TestEventType");
+        oneType.setAmountOfParticipants(1);
+        entityManager.persist(oneType);
+
+        oneEvent = ScheduleEventFactory.createNewScheduleEventWithoutParticipants();
+        oneEvent.setOwner(oneUser);
+        oneEvent.setType(oneType);
+        entityManager.persist(oneEvent);
     }
 
     @Test
-    @SqlGroup(value = {
-            @Sql("/datasets/user/oneUser.sql"),
-            @Sql("/datasets/scheduleEventType/oneType.sql"),
-            @Sql("/datasets/scheduleEvent/oneEvent.sql")
-    })
+    public void shouldReturnListEvents() {
+        List<ScheduleEvent> events = repository.findAll();
+
+        assertThat(events)
+                .isNotNull();
+        assertThat(events.get(0))
+                .isEqualToIgnoringGivenFields(oneEvent, "createdAt", "modifiedAt");
+    }
+
+    @Test
     public void shouldReturnListEventsByUserAndTimeStartingEnding() {
         LocalDate date = LocalDate.of(2018,6, 7);
         LocalDateTime starting = LocalDateTime.of(date, LocalTime.MIN);
         LocalDateTime ending = LocalDateTime.of(date, LocalTime.MAX);
-        User owner = userRepository.getOne(1L);
         List<ScheduleEvent> events =
-                repository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(owner, starting, ending);
+                repository.findAllByOwnerAndStartOfEventBetweenOrderByStartOfEvent(oneUser, starting, ending);
 
         assertThat(events)
                 .isNotNull()
                 .hasSize(1)
-                .containsExactly(repository.getOne(3L));
+                .containsExactly(oneEvent);
     }
 
     @Test
-    @SqlGroup(value = {
-            @Sql("/datasets/user/oneUser.sql"),
-            @Sql("/datasets/scheduleEventType/oneType.sql"),
-            @Sql("/datasets/scheduleEvent/oneEvent.sql")
-    })
     public void shouldReturnListOfEvents_whenFindAllByOwner() {
-        User owner = userRepository.getOne(1L);
-        List<ScheduleEvent> events = repository.findAllByOwner(owner);
+        List<ScheduleEvent> events = repository.findAllByOwner(oneUser);
 
         assertThat(events)
                 .isNotNull()
                 .hasSize(1)
-                .containsExactly(repository.getOne(3L));
+                .containsExactly(oneEvent);
     }
 
     @Test
-    @SqlGroup(value = {
-            @Sql("/datasets/user/oneUser.sql"),
-            @Sql("/datasets/scheduleEventType/oneType.sql"),
-            @Sql("/datasets/scheduleEvent/oneEvent.sql")
-    })
     public void shouldReturnListOfEvents_whenFindAllByType() {
-        User owner = new User();
-        owner.setId(1L);
-        ScheduleEventType eventType = new ScheduleEventType("TestEventType", 1);
-        eventType.setId(2L);
-        List<ScheduleEvent> events = repository.findAllByType(eventType);
+        List<ScheduleEvent> events = repository.findAllByType(oneType);
 
         assertThat(events)
                 .isNotNull()
                 .hasSize(1)
-                .containsExactly(repository.getOne(3L));
+                .containsExactly(oneEvent);
     }
 
     @Test
-    @SqlGroup(value = {
-            @Sql("/datasets/user/oneUser.sql"),
-            @Sql("/datasets/scheduleEventType/oneType.sql"),
-            @Sql("/datasets/scheduleEvent/oneEvent.sql")
-    })
     public void shouldReturnEmptyListOfEvents_whenDeleteById() {
-        User owner = userRepository.getOne(1L);
-        ScheduleEvent event = repository.findAllByOwner(owner).get(0);
-
-        repository.deleteById(event.getId());
-        List<ScheduleEvent> events = repository.findAllByOwner(owner);
+        repository.deleteById(oneEvent.getId());
+        List<ScheduleEvent> events = repository.findAllByOwner(oneUser);
 
         assertThat(events)
                 .isNotNull()

@@ -65,8 +65,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
+@Transactional
 public class ScheduleServiceTest {
     @Mock private ScheduleEventRepository eventRepository;
     @Mock private ScheduleEventTypeRepository eventTypeRepo;
@@ -707,8 +707,8 @@ public class ScheduleServiceTest {
         LocalDate start = LocalDate.now();
         LocalDate end = LocalDate.now().plusDays(1L);
         List<ScheduleHoliday> holidays = Arrays.asList(
-                        new ScheduleHoliday(start, null),
-                        new ScheduleHoliday(end, null));
+                new ScheduleHoliday(start, null),
+                new ScheduleHoliday(end, null));
 
         Mockito.when(holidayRepository.findAllByHolidayDateBetween(start, end))
                 .thenReturn(holidays);
@@ -980,21 +980,21 @@ public class ScheduleServiceTest {
                                                         LocalDate date) {
         List<ScheduleEvent> events = new ArrayList<>();
         templates.forEach(template -> events.add(ScheduleEvent.builder()
-                    .withTitle(template.getTitle())
-                    .withDescription(template.getDescription())
-                    .withLocation(template.getLocation())
-                    .withOwner(template.getOwner())
-                    .withType(template.getType())
-                    .withStartDateTime(LocalDateTime.of(
-                            date.plusDays(template.getDayOfWeek().getValue() - 1),
-                            template.getStartOfEvent()))
-                    .withEndDateTime(LocalDateTime.of(
-                            date.plusDays(template.getDayOfWeek().getValue() - 1),
-                            template.getEndOfEvent()))
-                    .withOpenStatus(true)
-                    .withCancelledStatus(false)
-                    .withAccomplishedStatus(false)
-                    .build()));
+                .withTitle(template.getTitle())
+                .withDescription(template.getDescription())
+                .withLocation(template.getLocation())
+                .withOwner(template.getOwner())
+                .withType(template.getType())
+                .withStartDateTime(LocalDateTime.of(
+                        date.plusDays(template.getDayOfWeek().getValue() - 1),
+                        template.getStartOfEvent()))
+                .withEndDateTime(LocalDateTime.of(
+                        date.plusDays(template.getDayOfWeek().getValue() - 1),
+                        template.getEndOfEvent()))
+                .withOpenStatus(true)
+                .withCancelledStatus(false)
+                .withAccomplishedStatus(false)
+                .build()));
 
         return events;
     }
@@ -1029,3 +1029,4 @@ public class ScheduleServiceTest {
         return templates;
     }
 }
+
