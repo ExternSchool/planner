@@ -3,12 +3,16 @@ package io.github.externschool.planner.repository.schedule;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.entity.schedule.ScheduleTemplate;
-import io.github.externschool.planner.repository.UserRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.DayOfWeek;
@@ -22,9 +26,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class ScheduleTemplateRepositoryTest {
-    @Autowired private ScheduleTemplateRepository templateRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private ScheduleEventTypeRepository eventTypeRepository;
+    @Autowired private ScheduleTemplateRepository repository;
+    @Autowired private TestEntityManager entityManager;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     @Test
     public void shouldReturnList_whenFindByOwner() {
@@ -52,12 +58,12 @@ public class ScheduleTemplateRepositoryTest {
                 null,
                 owner,
                 type);
-        userRepository.save(owner);
-        eventTypeRepository.save(type);
-        templateRepository.save(templateOne);
-        templateRepository.save(templateTwo);
+        entityManager.persist(owner);
+        entityManager.persist(type);
+        repository.save(templateOne);
+        repository.save(templateTwo);
 
-        List<ScheduleTemplate> actual = templateRepository.findAllByOwner(owner);
+        List<ScheduleTemplate> actual = repository.findAllByOwner(owner);
 
         assertThat(actual)
                 .isNotEmpty()

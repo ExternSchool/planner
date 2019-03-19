@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TITLE;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 
 @Service
 @Transactional
@@ -124,7 +124,7 @@ public class CourseServiceImpl implements CourseService {
                 if (!plansTaken.contains(plan)) {
                     Course newCourse = new Course(student.getId(), plan.getId());
                     newCourse.setTitle(plan.getTitle());
-                    if (plan.getTitle() != null && plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+                    if (plan.getTitle() != null && plan.getTitle().equals(UK_EVENT_TYPE_CONTROL)) {
                         teacherRepository.findAllByLastNameOrderByLastName(UK_COURSE_ADMIN_IN_CHARGE).stream()
                                 .findAny()
                                 .ifPresent(teacher -> teacher.addCourse(newCourse));

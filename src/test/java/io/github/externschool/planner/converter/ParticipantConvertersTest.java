@@ -13,14 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_PERSONAL;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONSULT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class ParticipantConvertersTest {
     @Autowired private ConversionService conversionService;
 
@@ -53,7 +55,7 @@ public class ParticipantConvertersTest {
                 .withStartDateTime(LocalDateTime.of(2018, 10, 10, 12, 10))
                 .withTitle("Title")
                 .withDescription("Description")
-                .withType(new ScheduleEventType(UK_EVENT_TYPE_PERSONAL, 1))
+                .withType(new ScheduleEventType(UK_EVENT_TYPE_CONSULT, 1))
                 .withOwner(userOwner)
                 .build();
         Participant participant = new Participant(user, event);

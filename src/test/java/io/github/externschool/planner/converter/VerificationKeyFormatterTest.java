@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.util.Locale;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
+@Transactional
 public class VerificationKeyFormatterTest {
     @Mock private VerificationKeyRepository repository;
     private VerificationKeyFormatter formatter;
@@ -34,7 +35,7 @@ public class VerificationKeyFormatterTest {
     }
 
     @Test
-    public void shouldReturnString_whenRunPrint() throws ParseException {
+    public void shouldReturnString_whenRunPrint() {
         Locale locale = new Locale("uk");
 
         String actualKey = formatter.print(key, locale);
@@ -45,7 +46,7 @@ public class VerificationKeyFormatterTest {
     }
 
     @Test
-    public void shouldReturnSameKey_whenRunParse() throws ParseException {
+    public void shouldReturnSameKey_whenRunParse() {
         Locale locale = new Locale("uk");
         String value = key.getValue();
 

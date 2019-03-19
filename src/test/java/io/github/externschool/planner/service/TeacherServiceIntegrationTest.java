@@ -4,8 +4,12 @@ import io.github.externschool.planner.entity.GradeLevel;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.StudyPlan;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +25,15 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
+@Transactional
 public class TeacherServiceIntegrationTest {
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private TeacherService teacherService;
     @Autowired private StudyPlanService planService;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private List<SchoolSubject> subjects;
     private List<StudyPlan> plans;
@@ -130,8 +137,6 @@ public class TeacherServiceIntegrationTest {
     @Test
     public void shouldRemovePlans_whenDeleteSubject() {
         List<SchoolSubject> allSubjects = subjectService.findAllByOrderByTitle();
-        List<Teacher> allTeachers = teacherService.findAllTeachers();
-        List<StudyPlan> allPlans = planService.findAll();
         int initialSize = allSubjects.size();
         SchoolSubject subjectToRemove = allSubjects.get(0);
         allSubjects.remove(subjectToRemove);

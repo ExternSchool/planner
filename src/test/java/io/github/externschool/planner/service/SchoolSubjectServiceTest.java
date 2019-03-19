@@ -3,14 +3,15 @@ package io.github.externschool.planner.service;
 import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.repository.SchoolSubjectRepository;
+import io.github.externschool.planner.repository.profiles.TeacherRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,25 +23,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestPlannerApplication.class)
+@SpringBootTest
+@Transactional
 public class SchoolSubjectServiceTest {
-
-    @MockBean
-    private SchoolSubjectRepository repository;
-
-    @Autowired
-    private SchoolSubjectServiceImpl service;
+    @Mock private SchoolSubjectRepository subjectRepository;
+    @Mock private StudyPlanService planService;
+    @Mock private TeacherRepository teacherRepository;
+    private SchoolSubjectService service;
 
     private List<SchoolSubject> subjects;
-    private List<SchoolSubject> uaTitles;
     private SchoolSubject uaSubject1;
     private SchoolSubject uaSubject2;
     private SchoolSubject uaSubject3;
 
-    private Optional<SchoolSubject> optional;
+    private SchoolSubject schoolSubject;
 
     @Before
     public void setup() {
+        service = new SchoolSubjectServiceImpl(subjectRepository, planService, teacherRepository);
+
         subjects = new ArrayList<>();
         for (long i = 0L; i < 4L; i++) {
             SchoolSubject subject = new SchoolSubject();
@@ -48,7 +49,7 @@ public class SchoolSubjectServiceTest {
             subject.setTitle(Long.toString(i));
             subjects.add(subject);
         }
-        optional = Optional.of(subjects.get(0));
+        schoolSubject = subjects.get(0);
 
         uaSubject1 = new SchoolSubject();
         uaSubject2 = new SchoolSubject();
@@ -58,20 +59,15 @@ public class SchoolSubjectServiceTest {
         String title2 = "Історія";
         String title3 = "Європейска мова";
         uaSubject1.setTitle(title1);
-        uaSubject2 .setTitle(title2);
+        uaSubject2.setTitle(title2);
         uaSubject3.setTitle(title3);
-
-        uaTitles = new ArrayList<>();
-        uaTitles.add(uaSubject3);
-        uaTitles.add(uaSubject2);
-        uaTitles.add(uaSubject1);
     }
 
     @Test
     public void shouldReturnSubject_whenFindSubjectById() {
         SchoolSubject expected = subjects.get(0);
-        Mockito.when(repository.findById(expected.getId()))
-                .thenReturn(optional);
+        Mockito.when(subjectRepository.findById(expected.getId()))
+                .thenReturn(Optional.ofNullable(schoolSubject));
 
         SchoolSubject actual = service.findSubjectById(expected.getId());
 
@@ -84,7 +80,7 @@ public class SchoolSubjectServiceTest {
     @Test
     public void shouldReturnSubject_whenFindSubjectByName() {
         SchoolSubject expected = subjects.get(0);
-        Mockito.when(repository.findByTitle(expected.getTitle()))
+        Mockito.when(subjectRepository.findByTitle(expected.getTitle()))
                 .thenReturn(expected);
 
         SchoolSubject actual = service.findSubjectByTitle(expected.getTitle());
@@ -95,10 +91,9 @@ public class SchoolSubjectServiceTest {
                 .isEqualToComparingFieldByField(expected);
     }
 
-
     @Test
     public void shouldReturnFourSubjects_whenFindAllByOrderByTitle() {
-        Mockito.when(repository.findAll())
+        Mockito.when(subjectRepository.findAll())
                 .thenReturn(subjects);
         List<SchoolSubject> actual = service.findAllByOrderByTitle();
 
@@ -113,7 +108,7 @@ public class SchoolSubjectServiceTest {
     public void shouldReturnTwoSubjects_whenFindAllById() {
         List<Long> indices = Arrays.asList(subjects.get(0).getId(), subjects.get(1).getId());
         List<SchoolSubject> expected = Arrays.asList(subjects.get(0), subjects.get(1));
-        Mockito.when(repository.findAllById(indices))
+        Mockito.when(subjectRepository.findAllById(indices))
                 .thenReturn(expected);
         List<SchoolSubject> actual = service.findAllById(indices);
 
@@ -127,10 +122,10 @@ public class SchoolSubjectServiceTest {
     @Test
     public void shouldReturnSubject_whenSaveOrUpdateSubject() {
         SchoolSubject expected = subjects.get(0);
-        Mockito.when(repository.save(expected))
+        Mockito.when(subjectRepository.save(expected))
                 .thenReturn(expected);
-        Mockito.when(repository.findById(expected.getId()))
-                .thenReturn(optional);
+        Mockito.when(subjectRepository.findById(expected.getId()))
+                .thenReturn(Optional.ofNullable(schoolSubject));
 
         SchoolSubject actual = service.saveOrUpdateSubject(expected);
         assertThat(service.findSubjectById(actual.getId()))
@@ -141,12 +136,12 @@ public class SchoolSubjectServiceTest {
     @Test
     public void shouldInvokeOnce_whenDeleteSubject() {
         SchoolSubject deleted = subjects.get(0);
-        Mockito.when(repository.findById(deleted.getId()))
-                .thenReturn(optional);
+        Mockito.when(subjectRepository.findById(deleted.getId()))
+                .thenReturn(Optional.ofNullable(schoolSubject));
 
         service.deleteSubjectById(deleted.getId());
 
-        verify(repository, times(1)).delete(deleted);
+        verify(subjectRepository, times(1)).delete(deleted);
     }
 
     @Test
@@ -156,10 +151,10 @@ public class SchoolSubjectServiceTest {
         expectedList.add(uaSubject3);
         expectedList.add(uaSubject2);
 
-        Mockito.when(repository.findAllByOrderByTitle())
+        Mockito.when(subjectRepository.findAllByOrderByTitle())
                 .thenReturn(expectedList);
 
-        List<SchoolSubject> actualList = repository.findAllByOrderByTitle();
+        List<SchoolSubject> actualList = subjectRepository.findAllByOrderByTitle();
 
         assertThat(actualList).containsSequence(uaSubject1, uaSubject3, uaSubject2);
     }

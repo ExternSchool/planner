@@ -3,8 +3,12 @@ package io.github.externschool.planner.repository;
 import io.github.externschool.planner.entity.Role;
 import io.github.externschool.planner.entity.User;
 import io.github.externschool.planner.entity.VerificationKey;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,9 @@ public class UserRepositoryIntegrationTest {
     @Autowired private RoleRepository roleRepository;
     @Autowired private VerificationKeyRepository keyRepository;
     @Autowired private TestEntityManager entityManager;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private final String email = "user@email.com";
     private User expectedUser;

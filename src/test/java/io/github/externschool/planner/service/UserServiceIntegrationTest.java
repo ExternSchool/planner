@@ -9,6 +9,9 @@ import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventRepository;
 import io.github.externschool.planner.repository.schedule.ScheduleEventTypeRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,8 +31,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
+@Transactional
 public class UserServiceIntegrationTest {
     @Autowired private UserRepository userRepository;
     @Autowired private RoleService roleService;
@@ -42,6 +45,8 @@ public class UserServiceIntegrationTest {
     private UserService userService;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private static final String EMAIL = "some@email.com";
     private static final String PASS = "pass";
@@ -151,11 +156,10 @@ public class UserServiceIntegrationTest {
         Long id = anEvent.getId();
 
         ScheduleEvent actualEvent = scheduleService.getEventById(id);
-        LocalDateTime modifiedAt = actualEvent.getModifiedAt();
 
         scheduleService.addParticipant(expectedUser, actualEvent);
         actualEvent = scheduleService.getEventById(actualEvent.getId());
-        modifiedAt = actualEvent.getModifiedAt();
+        LocalDateTime modifiedAt = actualEvent.getModifiedAt();
 
         assertThat(modifiedAt)
                 .isNotNull()

@@ -3,7 +3,11 @@ package io.github.externschool.planner.repository.profiles;
 import io.github.externschool.planner.entity.SchoolSubject;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -21,84 +26,87 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class TeacherRepositoryTest {
+    @Autowired private TeacherRepository repository;
+    @Autowired TestEntityManager entityManager;
 
-    @Autowired
-    private TeacherRepository repository;
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-    @Autowired
-    TestEntityManager entityManager;
-
-    private Teacher firstTeacher;
-    private Teacher secondTeacher;
-    private Teacher thirdTeacher;
+    private List<Teacher> teachers;
 
     @Before
     public void setUp() {
-        firstTeacher = new Teacher(new Person(), "Psychologist", new HashSet<>(), new HashSet<>());
+        Teacher firstTeacher = new Teacher(new Person(), "Psychologist", new HashSet<>(), new HashSet<>());
         firstTeacher.setLastName("C");
-        secondTeacher = new Teacher(new Person(), "Principal", new HashSet<>(), new HashSet<>());
+        Teacher secondTeacher = new Teacher(new Person(), "Principal", new HashSet<>(), new HashSet<>());
         secondTeacher.setLastName("B");
-        thirdTeacher = new Teacher(new Person(), "Chemist", new HashSet<>(), new HashSet<>());
+        Teacher thirdTeacher = new Teacher(new Person(), "Chemist", new HashSet<>(), new HashSet<>());
         thirdTeacher.setLastName("A");
 
-        entityManager.persist(firstTeacher);
-        entityManager.persist(secondTeacher);
-        entityManager.persist(thirdTeacher);
+        teachers = Arrays.asList(firstTeacher, secondTeacher, thirdTeacher);
     }
 
     @Test
     public void shouldReturnListOfTeacher() {
+        int initialCount = (int)repository.count();
+        repository.saveAll(teachers);
         List<Teacher> teachers = this.repository.findAll();
 
         assertThat(teachers)
                 .isNotNull()
-                .hasSize(3)
-                .containsSubsequence(firstTeacher, secondTeacher, thirdTeacher);
+                .hasSize(initialCount + 3)
+                .containsSubsequence(teachers);
     }
 
     @Test
     public void shouldReturnTeacherById() {
-        Teacher expectedTeacher = this.repository.findTeacherById(secondTeacher.getId());
+        repository.saveAll(teachers);
+        Teacher expectedTeacher = teachers.get(1);
+        Teacher actualTeacher = repository.findTeacherById(teachers.get(1).getId());
 
-        assertThat(expectedTeacher)
+        assertThat(actualTeacher)
                 .isNotNull()
-                .isEqualTo(secondTeacher)
-                .isEqualToComparingFieldByField(secondTeacher);
+                .isEqualToComparingFieldByField(expectedTeacher);
     }
 
     @Test
     public void shouldReturnSortedListOfTeacher() {
-        List<Teacher> teachers = this.repository.findAllByOrderByLastName();
+        int initialCount = (int)repository.count();
+        repository.saveAll(teachers);
+        List<Teacher> actualTeachers = this.repository.findAllByOrderByLastName();
 
-        assertThat(teachers)
+        assertThat(actualTeachers)
                 .isNotNull()
-                .hasSize(3)
-                .containsSubsequence(thirdTeacher, secondTeacher, firstTeacher);
+                .hasSize(initialCount + 3)
+                .containsSubsequence(teachers.get(2), teachers.get(1), teachers.get(0));
     }
 
     @Test
     public void shouldReturnListOfTeachers_whenFindAllBySubjectsContains() {
         SchoolSubject subject =  new SchoolSubject();
         entityManager.persist(subject);
-        firstTeacher.addSubject(subject);
-        secondTeacher.addSubject(subject);
-        List<Teacher> teachers = this.repository.findAllBySubjectsContains(subject);
+        teachers.get(0).addSubject(subject);
+        teachers.get(1).addSubject(subject);
+        repository.saveAll(teachers);
 
-        assertThat(teachers)
+        List<Teacher> actualTeachers = this.repository.findAllBySubjectsContains(subject);
+
+        assertThat(actualTeachers)
                 .isNotNull()
                 .hasSize(2)
-                .containsExactlyInAnyOrder(secondTeacher, firstTeacher);
+                .containsExactlyInAnyOrder(teachers.get(1), teachers.get(0));
     }
 
     @Test
     public void shouldReturnSingletonList_whenFindAllByLastName() {
-        String expectedName = firstTeacher.getLastName();
+        String expectedName = teachers.get(0).getLastName();
+        repository.saveAll(teachers);
 
-        List<Teacher> teachers = this.repository.findAllByLastNameOrderByLastName(expectedName);
+        List<Teacher> actualTeachers = this.repository.findAllByLastNameOrderByLastName(expectedName);
 
-        assertThat(teachers)
+        assertThat(actualTeachers)
                 .isNotNull()
                 .hasSize(1)
-                .containsExactly(firstTeacher);
+                .containsExactly(teachers.get(0));
     }
 }

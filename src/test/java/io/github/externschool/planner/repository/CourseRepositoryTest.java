@@ -8,7 +8,11 @@ import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +33,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class CourseRepositoryTest {
-    @Autowired private TestEntityManager entityManager;
     @Autowired private CourseRepository repository;
+    @Autowired private TestEntityManager entityManager;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private List<StudyPlan> plans;
     private List<Course> expectedCourses;
@@ -61,7 +68,6 @@ public class CourseRepositoryTest {
             plans.add(plan);
 
             Course course = new Course(student.getId(), plan.getId());
-            entityManager.persist(course);
             expectedCourses.add(course);
 
             teacher.addSubject(subject);
@@ -71,17 +77,21 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnThreeCourses_whenSaveAllAndFindAll() {
+        int initialCount = (int)repository.count();
         repository.saveAll(expectedCourses);
 
         List<Course> actualCourses = repository.findAll();
 
         assertThat(actualCourses)
                 .containsAll(expectedCourses)
-                .size().isEqualTo(3);
+                .size().isEqualTo(initialCount + 3);
     }
 
     @Test
     public void shouldReturnTwoCourses_whenFindByStudentIdAndPlanId_thenDeleteThisCourse() {
+        int initialCount = (int)repository.count();
+        repository.saveAll(expectedCourses);
+
         repository.delete(repository.findById_StudentIdAndId_PlanId(
                 expectedCourses.get(0).getStudentId(),
                 expectedCourses.get(0).getPlanId()));
@@ -91,21 +101,26 @@ public class CourseRepositoryTest {
                 .containsAnyElementsOf(expectedCourses)
                 .size()
                 .isNotEqualTo(expectedCourses.size())
-                .isEqualTo(2);
+                .isEqualTo(initialCount + 2);
     }
 
     @Test
     public void shouldReturnEmptyList_whenFindAllByStudentId_thenDeleteTheseCourses() {
-        repository.deleteAll(repository.findAllById_StudentIdOrderByTitle(expectedCourses.get(0).getStudentId()));
+        int initialCount = (int)repository.count();
+        repository.saveAll(expectedCourses);
+        List<Course> courses = repository.findAllById_StudentIdOrderByTitle(expectedCourses.get(0).getStudentId());
+        repository.deleteAll(courses);
         List<Course> actualCourses = repository.findAll();
 
         assertThat(actualCourses)
                 .doesNotContainAnyElementsOf(expectedCourses)
-                .isEmpty();
+                .hasSize(initialCount);
     }
 
     @Test
     public void shouldReturnCourse_whenFindAllByPlanId() {
+        repository.saveAll(expectedCourses);
+
         List<Course> actualCourses = repository.findAllById_PlanIdOrderByTitle(plans.get(0).getId());
 
         assertThat(actualCourses)
@@ -116,6 +131,8 @@ public class CourseRepositoryTest {
 
     @Test
     public void shouldReturnThreeCourses_whenFindAllByTeacher() {
+        repository.saveAll(expectedCourses);
+
         List<Course> actualCourses = repository.findAllByTeacher_IdOrderByTitle(teacher.getId());
 
         assertThat(actualCourses)

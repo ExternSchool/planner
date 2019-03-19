@@ -1,7 +1,11 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.SchoolSubject;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +13,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,61 +25,103 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class SchoolSubjectRepositoryTest {
+    @Autowired private SchoolSubjectRepository subjectRepository;
 
-    @Autowired
-    private SchoolSubjectRepository repository;
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-    @Autowired
-    private EntityManager entityManager;
-
-    private List <SchoolSubject> expectedSubjects;
+    private List<SchoolSubject> expectedSubjects;
 
     @Before
     public void setUp() {
         expectedSubjects = new ArrayList<>();
-        Arrays.asList("biology", "geometry", "history", "math").forEach(n -> {
+        Arrays.asList("History", "English", "Geometry").forEach(title -> {
             SchoolSubject subject = new SchoolSubject();
-            subject.setTitle(n);
+            subject.setTitle(title);
             expectedSubjects.add(subject);
-            entityManager.persist(subject);
         });
     }
 
     @Test
-    public void shouldReturnSchoolSubject_whenFindByName() {
-        SchoolSubject expectedSubject = expectedSubjects.get(0);
-        String title = expectedSubject.getTitle();
-
-        SchoolSubject actualSubject = repository.findByTitle(title);
-
-        assertThat(actualSubject)
-                .isNotNull()
-                .hasFieldOrPropertyWithValue("title", title);
-    }
-
-    @Test
-    public void shouldReturnOrderedList_whenFindAllByOrderByNameAsc(){
-        List<SchoolSubject> actualSubjects = repository.findAllByOrderByTitle();
-
-        assertThat(actualSubjects)
-                .isNotNull()
-                .hasSize(4)
-                .containsSequence(expectedSubjects);
-    }
-
-    @Test
-    public void shouldReturnThreeSubjects_whenFindAllById() {
-        List<SchoolSubject> threeSubjects = expectedSubjects.subList(0, 3);
-        List<Long> indices = threeSubjects.stream()
-                .map(SchoolSubject::getId)
-                .collect(Collectors.toList());
-
-        List<SchoolSubject> actualSubjects = repository.findAllById(indices);
+    public void shouldReturnSavedSubjects_WhenFindAll() {
+        subjectRepository.saveAll(expectedSubjects);
+        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
 
         assertThat(actualSubjects)
                 .isNotEmpty()
-                .hasSize(3)
-                .containsOnlyElementsOf(threeSubjects)
-                .containsAll(threeSubjects);
+                .containsAll(expectedSubjects);
+    }
+
+    @Test
+    public void shouldSaveOnlyOnce_WhenMultipleSavesOccurred() {
+        int initialCount = (int)subjectRepository.count();
+        subjectRepository.saveAll(expectedSubjects);
+        subjectRepository.saveAll(expectedSubjects);
+
+        List<SchoolSubject> actualSubjects = subjectRepository.findAll();
+
+        assertThat(actualSubjects)
+                .isNotEmpty()
+                .hasSize(initialCount + expectedSubjects.size());
+    }
+
+    @Test
+    public void shouldReturnSavedSubject_WhenFindByTitle() {
+        SchoolSubject expectedSubject = expectedSubjects.stream().findAny().orElse(null);
+        assertThat(expectedSubject)
+                .isNotNull();
+
+        subjectRepository.save(expectedSubject);
+        SchoolSubject actualSubject = subjectRepository.findByTitle(expectedSubject.getTitle());
+
+        assertThat(actualSubject)
+                .isNotNull()
+                .isEqualTo(expectedSubject);
+    }
+
+    @Test
+    public void shouldContainSortedSubjects_WhenFindAllByOrderByTitle() {
+        List<SchoolSubject> sortedSubjects = expectedSubjects.stream()
+                .sorted(Comparator.comparing(SchoolSubject::getTitle))
+                .collect(Collectors.toList());
+        subjectRepository.saveAll(expectedSubjects);
+
+        List<SchoolSubject> actualSubjects = subjectRepository.findAllByOrderByTitle();
+
+        assertThat(actualSubjects)
+                .isNotNull()
+                .containsSequence(sortedSubjects);
+    }
+
+    @Test
+    public void shouldAddOneSubject_WhenSave() {
+        int initialCount = (int)subjectRepository.count();
+        SchoolSubject subject = new SchoolSubject();
+        subject.setTitle("Algebra");
+
+        subjectRepository.save(subject);
+        List<SchoolSubject> subjects = subjectRepository.findAll();
+
+        assertThat(subjects)
+                .contains(subject)
+                .size().isEqualTo(initialCount + 1);
+    }
+
+    @Test
+    public void shouldSubtractOneSubject_WhenDelete() {
+        int initialCount = (int)subjectRepository.count();
+        SchoolSubject subject = new SchoolSubject();
+        subject.setTitle("Chemistry");
+
+        subjectRepository.save(subject);
+        assertThat(subjectRepository.findAll())
+                .hasSize(initialCount + 1);
+
+        subjectRepository.delete(subject);
+        List<SchoolSubject> subjects = subjectRepository.findAll();
+
+        assertThat(subjects)
+                .doesNotContain(subject)
+                .size().isEqualTo(initialCount);
     }
 }

@@ -22,8 +22,8 @@ import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest
 @Transactional
-@SpringBootTest(classes = PlannerApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BootstrapDataPopulatorTest {
     @Autowired private UserRepository userRepository;
     @Autowired private RoleService roleService;

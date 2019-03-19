@@ -6,13 +6,18 @@ import io.github.externschool.planner.entity.profile.Person;
 import io.github.externschool.planner.repository.UserRepository;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import io.github.externschool.planner.repository.profiles.PersonRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class PersonServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private PersonRepository personRepository;

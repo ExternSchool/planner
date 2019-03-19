@@ -32,8 +32,8 @@ import static org.assertj.swing.timing.Pause.pause;
 import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
-@Transactional
 @SpringBootTest
+@Transactional
 public class ScheduledTasksTest {
     @Mock private ScheduleService scheduleService;
     @Mock private TeacherService teacherService;
@@ -82,10 +82,9 @@ public class ScheduledTasksTest {
 
         assertThat(teacherService.findAllTeachers())
                 .containsExactlyElementsOf(teachers);
-        users.forEach(user -> {
+        users.forEach(user ->
             assertThat(scheduleService.recreateNextWeekEventsFromTemplatesForOwner(user))
-                    .isEqualTo(Collections.singletonList(user.getOwnEvents().stream().findFirst().get()));
-        });
+                    .isEqualTo(Collections.singletonList(user.getOwnEvents().stream().findFirst().get())));
 
         CompletableFuture<List<ScheduleEvent>> future = scheduledTasks.recreateEventsForAllTeachers();
         pause(100);

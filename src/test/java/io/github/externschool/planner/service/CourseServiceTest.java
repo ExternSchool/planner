@@ -8,13 +8,18 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.repository.CourseRepository;
 import io.github.externschool.planner.repository.StudyPlanRepository;
 import io.github.externschool.planner.repository.profiles.TeacherRepository;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,6 +36,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class CourseServiceTest {
     @Mock private CourseRepository courseRepository;
     @Mock private StudyPlanRepository planRepository;
@@ -235,7 +241,6 @@ public class CourseServiceTest {
                 .thenReturn(Collections.singletonList(noTeacher));
 
         List<Course> actualCourses = courseService.findCoursesForStudent(expectedStudent);
-        actualCourses = courseService.findCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()
@@ -268,7 +273,6 @@ public class CourseServiceTest {
                 .thenReturn(Collections.singletonList(noTeacher));
 
         List<Course> actualCourses = courseService.findCoursesForStudent(expectedStudent);
-        actualCourses = courseService.findCoursesForStudent(expectedStudent);
 
         assertThat(actualCourses)
                 .isNotEmpty()
