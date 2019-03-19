@@ -12,15 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = PlannerApplication.class)
+@SpringBootTest
+@Transactional
 public class StudyPlanConverterTest {
-
-    @Autowired
-    ConversionService conversionService;
+    @Autowired ConversionService conversionService;
 
     private StudyPlan studyPlan;
     private StudyPlanDTO studyPlanDTO;

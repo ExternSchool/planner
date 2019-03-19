@@ -23,7 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 
 @Controller
 @Secured("ROLE_ADMIN")
@@ -93,7 +93,7 @@ public class StudyPlanController {
         ModelAndView modelAndView = new ModelAndView("plan/plan_list :: deleteStudyPlan");
         StudyPlan plan = planService.findById(id);
         StudyPlanDTO dto = conversionService.convert(plan, StudyPlanDTO.class);
-        if (plan.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+        if (plan.getTitle().equals(UK_EVENT_TYPE_CONTROL)) {
             dto.setId(null);
         }
         modelAndView.addObject("plan", dto);
@@ -120,7 +120,7 @@ public class StudyPlanController {
                     ? planService.findAll()
                     : planService.findAllByGradeLevel(GradeLevel.valueOf(level))).stream()
                 .filter(Objects::nonNull)
-                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_CONTROL))
                 .map(s -> conversionService.convert(s, StudyPlanDTO.class))
                 .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -131,7 +131,7 @@ public class StudyPlanController {
                 StudyPlanDTO.class));
         List<SchoolSubject> subjects = subjectService.findAllByOrderByTitle().stream()
                 .filter(Objects::nonNull)
-                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_TEST))
+                .filter(s -> s.getTitle() != null && !s.getTitle().equals(UK_EVENT_TYPE_CONTROL))
                 .collect(Collectors.toList());
         modelAndView.addObject("subjects", subjects);
         modelAndView.addObject("level", GradeLevel.valueOf(level));

@@ -7,8 +7,12 @@ import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactor
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
 import io.github.externschool.planner.service.ScheduleService;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -21,6 +25,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
@@ -41,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@AutoConfigureMockMvc
+@Transactional
 @WithMockUser(roles = "ADMIN")
 public class ScheduleControllerTest {
     @Autowired WebApplicationContext webApplicationContext;
@@ -49,12 +54,13 @@ public class ScheduleControllerTest {
     @Mock private ScheduleService scheduleService;
     @Mock private ConversionService conversionService;
     @Autowired private RoleService roleService;
-
     private ScheduleController scheduleController;
-    @Autowired private MockMvc mockMvc;
+    private MockMvc mockMvc;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private MultiValueMap modelMap;
-    private ScheduleEventTypeDTO eventTypeDTO;
     private ScheduleEventType eventType;
 
     @Before
@@ -68,7 +74,7 @@ public class ScheduleControllerTest {
         Role roleAdmin = roleService.getRoleByName("ROLE_ADMIN");
         Role roleGuest = roleService.getRoleByName("ROLE_GUEST");
 
-        eventTypeDTO = new ScheduleEventTypeDTO();
+        ScheduleEventTypeDTO eventTypeDTO = new ScheduleEventTypeDTO();
         eventTypeDTO.setId(100L);
         eventTypeDTO.setName("TestType");
         eventTypeDTO.setAmountOfParticipants(1);

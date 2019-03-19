@@ -71,7 +71,7 @@ import static io.github.externschool.planner.util.Constants.HOURS_BETWEEN_LATEST
 import static io.github.externschool.planner.util.Constants.UK_COURSE_ADMIN_IN_CHARGE;
 import static io.github.externschool.planner.util.Constants.UK_COURSE_NO_TEACHER;
 import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_NOT_DEFINED;
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SELECTING_TEST_WORKS;
 import static io.github.externschool.planner.util.Constants.UK_SUBSCRIBE_SCHEDULE_EVENT_ERROR_MESSAGE;
@@ -468,7 +468,7 @@ public class StudentController {
             nullCourse.setTitle("Виберіть предмет");
             courses.add(nullCourse);
             courses.addAll(courseService.findAllByStudentId(studentId).stream()
-                    .filter(course -> !course.getTitle().equals(UK_EVENT_TYPE_TEST))
+                    .filter(course -> !course.getTitle().equals(UK_EVENT_TYPE_CONTROL))
                     .map(course -> conversionService.convert(course, CourseDTO.class))
                     .collect(Collectors.toList()));
         }

@@ -1,6 +1,9 @@
 package io.github.externschool.planner.repository;
 
 import io.github.externschool.planner.entity.VerificationKey;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -24,34 +28,32 @@ public class VerificationKeyRepositoryTest {
     @Autowired TestEntityManager entityManager;
 
     @Rule public ExpectedException thrown = ExpectedException.none();
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
-    private VerificationKey key1;
-    private VerificationKey key2;
-    private VerificationKey key3;
+    private List<VerificationKey> keys;
 
     @Before
     public void setUp() {
-        key1 = new VerificationKey();
-        key2 = new VerificationKey();
-        key3 = new VerificationKey();
-
-        entityManager.persist(key1);
-        entityManager.persist(key2);
-        entityManager.persist(key3);
+        keys = Arrays.asList(new VerificationKey(), new VerificationKey(), new VerificationKey());
     }
 
     @Test
     public void shouldReturnListOfKey_WhenFindAll() {
+        int initialCount = (int)repository.count();
+        repository.saveAll(keys);
         List<VerificationKey> keyList = this.repository.findAll();
 
         assertThat(keyList)
                 .isNotNull()
-                .hasSize(3)
-                .contains(key1, key2, key3);
+                .hasSize(initialCount + keys.size())
+                .containsAll(keys);
     }
 
     @Test
     public void shouldReturnKey_WhenGetById() {
+        VerificationKey key1 = keys.get(0);
+        repository.saveAll(keys);
         VerificationKey actualKey = repository.findById(key1.getId()).orElse(null);
 
         assertThat(actualKey)
@@ -73,7 +75,10 @@ public class VerificationKeyRepositoryTest {
     }
 
     @Test
-    public void getNull_whenFindDeletedTeacher() {
+    public void getNull_whenFindDeletedKey() {
+        repository.saveAll(keys);
+        VerificationKey key1 = keys.get(0);
+
         repository.delete(key1);
         VerificationKey actualKey = repository.findById(key1.getId()).orElse(null);
 

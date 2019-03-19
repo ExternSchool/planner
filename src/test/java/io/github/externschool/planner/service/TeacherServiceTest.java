@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class TeacherServiceTest {
     @Mock private TeacherRepository teacherRepository;
     @Mock private VerificationKeyRepository keyRepository;
@@ -196,7 +198,6 @@ public class TeacherServiceTest {
 
     @Test
     public void shouldReturnSingletonList_whenFindAllOfficials() {
-
         Teacher anotherTeacher = new Teacher();
         anotherTeacher.setLastName("ZetName");
         expectedTeacher.setOfficial("Official");

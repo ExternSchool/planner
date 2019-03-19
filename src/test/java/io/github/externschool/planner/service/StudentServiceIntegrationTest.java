@@ -8,23 +8,31 @@ import io.github.externschool.planner.entity.course.Course;
 import io.github.externschool.planner.entity.profile.Gender;
 import io.github.externschool.planner.entity.profile.Student;
 import io.github.externschool.planner.entity.profile.Teacher;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit.EmbeddedPostgresRules;
+import io.zonky.test.db.postgres.junit.PreparedDbRule;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class StudentServiceIntegrationTest {
     @Autowired private TeacherService teacherService;
     @Autowired private CourseService courseService;
@@ -32,6 +40,9 @@ public class StudentServiceIntegrationTest {
     @Autowired private StudyPlanService planService;
     @Autowired private SchoolSubjectService subjectService;
     @Autowired private VerificationKeyService keyService;
+
+    @Rule public PreparedDbRule db = EmbeddedPostgresRules
+            .preparedDatabase(LiquibasePreparer.forClasspathLocation("liquibase/master-test.xml"));
 
     private Teacher teacher;
     private Student student;
@@ -103,5 +114,15 @@ public class StudentServiceIntegrationTest {
         actualCourses.stream().map(Course::getTeacher).forEach(t ->
                 assertThat(t)
                         .isNull());
+    }
+
+    @After
+    public void tearDown() {
+        Optional.ofNullable(teacherService.findTeacherById(teacher.getId()))
+                .ifPresent(t -> teacherService.deleteTeacherById(t.getId()));
+        studentService.deleteStudentById(student.getId());
+        courses.forEach(courseService::deleteCourse);
+        plans.forEach(planService::deletePlan);
+        subjects.forEach(s -> subjectService.deleteSubjectById(s.getId()));
     }
 }

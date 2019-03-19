@@ -1,6 +1,5 @@
 package io.github.externschool.planner.service;
 
-import io.github.externschool.planner.TestPlannerApplication;
 import io.github.externschool.planner.entity.VerificationKey;
 import io.github.externschool.planner.repository.VerificationKeyRepository;
 import org.junit.Before;
@@ -10,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +20,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestPlannerApplication.class)
+@SpringBootTest
+@Transactional
 public class VerificationKeyServiceTest {
     @Mock private VerificationKeyRepository repository;
     private VerificationKeyService service;
+
     private VerificationKey expectedKey;
 
     @Before

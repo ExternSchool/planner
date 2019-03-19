@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Transactional
 public class UserServiceTest {
     @Autowired private PasswordEncoder passwordEncoder;
     @Mock private UserRepository userRepository;
@@ -171,11 +173,11 @@ public class UserServiceTest {
     @Test
     public void shouldReturnNewUser_whenCreateFakeUserWithStudentVerificationKey() {
         VerificationKey key = new VerificationKey();
-        keyRepository.save(key);
         Person person = new Person();
         person.addVerificationKey(key);
+        keyRepository.save(key);
         personRepository.save(person);
-        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+        String fakeMail = key + "@" + FAKE_MAIL_DOMAIN;
 
         User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_STUDENT");
 
@@ -194,11 +196,11 @@ public class UserServiceTest {
     @Test
     public void shouldReturnNewUser_whenCreateFakeUserWithGuestVerificationKey() {
         VerificationKey key = new VerificationKey();
-        keyRepository.save(key);
         Person person = new Person();
         person.addVerificationKey(key);
+        keyRepository.save(key);
         personRepository.save(person);
-        String fakeMail = String.valueOf(key) + "@" + FAKE_MAIL_DOMAIN;
+        String fakeMail = key + "@" + FAKE_MAIL_DOMAIN;
 
         User user = userService.createAndSaveFakeUserWithKeyAndRoleName(key, "ROLE_GUEST");
 

@@ -16,7 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.Collections;
 import java.util.Optional;
 
-import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_TEST;
+import static io.github.externschool.planner.util.Constants.UK_EVENT_TYPE_CONTROL;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_EXISTS_MESSAGE;
 import static io.github.externschool.planner.util.Constants.UK_FORM_VALIDATION_ERROR_SUBJECT_TITLE_MESSAGE;
 
@@ -82,7 +82,7 @@ public class SchoolSubjectController {
     public ModelAndView displaySubjectListDeleteModal(@PathVariable ("id") Long id) {
         ModelAndView modelAndView = new ModelAndView("subject/subject_list :: deleteSchoolSubject");
         SchoolSubject subject = subjectService.findSubjectById(id);
-        if (subject.getTitle().equals(UK_EVENT_TYPE_TEST)) {
+        if (subject.getTitle().equals(UK_EVENT_TYPE_CONTROL)) {
             id = null;
         }
         modelAndView.addObject("editId", id);
