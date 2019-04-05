@@ -5,7 +5,7 @@ Latest working document is evolving and improving here: [https://externschool.gi
 
 ## 1. Story
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
-located in Kiev, Ukraine.</br>
+located in Kyiv, Ukraine.</br>
 The school offers <a href="https://en.wikipedia.org/wiki/External_degree">external</a> secondary education and meets the 
 highest quality standards complying with licensing requirements and conditions for all three levels of accreditation 
 according to the Ukrainian law.</br>
