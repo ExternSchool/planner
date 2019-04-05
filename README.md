@@ -61,7 +61,7 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
 
 ## 3. Stakeholders
 ### 3.1. Hosts:
-#### 3.1.1. School officers and assistants: 
+#### 3.1.1. School officials and assistants: 
  * the principal - receives actual, former and future students and their parents, as well as other visitors, receives 
  primary documents and enrolls students to the school
  * vice-principals - meet actual students and their parents, coordinate individual study plans, receive filled 
@@ -78,7 +78,7 @@ This <a href="https://en.wikipedia.org/wiki/Pro_bono">pro bono</a> project is go
  * check out the results of the tests passed
  * evaluate and grade students performance
  
-Any school officer or assistant (principal/vice-principal/psychologist/librarian etc) can also be a teacher and vice versa.
+Any school official or assistant (principal/vice-principal/psychologist/librarian etc) can also be a teacher and vice versa.
  
 ### 3.2. Visitors:
 #### 3.2.1. Students
@@ -113,7 +113,7 @@ Future projects:
 #### 4.2.2. User Groups and Roles
  * Application and database administrators
 ##### 4.2.2.1. Hosts
- * School officers, teachers, assistants, parents' community representatives, organizing learning process
+ * School officials, teachers, assistants, parents' community representatives, organizing learning process
  * Teachers, teaching their school subjects  
 ##### 4.2.2.2. Visitors:
  * Students - registered and verified students
@@ -209,5 +209,4 @@ The app should demonstrate following user flows:
 ### 5.9. Clients
  * standard HTML5 web browser
  * RESTful clients -- *TBD* 
-
-
+ 
