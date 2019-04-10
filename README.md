@@ -10,7 +10,7 @@ The school offers <a href="https://en.wikipedia.org/wiki/External_degree">extern
 highest quality standards complying with licensing requirements and conditions for all three levels of accreditation 
 according to the Ukrainian law.</br>
 Hundreds of talented Ukrainian children receive here an ability to get secondary education while being young professional 
-artists, musicians, sportsmen. Physically disabled, ill, as well as children who spend a lot of time with their parents 
+artists, musicians, sportsmen. Physically disabled, having serious health problem persons, as well as children who spend a lot of time with their parents 
 abroad, study here too. A lot of kids complete their secondary school in shortened terms, becoming the youngest students 
 of their universities.</br>
 The school has highly qualified and progressive-minded staff, last years has been equipped with modern computers, 
@@ -164,11 +164,7 @@ This project has to provide the following features:</br>
 ### 5.3. Visit Planner External API. Option #1. Concise.
  **TBD*
  
-#### 5.3.1. External API Rights 
- Method |                            URI                           |  Admin  | Teacher| Student | Guest*
- ------ | -------------------------------------------------------- | ------- | ----------- | ------- | -------
-    |                                                |       |             |         | 
- 
+#### 5.3.1. External API Rights  
  **TBD*
 
 
