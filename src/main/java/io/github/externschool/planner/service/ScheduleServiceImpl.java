@@ -443,7 +443,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         return templates.stream()
                 .map(template -> createEventForDate(
                         template,
-                        FIRST_MONDAY_OF_EPOCH.plusDays(template.getDayOfWeek().getValue() - 1)))
+                        FIRST_MONDAY_OF_EPOCH.plusDays(template.getDayOfWeek().getValue() - 1L)))
                 .collect(Collectors.toList());
     }
 
@@ -453,7 +453,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<ScheduleTemplate> templates = templateRepository.findAllByOwner(owner);
         Set<LocalDate> holidayDates = holidayRepository.findAllByHolidayDateBetween(
                 firstDay,
-                firstDay.plusDays(DayOfWeek.FRIDAY.getValue() - 1))
+                firstDay.plusDays(DayOfWeek.FRIDAY.getValue() - 1L))
                     .stream()
                     .map(ScheduleHoliday::getHolidayDate)
                     .collect(Collectors.toSet());
@@ -465,7 +465,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY);
         for (DayOfWeek dayOfWeek : daysList) {
-            LocalDate date = firstDay.plusDays(dayOfWeek.getValue() - 1);
+            LocalDate date = firstDay.plusDays(dayOfWeek.getValue() - 1L);
             if (!holidayDates.contains(date)) {
                 // this is an ordinary working day, not a holiday, so add it
                 templates.stream()
@@ -476,8 +476,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         // Saturday To Sunday -- add events for the days which are working days this week with holidays' templates
         List<ScheduleHoliday> substitutionDays = holidayRepository.findAllBySubstitutionDateBetween(
-                firstDay.plusDays(DayOfWeek.SATURDAY.getValue() - 1),
-                firstDay.plusDays(DayOfWeek.SUNDAY.getValue() - 1));
+                firstDay.plusDays(DayOfWeek.SATURDAY.getValue() - 1L),
+                firstDay.plusDays(DayOfWeek.SUNDAY.getValue() - 1L));
         for (ScheduleHoliday day : substitutionDays) {
             // this holiday is a substitution working day for another day so fill it with events of that holiday
             DayOfWeek holidayDayOfWeek = day.getHolidayDate().getDayOfWeek();

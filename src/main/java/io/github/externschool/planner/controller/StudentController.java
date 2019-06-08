@@ -668,21 +668,19 @@ public class StudentController {
         ModelAndView modelAndView = new ModelAndView("student/student_subscriptions", model);
         modelAndView.addObject(
                 "student",
-                Optional.ofNullable(user).map(User::getVerificationKey).map(VerificationKey::getPerson).get());
+                Optional.ofNullable(user).map(User::getVerificationKey).map(VerificationKey::getPerson).orElse(new Person()));
         List<ParticipantDTO> participants = Optional.ofNullable(user)
                 .map(u -> scheduleService.getParticipantsByUser(u).stream()
                         .map(p -> conversionService.convert(p, ParticipantDTO.class))
                         .sorted(Comparator.comparing(ParticipantDTO::getDate).reversed()
-                                .thenComparing(Comparator.comparing(ParticipantDTO::getTime)))
+                                .thenComparing(ParticipantDTO::getTime))
                         .collect(Collectors.toList()))
                 .orElse(new ArrayList<>());
         participants.forEach(participant -> {
-            Optional.ofNullable(participant.getPlanOneId()).ifPresent(id -> {
-                participant.setPlanOneTitle(planService.findById(id).getTitle());
-            });
-            Optional.ofNullable(participant.getPlanTwoId()).ifPresent(id -> {
-                participant.setPlanTwoTitle(planService.findById(id).getTitle());
-            });
+            Optional.ofNullable(participant.getPlanOneId()).ifPresent(id ->
+                participant.setPlanOneTitle(planService.findById(id).getTitle()));
+            Optional.ofNullable(participant.getPlanTwoId()).ifPresent(id ->
+                participant.setPlanTwoTitle(planService.findById(id).getTitle()));
         });
         modelAndView.addObject("participants", participants);
 

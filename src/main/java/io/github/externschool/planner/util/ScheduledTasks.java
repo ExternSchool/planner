@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 @Component
 @Transactional
 public class ScheduledTasks {
+    private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+    
     private final ScheduleService scheduleService;
     private final TeacherService teacherService;
-
-    private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
-
+    
     @Autowired
     public ScheduledTasks(final ScheduleService scheduleService, final TeacherService teacherService) {
         this.scheduleService = scheduleService;
@@ -44,7 +44,8 @@ public class ScheduledTasks {
         try {
             log.info("Next week events created with templates present: {}", future.get().size());
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            log.error("Scheduled Task error: {}", e.getMessage());
+            Thread.currentThread().interrupt();
         }
     }
 
