@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Teacher Schedule</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+    </div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container-fluid">
+    <h4>
+        <small>
+            <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <div class="full-text row align-items-center font-weight-normal mb-1">
+                    <div class="col-2"></div>
+                    <div class="col-6 justify-content-center">
+                        Розклад працівника: [[${teacher.getShortName()}]]
+                        <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-external-link-square-alt"></i>
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-4 justify-content-end">
+                        <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                            <button class="float-right btn btn-sm btn-outline-info ml-1">
+                                Список відвідувачів
+                            </button>
+                        </a>
+                        <form th:method="post" th:action="@{/teacher/{id}/template/publish(id=${teacher.id})}">
+                            <button type="submit" class="float-right btn btn-sm btn-outline-success ml-1">
+                                Додати з плану
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="short-text row align-items-center font-weight-normal mb-1 col-12 justify-content-center">
+                    <div class="col-12">
+                        <span>
+                            [[${teacher.getShortName()}]]
+                        </span>
+                        <a th:href="@{/teacher/search/{id}(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-external-link-square-alt"></i>
+                            </button>
+                        </a>
+                        <a th:href="@{/teacher/{id}/visitors(id=${teacher.getId()})}">
+                            <button type="button" class="btn badge badge-info ml-1">
+                                <i class="fas fa-list" aria-hidden="true"></i>
+                            </button>
+                        </a>
+                        <form th:method="post" th:action="@{/teacher/{id}/template/publish(id=${teacher.id})}"
+                              style="display: inline;">
+                            <button type="submit" class="btn badge badge-success ml-1">
+                                <i class="far fa-calendar" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </small>
+    </h4>
+    <!--/*@thymesVar id="error" type="java.lang.String"*/-->
+    <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
+        Місце для відображення повідомлень про помилки
+    </small>
+    <!--/*@thymesVar id="teacher" type="io.github.externschool.planner.dto.TeacherDTO"*/-->
+    <form class="form mb-0" th:object="${teacher}" th:action="@{/teacher/{id}/schedule-update(id=${teacher.id})}"
+          method="post" id="form">
+        <input type="hidden" th:field="${teacher}"/>
+    </form>
+    <div class="card-deck">
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Поточний тиждень</div>
+            <div class="card-body text-left">
+                <div th:each="dayNum : ${#numbers.sequence(0,4)}">
+                    <div class="card-title text-left">
+                        <h5>
+                            <span th:text="${weekDays[dayNum]}"
+                              th:class="${#lists.isEmpty(currentWeekEvents[dayNum]) ? 'text-secondary' : ''}">
+                                День тижня
+                            </span>
+                            <span class="float-right">
+                                <button th:if="${not #lists.isEmpty(currentWeekEvents[dayNum])}"
+                                        class="float-left btn btn-sm btn-outline-danger mr-1"
+                                        th:onclick="'javascript:openDeleteCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        type="button">
+                                    <i class="fas fa-calendar-times"></i>
+                                </button>
+                                <button class="float-left btn btn-sm btn-outline-success mr-1"
+                                        th:onclick="'javascript:openNewCurrentModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        th:if="${currentWeek[dayNum] &gt; #temporals.createToday()}" type="button">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
+                                <span class="float-right badge badge-info badge-pill"
+                                      th:value="${currentWeek[dayNum]}"
+                                      th:text="${#temporals.format(currentWeek[dayNum], 'dd/MM')}">
+                                    дата
+                                </span>
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(currentWeekEvents[dayNum])}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left" style="width: 6ch">Час</th>
+                                <th class="text-left">Подія</th>
+                                <th class="text-left" style="width: 3ch"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="evnt : ${currentWeekEvents[dayNum]}"
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}"
+                                th:style="${#strings.contains(evnt.getDescription(), '--')} ? 'text-decoration: line-through;' : ''">
+                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right" th:if="${evnt.isOpen()}">
+                                    <button type="submit" name="delete-current" value="delete-current" class="btn badge badge-muted"
+                                            th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="far fa-trash-alt" style="color: white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"
+                       th:text="'Останнє оновлення: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '-'}">
+                        Останнє оновлення
+                </small>
+            </div>
+        </div>
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Наступний тиждень</div>
+            <div class="card-body text-left">
+                <div th:each="dayNum : ${#numbers.sequence(0,4)}">
+                    <div class="card-title text-left">
+                        <h5>
+                        <span th:text="${weekDays[dayNum]}"
+                              th:class="${#lists.isEmpty(nextWeekEvents[dayNum]) ? 'text-secondary' : ''}">
+                            День тижня
+                        </span>
+                            <span class="float-right">
+                                <button th:if="${not #lists.isEmpty(nextWeekEvents[dayNum])}"
+                                        class="float-left btn btn-sm btn-outline-danger mr-1"
+                                        th:onclick="'javascript:openDeleteNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        type="button">
+                                   <i class="fas fa-calendar-times"></i>
+                                </button>
+                                <button class="float-left btn btn-sm btn-outline-success mr-1"
+                                        th:onclick="'javascript:openNewNextModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        type="button">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
+                                <span class="float-right badge badge-info badge-pill"
+                                      th:value="${nextWeek[dayNum]}"
+                                      th:text="${#temporals.format(nextWeek[dayNum], 'dd/MM')}">
+                                    дата
+                                </span>
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(nextWeekEvents[dayNum])}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left" style="width: 6ch">Час</th>
+                                <th class="text-left">Подія</th>
+                                <th class="text-left" style="width: 3ch"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="evnt : ${nextWeekEvents[dayNum]}"
+                                th:class="${!evnt.isOpen() ? 'text-primary' : ''}"
+                                th:style="${#strings.contains(evnt.getDescription(), '--')} ? 'text-decoration: line-through;' : ''">
+                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right" th:if="${evnt.isOpen()}">
+                                    <button type="submit" name="delete-next" value="delete-next" class="btn badge badge-muted"
+                                            th:onclick="'javascript:openDeleteEventModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="far fa-trash-alt" style="color: white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"
+                       th:text="'Всього вільних подій в розкладі: ' + ${availableEvents}">
+                    Кількість доступних подій
+                </small>
+            </div>
+        </div>
+
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Новий плановий розклад</div>
+            <div class="card-body text-left">
+                <div th:each="dayNum : ${#numbers.sequence(0,4)}">
+                    <div class="card-title text-left">
+                        <h5>
+                        <span th:text="${weekDays[dayNum]}"
+                              th:class="${#lists.isEmpty(standardWeekEvents[dayNum]) ? 'text-secondary' : ''}">
+                            День тижня
+                        </span>
+                            <span class="float-right">
+                                <button class="float-right btn btn-sm btn-outline-success mr-3"
+                                        th:onclick="'javascript:openNewScheduleModal(\'' + ${teacher.getId()} + '\',\'' + ${dayNum} + '\');'"
+                                        type="button">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(standardWeekEvents[dayNum])}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left" style="width: 6ch">Час</th>
+                                <th class="text-left">Подія</th>
+                                <th class="text-right" style="width: 3ch"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="evnt : ${standardWeekEvents[dayNum]}">
+                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right">
+                                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-muted"
+                                            th:onclick="'javascript:openDeleteTemplateModal(\'' + ${teacher.getId()} + '\',\'' + ${evnt.getId()} + '\');'">
+                                        <i class="far fa-trash-alt" style="color: white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container text-muted">
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- ModalHolder -->
+<div id="newScheduleModalHolder"></div>
+<div id="newCurrentModalHolder"></div>
+<div id="cancelCurrentModalHolder"></div>
+<div id="newNextModalHolder"></div>
+<div id="cancelNextModalHolder"></div>
+<div id="deleteEventModalHolder"></div>
+<div id="deleteTemplateModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="newScheduleModal" role="dialog" th:fragment="newSchedule">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNewTitle">Створення нової події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <form th:method="post"
+                      th:action="@{/teacher/{id}/day/{day}/add-template(id=${teacher.id}, day=${thisDay})}"
+                      th:object="${newEvent}" class="form" id="formNewEvent">
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEvent">Початок події: </label>
+                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEvent"
+                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventType">Тип події: </label>
+                            <select class="form-control" size="3" name="inputGroupSelectEventType" id="eventType"
+                                    th:field="${newEvent.eventType}">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Тип події
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescription">Опис події: </label>
+                            <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescription"
+                                      th:field="*{description}">Опис події
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Скасувати
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Додати подію
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newCurrentModal" role="dialog" th:fragment="newCurrent">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNewCurrentTitle">Створення нової події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <form th:method="post"
+                      th:action="@{/teacher/{id}/new-current/{day}/add(id=${teacher.id}, day=${thisDay})}"
+                      th:object="${newEvent}" class="form" id="formNewCurrentEvent">
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEventCurrent">Початок події: </label>
+                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEventCurrent"
+                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventTypeCurrent">Тип події: </label>
+                            <select class="form-control" size="3" name="inputGroupSelectEventType" id="eventTypeCurrent"
+                                    th:field="${newEvent.eventType}">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Тип події
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescriptionCurrent">Опис події: </label>
+                            <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescriptionCurrent"
+                                      th:field="*{description}">Опис події
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Скасувати
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Додати подію
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelCurrentModal" role="dialog" th:fragment="cancelCurrentWeekDay">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelCurrentModalTitle">Скасування запланованих подій</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p>
+                    Виконання цієї дії приведе до видалення за цей день всіх подій, які не мають відвідувачів,
+                    та скасування всіх заброньованих подій. Зареєстрованим відвідувачам
+                    електронною поштою будуть відправлені повідомлення про скасування зустрічей.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте видалити й скасувати всі події в розкладі на цей день?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Ні, дякую
+                </button>
+                <form th:method="post" th:action="@{/teacher/{id}/current-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
+                    <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
+                        Так!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newNextModal" role="dialog" th:fragment="newNext">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalNewNextTitle">Створення нової події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <form th:method="post"
+                      th:action="@{/teacher/{id}/new-next/{day}/add(id=${teacher.id}, day=${thisDay})}"
+                      th:object="${newEvent}" class="form" id="formNewNextEvent">
+                    <div class="floating mb-1">
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="startOfEventNext">Початок події: </label>
+                            <input class="form-control" type="time" placeholder="Початок події" id="startOfEventNext"
+                                   min="9:00" max="20:00" th:field="${newEvent.startTime}" required>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventTypeNext">Тип події: </label>
+                            <select multiple class="form-control" size="3" name="inputGroupSelectEventType" id="eventTypeNext"
+                                    th:field="${newEvent.eventType}">
+                                <option th:each="type : ${eventTypes}"
+                                        th:value="${type.name}"
+                                        th:text="${type.name}">
+                                    Тип події
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-1">
+                            <label class="mb-0" for="eventDescriptionNext">Опис події: </label>
+                            <textarea class="form-control form-control-sm" rows="2" placeholder="Опис події" id="eventDescriptionNext"
+                                      th:field="*{description}">Опис події
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Скасувати
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Додати подію
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelNextModal" role="dialog" th:fragment="cancelNextWeekDay">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelNextModalTitle">Скасування запланованих подій</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p>
+                    Виконання цієї дії приведе до видалення за цей день всіх подій, які не мають відвідувачів,
+                    та скасування всіх заброньованих подій. Зареєстрованим відвідувачам
+                    електронною поштою будуть відправлені повідомлення про скасування зустрічей.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте видалити й скасувати всі події в розкладі на цей день?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Ні, дякую
+                </button>
+                <form th:method="post" th:action="@{/teacher/{id}/next-week/{day}/cancel(id=${teacher.id}, day=${thisDay})}">
+                    <button type="submit" name="cancel" value="cancel" class="btn btn-primary">
+                        Так!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteEventModal" role="dialog" th:fragment="deleteEvent">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteEventModalTitle">Видалення події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${newEvent.id != null}">
+                    <span th:text="${newEvent.startTime + ': ' + newEvent.title}"></span><br>
+                    Ви впевнені, що бажаєте видалити цю подію?
+                </div>
+                <div th:if="${newEvent.id == null}">
+                    Вибачте, на цю подію вже є зареєстровані відвідувачі -
+                    окремо її видалити неможливо. Але її можна скасувати разом
+                    з іншими подіями, призначеними на цей день. Для скасування всіх
+                    подій скористайтеся розташованою вище кнопкою
+                    <span class="btn-outline-danger">
+                        <i class="fas fa-calendar-times"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися
+                </button>
+                <span th:if="${newEvent.id != null}">
+                    <form th:method="post" th:action="@{/teacher/{id}/event/{eid}/delete(id=${teacher.id},eid=${newEvent.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так!
+                        </button>
+                    </form>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteTemplateModal" role="dialog" th:fragment="deleteTemplate">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTemplateModalTitle">Видалення події</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${newEvent.id != null}">
+                    <span th:text="${newEvent.startTime + ': ' + newEvent.title}"></span><br>
+                    Ви впевнені, що бажаєте видалити цю подію?
+                </div>
+                <div th:if="${newEvent.id == null}">
+                    Виникла помилка. Подію не знайдено!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися
+                </button>
+                <span th:if="${newEvent.id != null}">
+                <form th:method="post" th:action="@{/teacher/{id}/template/{eid}/delete(id=${teacher.id},eid=${newEvent.getId()})}">
+                    <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                        Так!
+                    </button>
+                </form>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/teacherScheduleModals.js"></script>
+
+</body>
+</html>

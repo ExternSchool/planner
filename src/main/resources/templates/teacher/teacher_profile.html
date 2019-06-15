@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Teacher Profile</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="font-weight-normal" th:inline="text">
+        <small>
+            <span class="full-text">Персональні дані працівника </span>
+            <span th:if="${teacher.getEmail() != null && not #strings.endsWith(teacher.getEmail(),'@x')}">
+                [[${teacher.getEmail()}]]
+            </span>
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none d-none d-lg-block"
+                    th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}" onclick="printFunction()">
+                Друк
+            </button>
+        </small>
+    </h4>
+    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+        Місце для відображення повідомлень про помилки
+    </small>
+    <fieldset>
+        <form class="form mb-0 hidden-print d-print-none" th:method="post" th:action="@{/teacher/update}" th:object="${teacher}" id="form">
+            <input type="hidden" th:field="${isNew}"/>
+            <input type="hidden" th:field="${isAdmin}"/>
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{courses}"/>
+            <div class="form-row mb-0">
+                <div class=" col-lg-6 mb-0">
+                    <div class="form-group mb-0">
+                        <label for="lastName" class="col-form-label float-left">Прізвище</label>
+                        <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                               th:field="*{lastName}" required
+                               th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="firstName" class="col-form-label float-left">Ім'я</label>
+                            <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
+                                   th:field="*{firstName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        </div>
+                        <div class="form-group col-lg-6 mb-0">
+                            <label for="patronymicName" class="col-form-label float-left">По батькові</label>
+                            <input class="form-control" type="text" placeholder="По батькові" id="patronymicName"
+                                   th:field="*{patronymicName}" required
+                                   th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="patronymicName" class="col-form-label float-left">Непедагогічна посада (якщо є)</label>
+                        <input class="form-control" type="text" placeholder="Посади немає"
+                               th:field="*{official}" id="position"
+                               th:readonly="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-lg-6 mb-3">
+                            <label for="phone" class="col-form-label float-left">Номер телефона</label>
+                            <input class="form-control" type="tel" placeholder="Державний або місцевий формат"
+                                   pattern="^(([ \.\-])?)?([\(]{1}[0-9]{2,3}[\)])?([0-9 \.\-]{7,10})$" title='Зразки:(044)123-45-67, (044) 123 45 67, 123-4567 і т.ін.'
+                                   id="phone" th:field="*{phoneNumber}" required>
+                        </div>
+                        <div class="form-group col-lg-6 mb-0">
+                            <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')
+                            && teacher.getVerificationKey() != null && teacher.getVerificationKey().getUser() != null}">
+                                <label for="setAdmin" class="col-form-label float-left">Права Адміністратора</label>
+                                <button class="btn btn-outline-success btn-block"  name="setAdmin" id="setAdmin"
+                                        data-toggle="modal" data-target="#modalAdmin" type="button"
+                                        th:text="${isAdmin} ? 'Скасувати права' : 'Надати права'">
+                                    Змінити права
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" col-lg-6 mb-0">
+                    <div class="form-group mb-1">
+                        <label class="col-form-label " for="schoolSubjects">Навчальні предмети</label>
+                        <div class="input-group">
+                            <select multiple class="form-control" name="schoolSubjects" id="schoolSubjects"
+                                    th:field="*{schoolSubjects}" size="11"
+                                    th:disabled="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                                <option th:each="subject : ${allSubjects}"
+                                        th:value="${{subject}}"
+                                        th:text="${subject.title}">
+                                    Предмет
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="hidden" th:field="${teacher.verificationKey}"
+                           th:if="${!#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                    <div class="form-group" th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                        <div class="input-group mb-0">
+                            <input type="hidden" th:field="${teacher.verificationKey}"/>
+                            <input class="form-control" type="text" id="key" th:field="${teacher.verificationKey.value}" readonly
+                                   placeholder="Ключ для автентифікації облікового запису">
+                            <div class="input-group-append">
+                                <!-- Button trigger modal -->
+                                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#modalKey"
+                                        th:disabled="${isNew}" type="button">
+                                    Згенерувати новий ключ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row col-md-8 mx-auto">
+                    <div class="col-md-4">
+                        <a th:href="@{/teacher/update}">
+                            <button class="btn btn-secondary btn-block" name="action" value="cancel" type="button">
+                                Скасувати
+                            </button>
+                        </a>
+                    </div>
+                    <div class="col-md-8">
+                        <button class="btn btn-primary btn-block" name="action" value="save"
+                                type="submit" onclick="javascript='this.disabled = true; form.submit();'">
+                            Зберегти зміни
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--<div th:each="subject : ${teacher.schoolSubjects}">-->
+                <!--<input type="text" th:value="${{subject}}" style="display:none;" id="invisibleSubject">-->
+            <!--</div>-->
+        </form>
+        <div class="h4 d-none d-print-block">
+            <tr>
+                <td class="text-left" th:text="${teacher.lastName}">Прізвище</td>
+                <td class="text-left" th:text="${teacher.firstName}">Ім'я</td>
+                <td class="text-left" th:text="${teacher.patronymicName} + ', '">По батькові</td>
+                <td class="text-right" th:text="${teacher.official} + ', '">Посада</td>
+                <td class="text-right" th:text="'тел.' + ${teacher.phoneNumber}">Номер телефона</td>
+            </tr>
+            <div class="text-center" th:if="${not #lists.isEmpty(teacher.schoolSubjects)}">Предмети:
+                <span th:each="subject : ${teacher.schoolSubjects}" th:text="${'[' + subject.title + '] '}">Предмет</span>
+            </div>
+            <div class="h3 text-center d-print-block" th:text="${teacher.verificationKey}">
+                Ключ підтвердження
+            </div>
+        </div>
+    </fieldset>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container text-muted">
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- Modal -->
+<div class="modal fade" id="modalKey" tabindex="-1" role="dialog" aria-labelledby="modalKeyTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLongTitle">Генерація нового ключа підтвердження</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <p>
+                    Створення нового ключа приведе до втрати прав доступу та контролю за даними з
+                    боку власника облікового запису, що зараз пов'язаний з цим профілем.
+                    <br>
+                    Крім того, буде втрачено всі внесені до форми, але не збережені зміни персональних даних.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте згенерувати новий ключ підтвердження особи?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/{id}/new-key(id=${teacher.id})}" id="form2">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <button type="submit" onclick="javascript='this.disabled = true; form.submit();'"
+                            class="btn btn-primary" name="action" id="newKey" value="newKey">
+                        Так!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAdmin" tabindex="-1" role="dialog" aria-labelledby="modalAdminTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAdminLongTitle">Модіфікація прав Адміністратора</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-justify">
+                <p>
+                    Адміністратор має право переглядати, змінювати, додавати та вилучати дані, що
+                    стосуються користувачів, навчальних планів і досягнень, розкладів, подій,
+                    іншої інформації, що міститься в системі.
+                </p>
+                <p>
+                    Ви впевнені, що бажаєте змінити права Адміністратора?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form class="form" th:object="${teacher}" method="post" th:action="@{/teacher/{id}/admin(id=${teacher.id})}"
+                      id="formAdmin">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <button type="submit" onclick="javascript='this.disabled = true; form.submit();'"
+                            class="btn btn-primary" name="modalAdminButton" id="modalAdminButton"
+                            th:text="${isAdmin} ? 'Так, Скасувати!' : 'Так, Надати!'">
+                        Так!
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/teacherProfile.js"></script>
+
+</body>
+</html>

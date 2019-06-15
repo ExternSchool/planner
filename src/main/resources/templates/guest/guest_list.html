@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Guests List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="font-weight-normal" th:inline="text">
+        <small>Гості</small>
+    </h4>
+    <button class="float-right btn btn-sm btn-outline-primary mb-1" type="button"
+            th:onclick="'javascript:openCreateAccountModal(\'' + '\');'">
+            Додати користувача
+    </button>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(guests)}">
+        <table class="col-lg-12 table table-sm table-hover">
+            <thead>
+            <tr>
+                <th class="text-left">Прізвище</th>
+                <th class="text-left">Ім'я</th>
+                <th class="text-left" style="width: 15ch">По батькові</th>
+                <th>Телефон</th>
+                <th style="width: 20ch">Email</th>
+                <th class="width-resized">
+                    <span class="full-text">Записи</span>
+                    <span class="short-text"></span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Змінити</span>
+                    <span class="short-text"> </span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Видалити</span>
+                    <span class="short-text"> </span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="guest : ${guests}">
+                <td class="text-left" th:text="${guest.getLastName()}">Прізвище</td>
+                <td class="text-left" th:text="${guest.getFirstName()}">Ім'я</td>
+                <td class="text-left" th:text="${guest.getPatronymicName()}">По батькові</td>
+                <td th:text="${guest.getPhoneNumber()}">Phone</td>
+                <td th:text="${#strings.abbreviate(guest.getEmail(),20)}">Email</td>
+                <td class="width-resized">
+                    <form th:method="get" th:action="@{/guest/{id}/official/schedule(id=${guest.id})}">
+                        <button type="submit" name="subscribe" value="subscribe" class="btn badge badge-success">
+                            <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="width-resized">
+                    <form th:method="post" th:action="@{/guest/{id}(id=${guest.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                            <i class="far fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="width-resized">
+                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                            th:onclick="'javascript:openDeleteGuestModal(\'' + ${guest.getId()} + '\');'">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- ModalHolder -->
+<div id="createAccountModalHolder"></div>
+<div id="deleteGuestModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="createAccountModal" role="dialog" th:fragment="createAccount">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createAccountModalTitle">Створення нового облікового запису</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form th:method="post" th:action="@{/guest/create}" th:object="${person}" class="form" id="formCreateAccount">
+                <div class="modal-body text-center">
+                    <small class="text-danger" th:text="${error}" th:unless="${error == null}">
+                        Місце індикації помилок введення даних
+                    </small>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Прізвище</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="Прізвище" id = "lastName"
+                               th:field="*{lastName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Ім'я</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="Ім'я" id="firstName"
+                               th:field="*{firstName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">По батькові</span>
+                        </div>
+                        <input class="form-control" type="text" placeholder="По батькові" id="patronymicName"
+                               th:field="*{patronymicName}" required>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" style="width: 12ch;">Телефон</span>
+                        </div>
+                        <input class="form-control" type="tel" placeholder="Державний або місцевий формат"
+                               pattern="^(([ \.\-])?)?([\(]{1}[0-9]{2,3}[\)])?([0-9 \.\-]{7,10})$" title='Зразки:(044)123-45-67, (044) 123 45 67, 123-4567 і т.ін.'
+                               id="phone" th:field="*{phoneNumber}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Скасувати
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Створити обліковий запис!
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteGuestModal" role="dialog" th:fragment="deleteGuest">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGuestModalTitle">Видалення профіля</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${person != null}">
+                    <span th:text="${person.getLastName() + ' ' + person.getFirstName() + ' ' + person.getPatronymicName()}"></span><br>
+                    Ви впевнені, що бажаєте видалити цього відвідувача?
+                </div>
+                <div th:if="${person == null}">
+                    Вибачте, цю операцію виконанти неможливо.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися
+                </button>
+                <div th:if="${person != null}">
+                    <form th:method="post" th:action="@{/guest/{id}/delete(id=${person.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так!
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/guestList.js"></script>
+
+</body>
+</html>

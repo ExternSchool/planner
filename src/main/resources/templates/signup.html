@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <title>Signup Form</title>
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='signup')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <form class="form-signin" th:object="${user}" th:action="@{/signup}" method="post" id="form">
+        <a href="/login" th:href="@{/login}" class="float-right btn btn-outline-primary">Вхід</a>
+        <h4 class="mb-3 font-weight-normal">Реєстрація</h4>
+        <input type="hidden" th:field="*{id}"/>
+        <small class="text-danger" th:text="${#httpServletRequest.getParameter('error')}"
+               th:unless="${#httpServletRequest.getParameter('error') == null}">
+            Місце індикації помилок введення даних
+        </small>
+        <fieldset>
+            <div class="form-group">
+                <label for="email" class="sr-only">Email</label>
+                <input class="form-control" type="email" id="email" th:field="*{email}" title="Введіть email"
+                       placeholder="Електронна адреса (email)" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password" class="sr-only">Пароль</label>
+                <input class="form-control" type="password" id="password" th:field="*{password}"
+                       placeholder="Введіть пароль"
+                       pattern="(?=^.{6,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+                       title="не менше 6 знаків латиною, серед яких є літери: Велика, мала, цифра/спеціальний символ"
+                       required>
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" id="confirm_password" title="Повторно введіть ваш пароль"
+                       placeholder="Підтвердіть пароль" required>
+            </div>
+            <div class="checkbox mb-3">
+                <label class="small">
+                    <input type="checkbox" id="terms" required>Я погоджуюсь з <a href="#">умовами користування</a>
+                </label>
+            </div>
+            <input class="btn btn-lg btn-primary btn-block" id="submit" value="Зареєструватися" type="submit">
+        </fieldset>
+    </form>
+
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- Script -->
+<script type="text/javascript">
+    var password = document.getElementById("password")
+        , confirm_password = document.getElementById("confirm_password");
+
+    function validatePassword(){
+        if(password.value !== confirm_password.value) {
+            confirm_password.setCustomValidity("Passwords Don't Match");
+        } else {
+            confirm_password.setCustomValidity('');
+        }
+    }
+
+    password.onchange = validatePassword;
+    confirm_password.onkeyup = validatePassword;
+</script>
+
+</body>
+</html>

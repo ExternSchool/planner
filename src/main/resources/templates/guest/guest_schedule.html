@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Officials Schedule</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='schedule')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+    </div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container-fluid">
+    <h4 class="font-weight-normal mb-1" th:inline="text">
+        <small>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                Відвідувач: [[${guest.getShortName()}]].
+            </span>
+            <span class="full-text">Запис на прийом до працівників школи</span>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a th:href="@{/guest/search/{id}(id=${guest.getId()})}">
+                    <button type="button" class="btn badge badge-info ml-1">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+                <a th:href="@{/guest/{id}/subscriptions(id=${guest.getId()})}">
+                    <button class="full-text float-right btn btn-sm btn-outline-info ml-1">
+                        Список резервувань
+                    </button>
+                    <button class="short-text btn badge badge-info ml-1">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                    </button>
+                </a>
+            </span>
+        </small>
+    </h4>
+    <!--/*@thymesVar id="error" type="java.lang.String"*/-->
+    <small class="text-danger mb-0" th:text="${error}" th:unless="${error == null}">
+        Місце для відображення повідомлень про помилки
+    </small>
+    <div class="card-deck">
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Виберіть працівника для перегляду розкладу</div>
+            <div class="card-body text-left">
+                <div>
+                    <div class="table-responsive" th:if="${not #lists.isEmpty(officials)}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left">П.І.Б.</th>
+                                <th class="text-left">Посада</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="off : ${officials}"
+                                th:class="${official.getId() == off.getId()} ? 'table-active' : ''"
+                                th:onclick="'javascript:rowClicked(\'' + ${guest.id} + '\',\'' + ${off.getId()} + '\');'">
+                                <td class="text-left" th:text="${off.getShortName()}">П.І.Б.</td>
+                                <td class="text-left" th:text="${off.getOfficial()}">
+                                    Адміністративна посада
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Поточний тиждень</div>
+            <div class="card-body text-left">
+                <div th:each="dayNum : ${#numbers.sequence( 0, 4)}">
+                    <div class="card-title text-left">
+                        <h5>
+                            <span th:text="${weekDays[dayNum]}"
+                                  th:class="${#lists.isEmpty(currentWeekEvents[dayNum]) ? 'text-secondary' : ''}">
+                                День тижня
+                            </span>
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${currentWeek[dayNum]}"
+                                  th:text="${#temporals.format(currentWeek[dayNum], 'dd/MM')}">
+                                дата
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(currentWeekEvents[dayNum])}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left" style="width: 6ch">Час</th>
+                                <th class="text-left">Подія</th>
+                                <th class="text-right"> </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="evnt : ${currentWeekEvents[dayNum]}">
+                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right">
+                                <span th:if="${evnt.id != event.id}">
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                    <span th:if="${evnt.id == event.id}">
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn btn-sm btn-danger">
+                                        <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"
+                       th:text="'Останнє оновлення: ' + ${recentUpdate != null ? #temporals.format(recentUpdate, 'dd-MM-yyyy HH:mm') : '-'}">
+                    Останнє оновлення
+                </small>
+            </div>
+        </div>
+        <div class="card bg-light mb-2" style="min-width: 20rem;">
+            <div class="card-header">Наступний тиждень</div>
+            <div class="card-body text-left">
+                <div th:each="dayNum : ${#numbers.sequence( 0, 4)}">
+                    <div class="card-title text-left">
+                        <h5>
+                            <span th:text="${weekDays[dayNum]}"
+                                  th:class="${#lists.isEmpty(nextWeekEvents[dayNum]) ? 'text-secondary' : ''}">
+                                День тижня
+                            </span>
+                            <span class="float-right badge badge-info badge-pill"
+                                  th:value="${nextWeek[dayNum]}"
+                                  th:text="${#temporals.format(nextWeek[dayNum], 'dd/MM')}">
+                                дата
+                            </span>
+                        </h5>
+                    </div>
+                    <div class="table-responsive mb-0" th:if="${!#lists.isEmpty(nextWeekEvents[dayNum])}">
+                        <table class="col-lg-12 table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-left" style="width: 6ch">Час</th>
+                                <th class="text-left">Подія</th>
+                                <th class="text-right"> </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="evnt : ${nextWeekEvents[dayNum]}">
+                                <td class="text-left" th:text="${evnt.getStartTime()}">Час</td>
+                                <td class="text-left">
+                                    <ul class="list-unstyled mb-0">
+                                        <li th:text="${evnt.getTitle()}">Подія</li>
+                                        <li th:if="${evnt.getDescription() != null}" th:text="${evnt.getDescription()}"
+                                            class="font-italic">Опис події
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-right">
+                                <span th:if="${evnt.id != event.id}">
+                                    <a th:onclick="'javascript:openSubscribeEventModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn btn-sm btn-success">
+                                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                <span th:if="${evnt.id == event.id}">
+                                    <a th:onclick="'javascript:openUnsubscribeModal(\'' + ${guest.id} + '\',\'' + ${official.getId()} + '\',\'' + ${evnt.getId()} + '\');'"
+                                       class="btn btn-sm btn-danger">
+                                        <i class="fa fa-trash" style="color: white" aria-hidden="true"></i>
+                                    </a>
+                                </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <small class="text-muted"
+                       th:text="'Всього вільних подій в розкладі: ' + ${availableEvents}">
+                    Кількість доступних подій
+                </small>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container text-muted">
+        <div th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- ModalHolder -->
+<div id="subscribeEventModalHolder"></div>
+<div id="unsubscribeModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="subscribeEventModal" role="dialog" th:fragment="subscribeEvent">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="subscribeEventModalTitle">Призначення зустрічі</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <form th:method="post"
+                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/subscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
+                  th:object="${event.id}" class="form" id="formSubscribe">
+                <div class="modal-body text-center">
+                    <p>
+                        Подія:
+                        <span style="white-space: pre;" th:text=" ${event.title}">назва події</span>
+                        <br>
+                        <span th:if="${event.description != null && !event.description.isEmpty()}">Опис:</span>
+                        <span style="white-space: pre;" th:text=" ${event.description}">опис події<br></span>
+                        <br>
+                        Організатор:
+                        <span style="white-space: pre;" th:text="${official.getShortName()}">організатор зустрічі</span>
+                        <br>
+                        Дата та час:
+                        <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">дата зустрічі</span>
+                        о
+                        <span style="white-space: pre;" th:text="${event.getStartTime()}">час зустрічі</span>
+                        <br>
+                        Зарезервувати вибраний час для зустрічі?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <span th:if="${official != null}">
+                         <button type="submit" class="btn btn-sm btn-primary">
+                             Так, резервувати!
+                         </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="unsubscribeModal" role="dialog" th:fragment="unsubscribe">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unsubscribeModalTitle">Скасування зустрічі</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form th:method="post"
+                  th:action="@{/guest/{uid}/official/{id}/event/{eventId}/unsubscribe(uid=${guest.id}, id=${official.id}, eventId=${event.id})}"
+                  th:object="${event.id}" class="form" id="formUnsubscribe">
+                <div class="modal-body text-center">
+                    <p>
+                        Подія:
+                        <span style="white-space: pre;" th:text=" ${event.title}">назва події</span>
+                        <br>
+                        <span th:if="${event.description != null && !event.description.isEmpty()}">Опис:</span>
+                        <span style="white-space: pre;" th:text=" ${event.description}">опис події<br></span>
+                        <br>
+                        Організатор:
+                        <span style="white-space: pre;" th:text="${official.getShortName()}">організатор зустрічі</span>
+                        <br>
+                        Дата та час:
+                        <span style="white-space: pre;" th:text="${#temporals.format(event.getDate(), 'dd/MM/yyyy')}">дата зустрічі</span>
+                        о
+                        <span style="white-space: pre;" th:text="${event.getStartTime()}">час зустрічі</span>
+                        <br>
+                        Ви впевнені, що бажаєте скасувати призначену зустріч?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                        Ні, дякую
+                    </button>
+                    <span th:if="${official != null}">
+                         <button type="submit" class="btn btn-sm btn-primary">
+                             Так!
+                         </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/guestSchedule.js"></script>
+
+</body>
+</html>

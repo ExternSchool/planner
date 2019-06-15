@@ -1,0 +1,332 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet author="ben (generated)" id="1550694687391-1">
+        <createSequence sequenceName="hibernate_sequence"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-2">
+        <createTable tableName="course">
+            <column name="plan_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="course_pkey"/>
+            </column>
+            <column name="student_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="course_pkey"/>
+            </column>
+            <column name="approval_s1" type="BOOLEAN"/>
+            <column name="approval_s2" type="BOOLEAN"/>
+            <column name="exam_s1" type="INTEGER"/>
+            <column name="exam_s2" type="INTEGER"/>
+            <column name="final_score" type="INTEGER"/>
+            <column name="final_s1" type="INTEGER"/>
+            <column name="final_s2" type="INTEGER"/>
+            <column name="interview_s1" type="INTEGER"/>
+            <column name="interview_s2" type="INTEGER"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="teacher_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-3">
+        <createTable tableName="participant">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="participant_pkey"/>
+            </column>
+            <column name="plan1_id" type="BIGINT"/>
+            <column name="plan1_sem1" type="BOOLEAN"/>
+            <column name="plan1_sem2" type="BOOLEAN"/>
+            <column name="plan2_id" type="BIGINT"/>
+            <column name="plan2_sem1" type="BOOLEAN"/>
+            <column name="plan2_sem2" type="BOOLEAN"/>
+            <column name="version" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-4">
+        <createTable tableName="person">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="person_pkey"/>
+            </column>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="patronymic_name" type="VARCHAR(255)"/>
+            <column name="phone_number" type="VARCHAR(255)"/>
+            <column name="key_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-5">
+        <createTable tableName="plan">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="plan_pkey"/>
+            </column>
+            <column name="grade_level" type="INTEGER"/>
+            <column name="hrs_s1" type="INTEGER"/>
+            <column name="hrs_s2" type="INTEGER"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="exam_s1" type="INTEGER"/>
+            <column name="exam_s2" type="INTEGER"/>
+            <column name="subject" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-6">
+        <createTable tableName="role">
+            <column name="name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="pk_role"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-7">
+        <createTable tableName="schedule_event">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_pkey"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="end_event" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_accomplished" type="BOOLEAN"/>
+            <column name="is_cancelled" type="BOOLEAN"/>
+            <column name="is_open" type="BOOLEAN"/>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="modified_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="start_event" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_id" type="BIGINT"/>
+            <column name="event_type_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-8">
+        <createTable tableName="schedule_event_participant">
+            <column name="event_id" type="BIGINT"/>
+            <column name="participant_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_participant_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-9">
+        <createTable tableName="schedule_event_type">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_type_pkey"/>
+            </column>
+            <column name="participants_amount" type="INTEGER"/>
+            <column name="duration" type="INTEGER"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-10">
+        <createTable tableName="schedule_event_type_owner_role">
+            <column name="event_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_type_owner_role_pkey"/>
+            </column>
+            <column name="role_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_type_owner_role_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-11">
+        <createTable tableName="schedule_event_type_participant_role">
+            <column name="event_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_type_participant_role_pkey"/>
+            </column>
+            <column name="role_name" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="schedule_event_type_participant_role_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-12">
+        <createTable tableName="schedule_holiday">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_holiday_pkey"/>
+            </column>
+            <column name="holiday_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="substitution_date" type="date"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-13">
+        <createTable tableName="schedule_template">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="schedule_template_pkey"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="week_day" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="end_event" type="TIME WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="location" type="VARCHAR(255)"/>
+            <column name="modified_at" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="start_event" type="TIME WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_id" type="BIGINT"/>
+            <column name="event_type_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-14">
+        <createTable tableName="school_subject">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="school_subject_pkey"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-15">
+        <createTable tableName="student">
+            <column name="grade_level" type="INTEGER"/>
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="student_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-16">
+        <createTable tableName="teacher">
+            <column name="official" type="VARCHAR(255)"/>
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="teacher_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-17">
+        <createTable tableName="teacher_subject">
+            <column name="teacher_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="teacher_subject_pkey"/>
+            </column>
+            <column name="subject_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="teacher_subject_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-18">
+        <createTable tableName="user_participant">
+            <column name="user_id" type="BIGINT"/>
+            <column name="participant_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="user_participant_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-19">
+        <createTable tableName="user_role">
+            <column name="user_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="user_role_pkey"/>
+            </column>
+            <column name="role" type="VARCHAR(255)">
+                <constraints primaryKey="true" primaryKeyName="user_role_pkey"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-20">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN"/>
+            <column name="password" type="VARCHAR(60)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="key_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-21">
+        <createTable tableName="verification_key">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="verification_key_pkey"/>
+            </column>
+            <column name="value" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-22">
+        <addUniqueConstraint columnNames="email" constraintName="uk_email" tableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-23">
+        <addUniqueConstraint columnNames="key_id" constraintName="uk_key" tableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-24">
+        <addUniqueConstraint columnNames="name" constraintName="uk_name" tableName="schedule_event_type"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-26">
+        <addForeignKeyConstraint baseColumnNames="role" baseTableName="user_role" constraintName="fk_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="name" referencedTableName="role"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-27">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_participant" constraintName="fk_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-28">
+        <addForeignKeyConstraint baseColumnNames="event_type_id" baseTableName="schedule_template" constraintName="fk_event_type" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="schedule_event_type"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-29">
+        <addForeignKeyConstraint baseColumnNames="key_id" baseTableName="person" constraintName="fk_verification_key" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="verification_key"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-30">
+        <addForeignKeyConstraint baseColumnNames="teacher_id" baseTableName="teacher_subject" constraintName="fk_teacher" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="teacher"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-31">
+        <addForeignKeyConstraint baseColumnNames="participant_id" baseTableName="user_participant" constraintName="fk_participant" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="participant"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-32">
+        <addForeignKeyConstraint baseColumnNames="owner_id" baseTableName="schedule_template" constraintName="fk_owner" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-34">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="schedule_event_type_owner_role" constraintName="fk_schedule_event" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="schedule_event_type"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-35">
+        <addForeignKeyConstraint baseColumnNames="owner_id" baseTableName="schedule_event" constraintName="fk_owner" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-36">
+        <addForeignKeyConstraint baseColumnNames="event_type_id" baseTableName="schedule_event" constraintName="fk_event_type" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="schedule_event_type"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-37">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_role" constraintName="fk_user" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="users"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-38">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="schedule_event_type_participant_role" constraintName="fk_schedule_event" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="schedule_event_type"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-39">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="teacher" constraintName="fk_person_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="person"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-40">
+        <addForeignKeyConstraint baseColumnNames="subject_id" baseTableName="teacher_subject" constraintName="fk_subject" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="school_subject"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-41">
+        <addForeignKeyConstraint baseColumnNames="role_name" baseTableName="schedule_event_type_owner_role" constraintName="fk_owner_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="name" referencedTableName="role"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-42">
+        <addForeignKeyConstraint baseColumnNames="role_name" baseTableName="schedule_event_type_participant_role" constraintName="fk_participant_role" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="name" referencedTableName="role"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-43">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="schedule_event_participant" constraintName="fk_schedule_event" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="schedule_event"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-44">
+        <addForeignKeyConstraint baseColumnNames="key_id" baseTableName="users" constraintName="fk_verification_key" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="verification_key"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-45">
+        <addForeignKeyConstraint baseColumnNames="participant_id" baseTableName="schedule_event_participant" constraintName="fk_participant" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="participant"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-46">
+        <addForeignKeyConstraint baseColumnNames="id" baseTableName="student" constraintName="fk_person_id" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="person"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-47">
+        <addForeignKeyConstraint baseColumnNames="teacher_id" baseTableName="course" constraintName="fk_teacher" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="teacher"/>
+    </changeSet>
+    <changeSet author="ben (generated)" id="1550694687391-48">
+        <addForeignKeyConstraint baseColumnNames="subject" baseTableName="plan" constraintName="fk_subject" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="school_subject"/>
+    </changeSet>
+</databaseChangeLog>

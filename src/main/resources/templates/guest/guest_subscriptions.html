@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <title>Guest Subscriptions</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:if="${#authorization.expression('!hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='subscriptions')"></div>
+    </div>
+    <div th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+        <div th:replace="fragments/header :: header(activeTab='guest')"></div>
+    </div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="font-weight-normal mb-1" th:inline="text">
+        <small>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <span class="full-text">
+                    Відвідувач: [[${guest.getLastName()}]] [[${guest.getFirstName()}]] [[${guest.getPatronymicName()}]]
+                    <br>Призначені зустрічі
+                </span>
+                <span class="short-text">
+                    [[${guest.getShortName()}]]
+                </span>
+            </span>
+            <span th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <a class="d-print-none" th:href="@{/guest/search/{id}(id=${guest.getId()})}">
+                    <button type="button" class="btn badge badge-info ml-3" aria-hidden="true">
+                        <i class="fas fa-external-link-square-alt"></i>
+                    </button>
+                </a>
+            </span>
+            <button class="float-right btn btn-sm btn-outline-info mb-1 hidden-print d-print-none" onclick="printFunction()">
+                Друк
+            </button>
+        </small>
+    </h4>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(participants)}">
+        <table class="col-lg-12 table table-sm table-hover">
+            <thead>
+            <tr>
+                <th class="text-left">Дата</th>
+                <th class="text-left">Час</th>
+                <th class="text-left">П.І.Б.</th>
+                <th class="text-left">Назва події</th>
+                <th class="text-left">Опис події</th>
+                <th class="width-resized">
+                    <span class="full-text">Розклад</span>
+                    <span class="short-text"> </span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="participant : ${participants}">
+                <td class="text-left" th:text="${#temporals.format(participant.getDate(),'dd/MM ')}">Дата</td>
+                <td class="text-left" th:text="${#temporals.format(participant.getTime(),'HH:mm ')}">Час</td>
+                <td class="text-left" th:text="${participant.getOwnerName()}">П.І.Б.</td>
+                <td class="text-left" th:text="${participant.getEventTitle()}">Назва події</td>
+                <td class="text-left" th:text="${participant.getEventDescription()}">Опис події</td>
+                <td class="width-resized d-print-none text-right">
+                    <a th:href="@{/guest/{gid}/official/{id}/schedule(gid=${participant.personId}, id=${participant.ownerId})}"
+                       class="d-print-none btn btn-sm btn-info" aria-hidden="true">
+                        <i class="fas fa-calendar-check" style="color: white" aria-hidden="true"></i>
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<script src="/js/guestSubscriptions.js"></script>
+
+</body>
+</html>

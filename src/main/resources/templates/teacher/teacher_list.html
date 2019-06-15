@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="uk">
+<head>
+    <title>Teacher List</title>
+    <meta charset="utf-8">
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--Latest minified JQuery, Bootstrap, Moment-->
+    <script src="/webjars/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="/webjars/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="/webjars/moment/moment.js" type="text/javascript"></script>
+    <!--Cascade Style Sheets-->
+    <link href="/webjars/font-awesome/css/all.css" rel="stylesheet" type="text/css"/>
+    <link href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="/css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body class="text-center">
+
+<!--Header content here-->
+<header class="header">
+    <div th:replace="fragments/header :: header(activeTab='teacher')"></div>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="container">
+    <h4 class="font-weight-normal" th:inline="text"><small>Вчителі та інші працівники</small></h4>
+    <form th:method="post" th:action="@{/teacher/add}">
+        <button type="submit" name="add" value="add" class="float-right btn btn-outline-primary btn-sm mb-1">
+            Додати вчителя</button>
+    </form>
+    <div class="table-responsive" th:if="${not #lists.isEmpty(teachers)}">
+        <table class="col-lg-12 table table-sm table-hover">
+            <thead>
+            <tr>
+                <th class="text-left">Прізвище</th>
+                <th class="text-left">Ім'я</th>
+                <th class="text-left">По батькові</th>
+                <th class="text-left">Адм. посада</th>
+                <th style="width: 15ch">Телефон</th>
+                <th style="width: 20ch">Email</th>
+                <th class="width-resized">
+                    <span class="full-text">Розклад</span>
+                    <span class="short-text"></span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Змінити</span>
+                    <span class="short-text"> </span>
+                </th>
+                <th class="width-resized">
+                    <span class="full-text">Видалити</span>
+                    <span class="short-text"> </span>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="teacher : ${teachers}">
+                <td class="text-left" th:text="${teacher.getLastName()}">Прізвище</td>
+                <td class="text-left" th:text="${teacher.getFirstName()}">Ім'я</td>
+                <td class="text-left" th:text="${teacher.getPatronymicName()}">По батькові</td>
+                <td class="text-left" th:text="${teacher.getOfficial()}">Посада за розкладом</td>
+                <td th:text="${teacher.getPhoneNumber()}">Телефон</td>
+                <td th:text="${#strings.abbreviate(teacher.getEmail(),20)}">Email</td>
+                <td class="width-resized">
+                    <a th:href="@{/teacher/{id}/schedule(id=${teacher.id})}" class="btn badge badge-success">
+                        <i class="fas fa-calendar-alt" style="color: white" aria-hidden="true"></i>
+                    </a>
+                </td>
+                <td class="width-resized">
+                    <form th:method="post" th:action="@{/teacher/{id}(id=${teacher.id})}">
+                        <button type="submit" name="edit" value="edit" class="btn badge badge-primary">
+                            <i class="fas fa-edit" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </td>
+                <td class="width-resized">
+                    <button type="submit" name="delete-template" value="delete-template" class="btn badge badge-danger"
+                            th:onclick="'javascript:openDeleteTeacherModal(\'' + ${teacher.getId()} + '\');'">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!--Footer content here-->
+<footer class="footer">
+    <div class="container">
+        <div class="text-muted" th:replace="fragments/footer :: footer"></div>
+    </div>
+</footer>
+
+<!-- ModalHolder -->
+<div id="deleteTeacherModalHolder"></div>
+<!-- /ModalHolder -->
+
+<!-- Modal -->
+<div class="modal fade" id="deleteTeacherModal" role="dialog" th:fragment="deleteTeacher">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTeacherModalTitle">Видалення профіля</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div th:if="${teacher != null}">
+                    <span th:text="${teacher.getLastName() + ' ' + teacher.getFirstName() + ' ' + teacher.getPatronymicName()}"></span><br>
+                    Ви впевнені, що бажаєте видалити цього вчителя?
+                </div>
+                <div th:if="${teacher == null}">
+                    Вибачте, цю операцію виконанти неможливо.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    Повернутися
+                </button>
+                <div th:if="${teacher != null}">
+                    <form th:method="post" th:action="@{/teacher/{id}/delete(id=${teacher.id})}">
+                        <button type="submit" name="delete" value="delete" class="btn btn-primary">
+                            Так!
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- / Modal -->
+
+<script src="/js/teacherList.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+body {
+    height: 100%;
+    /* Margin top by header & bottom by footer height */
+    margin-top: 20px;
+    margin-bottom: 20px;
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-align: center;
+    -ms-flex-pack: center;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    line-height: 1.0;
+    background-color: #f5f5f5;
+}
+
+html{
+    position: relative;
+    /*min-height: 100%;*/
+}
+
+/*Sign In*/
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+}
+.form-signin .checkbox {
+    font-weight: 400;
+}
+.form-signin .form-control {
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
+}
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.form-group {
+    align-items: start;
+    justify-content: space-evenly;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/*Header*/
+.header {
+    position: relative;
+    min-height: 100%;
+    width: 0;
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+}
+
+/*Footer*/
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    line-height: 60px; /* Vertically center the text there */
+    background-color: #f5f5f5;
+}
+
+/*Hide short text by default (resolution > 991.98px)*/
+.short-text { display: none; }
+.width-resized {width: 10ch;}
+
+/*When resolution <= 991.98px, hide short text and show full text*/
+@media (max-width: 991.98px) {
+    .short-text { display: inline-block; }
+    .full-text { display: none; }
+    .width-resized {width: 2ch;}
+    .container {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+@media (max-width: 719.98px) {
+    .container {
+        width: 100%;
+        max-width: none;
+        padding-right: auto;
+        padding-left: auto;
+        margin-right: auto;
+        margin-left: auto;
+    }
+}
+
+.card-title{
+    margin-bottom: 1rem;
+}

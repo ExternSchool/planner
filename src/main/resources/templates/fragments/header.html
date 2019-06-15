@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      lang="en">
+<head>
+</head>
+<body>
+<div th:fragment="header(activeTab)">
+    <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" style="font: italic bold 12px/30px Georgia, serif;"
+           href="https://forum.extern.com.ua" target="_blank">Форум</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <div>
+                        <a th:class="${activeTab == 'main'}? 'nav-link active' : 'nav-link'"
+                           href="/">Головна</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/official/schedule">Розклади</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')">
+                        <a th:class="${activeTab == 'subscriptions'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/subscriptions">Призначені зустрічі</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/">Гості</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_GUEST')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'guest'}? 'nav-link active' : 'nav-link'"
+                           href="/guest/profile">Особові дані</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'plan'}? 'nav-link active' : 'nav-link'"
+                           href="/student/plan">Учбовий план</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/student/teacher/schedule">Розклади</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'subscriptions'}? 'nav-link active' : 'nav-link'"
+                           href="/student/subscriptions">Призначені зустрічі</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_STUDENT')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="/student/profile">Особові дані</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'schedule'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/schedule">Розклади</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'visitors'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/visitors">Відвідувачі</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_TEACHER')">
+                        <a th:class="${activeTab == 'student'}? 'nav-link active' : 'nav-link'"
+                           href="/student/">Екстерни</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_TEACHER')&&!hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/profile">Особові дані</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <div sec:authorize="hasRole('ROLE_ADMIN')">
+                        <a th:class="${activeTab == 'teacher'}? 'nav-link active' : 'nav-link'"
+                           href="/teacher/">Працівники</a>
+                    </div>
+                </li>
+                <li th:class="${activeTab == 'setup'}? 'nav-item dropdown active' : 'nav-item dropdown'"
+                    sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        Налаштування
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="/subject/">Загальні навчальні предмети</a>
+                        <a class="dropdown-item" href="/plan/">Річні навчальні плани</a>
+                        <a class="dropdown-item" href="/event/type/">Типи подій</a>
+                        <!--<a class="dropdown-item disabled" href="#">Інше</a>-->
+                    </div>
+                </li>
+            </ul>
+            <div class="float-right">
+                <form class="form-inline my-2 my-sm-0">
+                    <div class="input-group">
+                        <input type="search" class="form-control my-sm-0 mr-sm-0" placeholder="Пошук" aria-label="Search"
+                               th:name="search" sec:authorize="hasRole('ROLE_ADMIN')">
+                        <div class="input-group-append" sec:authorize="hasRole('ROLE_ADMIN')">
+                            <button class="btn btn-outline-success my-2 my-sm-0 mr-3" type="submit"> Пошук</button>
+                        </div>
+                        <a href="/login" th:href="@{/logout}" class="btn btn-outline-danger my-2 my-sm-0"
+                           sec:authorize="isAuthenticated()"> Вихід</a>
+                        <a th:href="@{/signup}" class="btn btn-outline-primary my-2 mr-3 my-sm-0"
+                        sec:authorize="isAnonymous()"> Реєстрація</a>
+                        <a th:href="@{/login}" class="btn btn-outline-primary my-2 my-sm-0"
+                        sec:authorize="isAnonymous()"> Вхід</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+    </div>
+</div>
+
+</body>
+</html>
