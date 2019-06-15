@@ -175,7 +175,7 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
 
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             LocalDate start = historyStart != null ? historyStart : LocalDate.now();
             LocalDate end = historyEnd != null ? historyEnd : scheduleService.getNextWeekFirstDay().plusDays(6);
@@ -350,7 +350,7 @@ public class TeacherController {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
 
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             TeacherDTO teacherDTO = conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class);
 
@@ -413,7 +413,7 @@ public class TeacherController {
                                                                 final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             model.addAttribute(
                     "teacher",
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
@@ -432,7 +432,7 @@ public class TeacherController {
                                                            final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             List<ScheduleEvent> events = scheduleService.getNonCancelledEventsByOwnerAndDate(
                     optionalUser.get(),
                     scheduleService.getCurrentWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
@@ -453,7 +453,7 @@ public class TeacherController {
                                                       final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             model.addAttribute("eventTypes",
                     typeService.getAllEventTypesByUserRoles(user));
@@ -510,7 +510,7 @@ public class TeacherController {
         }
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             Optional<ScheduleEventType> type = typeService.loadEventTypes().stream()
                     .filter(eventType -> eventType.getName().equals(eventDTO.getEventType()))
                     .findAny();
@@ -536,7 +536,7 @@ public class TeacherController {
                                                              final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             model.addAttribute(
                     "teacher",
                     conversionService.convert(teacherService.findTeacherById(id), TeacherDTO.class));
@@ -555,7 +555,7 @@ public class TeacherController {
                                                         final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             List<ScheduleEvent> events = scheduleService.getNonCancelledEventsByOwnerAndDate(
                     optionalUser.get(),
                     scheduleService.getNextWeekFirstDay().plus(Period.ofDays(dayOfWeek)));
@@ -576,7 +576,7 @@ public class TeacherController {
                                                    final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             model.addAttribute("eventTypes",
                     typeService.getAllEventTypesByUserRoles(user));
@@ -633,7 +633,7 @@ public class TeacherController {
         }
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             Optional<ScheduleEventType> type = typeService.loadEventTypes().stream()
                     .filter(eventType -> eventType.getName().equals(eventDTO.getEventType()))
                     .findAny();
@@ -696,7 +696,7 @@ public class TeacherController {
                                                     final Principal principal) {
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             model.addAttribute("eventTypes", typeService.getAllEventTypesByUserRoles(user));
             model.addAttribute(
@@ -756,7 +756,7 @@ public class TeacherController {
         }
         ModelAndView modelAndView = redirectByRole(principal);
         Optional<User> optionalUser = getOptionalUser(id);
-        if (optionalUser != null && optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             Optional<ScheduleEventType> type = typeService.loadEventTypes().stream()
                     .filter(eventType -> eventType.getName().equals(eventDTO.getEventType()))
                     .findAny();
@@ -874,7 +874,7 @@ public class TeacherController {
     private Optional<User> getOptionalUser(final Long id) {
         return Optional.ofNullable(teacherService.findTeacherById(id))
                 .map(teacher -> Optional.ofNullable(teacher.getVerificationKey()).map(VerificationKey::getUser))
-                .orElse(null);
+                .orElse(Optional.of(new User()));
     }
 
     private String getEventDetails(Participant participant) {

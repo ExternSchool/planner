@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
@@ -39,7 +41,8 @@ public class RoleServiceTest {
 
         Role expectedRole = roleService.getRoleByName("new_admin");
 
-        assert(roleName.equals(expectedRole.getName()));
+        assertThat(roleName)
+                .isEqualTo(expectedRole.getName());
     }
 
     @Test(expected = RoleNotFoundException.class)

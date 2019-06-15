@@ -13,6 +13,7 @@ public class StudentDTO extends PersonDTO {
     @NotNull private int gradeLevel;
 
     public StudentDTO() {
+        this.gradeLevel = 0;
     }
 
     public LocalDate getDateOfBirth() {
