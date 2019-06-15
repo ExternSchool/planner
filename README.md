@@ -1,3 +1,6 @@
+All the files or any part of this project are released under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License.
+See file https://github.com/ExternSchool/planner/blob/develop/LICENSE for full license details.
+
 # Visit Planner
 #### THIS IS A DRAFT VERSION
 Latest working document is evolving and improving here: [https://externschool.github.io](https://externschool.github.io)
