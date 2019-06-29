@@ -2,9 +2,7 @@ All the files or any part of this project are released under Creative Commons At
 See file https://github.com/ExternSchool/planner/blob/develop/LICENSE for full license details.
 
 # Visit Planner
-#### THIS IS A DRAFT VERSION
-Latest working document is evolving and improving here: [https://externschool.github.io](https://externschool.github.io)
- (in Russian)
+General project presentation: [https://externschool.github.io](https://externschool.github.io) (in Russian)
 
 ## 1. Story
 <a href="https://uk.wikipedia.org/wiki/Школа_екстернів_(Київ)">Extern School</a> is a general education state school, 
@@ -111,7 +109,6 @@ Future projects:
  * Electronic Registrar: learning progress, achievements, store tests results, grades...
  * Teacher's Assistant: test preparation lists, learning materials and plans organizer
  * Electronic Diary. Student's time planner based on the records from Visit Planner DB
-</br>
 
 #### 4.2.2. User Groups and Roles
  * Application and database administrators
