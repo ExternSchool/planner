@@ -10,6 +10,7 @@ import io.github.externschool.planner.entity.profile.Teacher;
 import io.github.externschool.planner.entity.schedule.ScheduleEvent;
 import io.github.externschool.planner.entity.schedule.ScheduleEventType;
 import io.github.externschool.planner.factories.schedule.ScheduleEventTypeFactory;
+import io.github.externschool.planner.service.GuestService;
 import io.github.externschool.planner.service.PersonService;
 import io.github.externschool.planner.service.RoleService;
 import io.github.externschool.planner.service.ScheduleEventTypeService;
@@ -69,6 +70,7 @@ public class GuestControllerTest {
     @Autowired private RoleService roleService;
     @Autowired private TeacherService teacherService;
     @Autowired private ScheduleService scheduleService;
+    @Autowired private GuestService guestService;
     @Autowired private ScheduleEventTypeService typeService;
     private GuestController controller;
     private MockMvc mockMvc;
@@ -86,16 +88,7 @@ public class GuestControllerTest {
 
     @Before
     public void setup(){
-        controller = new GuestController(
-                personService,
-                conversionService,
-                keyService,
-                roleService,
-                userService,
-                teacherService,
-                scheduleService,
-                typeService);
-
+        controller = new GuestController(personService, conversionService, scheduleService, guestService);
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(webApplicationContext)
                 .apply(springSecurity())
