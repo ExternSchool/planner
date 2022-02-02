@@ -26,7 +26,7 @@
         <assertj-core.version>3.9.1</assertj-core.version>
         <assertj-swing.version>3.8.0</assertj-swing.version>
 
-        <postgres.version>42.2.5</postgres.version>
+        <postgres.version>42.2.25</postgres.version>
         <zonky-embedded.version>1.2.3</zonky-embedded.version>
 
         <webjars-locator.version>0.32-1</webjars-locator.version>
